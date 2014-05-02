@@ -66,6 +66,7 @@ extern struct s_attributes *p_object_setup(struct s_object *object, struct s_met
 extern struct s_attributes *p_object_cast(struct s_object *object, const char *type);
 extern void f_object_delete(struct s_object *object);
 extern t_hash_value f_object_hash(struct s_object *object);
+extern struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other);
 extern struct s_object *f_object_compare(struct s_object *object, struct s_object *other);
 #define d_declare_class(kind)\
 	extern const char v_##kind##_type[];\

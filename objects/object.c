@@ -29,7 +29,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
 		for (index = 0; singleton->virtual_table[index].symbol; index++)
 			if (singleton->virtual_table[index].symbol == symbol) {
-				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) 
+				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file))
 					d_throw(v_exception_private_method, "this method is private and you're out of context");
 				else {
 					result = &(singleton->virtual_table[index]);
@@ -113,13 +113,15 @@ t_hash_value f_object_hash(struct s_object *object) {
 	int index;
 	t_hash_value result = 0, current;
 	if ((object->flags&e_flag_hashed) != e_flag_hashed) {
-		while ((virtual_table = (struct s_virtual_table *)object->virtual_tables.head)) {
+		virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
+		while (virtual_table) {
 			for (index = 0; virtual_table->virtual_table[index].symbol; index++)
 				if (virtual_table->virtual_table[index].symbol == m_object_hash) {
 					virtual_table->virtual_table[index].method(object, &current);
 					result += current;
 					break;
 				}
+			virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
 		}
 		object->hash_value = result;
 		object->flags |= e_flag_hashed;
@@ -128,7 +130,24 @@ t_hash_value f_object_hash(struct s_object *object) {
 	return result;
 }
 
-struct s_object *f_object_compare(struct s_object *object, struct s_object *other) {
-	/* TODO .... */
-	return NULL;
+struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other) {
+	struct s_virtual_table *virtual_table;
+	struct s_object *result = NULL;
+	int index;
+	virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
+	while ((!result) && (virtual_table)) {
+		for (index = 0; virtual_table->virtual_table[index].symbol; index++)
+			if (virtual_table->virtual_table[index].symbol == m_object_compare)
+				result = virtual_table->virtual_table[index].method(object, other);
+		virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
+	}
+	return result;
 }
+
+struct s_object *f_object_compare(struct s_object *object, struct s_object *other) {
+	struct s_object *result = NULL;
+	if (!(result = p_object_compare_single(object, other)))
+		result = p_object_compare_single(other, object);
+	return result;
+}
+
