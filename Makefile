@@ -1,4 +1,4 @@
-objects = endian.local.o exception.o hash.o list.o log.o memory.o network.o string.local.o types.o
+objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o types.o
 name = miranda_ground
 cc = gcc -g
 cflags = -Wall -Wno-variadic-macros -Wno-pointer-arith -c
@@ -25,9 +25,6 @@ log.o: log.c log.h
 
 memory.o: memory.c memory.h types.h list.h
 	$(cc) $(cflags) memory.c
-
-network.o: network.c network.h string.local.h endian.local.h memory.h
-	$(cc) $(cflags) network.c
 
 string.local.o: string.local.c string.local.h types.h logs.h
 	$(cc) $(cflags) string.local.c
