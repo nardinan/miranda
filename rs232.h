@@ -25,7 +25,7 @@
 #include "string.local.h"
 #define d_rs232_usecs(tv) (((tv).tv_sec*1000000)+(tv).tv_usec)
 #define d_rs232_null -1
-enum e_rs232_baud {
+typedef enum e_rs232_baud {
 	e_rs232_baud_1200 = 1200,
 	e_rs232_baud_1800 = 1800,
 	e_rs232_baud_2400 = 2400,
@@ -41,16 +41,16 @@ enum e_rs232_baud {
 	e_rs232_baud_57600 = 57600,
 	e_rs232_baud_115200 = 115200
 } e_rs232_baud;
-enum e_rs232_parity {
+typedef enum e_rs232_parity {
 	e_rs232_parity_no,
 	e_rs232_parity_odd,
 	e_rs232_parity_even
 } e_rs232_parity;
-enum e_rs232_stops {
+typedef enum e_rs232_stops {
 	e_rs232_stops_1_bit,
 	e_rs232_stops_2_bit
 } e_rs232_stops;
-enum e_rs232_bits {
+typedef enum e_rs232_bits {
 	e_rs232_bits_5 = CS5,
 	e_rs232_bits_6 = CS6,
 	e_rs232_bits_7 = CS7,

@@ -68,7 +68,7 @@ void f_rs232_close(int device) {
 }
 
 int f_rs232_write(int device, const unsigned char *message, size_t size) {
-	return (write(device, message, size)<0);
+	return (write(device, message, size)>=0);
 }
 
 int f_rs232_read(int device, unsigned char *message, size_t size, unsigned char final_character, time_t sec, time_t usec) {

@@ -1,7 +1,7 @@
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o types.o rs232.o
 name = miranda_ground
 cc = gcc -g
-cflags = -Wall -Wno-variadic-macros -Wno-pointer-arith -c
+cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
 
