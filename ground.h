@@ -25,6 +25,5 @@
 #include "list.h"
 #include "exception.h"
 #include "endian.local.h"
-#include "network.h"
 #include "memory.h"
 #endif
