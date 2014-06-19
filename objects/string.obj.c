@@ -80,32 +80,6 @@ d_define_method(string, append)(struct s_object *self, struct s_object *other) {
 	return self;
 }
 
-d_define_method(string, length)(struct s_object *self, size_t *length) {
-	d_using(string);
-	*length = string_attributes->size;
-	return self;
-}
-
-d_define_method(string, to_int)(struct s_object *self, int *value) {
-	d_using(string);
-	*value = atoi(string_attributes->content);
-	return self;
-}
-
-d_define_method(string, to_float)(struct s_object *self, float *value) {
-	d_using(string);
-	*value = atof(string_attributes->content);
-	return self;
-}
-
-d_define_method(string, character)(struct s_object *self, size_t position, char *character) {
-	d_using(string);
-	*character = '\0';
-	if (string_attributes->size < position)
-		*character = string_attributes->content[position];
-	return self;
-}
-
 d_define_method(string, substring)(struct s_object *self, size_t begin, size_t size) {
 	d_using(string);
 	struct s_object *result = NULL;
@@ -120,6 +94,11 @@ d_define_method(string, substring)(struct s_object *self, size_t begin, size_t s
 d_define_method(string, split)(struct s_object *self, char character) {
 	/* TODO: implement with array class */
 	return self;
+}
+
+d_define_method(string, cstring)(struct s_object *self) {
+	d_using(string);
+	return (s_object *)string_attributes->content;
 }
 
 d_define_method(string, delete)(struct s_object *self, struct s_string_attributes *attributes) {
@@ -142,8 +121,8 @@ d_define_method(string, compare)(struct s_object *self, struct s_object *other) 
 	d_using(string);
 	struct s_string_attributes *other_attributes = d_cast(other, string);
 	struct s_object *result = NULL;
-	int compare = f_string_strcmp(string_attributes->content, other_attributes->content);
-	if (compare > 0)
+	int compare;
+	if ((compare = f_string_strcmp(string_attributes->content, other_attributes->content)) > 0)
 		result = self;
 	else if (compare < 0)
 		result = other;
@@ -153,10 +132,9 @@ d_define_method(string, compare)(struct s_object *self, struct s_object *other) 
 d_define_class(string) {
 	d_hook_method(string, e_flag_public, trim),
 	d_hook_method(string, e_flag_public, append),
-	d_hook_method(string, e_flag_public, length),
-	d_hook_method(string, e_flag_public, character),
 	d_hook_method(string, e_flag_public, substring),
 	d_hook_method(string, e_flag_public, split),
+	d_hook_method(string, e_flag_public, cstring),
 	d_hook_delete(string),
 	d_hook_hash(string),
 	d_hook_compare(string),
