@@ -25,6 +25,8 @@
 #include "string.local.h"
 #define d_rs232_usecs(tv) (((tv).tv_sec*1000000)+(tv).tv_usec)
 #define d_rs232_null -1
+#define d_rs232_vtime 1
+#define d_rs232_vmin 6
 typedef enum e_rs232_baud {
 	e_rs232_baud_1200 = 1200,
 	e_rs232_baud_1800 = 1800,
@@ -56,11 +58,11 @@ typedef enum e_rs232_bits {
 	e_rs232_bits_7 = CS7,
 	e_rs232_bits_8 = CS8
 } e_rs232_bits;
-extern int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity, int *device,
-		struct termios *before_tty);
+extern int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity,
+		int flow_control, int *device, struct termios *before_tty);
 extern void f_rs232_close_termios(int device, struct termios before_tty);
 extern void f_rs232_close(int device);
 extern int f_rs232_write(int device, const unsigned char *message, size_t size);
-extern int f_rs232_read(int device, unsigned char *message, size_t size, unsigned char final_character, time_t sec, time_t usec);
+extern int f_rs232_read(int device, unsigned char *message, size_t size);
 #endif
 

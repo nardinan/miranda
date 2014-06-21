@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rs232.h"
-int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity, int *device,
-		struct termios *before_tty) {
+int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity, int flow_control,
+		int *device, struct termios *before_tty) {
 	struct termios tty;
 	int result = d_false;
-	if ((*device = open(port, O_RDWR|O_NOCTTY|O_NONBLOCK)) >= 0) {
+	if ((*device = open(port, O_RDWR|O_NDELAY)) >= 0) {
 		memset(&tty, 0, sizeof(struct termios));
 		if (tcgetattr(*device, &tty) == 0) {
 			if (before_tty)
@@ -28,14 +28,7 @@ int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bit
 			cfsetospeed(&tty, (speed_t)baud);
 			cfsetispeed(&tty, (speed_t)baud);
 			tty.c_cflag &= ~CSIZE;
-			tty.c_cflag |= bits;
-			switch (stops) {
-				case e_rs232_stops_1_bit:
-					tty.c_cflag &= ~CSTOPB;
-					break;
-				case e_rs232_stops_2_bit:
-					tty.c_cflag |= CSTOPB;
-			}
+			tty.c_cflag |= (bits|CLOCAL|CREAD);
 			switch (parity) {
 				case e_rs232_parity_no:
 					tty.c_cflag &= ~PARENB;
@@ -47,10 +40,24 @@ int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bit
 				case e_rs232_parity_odd:
 					tty.c_cflag |= (PARENB|PARODD);
 			}
-			tty.c_cflag |= (CREAD|CLOCAL);
-			cfmakeraw(&tty);
-			tcflush(*device, TCIFLUSH);
-			if (!(result = (tcsetattr(*device, TCSAFLUSH, &tty) == 0)))
+			switch (stops) {
+				case e_rs232_stops_1_bit:
+					tty.c_cflag &= ~CSTOPB;
+					break;
+				case e_rs232_stops_2_bit:
+					tty.c_cflag |= CSTOPB;
+			}
+			tty.c_iflag = IGNBRK;
+			if (flow_control) {
+				tty.c_cflag |= CRTSCTS;
+				tty.c_iflag |= (IXOFF|IXON|IXANY);
+			} else
+				tty.c_cflag &= ~CRTSCTS;
+			tty.c_lflag = 0;
+			tty.c_oflag = 0;
+			tty.c_cc[VTIME] = d_rs232_vtime;
+			tty.c_cc[VMIN] = d_rs232_vmin;
+			if (!(result = (tcsetattr(*device, TCSANOW, &tty) == 0)))
 				close(*device);
 		} else
 			close(*device);
@@ -68,27 +75,30 @@ void f_rs232_close(int device) {
 }
 
 int f_rs232_write(int device, const unsigned char *message, size_t size) {
-	return (write(device, message, size)>=0);
+	return write(device, message, size);
 }
 
-int f_rs232_read(int device, unsigned char *message, size_t size, unsigned char final_character, time_t sec, time_t usec) {
-	unsigned char byte;
-	struct timeval timeout = {sec, usec};
-	int result = d_rs232_null, index = 0;
-	fd_set descriptors;
-	FD_ZERO(&descriptors);
-	FD_SET(device, &descriptors);
-	while ((index < (size-1)) && (result = select(device+1, &descriptors, NULL, NULL, &timeout)) > 0) {
-		if ((result = read(device, &byte, 1)) > 0) {
-			if (byte != final_character)
-				message[index++] = byte;
-			else
-				break;
+int f_rs232_read(int device, unsigned char *message, size_t size) {
+	return read(device, message, size);
+}
+
+int f_rs232_read_timeout(int device, unsigned char *message, size_t size, time_t timeout) {
+	struct timeval timestamp;
+	unsigned char *buffer = message;
+	time_t begin, current;
+	int readed = 0, result;
+	gettimeofday(&timestamp, NULL);
+	begin = current = d_rs232_usec(timestamp);
+	while (((current-begin) < timeout) && (readed < size)) {
+		if ((result = f_rs232_read(device, (message+readed), (size-readed))) > 0)
+			readed += result;
+		else if ((result < 1) && (errno != EAGAIN)) {
+			readed = -1;
+			break;
 		}
-		timeout.tv_sec = sec;
-		timeout.tv_usec = usec;
+		gettimeofday(&timestamp, NULL);
+		current = d_rs232_usec(timestamp);
 	}
-	message[index] = '\0';
-	return result;
+	return readed;
 }
 
