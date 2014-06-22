@@ -1,4 +1,4 @@
-objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o types.o rs232.o
+objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o types.o
 name = miranda_ground
 cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
@@ -31,9 +31,6 @@ string.local.o: string.local.c string.local.h types.h logs.h
 
 types.o: types.c types.h
 	$(cc) $(cflags) types.c
-
-rs232.o: rs232.c rs232.h string.local.h
-	$(cc) $(cflags) rs232.c
 
 clean:
 	rm -f *.o
