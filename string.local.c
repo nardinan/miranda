@@ -24,12 +24,22 @@ size_t f_string_strlen(const char *string) {
 	return result;
 }
 
-int f_string_strcmp(const char *left, const char *right) {
+int f_string_strncmp(const char *left, const char *right, size_t size) {
 	int result;
 	if ((left) && (right))
-		result = strcmp(left, right);
+		result = strncmp(left, right, size);
 	else
 		result = left-right;
+	return result;
+}
+
+int f_string_strcmp(const char *left, const char *right) {
+	size_t right_size = f_string_strlen(left), left_size = f_string_strlen(right);
+	int result;
+	if (left_size == right_size)
+		result = f_string_strncmp(left, right, left_size);
+	else
+		result = left_size-right_size;
 	return result;
 }
 

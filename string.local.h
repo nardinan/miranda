@@ -29,6 +29,7 @@
 #define d_final_character(a) (((a)=='\0')||((a)=='\n'))
 typedef char *(* t_string_formatter)(char *, size_t *, size_t, char *, va_list);
 extern size_t f_string_strlen(const char *string);
+extern int f_string_strncmp(const char *left, const char *right, size_t size);
 extern int f_string_strcmp(const char *left, const char *right);
 extern char *f_string_append(char **string, char *postfix, size_t *space);
 extern char *f_string_trim(char *string);
