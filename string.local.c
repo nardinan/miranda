@@ -55,6 +55,36 @@ char *f_string_append(char **string, char *postfix, size_t *space) {
 	return *string;
 }
 
+int f_string_key(char *string, struct s_string_key_format *format, size_t size, char divisor) {
+	char *key_pointer = string, *value_pointer, *last_pointer;
+	int index, result = 0;
+	while ((key_pointer) && (value_pointer = strchr(key_pointer, divisor))) {
+		*value_pointer = '\0';
+		value_pointer++;
+		if (f_string_strlen(value_pointer) > 0) {
+			if ((last_pointer = strchr(value_pointer, '\n'))) {
+				*last_pointer = '\0';
+				last_pointer++;
+			}
+			f_string_trim(key_pointer);
+			f_string_trim(value_pointer);
+			for (index = 0; index < size; ++index)
+				if (f_string_strcmp(format[index].key, key_pointer) == 0) {
+					switch (format[index].kind) {
+						case e_string_key_pointer_single:
+							format[index].destination.single_ptr = format[index].function(value_pointer);
+							break;
+						case e_string_key_pointer_double:
+							*(format[index].destination.double_ptr) = format[index].function(value_pointer);
+					}
+					result++;
+				}
+		}
+		key_pointer = last_pointer;
+	}
+	return result;
+}
+
 char *f_string_trim(char *string) {
 	size_t length = f_string_strlen(string);
 	char *begin = string, *final = (string+length)-1;
