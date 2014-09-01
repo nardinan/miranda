@@ -15,16 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_ground_h
-#define miranda_ground_h
-#include "types.h"
-#include "log.h"
-#include "logs.h"
-#include "math.local.h"
-#include "string.local.h"
-#include "hash.h"
-#include "list.h"
-#include "exception.h"
-#include "endian.local.h"
-#include "memory.h"
+#ifndef miranda_math_h
+#define miranda_math_h
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+extern float f_math_mean(float *values, size_t elements);
+extern float f_math_rms(float *values, size_t elements, float precision);
+extern float f_math_sqrt(float value, float precision);
 #endif
