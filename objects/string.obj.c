@@ -64,8 +64,10 @@ struct s_object *f_string_new_constant(struct s_object *self, char *format) {
 
 d_define_method(string, trim)(struct s_object *self) {
 	d_using(string);
-	f_string_trim(string_attributes->content);
-	string_attributes->size = f_string_strlen(string_attributes->content);
+	if (!string_attributes->flags.constant) {
+		f_string_trim(string_attributes->content);
+		string_attributes->size = f_string_strlen(string_attributes->content);
+	}
 	return self;
 }
 
@@ -131,13 +133,13 @@ d_define_method(string, compare)(struct s_object *self, struct s_object *other) 
 
 d_define_class(string) {
 	d_hook_method(string, e_flag_public, trim),
-	d_hook_method(string, e_flag_public, append),
-	d_hook_method(string, e_flag_public, substring),
-	d_hook_method(string, e_flag_public, split),
-	d_hook_method(string, e_flag_public, cstring),
-	d_hook_delete(string),
-	d_hook_hash(string),
-	d_hook_compare(string),
-	d_hook_method_tail
+		d_hook_method(string, e_flag_public, append),
+		d_hook_method(string, e_flag_public, substring),
+		d_hook_method(string, e_flag_public, split),
+		d_hook_method(string, e_flag_public, cstring),
+		d_hook_delete(string),
+		d_hook_hash(string),
+		d_hook_compare(string),
+		d_hook_method_tail
 };
 
