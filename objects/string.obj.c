@@ -16,6 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "string.obj.h"
+struct s_string_attributes *p_string_alloc(struct s_object *self) {
+	struct s_string_attributes *result;
+	result = d_prepare(self, string);
+	f_memory_new(self); /* inherit */
+	return result;
+}
+
 struct s_object *f_string_new(struct s_object *self, char *format, ...) {
 	va_list parameters;
 	va_start(parameters, format);
@@ -25,7 +32,7 @@ struct s_object *f_string_new(struct s_object *self, char *format, ...) {
 }
 
 struct s_object *f_string_new_args(struct s_object *self, char *format, va_list parameters) {
-	struct s_string_attributes *attributes = d_prepare(self, string);
+	struct s_string_attributes *attributes = p_string_alloc(self);
 	size_t length;
 	char buffer_character[d_string_buffer];
 	va_list parameters_backup;
@@ -39,13 +46,11 @@ struct s_object *f_string_new_args(struct s_object *self, char *format, va_list 
 			d_die(d_error_malloc);
 	}
 	va_end(parameters_backup);
-	/* inerith */
-	f_memory_new(self);
 	return self;
 }
 
 struct s_object *f_string_new_size(struct s_object *self, char *content, size_t size) {
-	struct s_string_attributes *attributes = d_prepare(self, string);
+	struct s_string_attributes *attributes = p_string_alloc(self);
 	if (size > 0) {
 		attributes->size = size;
 		if ((attributes->content = (char *) d_malloc(attributes->size+1)))
@@ -53,18 +58,14 @@ struct s_object *f_string_new_size(struct s_object *self, char *content, size_t 
 		else
 			d_die(d_error_malloc);
 	}
-	/* inerith */
-	f_memory_new(self);
 	return self;
 }
 
 struct s_object *f_string_new_constant(struct s_object *self, char *format) {
-	struct s_string_attributes *attributes = d_prepare(self, string);
+	struct s_string_attributes *attributes = p_string_alloc(self);
 	attributes->flags.constant = d_true;
 	attributes->content = format;
 	attributes->size = f_string_strlen(format);
-	/* inerity */
-	f_memory_new(self);
 	return self;
 }
 
