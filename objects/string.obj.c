@@ -39,6 +39,8 @@ struct s_object *f_string_new_args(struct s_object *self, char *format, va_list 
 			d_die(d_error_malloc);
 	}
 	va_end(parameters_backup);
+	/* inerith */
+	f_memory_new(self);
 	return self;
 }
 
@@ -51,6 +53,8 @@ struct s_object *f_string_new_size(struct s_object *self, char *content, size_t 
 		else
 			d_die(d_error_malloc);
 	}
+	/* inerith */
+	f_memory_new(self);
 	return self;
 }
 
@@ -59,6 +63,8 @@ struct s_object *f_string_new_constant(struct s_object *self, char *format) {
 	attributes->flags.constant = d_true;
 	attributes->content = format;
 	attributes->size = f_string_strlen(format);
+	/* inerity */
+	f_memory_new(self);
 	return self;
 }
 

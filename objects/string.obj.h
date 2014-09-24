@@ -17,7 +17,7 @@
  */
 #ifndef miranda_object_string_h
 #define miranda_object_string_h
-#include "object.h"
+#include "memory.obj.h"
 #define d_string_buffer 8
 d_declare_class(string) {
 	struct s_attributes head;
