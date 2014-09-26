@@ -17,7 +17,7 @@
  */
 #ifndef miranda_object_string_h
 #define miranda_object_string_h
-#include "memory.obj.h"
+#include "array.obj.h"
 #define d_string_buffer 8
 d_declare_class(string) {
 	struct s_attributes head;
@@ -27,6 +27,7 @@ d_declare_class(string) {
 		int constant:1;
 	} flags;
 } d_declare_class_tail(string);
+struct s_string_attributes *p_string_alloc(struct s_object *self);
 extern struct s_object *f_string_new(struct s_object *self, char *format, ...);
 extern struct s_object *f_string_new_args(struct s_object *self, char *format, va_list parameters);
 extern struct s_object *f_string_new_size(struct s_object *self, char *content, size_t size);

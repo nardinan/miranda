@@ -17,8 +17,7 @@
  */
 #include "string.obj.h"
 struct s_string_attributes *p_string_alloc(struct s_object *self) {
-	struct s_string_attributes *result;
-	result = d_prepare(self, string);
+	struct s_string_attributes *result = d_prepare(self, string);
 	f_memory_new(self); /* inherit */
 	return result;
 }
@@ -101,8 +100,34 @@ d_define_method(string, substring)(struct s_object *self, size_t begin, size_t s
 }
 
 d_define_method(string, split)(struct s_object *self, char character) {
-	/* TODO: implement with array class */
-	return self;
+	d_using(string);
+	struct s_object *result = NULL, *value;
+	char *pointer = string_attributes->content, *next;
+	size_t recurrence = 0, index = 0, length = f_string_strlen(string_attributes->content);
+	while ((next = strchr(pointer, character))) {
+		if ((next-pointer) > 0)
+			recurrence++;
+		pointer = next+1;
+	}
+	if ((length-(pointer-string_attributes->content)) > 0)
+		recurrence++;
+	if ((result = f_array_new(d_new(array), recurrence))) {
+		pointer = string_attributes->content;
+		while ((next = strchr(pointer, character))) {
+			if ((next-pointer) > 0)
+				if ((value = d_call(self, m_string_substring, (pointer-string_attributes->content), (next-pointer)))) {
+					d_call(result, m_array_insert, value, index++);
+					d_delete(value);
+				}
+			pointer = next+1;
+		}
+		if ((length-(pointer-string_attributes->content)) > 0)
+			if ((value = d_call(self, m_string_substring, (pointer-string_attributes->content), (length-(pointer-string_attributes->content)+1)))) {
+				d_call(result, m_array_insert, value, index);
+				d_delete(value);
+			}
+	}
+	return result;
 }
 
 d_define_method(string, cstring)(struct s_object *self) {
@@ -121,7 +146,7 @@ d_define_method(string, hash)(struct s_object *self, t_hash_value *value) {
 	d_using(string);
 	int index;
 	*value = 7;
-	for (index = 0; index < string_attributes->size; index++)
+	for (index = 0; index < string_attributes->size; ++index)
 		*value = (*value*31)+(int)string_attributes->content[index];
 	return self;
 }

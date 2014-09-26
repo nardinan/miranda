@@ -19,7 +19,7 @@
 void p_hash_allocate(struct s_hash_table *table, t_hash_value dimension) {
 	t_hash_value index;
 	if ((table->table = (s_hash_bucket *) d_malloc(dimension*sizeof(struct s_hash_bucket)))) {
-		for (index = 0; index < dimension; index++) {
+		for (index = 0; index < dimension; ++index) {
 			table->table[index].kind = e_hash_kind_empty;
 			table->table[index].value = NULL;
 		}
@@ -33,7 +33,7 @@ void p_hash_resize(struct s_hash_table *table, t_hash_value dimension) {
 	struct s_hash_bucket *current = table->table, *item;
 	t_hash_value elements = table->mask;
 	p_hash_allocate(table, dimension);
-	for (; elements >= 0; elements--) {
+	for (; elements >= 0; --elements) {
 		item = &current[elements];
 		if (item->kind == e_hash_kind_fill)
 			f_hash_insert(table, item->key, item->value, d_true, NULL);

@@ -18,5 +18,7 @@
 #ifndef miranda_objects_h
 #define miranda_objects_h
 #include "object.h"
+#include "memory.obj.h"
 #include "string.obj.h"
+#include "array.obj.h"
 #endif

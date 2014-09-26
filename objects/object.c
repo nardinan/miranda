@@ -95,7 +95,7 @@ void f_object_delete(struct s_object *object) {
 	struct s_virtual_table *virtual_table;
 	int index;
 	while ((attributes = (struct s_attributes *)object->attributes.head) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.head)) {
-		for (index = 0; virtual_table->virtual_table[index].symbol; index++)
+		for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 			if (virtual_table->virtual_table[index].symbol == m_object_delete) {
 				virtual_table->virtual_table[index].method(object, attributes);
 				break;
@@ -115,7 +115,7 @@ t_hash_value f_object_hash(struct s_object *object) {
 	if ((object->flags&e_flag_hashed) != e_flag_hashed) {
 		virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
 		while (virtual_table) {
-			for (index = 0; virtual_table->virtual_table[index].symbol; index++)
+			for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 				if (virtual_table->virtual_table[index].symbol == m_object_hash) {
 					virtual_table->virtual_table[index].method(object, &current);
 					result += current;
@@ -136,7 +136,7 @@ struct s_object *p_object_compare_single(struct s_object *object, struct s_objec
 	int index;
 	virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
 	while ((!result) && (virtual_table)) {
-		for (index = 0; virtual_table->virtual_table[index].symbol; index++)
+		for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 			if (virtual_table->virtual_table[index].symbol == m_object_compare)
 				result = virtual_table->virtual_table[index].method(object, other);
 		virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
