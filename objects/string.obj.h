@@ -22,7 +22,7 @@
 d_declare_class(string) {
 	struct s_attributes head;
 	char *content;
-	size_t size;
+	size_t size, length;
 	struct {
 		int constant:1;
 	} flags;
@@ -38,6 +38,8 @@ d_declare_method(string, substring)(struct s_object *self, size_t begin, size_t 
 d_declare_method(string, split)(struct s_object *self, char character);
 #define d_string_cstring(str) ((char *)d_call(str,m_string_cstring,NULL))
 d_declare_method(string, cstring)(struct s_object *self);
+d_declare_method(string, length)(struct s_object *self, size_t *length);
+d_declare_method(string, size)(struct s_object *self, size_t *size);
 d_declare_method(string, delete)(struct s_object *self, struct s_string_attributes *attributes);
 d_declare_method(string, hash)(struct s_object *self, t_hash_value *value);
 d_declare_method(string, compare)(struct s_object *self, struct s_object *other);
