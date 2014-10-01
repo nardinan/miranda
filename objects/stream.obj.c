@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stream.obj.h"
-d_exception_define(malformed, 	2, "malformed action exception");
-d_exception_define(unreachable, 3, "unreachable resource exception");
-d_exception_define(unsupported, 4, "unsupported action exception");
-d_exception_define(closed, 	5, "closed resource exception");
+d_exception_define(malformed, 	5, "malformed action exception");
+d_exception_define(unreachable, 6, "unreachable resource exception");
+d_exception_define(unsupported, 7, "unsupported action exception");
+d_exception_define(closed, 	8, "closed resource exception");
 struct s_stream_attributes *p_stream_alloc(struct s_object *self) {
 	struct s_stream_attributes *result = d_prepare(self, stream);
 	f_memory_new(self); /* inherit */

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "array.obj.h"
-d_exception_define(bound, 1, "out of bound exception");
+d_exception_define(bound, 4, "out of bound exception");
 struct s_array_attributes *p_array_alloc(struct s_object *self) {
 	struct s_array_attributes *result = d_prepare(self, array);
 	f_memory_new(self); /* inherit */
