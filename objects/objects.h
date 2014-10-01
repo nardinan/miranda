@@ -21,4 +21,5 @@
 #include "memory.obj.h"
 #include "string.obj.h"
 #include "array.obj.h"
+#include "stream.obj.h"
 #endif
