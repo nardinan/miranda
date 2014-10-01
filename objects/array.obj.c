@@ -136,6 +136,13 @@ d_define_method(array, next)(struct s_object *self) {
 	return result;
 }
 
+d_define_method(array, size)(struct s_object *self, size_t *size) {
+	d_using(array);
+	if (size)
+		*size = array_attributes->elements;
+	return self;
+}
+
 d_define_method(array, delete)(struct s_object *self, struct s_array_attributes *attributes) {
 	d_using(array);
 	int index;
@@ -185,6 +192,7 @@ d_define_class(array) {
 		d_hook_method(array, e_flag_public, get),
 		d_hook_method(array, e_flag_public, reset),
 		d_hook_method(array, e_flag_public, next),
+		d_hook_method(array, e_flag_public, size),
 		d_hook_delete(array),
 		d_hook_hash(array),
 		d_hook_compare(array),
