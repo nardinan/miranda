@@ -37,10 +37,10 @@ typedef enum e_stream_seek {
 d_declare_class(stream) {
 	struct s_attributes head;
 	struct s_object *string_name;
-	int descriptor, flags;
+	int descriptor, parameters;
 	struct {
 		unsigned int supplied:1, opened:1, temporary:1;
-	} s_flags;
+	} flags;
 } d_declare_class_tail(stream);
 struct s_stream_attributes *p_stream_alloc(struct s_object *self);
 int p_stream_open_lock(const char *name);

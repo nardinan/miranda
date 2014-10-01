@@ -47,9 +47,9 @@ struct s_object *f_stream_new(struct s_object *self, struct s_object *string_nam
 	struct s_stream_attributes *attributes = p_stream_alloc(self);
 	attributes->string_name = d_retain(string_name);
 	attributes->descriptor = descriptor;
-	attributes->flags = fcntl(attributes->descriptor, F_GETFL);
-	attributes->s_flags.supplied = d_true;
-	attributes->s_flags.opened = d_true;
+	attributes->parameters = fcntl(attributes->descriptor, F_GETFL);
+	attributes->flags.supplied = d_true;
+	attributes->flags.opened = d_true;
 	return self;
 }
 
@@ -57,23 +57,23 @@ struct s_object *f_stream_new_file(struct s_object *self, struct s_object *strin
 	struct s_stream_attributes *attributes = p_stream_alloc(self);
 	char buffer[d_string_buffer_size];
 	attributes->string_name = d_retain(string_name);
-	attributes->flags = -1;
+	attributes->parameters = -1;
 	switch(action[0]) {
 		case 'r':
 		case 'R':
-			attributes->flags = d_stream_flag_read;
+			attributes->parameters = d_stream_flag_read;
 			if ((action[1] == 'w') || (action[1] == 'W'))
-				attributes->flags = d_stream_flag_write_read;
+				attributes->parameters = d_stream_flag_write_read;
 			break;
 		case 'w':
 		case 'W':
-			attributes->flags = d_stream_flag_truncate;
+			attributes->parameters = d_stream_flag_truncate;
 			if ((action[1] == 'a') || (action[1] == 'A'))
-				attributes->flags = d_stream_flag_append;
+				attributes->parameters = d_stream_flag_append;
 	}
-	if (attributes->flags != -1) {
-		if ((attributes->descriptor = open(d_string_cstring(attributes->string_name), attributes->flags, permission)) > -1)
-			attributes->s_flags.opened = d_true;
+	if (attributes->parameters != -1) {
+		if ((attributes->descriptor = open(d_string_cstring(attributes->string_name), attributes->parameters, permission)) > -1)
+			attributes->flags.opened = d_true;
 		else {
 			snprintf(buffer, d_string_buffer_size, "unreachable file %s exception", d_string_cstring(attributes->string_name));
 			d_throw(v_exception_unreachable, buffer);
@@ -87,11 +87,11 @@ struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *
 	struct s_stream_attributes *attributes = p_stream_alloc(self);
 	FILE *output;
 	attributes->string_name = d_retain(string_name);
-	attributes->flags = d_stream_flag_write_read;
-	attributes->s_flags.temporary = d_true;
+	attributes->parameters = d_stream_flag_write_read;
+	attributes->flags.temporary = d_true;
 	if ((output = tmpfile())) {
 		attributes->descriptor = fileno(output);
-		attributes->s_flags.opened = d_true;
+		attributes->flags.opened = d_true;
 	} else
 		d_throw(v_exception_unreachable, "unreachable temporary file exception");
 	return self;
@@ -100,8 +100,8 @@ struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *
 d_define_method(stream, write)(struct s_object *self, unsigned char *raw, size_t size, size_t *written) {
 	d_using(stream);
 	size_t written_local;
-	if (stream_attributes->s_flags.opened) {
-		if (((stream_attributes->flags&O_RDWR) == O_RDWR) || ((stream_attributes->flags&O_WRONLY) == O_WRONLY)) {
+	if (stream_attributes->flags.opened) {
+		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_WRONLY) == O_WRONLY)) {
 			written_local = write(stream_attributes->descriptor, raw, size);
 			if (written)
 				*written = written_local;
@@ -133,8 +133,8 @@ d_define_method(stream, write_stream)(struct s_object *self, struct s_object *st
 d_define_method(stream, read)(struct s_object *self, unsigned char *buffer, size_t size, size_t *readed) {
 	d_using(stream);
 	size_t readed_local;
-	if (stream_attributes->s_flags.opened) {
-		if (((stream_attributes->flags&O_RDWR) == O_RDWR) || ((stream_attributes->flags&O_RDONLY) == O_RDONLY)) {
+	if (stream_attributes->flags.opened) {
+		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			readed_local = read(stream_attributes->descriptor, buffer, size);
 			if (readed)
 				*readed = readed_local;
@@ -151,8 +151,8 @@ d_define_method(stream, read_string)(struct s_object *self, struct s_object *str
 	char character, buffer[d_stream_block_size];
 	size_t readed_local = 0;
 	int tail = d_true;
-	if (stream_attributes->s_flags.opened) {
-		if (((stream_attributes->flags&O_RDWR) == O_RDWR) || ((stream_attributes->flags&O_RDONLY) == O_RDONLY)) {
+	if (stream_attributes->flags.opened) {
+		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			while ((readed_local < size) && (read(stream_attributes->descriptor, &character, 1) > 0)) {
 				tail = d_false;
 				if ((character != '\n') && (character != '\0'))
@@ -182,8 +182,8 @@ d_define_method(stream, read_string)(struct s_object *self, struct s_object *str
 d_define_method(stream, size)(struct s_object *self, size_t *size) {
 	d_using(stream);
 	off_t offset, current_offset;
-	if (stream_attributes->s_flags.opened) {
-		if (((stream_attributes->flags&O_RDWR) == O_RDWR) || ((stream_attributes->flags&O_RDONLY) == O_RDONLY)) {
+	if (stream_attributes->flags.opened) {
+		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			d_call(self, m_stream_seek, 0, e_stream_seek_current, &current_offset);
 			d_call(self, m_stream_seek, 0, e_stream_seek_begin, NULL);
 			d_call(self, m_stream_seek, 0, e_stream_seek_end, &offset);
@@ -201,7 +201,7 @@ d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream
 	d_using(stream);
 	int whence_local = SEEK_SET;
 	off_t moved_local;
-	if (stream_attributes->s_flags.opened) {
+	if (stream_attributes->flags.opened) {
 		switch (whence) {
 			case e_stream_seek_begin:
 				whence_local = SEEK_SET;
@@ -226,22 +226,22 @@ d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream
 d_define_method(stream, lock)(struct s_object *self, int lock) {
 	d_using(stream);
 	int flags;
-	if (stream_attributes->s_flags.opened) {
+	if (stream_attributes->flags.opened) {
 		flags = fcntl(stream_attributes->descriptor, F_GETFL);
 		if (lock)
 			flags &= ~O_NONBLOCK;
 		else
 			flags |= O_NONBLOCK;
-		if (stream_attributes->flags != flags)
+		if (stream_attributes->parameters != flags)
 			if (fcntl(stream_attributes->descriptor, F_SETFL, flags) != -1)
-				stream_attributes->flags = flags;
+				stream_attributes->parameters = flags;
 	} else
 		d_throw(v_exception_closed, "read in a closed stream exception");
-		return self;
+	return self;
 }
 
 d_define_method(stream, delete)(struct s_object *self, struct s_stream_attributes *attributes) {
-	if ((!attributes->s_flags.supplied) && (attributes->s_flags.opened))
+	if ((!attributes->flags.supplied) && (attributes->flags.opened))
 		close(attributes->descriptor);
 	if (attributes->string_name)
 		d_delete(attributes->string_name);

@@ -24,7 +24,7 @@ d_declare_class(string) {
 	char *content;
 	size_t size, length;
 	struct {
-		int constant:1;
+		unsigned int constant:1;
 	} flags;
 } d_declare_class_tail(string);
 struct s_string_attributes *p_string_alloc(struct s_object *self);
