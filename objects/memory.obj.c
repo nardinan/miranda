@@ -40,4 +40,3 @@ d_define_class(memory) {
 		d_hook_method(memory, e_flag_public, release),
 		d_hook_method_tail
 };
-
