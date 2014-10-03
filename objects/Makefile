@@ -1,4 +1,4 @@
-objects = object.o memory.obj.o string.obj.o array.obj.o stream.obj.o
+objects = object.o memory.obj.o pool.obj.o string.obj.o array.obj.o stream.obj.o
 name = miranda_objects
 cc = gcc -g
 cflags = -Wall -I.. -fPIC -Wno-variadic-macros -Wno-gnu -Wno-pointer-arith -Wno-dollar-in-identifier-extension -std=c99 -c -pedantic
@@ -14,6 +14,9 @@ object.o: object.c object.h
 
 memory.obj.o: memory.obj.c memory.obj.h object.h
 	$(cc) $(cflags) memory.obj.c
+
+pool.obj.o: pool.obj.c pool.obj.h memory.obj.h
+	$(cc) $(cflags) pool.obj.c
 
 string.obj.o: string.obj.c string.obj.h array.obj.h
 	$(cc) $(cflags) string.obj.c

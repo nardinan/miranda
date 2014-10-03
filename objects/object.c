@@ -43,7 +43,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 
 struct s_object *p_object_malloc(const char *file, int line, const char *type) {
 	struct s_object *result;
-	if ((result = d_malloc(sizeof(struct s_object)))) {
+	if ((result = p_malloc(sizeof(struct s_object), file, line))) {
 		result->type = type;
 		result->file = file;
 		result->line = line;

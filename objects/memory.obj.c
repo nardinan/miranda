@@ -32,7 +32,7 @@ d_define_method(memory, release)(struct s_object *self) {
 	d_using(memory);
 	if (memory_attributes->references > 0)
 		memory_attributes->references--;
-	return (memory_attributes->references==0)?NULL:self;
+	return ((memory_attributes->references==0) && ((self->flags&e_flag_pooled)!=e_flag_pooled))?NULL:self;
 }
 
 d_define_class(memory) {

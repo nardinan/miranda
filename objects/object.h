@@ -25,9 +25,11 @@ typedef enum e_flag {
 	e_flag_private	= 0x00000001,
 	e_flag_public	= 0x00000002,
 	e_flag_hashed	= 0x00000004,
+	e_flag_pooled	= 0x00000008
 } e_flag;
 typedef void *(*t_class_method)();
 typedef struct s_object {
+	struct s_list_node head;
 	const char *type, *file;
 	unsigned int line;
 	struct s_attributes *last_attributes;
