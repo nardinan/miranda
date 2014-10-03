@@ -28,9 +28,11 @@ d_declare_class(string) {
 	} flags;
 } d_declare_class_tail(string);
 struct s_string_attributes *p_string_alloc(struct s_object *self);
+#define d_STR(...) f_string_new(d_new(string),__VA_ARGS__)
 extern struct s_object *f_string_new(struct s_object *self, char *format, ...);
 extern struct s_object *f_string_new_args(struct s_object *self, char *format, va_list parameters);
 extern struct s_object *f_string_new_size(struct s_object *self, char *content, size_t size);
+#define d_KSTR(str) f_string_new_constant(d_new(string),(str))
 extern struct s_object *f_string_new_constant(struct s_object *self, char *content);
 d_declare_method(string, trim)(struct s_object *self);
 d_declare_method(string, append)(struct s_object *self, struct s_object *other);
