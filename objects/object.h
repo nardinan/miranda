@@ -22,10 +22,12 @@
 #include "../exception.h"
 #include "../memory.h"
 typedef enum e_flag {
-	e_flag_private	= 0x00000001,
-	e_flag_public	= 0x00000002,
-	e_flag_hashed	= 0x00000004,
-	e_flag_pooled	= 0x00000008
+	e_flag_null		= 0X00000000,
+	e_flag_private		= 0x00000001,
+	e_flag_public		= 0x00000002,
+	e_flag_hashed		= 0x00000004,
+	e_flag_pooled		= 0x00000008,
+	e_flag_placeholder	= 0x00000010
 } e_flag;
 typedef void *(*t_class_method)();
 typedef struct s_object {
@@ -58,8 +60,8 @@ d_exception_declare(private_method);
 d_exception_declare(wrong_casting);
 #define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym))->method((obj),__VA_ARGS__))
 extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol);
-#define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type))
-extern struct s_object *p_object_malloc(const char *file, int line, const char *type);
+#define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type,e_flag_null))
+extern struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
 #define d_prepare(obj,kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,\
 			p_object_attributes_malloc(sizeof(struct s_##kind##_attributes),v_##kind##_type)))
 extern struct s_attributes *p_object_attributes_malloc(size_t size, const char *type);

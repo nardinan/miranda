@@ -41,7 +41,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 	return result;
 }
 
-struct s_object *p_object_malloc(const char *file, int line, const char *type) {
+struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags) {
 	struct s_object *result;
 	if ((result = p_malloc(sizeof(struct s_object), file, line))) {
 		result->type = type;
@@ -49,6 +49,7 @@ struct s_object *p_object_malloc(const char *file, int line, const char *type) {
 		result->line = line;
 		memset(&(result->virtual_tables), 0, sizeof(struct s_list));
 		memset(&(result->attributes), 0, sizeof(struct s_list));
+		result->flags = flags;
 	} else
 		d_die(d_error_malloc);
 	return result;
@@ -94,7 +95,8 @@ void f_object_delete(struct s_object *object) {
 	struct s_attributes *attributes;
 	struct s_virtual_table *virtual_table;
 	int index;
-	while ((attributes = (struct s_attributes *)object->attributes.head) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.head)) {
+	while ((attributes = (struct s_attributes *)object->attributes.head) &&
+			(virtual_table = (struct s_virtual_table *)object->virtual_tables.head)) {
 		for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 			if (virtual_table->virtual_table[index].symbol == m_object_delete) {
 				virtual_table->virtual_table[index].method(object, attributes);
