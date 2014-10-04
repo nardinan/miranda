@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "pool.obj.h"
+struct s_object *v_default_pool = NULL;
 struct s_pool_attributes *p_pool_alloc(struct s_object *self) {
 	struct s_pool_attributes *result = d_prepare(self, pool);
 	f_memory_new(self); /* inerith */
@@ -47,6 +48,10 @@ d_define_method(pool, clean)(struct s_object *self, int skip) {
 				f_object_delete(value);
 			} else
 				memory_attributes->references--;
+		} else if ((value->flags&e_flag_placeholder) == e_flag_placeholder) {
+			f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
+			d_free(value);
+			break;
 		}
 		value = next;
 	}

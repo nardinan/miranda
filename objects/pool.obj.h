@@ -22,21 +22,20 @@ d_declare_class(pool) {
 	struct s_attributes head;
 	struct s_list *pool;
 } d_declare_class_tail(pool);
-#define d_pool_begin(p)\
-do{\
-	struct s_object *__default_pool=(p);\
-	do
+extern struct s_object *v_default_pool;
+#define d_pool_init v_default_pool=f_pool_new(d_new(pool))
+#define d_pool_destroy d_delete(v_default_pool)
 struct s_pool_attributes *p_pool_alloc(struct s_object *self);
 extern struct s_object *f_pool_new(struct s_object *self);
-#define d_P(p) d_call(__default_pool,m_pool_insert,(p))
+#define d_pool_begin(c)\
+do{\
+	d_call(v_default_pool,m_pool_insert,p_object_malloc(__FILE__,__LINE__,(c),e_flag_placeholder));\
+	do
+#define d_P(p) d_call(v_default_pool,m_pool_insert,(p))
 d_declare_method(pool, insert)(struct s_object *self, struct s_object *pointer);
-#define d_pool_end_kill\
+#define d_pool_end(b)\
 	while(0);\
-	d_call(__default_pool,m_pool_clean,d_true);\
-}while(0)
-#define d_pool_end\
-	while(0);\
-	d_call(__default_pool,m_pool_clean,d_false);\
+	d_call(v_default_pool,m_pool_clean,(b));\
 }while(0)
 d_declare_method(pool, clean)(struct s_object *self, int skip);
 d_declare_method(pool, delete)(struct s_object *self, struct s_pool_attributes *attributes);

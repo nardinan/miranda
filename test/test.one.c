@@ -3,8 +3,8 @@
 #define d_size 1024
 int main (int argc, char *argv[]) {
 	f_memory_init();
-	s_object *pool = f_pool_new(d_new(pool));
-	d_pool_begin(pool) {
+	d_pool_init;
+	d_pool_begin("main") {
 		int index;
 		s_object *array_strings, *array_substrings;
 		s_object *string_pool[] = {
@@ -19,15 +19,17 @@ int main (int argc, char *argv[]) {
 			f_stream_new_temporary(d_new(stream), d_P(d_KSTR("temporary_file"))),
 			NULL
 		};
-		while ((string_current = d_call(stream_pool[0], m_stream_read_string, string_readed, d_size))) {
-			string_readed = string_current;
-			printf("[file row: '%s']\n", d_string_cstring(string_readed));
-			d_call(stream_pool[1], m_stream_write_string, string_readed, NULL);
-		}
-		if (string_readed)
-			d_delete(string_readed);
-		for (index = 0; stream_pool[index]; ++index)
-			d_delete(stream_pool[index]);
+		d_pool_begin("another thing") {
+			while ((string_current = d_call(stream_pool[0], m_stream_read_string, string_readed, d_size))) {
+				string_readed = string_current;
+				printf("[file row: '%s']\n", d_string_cstring(string_readed));
+				d_call(stream_pool[1], m_stream_write_string, string_readed, NULL);
+			}
+			if (string_readed)
+				d_delete(string_readed);
+			for (index = 0; stream_pool[index]; ++index)
+				d_delete(stream_pool[index]);
+		} d_pool_end(d_true);
 		array_strings = f_array_new(d_new(array), 4);
 		for (index = 0; string_pool[index]; ++index) {
 			d_call(string_pool[index], m_string_trim, NULL);
@@ -46,8 +48,8 @@ int main (int argc, char *argv[]) {
 		d_delete(array_strings);
 		for (index = 0; string_pool[index]; ++index)
 			d_delete(string_pool[index]);
-	} d_pool_end_kill;
-	d_delete(pool);
+	} d_pool_end(d_true);
+	d_pool_destroy;
 	f_memory_destroy();
 	return 0;
 }
