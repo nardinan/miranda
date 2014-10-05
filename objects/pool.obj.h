@@ -18,6 +18,7 @@
 #ifndef miranda_object_pool_h
 #define miranda_object_pool_h
 #include "memory.obj.h"
+#include "mutex.obj.h"
 d_declare_class(pool) {
 	struct s_attributes head;
 	struct s_list *pool;

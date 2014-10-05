@@ -22,7 +22,8 @@ d_exception_define(unsupported, 7, "unsupported action exception");
 d_exception_define(closed, 	8, "closed resource exception");
 struct s_stream_attributes *p_stream_alloc(struct s_object *self) {
 	struct s_stream_attributes *result = d_prepare(self, stream);
-	f_memory_new(self); /* inherit */
+	f_memory_new(self); 	/* inherit */
+	f_mutex_new(self);	/* inherit */
 	return result;
 }
 

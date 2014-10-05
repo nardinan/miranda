@@ -19,7 +19,8 @@
 struct s_object *v_default_pool = NULL;
 struct s_pool_attributes *p_pool_alloc(struct s_object *self) {
 	struct s_pool_attributes *result = d_prepare(self, pool);
-	f_memory_new(self); /* inerith */
+	f_memory_new(self); 	/* inherit */
+	f_mutex_new(self);	/* inherit */
 	return result;
 }
 

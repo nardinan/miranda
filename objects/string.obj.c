@@ -18,7 +18,8 @@
 #include "string.obj.h"
 struct s_string_attributes *p_string_alloc(struct s_object *self) {
 	struct s_string_attributes *result = d_prepare(self, string);
-	f_memory_new(self); /* inherit */
+	f_memory_new(self); 	/* inherit */
+	f_mutex_new(self); 	/* inherit */
 	return result;
 }
 

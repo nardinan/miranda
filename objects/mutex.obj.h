@@ -15,13 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_objects_h
-#define miranda_objects_h
+#ifndef miranda_object_mutex_h
+#define miranda_object_mutex_h
+#include <pthread.h>
 #include "object.h"
-#include "memory.obj.h"
-#include "mutex.obj.h"
-#include "pool.obj.h"
-#include "string.obj.h"
-#include "array.obj.h"
-#include "stream.obj.h"
+d_declare_class(mutex) {
+	struct s_attributes head;
+	pthread_mutex_t mutex;
+} d_declare_class_tail(mutex);
+extern struct s_object *f_mutex_new(struct s_object *self);
+d_declare_method(mutex, trylock)(struct s_object *self);
+d_declare_method(mutex, lock)(struct s_object *self);
+d_declare_method(mutex, unlock)(struct s_object *self);
+d_declare_method(mutex, delete)(struct s_object *self, struct s_mutex_attributes *attributes);
 #endif
+
