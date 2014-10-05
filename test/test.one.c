@@ -4,7 +4,7 @@
 int main (int argc, char *argv[]) {
 	f_memory_init();
 	d_pool_init;
-	d_pool_begin("main") {
+	d_pool_begin("main context") {
 		int index;
 		s_object *array_strings, *array_substrings;
 		s_object *string_pool[] = {
@@ -19,7 +19,7 @@ int main (int argc, char *argv[]) {
 			f_stream_new_temporary(d_new(stream), d_P(d_KSTR("temporary_file"))),
 			NULL
 		};
-		d_pool_begin("another thing") {
+		d_pool_begin("another context") {
 			while ((string_current = d_call(stream_pool[0], m_stream_read_string, string_readed, d_size))) {
 				string_readed = string_current;
 				printf("[file row: '%s']\n", d_string_cstring(string_readed));
