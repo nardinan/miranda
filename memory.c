@@ -61,13 +61,15 @@ void *p_malloc(size_t dimension, const char *file, unsigned int line) {
 }
 
 void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int line) {
-	struct s_memory_head *head = (struct s_memory_head *)(pointer-sizeof(struct s_memory_head));
+	struct s_memory_head *head;
 	void *backup_pointer;
 	size_t minimum_dimension;
 	if ((backup_pointer = p_malloc(dimension, file, line))) {
-		minimum_dimension = (dimension>head->dimension)?head->dimension:dimension;
-		memcpy(backup_pointer, pointer, minimum_dimension);
-		p_free(pointer, file, line);
+		if ((pointer) && (head = (struct s_memory_head *)(pointer-sizeof(struct s_memory_head)))) {
+			minimum_dimension = (dimension>head->dimension)?head->dimension:dimension;
+			memcpy(backup_pointer, pointer, minimum_dimension);
+			p_free(pointer, file, line);
+		}
 	} else
 		d_die(d_error_malloc);
 	return backup_pointer;
