@@ -69,14 +69,22 @@ int f_string_key(char *string, struct s_string_key_format *format, size_t size, 
 			f_string_trim(key_pointer);
 			f_string_trim(value_pointer);
 			for (index = 0; index < size; ++index)
-				if (f_string_strcmp(format[index].key, key_pointer) == 0) {
+				if ((!format[index].assigned) && (f_string_strcmp(format[index].key, key_pointer) == 0)) {
 					switch (format[index].kind) {
-						case e_string_key_pointer_single:
-							format[index].destination.single_ptr = format[index].function(value_pointer);
+						case e_string_key_kind_string:
+							strncpy((char *)format[index].pointer.destination_ptr, value_pointer, format[index].destination_size);
 							break;
-						case e_string_key_pointer_double:
-							*(format[index].destination.double_ptr) = format[index].function(value_pointer);
+						case e_string_key_kind_float:
+							*((float *)format[index].pointer.destination_ptr) = atof(value_pointer);
+							break;
+						case e_string_key_kind_int:
+							*((int *)format[index].pointer.destination_ptr) = atoi(value_pointer);
+							break;
+						default:
+							*(format[index].pointer.destination_double_ptr) = value_pointer;
+
 					}
+					format[index].assigned = d_true;
 					result++;
 				}
 		}

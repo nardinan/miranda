@@ -28,19 +28,20 @@
 #define d_space_character(a) (((a)==' ')||((a)=='\t'))
 #define d_final_character(a) (((a)=='\0')||((a)=='\n'))
 typedef char *(* t_string_formatter)(char *, size_t *, size_t, char *, va_list);
-typedef void *(* t_string_converter)(char *);
-typedef enum e_string_key_pointer {
-	e_string_key_pointer_single = 0,
-	e_string_key_pointer_double
-} e_string_key_pointer;
+typedef enum e_string_key_kinds {
+	e_string_key_kind_pointer = 0,		/* double ptr */
+	e_string_key_kind_string,		/* single ptr */
+	e_string_key_kind_float,		/* single ptr */
+	e_string_key_kind_int			/* single ptr */
+} e_string_key_kinds;
 typedef struct s_string_key_format {
+	enum e_string_key_kinds kind;
 	const char *key;
 	union {
-		void *single_ptr;
-		void **double_ptr;
-	} destination;
-	enum e_string_key_pointer kind;
-	t_string_converter function;
+		void *destination_ptr;
+		void **destination_double_ptr;
+	} pointer;
+	size_t destination_size, assigned;
 } s_string_key_format;
 extern size_t f_string_strlen(const char *string);
 extern int f_string_strncmp(const char *left, const char *right, size_t size);
