@@ -25,7 +25,7 @@ const char v_log_level_description[][d_log_description_size] = {
 };
 void p_log_write(FILE *stream, enum e_log_level level, const char *file, const char *function, unsigned int line, const char *format, ...) {
 	va_list arguments;
-	if (level <= v_log_level) {
+	if (level >= v_log_level) {
 		fprintf(stream, "%s - [%s::%s() (%d)] ", v_log_level_description[level], file, function, line);
 		va_start(arguments, format);
 		vfprintf(stream, format, arguments);
