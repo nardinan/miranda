@@ -56,39 +56,49 @@ char *f_string_append(char **string, char *postfix, size_t *space) {
 }
 
 int f_string_key(char *string, struct s_string_key_format *format, size_t size, char divisor) {
-	char *key_pointer = string, *value_pointer, *last_pointer;
+	char *buffer, *key_pointer, *value_pointer, *last_pointer;
 	int index, result = 0;
-	while ((key_pointer) && (value_pointer = strchr(key_pointer, divisor))) {
-		*value_pointer = '\0';
-		value_pointer++;
-		if (f_string_strlen(value_pointer) > 0) {
-			if ((last_pointer = strchr(value_pointer, '\n'))) {
-				*last_pointer = '\0';
-				last_pointer++;
-			}
-			f_string_trim(key_pointer);
-			f_string_trim(value_pointer);
-			for (index = 0; index < size; ++index)
-				if ((!format[index].assigned) && (f_string_strcmp(format[index].key, key_pointer) == 0)) {
-					switch (format[index].kind) {
-						case e_string_key_kind_string:
-							strncpy((char *)format[index].pointer.destination_ptr, value_pointer, format[index].destination_size);
-							break;
-						case e_string_key_kind_float:
-							*((float *)format[index].pointer.destination_ptr) = atof(value_pointer);
-							break;
-						case e_string_key_kind_int:
-							*((int *)format[index].pointer.destination_ptr) = atoi(value_pointer);
-							break;
-						default:
-							*(format[index].pointer.destination_double_ptr) = value_pointer;
-
-					}
-					format[index].assigned = d_true;
-					result++;
+	size_t string_size;
+	if (((string_size = f_string_strlen(string)) > 0) && (buffer = (char *) d_malloc(string_size+1))) {
+		strncpy(buffer, string, string_size);
+		key_pointer = buffer;
+		while ((key_pointer) && (value_pointer = strchr(key_pointer, divisor))) {
+			*value_pointer = '\0';
+			value_pointer++;
+			if (f_string_strlen(value_pointer) > 0) {
+				if ((last_pointer = strchr(value_pointer, '\n'))) {
+					*last_pointer = '\0';
+					last_pointer++;
 				}
+				f_string_trim(key_pointer);
+				f_string_trim(value_pointer);
+				for (index = 0; index < size; ++index)
+					if ((!format[index].assigned) && (f_string_strcmp(format[index].key, key_pointer) == 0)) {
+						switch (format[index].kind) {
+							case e_string_key_kind_string:
+								strncpy((char *)format[index].pointer.destination_ptr, value_pointer,
+										format[index].destination_size);
+								break;
+							case e_string_key_kind_float:
+								*((float *)format[index].pointer.destination_ptr) = atof(value_pointer);
+								break;
+							case e_string_key_kind_int:
+								*((int *)format[index].pointer.destination_ptr) = atoi(value_pointer);
+								break;
+							default:
+								*(format[index].pointer.destination_double_ptr) = value_pointer;
+
+						}
+						format[index].assigned = d_true;
+						result++;
+						if (format[index].fall_after)
+							break;
+					}
+			} else
+				last_pointer = value_pointer;
+			key_pointer = last_pointer;
 		}
-		key_pointer = last_pointer;
+		d_free(buffer);
 	}
 	return result;
 }

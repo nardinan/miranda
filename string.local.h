@@ -41,7 +41,8 @@ typedef struct s_string_key_format {
 		void *destination_ptr;
 		void **destination_double_ptr;
 	} pointer;
-	size_t destination_size, assigned;
+	size_t destination_size;
+	int fall_after, assigned;
 } s_string_key_format;
 extern size_t f_string_strlen(const char *string);
 extern int f_string_strncmp(const char *left, const char *right, size_t size);
