@@ -36,12 +36,16 @@ void f_list_append(struct s_list *list, struct s_list_node *node, enum e_list_in
 		case e_list_insert_head:
 			if (list->head)
 				list->head->back = node;
+			else
+				list->tail = node;
 			node->next = list->head;
 			list->head = node;
 			break;
 		case e_list_insert_tail:
 			if (list->tail)
 				list->tail->next = node;
+			else
+				list->head = node;
 			node->back = list->tail;
 			list->tail = node;
 			break;
