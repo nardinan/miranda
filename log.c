@@ -30,7 +30,7 @@ void p_log_write(FILE *stream, enum e_log_level level, const char *file, const c
 		va_start(arguments, format);
 		vfprintf(stream, format, arguments);
 		va_end(arguments);
-		fputc('\n', stream);
+		fputc(d_log_new_line, stream);
 		fflush(stream);
 	}
 }
