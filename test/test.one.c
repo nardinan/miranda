@@ -10,8 +10,8 @@ int main (int argc, char *argv[]) {
 		s_object *string_pool[] = {
 			f_string_new(d_new(string), "name of the program is '%s'      ", argv[0]),
 			f_string_new(d_new(string), "string contains:"),
-			f_string_new(d_new(string), "      prova     "),
-			f_string_new(d_new(string), "sono:senza:parole,::e::voi:?::"),
+			f_string_new(d_new(string), "      test      "),
+			f_string_new(d_new(string), "Ihave:now:words,::what::about:you?::"),
 			NULL
 		}, *string_singleton, *string_readed = NULL, *string_current;
 		s_object *stream_pool[] = {
