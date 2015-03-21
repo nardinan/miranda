@@ -28,4 +28,5 @@
 #include "endian.local.h"
 #include "memory.h"
 #include "rs232.h"
+#include "console.h"
 #endif
