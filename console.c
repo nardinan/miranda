@@ -168,13 +168,13 @@ void p_console_write_suggestion(struct s_console *console, struct s_console_inpu
 			strcpy(input->input, common_substring);
 			input->data_length = input->data_pointer = f_string_strlen(common_substring);
 			if (match == 1) {
-				snprintf(buffer, d_console_output_size, "\n%s%sCOMMAND: %s%s\n%s%sDESCRIPTION: %s%s",
+				snprintf(buffer, d_console_output_size, "\n%s%sCOMMAND    : %s%s\n%s%sDESCRIPTION: %s%s",
 						v_console_styles[e_console_style_bold], v_console_styles[e_console_style_yellow],
 						v_console_styles[e_console_style_reset], console->commands[last_match].command,
 						v_console_styles[e_console_style_bold], v_console_styles[e_console_style_yellow],
 						v_console_styles[e_console_style_reset], console->commands[last_match].description);
 				if ((console->commands[last_match].parameters) && (console->commands[last_match].parameters[0].initialized)) {
-					snprintf(backup, d_string_buffer_size, "\n%s%sPARAMETERS:%s", v_console_styles[e_console_style_bold],
+					snprintf(backup, d_string_buffer_size, "\n%s%sPARAMETERS :%s", v_console_styles[e_console_style_bold],
 							v_console_styles[e_console_style_yellow], v_console_styles[e_console_style_reset]);
 					strncat(buffer, backup, (d_console_output_size-f_string_strlen(buffer))-1);
 					for (index = 0; console->commands[last_match].parameters[index].initialized; index++) {
