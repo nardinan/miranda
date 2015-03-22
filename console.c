@@ -310,7 +310,7 @@ int p_console_execute(struct s_console *console, char *input, int output) {
 			} else
 				d_die(d_error_malloc);
 		}
-		if (console->commands) {
+		if (console->commands)
 			for (index = 0; console->commands[index].initialized; index++)
 				if (f_string_strcmp(tokens[0], console->commands[index].command) == 0) {
 					if (p_console_execute_verify(&(console->commands[index]), tokens, arguments, output))
@@ -319,12 +319,11 @@ int p_console_execute(struct s_console *console, char *input, int output) {
 									output);
 					match++;
 				}
-			if ((match == 0) && (output != d_console_descriptor_null)) {
-				snprintf(buffer, d_string_buffer_size, "ehm .. what does '%s%s%s' mean?\n", v_console_styles[e_console_style_bold],
-						tokens[0], v_console_styles[e_console_style_reset]);
-				write(output, buffer, f_string_strlen(buffer));
-				fsync(output);
-			}
+		if ((match == 0) && (output != d_console_descriptor_null)) {
+			snprintf(buffer, d_string_buffer_size, "ehm .. what does '%s%s%s' mean?\n", v_console_styles[e_console_style_bold],
+					tokens[0], v_console_styles[e_console_style_reset]);
+			write(output, buffer, f_string_strlen(buffer));
+			fsync(output);
 		}
 		for (index = 0; index < arguments; index++)
 			d_free(tokens[index]);
