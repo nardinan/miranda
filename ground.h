@@ -29,4 +29,5 @@
 #include "memory.h"
 #include "rs232.h"
 #include "console.h"
+#include "telnet.h"
 #endif

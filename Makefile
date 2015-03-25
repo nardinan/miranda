@@ -1,4 +1,4 @@
-objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o
+objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o
 name = miranda_ground
 cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
@@ -40,6 +40,9 @@ rs232.o: rs232.c rs232.h string.local.h
 
 console.o: console.c console.h string.local.h memory.h
 	$(cc) $(cflags) console.c
+
+telnet.o: telnet.c telnet.h string.local.h memory.h
+	$(cc) $(cflags) telnet.c
 
 clean:
 	rm -f *.o
