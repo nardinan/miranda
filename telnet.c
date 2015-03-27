@@ -152,6 +152,7 @@ void p_telnet_write_args(struct s_telnet *telnet, int client, t_telnet_quit_acti
 					quit_action(&(telnet->clients[client]), client);
 				p_telnet_destroy_client(telnet, client);
 			}
+			d_free(message);
 		}
 	}
 	va_end(backup_args);
