@@ -18,17 +18,20 @@
 #include "console.h"
 const char *v_console_styles[] = {
 	"\x1B[0m",
+	/* styles */
 	"\x1B[1m",
 	"\x1B[3m",
 	"\x1B[4m",
 	"\x1B[5m",
 	"\x1B[7m",
+	/* colors */
 	"\x1B[31m",
 	"\x1B[32m",
 	"\x1B[33m",
 	"\x1B[34m",
 	"\x1b[37m",
 	"\x1B[37m",
+	/* utils */
 	"\033[1K",
 	"\x1B[2J"
 };
@@ -113,21 +116,21 @@ void p_console_write_history(struct s_console *console, struct s_console_input *
 	int change = d_false;
 	if (output != d_console_descriptor_null)
 		switch (input->special[2]) {
-			case 66:
+			case 66: /* down arrow */
 				change = d_true;
 				if (console->history_pointer <= console->history_last)
 					console->history_pointer++;
 				break;
-			case 65:
+			case 65: /* up arrow */
 				change = d_true;
 				if (console->history_pointer > 0)
 					console->history_pointer--;
 				break;
-			case 68:
+			case 68: /* left arrow */
 				if (input->data_pointer > 0)
 					input->data_pointer--;
 				break;
-			case 67:
+			case 67: /* right arrow */
 				if (input->data_pointer < input->data_length)
 					input->data_pointer++;
 
@@ -200,7 +203,6 @@ int f_console_read(struct s_console *console, struct s_console_input *input, int
 	fd_set descriptor_set;
 	if (input->ready)
 		memset(input, 0, sizeof(struct s_console_input));
-	/* refresh command line */
 	f_console_refresh(console, input, output);
 	FD_ZERO(&descriptor_set);
 	FD_SET(console->descriptor, &descriptor_set);

@@ -35,17 +35,20 @@ struct s_console;
 struct s_console_command;
 typedef enum e_console_style {
 	e_console_style_reset = 0,
+	/* styles */
 	e_console_style_bold,
 	e_console_style_italic,
 	e_console_style_underline,
 	e_console_style_blink,
 	e_console_style_reverse,
+	/* colors */
 	e_console_style_red,
 	e_console_style_green,
 	e_console_style_yellow,
 	e_console_style_blue,
 	e_console_style_gray,
 	e_console_style_white,
+	/* utils */
 	e_console_style_clean_line,
 	e_console_style_clean_screen
 } e_console_style;
