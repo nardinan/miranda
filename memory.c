@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "memory.h"
-struct s_list *v_memory = NULL;
+struct s_list *v_memory;
 void f_memory_init (void) {
 	f_list_init(&v_memory);
 }

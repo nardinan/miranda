@@ -1,3 +1,4 @@
+library_path=/usr/local/lib
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o
 name = miranda_ground
 cc = gcc -g
@@ -7,6 +8,9 @@ executable = lib$(name).so
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
+
+install:
+	cp $(executable) $(library_path)
 
 endian.local.o: endian.local.c endian.local.h types.h
 	$(cc) $(cflags) endian.local.c
