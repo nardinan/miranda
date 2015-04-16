@@ -283,7 +283,7 @@ int p_console_execute_verify(struct s_console_command *command, char **tokens, s
 
 int p_console_execute(struct s_console *console, char *input, int output) {
 	char **tokens, *pointer, *next, buffer[d_string_buffer_size];
-	int index = 0, arguments = 1, match = 0;
+	int index = 0, allocated_arguments = 0, arguments = 1, match = 0;
 	size_t length;
 	pointer = input;
 	while ((next = strchr(pointer, ' '))) {
@@ -299,6 +299,7 @@ int p_console_execute(struct s_console *console, char *input, int output) {
 				if ((tokens[index] = (char *) d_malloc(length+1))) {
 					memcpy(tokens[index], pointer, length);
 					f_string_trim(tokens[index]);
+					allocated_arguments++;
 					index++;
 				} else
 					d_die(d_error_malloc);
@@ -309,6 +310,7 @@ int p_console_execute(struct s_console *console, char *input, int output) {
 			if ((tokens[index] = (char *) d_malloc(length+1))) {
 				memcpy(tokens[index], pointer, length);
 				f_string_trim(tokens[index]);
+				allocated_arguments++;
 			} else
 				d_die(d_error_malloc);
 		}
@@ -327,7 +329,7 @@ int p_console_execute(struct s_console *console, char *input, int output) {
 			write(output, buffer, f_string_strlen(buffer));
 			fsync(output);
 		}
-		for (index = 0; index < arguments; index++)
+		for (index = 0; index < allocated_arguments; index++)
 			d_free(tokens[index]);
 		d_free(tokens);
 	}
