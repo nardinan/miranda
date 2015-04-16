@@ -26,7 +26,7 @@
 #define d_string_argument_size 24
 #define d_string_buffer_size 256
 #define d_space_character(a) (((a)==' ')||((a)=='\t'))
-#define d_final_character(a) (((a)=='\0')||((a)=='\n'))
+#define d_final_character(a) (((a)=='\0')||((a)=='\n')||((a)=='\r'))
 typedef char *(* t_string_formatter)(char *, size_t *, size_t, char *, va_list);
 typedef enum e_string_key_kinds {
 	e_string_key_kind_pointer = 0,		/* double ptr */
