@@ -1,7 +1,7 @@
 objects = object.o memory.obj.o mutex.obj.o  pool.obj.o string.obj.o array.obj.o stream.obj.o
 name = miranda_objects
 cc = gcc -g
-cflags = -Wall -I.. -fPIC -Wno-variadic-macros -Wno-gnu -Wno-pointer-arith -Wno-dollar-in-identifier-extension -std=c99 -c -pedantic
+cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -std=c99 -c -pedantic
 lflags = -Wall
 libs = -L.. -lpthread -lmiranda_ground
 executable = lib$(name).so

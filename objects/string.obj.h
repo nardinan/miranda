@@ -38,7 +38,7 @@ d_declare_method(string, trim)(struct s_object *self);
 d_declare_method(string, append)(struct s_object *self, struct s_object *other);
 d_declare_method(string, substring)(struct s_object *self, size_t begin, size_t end);
 d_declare_method(string, split)(struct s_object *self, char character);
-#define d_string_cstring(str) ((char *)d_call(str,m_string_cstring,NULL))
+#define d_string_cstring(str) ((char *)d_call((str),m_string_cstring,NULL))
 d_declare_method(string, cstring)(struct s_object *self);
 d_declare_method(string, length)(struct s_object *self, size_t *length);
 d_declare_method(string, size)(struct s_object *self, size_t *size);

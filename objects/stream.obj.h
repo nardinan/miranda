@@ -17,7 +17,7 @@
  */
 #ifndef miranda_object_stream_h
 #define miranda_object_stream_h
-#include <fcntl.h>
+#include <sys/file.h>
 #include <unistd.h>
 #include "string.obj.h"
 #define d_stream_block_size 5120

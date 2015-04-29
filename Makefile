@@ -5,11 +5,14 @@ cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
+folders=objects
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
+	for current_dir in $(folders); do make -C $${current_dir}; done
 
 install:
+	for current_dir in $(folders); do cp $${current_dir}/*.so $(library_path); done
 	cp $(executable) $(library_path)
 
 endian.local.o: endian.local.c endian.local.h types.h
@@ -51,3 +54,4 @@ telnet.o: telnet.c telnet.h string.local.h memory.h
 clean:
 	rm -f *.o
 	rm -f $(executable)
+	for current_dir in $(folders); do make clean -C $${current_dir}; done

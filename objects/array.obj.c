@@ -39,7 +39,6 @@ struct s_object *f_array_new_bucket(struct s_object *self, size_t size, size_t b
 }
 
 struct s_object *f_array_new_list(struct s_object *self, size_t size, ...) {
-	struct s_array_attributes *attributes = p_array_alloc(self);
 	va_list parameters;
 	va_start(parameters, size);
 	f_array_new_args(self, size, parameters);
