@@ -1,4 +1,4 @@
-objects = object.o memory.obj.o mutex.obj.o  pool.obj.o string.obj.o array.obj.o stream.obj.o
+objects = object.o memory.obj.o mutex.obj.o emitter.obj.o pool.obj.o string.obj.o array.obj.o stream.obj.o
 name = miranda_objects
 cc = gcc -g
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -std=c99 -c -pedantic
@@ -17,6 +17,9 @@ memory.obj.o: memory.obj.c memory.obj.h object.h
 
 mutex.obj.o: mutex.obj.c mutex.obj.h object.h
 	$(cc) $(cflags) mutex.obj.c
+
+emitter.obj.o: emitter.obj.c emitter.obj.h object.h
+	$(cc) $(cflags) emitter.obj.c
 
 pool.obj.o: pool.obj.c pool.obj.h memory.obj.h mutex.obj.h
 	$(cc) $(cflags) pool.obj.c

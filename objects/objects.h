@@ -20,6 +20,7 @@
 #include "object.h"
 #include "memory.obj.h"
 #include "mutex.obj.h"
+#include "emitter.obj.h"
 #include "pool.obj.h"
 #include "string.obj.h"
 #include "array.obj.h"
