@@ -188,14 +188,14 @@ d_define_method(array, compare)(struct s_object *self, struct s_object *other) {
 
 d_define_class(array) {
 	d_hook_method(array, e_flag_public, insert),
-		d_hook_method(array, e_flag_public, remove),
-		d_hook_method(array, e_flag_public, get),
-		d_hook_method(array, e_flag_public, reset),
-		d_hook_method(array, e_flag_public, next),
-		d_hook_method(array, e_flag_public, size),
-		d_hook_delete(array),
-		d_hook_hash(array),
-		d_hook_compare(array),
-		d_hook_method_tail
+	d_hook_method(array, e_flag_public, remove),
+	d_hook_method(array, e_flag_public, get),
+	d_hook_method(array, e_flag_public, reset),
+	d_hook_method(array, e_flag_public, next),
+	d_hook_method(array, e_flag_public, size),
+	d_hook_delete(array),
+	d_hook_hash(array),
+	d_hook_compare(array),
+	d_hook_method_tail
 };
 

@@ -251,14 +251,14 @@ d_define_method(stream, delete)(struct s_object *self, struct s_stream_attribute
 
 d_define_class(stream) {
 	d_hook_method(stream, e_flag_public, write),
-		d_hook_method(stream, e_flag_public, write_string),
-		d_hook_method(stream, e_flag_public, write_stream),
-		d_hook_method(stream, e_flag_public, read),
-		d_hook_method(stream, e_flag_public, read_string),
-		d_hook_method(stream, e_flag_public, size),
-		d_hook_method(stream, e_flag_public, seek),
-		d_hook_method(stream, e_flag_public, lock),
-		d_hook_delete(stream),
-		d_hook_method_tail
+	d_hook_method(stream, e_flag_public, write_string),
+	d_hook_method(stream, e_flag_public, write_stream),
+	d_hook_method(stream, e_flag_public, read),
+	d_hook_method(stream, e_flag_public, read_string),
+	d_hook_method(stream, e_flag_public, size),
+	d_hook_method(stream, e_flag_public, seek),
+	d_hook_method(stream, e_flag_public, lock),
+	d_hook_delete(stream),
+	d_hook_method_tail
 };
 

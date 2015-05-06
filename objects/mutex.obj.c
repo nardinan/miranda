@@ -46,8 +46,8 @@ d_define_method(mutex, delete)(struct s_object *self, struct s_mutex_attributes 
 
 d_define_class(mutex) {
 	d_hook_method(mutex, e_flag_public, trylock),
-		d_hook_method(mutex, e_flag_public, lock),
-		d_hook_method(mutex, e_flag_public, unlock),
-		d_hook_delete(mutex),
-		d_hook_method_tail
+	d_hook_method(mutex, e_flag_public, lock),
+	d_hook_method(mutex, e_flag_public, unlock),
+	d_hook_delete(mutex),
+	d_hook_method_tail
 };
