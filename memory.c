@@ -55,6 +55,8 @@ void *p_malloc(size_t dimension, const char *file, unsigned int line) {
 		tail->line = line;
 		tail->file = file;
 		tail->node = node;
+		d_log(e_log_level_high, "pointer %p (%hu bytes) has been allocated (in %s::%d) [0x%x-0x%x]", node->pointer, head->dimension, tail->file,
+				tail->line, head->checksum, tail->checksum);
 	} else
 		d_die(d_error_malloc);
 	return node->pointer;
