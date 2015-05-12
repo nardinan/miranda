@@ -39,8 +39,8 @@ typedef struct s_memory_node {
 extern struct s_list *v_memory;
 extern void f_memory_init(void);
 extern void f_memory_destroy(void);
-extern void *p_malloc(size_t dimension, const char *file, unsigned int line);
-extern void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int line);
+extern __attribute__ ((warn_unused_result)) __attribute__ ((malloc)) void *p_malloc(size_t dimension, const char *file, unsigned int line);
+extern __attribute__ ((warn_unused_result)) void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int line);
 extern void p_free(void *pointer, const char *file, unsigned int line);
 #endif
 
