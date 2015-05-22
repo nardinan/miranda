@@ -17,7 +17,7 @@
  */
 #ifndef miranda_types_h
 #define miranda_types_h
-typedef char t_boolean;
+typedef unsigned char t_boolean;
 #define d_true 1
 #define d_false 0
 #endif

@@ -25,11 +25,12 @@
 #define d_log_description_size 32
 #define d_log_new_line '\n'
 #define d_log_level_default e_log_level_medium
-#define d_log(l,c...) p_log_write(stdout,l,__FILE__,__FUNCTION__,__LINE__,##c)
-#define d_err(l,c...) p_log_write(stderr,l,__FILE__,__FUNCTION__,__LINE__,##c)
+#define d_log(l,c...) p_log_write(stdout,l,"\x1B[32mlog\x1B[0m",__FILE__,__FUNCTION__,__LINE__,##c)
+#define d_war(l,c...) p_log_write(stdout,l,"\x1B[33mwar\x1B[0m",__FILE__,__FUNCTION__,__LINE__,##c)
+#define d_err(l,c...) p_log_write(stderr,l,"\x1B[31merr\x1B[0m",__FILE__,__FUNCTION__,__LINE__,##c)
 #define d_die(f...)\
 	do{\
-		p_log_write(stderr,e_log_level_ever,__FILE__,__FUNCTION__,__LINE__,##f);\
+		d_err(e_log_level_ever,##f);\
 		exit(1);\
 	}while(0);
 #define d_assert(ass)\
@@ -45,5 +46,6 @@ typedef enum e_log_level {
 } e_log_level;
 extern enum e_log_level v_log_level;
 extern const char v_log_level_description[][d_log_description_size];
-extern void p_log_write(FILE *stream, enum e_log_level level, const char *file, const char *function, unsigned int line, const char *format, ...);
+extern void p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, unsigned int line, 
+	const char *format, ...);
 #endif
