@@ -61,18 +61,19 @@ extern const char *v_console_styles[];
 typedef int (*t_console_recall)(struct s_console *, struct s_console_command *, char **, size_t, int);
 typedef struct s_console_parameter {
 	char parameter[d_console_parameter_size], description[d_string_buffer_size];
-	int is_flag:1, optional:1, initialized:1;
+	t_boolean is_flag, optional, initialized;
 } s_console_parameter;
 typedef struct s_console_command {
 	char command[d_console_command_size], description[d_string_buffer_size];
 	struct s_console_parameter *parameters;
 	t_console_recall call;
 	enum e_console_level level;
-	int initialized:1;
+	t_boolean initialized;
 } s_console_command;
 typedef struct s_console_input {
 	char input[d_string_buffer_size], special[d_console_parameter_size];
-	int data_pointer, special_pointer, ready:1;
+	int data_pointer, special_pointer;
+	t_boolean ready;
 	size_t data_length;
 } s_console_input;
 typedef struct s_console {

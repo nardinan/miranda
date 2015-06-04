@@ -33,7 +33,8 @@
 #define d_telnet_timeout 100 /* microseconds */
 #define d_telnet_clients 256
 typedef struct s_telnet_socket {
-	int socket, initialized:1;
+	int socket;
+	t_boolean initialized;
 } s_telnet_socket;
 typedef struct s_telnet_client {
 	struct s_telnet_socket socket;
