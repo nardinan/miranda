@@ -1,5 +1,5 @@
 library_path=/usr/local/lib
-objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o
+objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o huffman.o
 name = miranda_ground
 cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
@@ -50,6 +50,9 @@ console.o: console.c console.h string.local.h memory.h
 
 telnet.o: telnet.c telnet.h string.local.h memory.h
 	$(cc) $(cflags) telnet.c
+
+huffman.o: huffman.c huffman.h types.h memory.h
+	$(cc) $(cflags) huffman.c
 
 clean:
 	rm -f *.o

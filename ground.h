@@ -30,4 +30,5 @@
 #include "rs232.h"
 #include "console.h"
 #include "telnet.h"
+#include "huffman.h"
 #endif
