@@ -1,10 +1,62 @@
 #include "ground.h"
 #include "objects/objects.h"
 #define d_size 1024
+unsigned char *huffman_string =
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse numquam probabis; "\
+		"Te ipsum, dignissimum maioribus tuis, voluptasne induxit, ut adolescentulus eriperes P. Tubulo putas dicere? Qui non moveatur et offensione"\
+		" turpitudinis et comprobatione honestatis? Tamen a proposito, inquam, aberramus. Istam voluptatem, inquit, Epicurus ignorat? Nummus in Croe"\
+		"si divitiis obscuratur, pars est tamen divitiarum. Efficiens dici potest. Quis Aristidem non mortuum diligit? Quarum ambarum rerum cum medi"\
+		"cinam pollicetur, luxuriae licentiam pollicetur. Ut optime, secundum naturam affectum esse possit. Facillimum id quidem est, inquam. Quid a"\
+		"it Aristoteles reliquique Platonis alumni? Certe non potest. Si mala non sunt, iacet omnis ratio Peripateticorum. Sed haec omittamus; Cum s"\
+		"ciret confestim esse moriendum eamque mortem ardentiore studio peteret, quam Epicurus voluptatem petendam putat. Equidem etiam Epicurum, in"\
+		"physicis quidem, Democriteum puto. Facit enim ille duo seiuncta ultima bonorum, quae ut essent vera, coniungi debuerunt; Theophrasti igitur"\
+		", inquit, tibi liber ille placet de beata vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse numquam probabis;"\
+		"Te ipsum, dignissimum maioribus tuis, voluptasne induxit, ut adolescentulus eriperes P. Tubulo putas dicere? Qui non moveatur et offensione"\
+		" turpitudinis et comprobatione honestatis? Tamen a proposito, inquam, aberramus. Istam voluptatem, inquit, Epicurus ignorat? Nummus in Croe"\
+		"si divitiis obscuratur, pars est tamen divitiarum. Efficiens dici potest. Quis Aristidem non mortuum diligit? Quarum ambarum rerum cum medi"\
+		"cinam pollicetur, luxuriae licentiam pollicetur. Ut optime, secundum naturam affectum esse possit. Facillimum id quidem est, inquam. Quid a"\
+		"it Aristoteles reliquique Platonis alumni? Certe non potest. Si mala non sunt, iacet omnis ratio Peripateticorum. Sed haec omittamus; Cum s"\
+		"ciret confestim esse moriendum eamque mortem ardentiore studio peteret, quam Epicurus voluptatem petendam putat. Equidem etiam Epicurum, in"\
+		"physicis quidem, Democriteum puto. Facit enim ille duo seiuncta ultima bonorum, quae ut essent vera, coniungi debuerunt; Theophrasti igitur"\
+		", inquit, tibi liber ille placet de beata vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio. Vita? Deprehensus omnem poenam contemnet. Hoc enim constituto in philosophia constituta sunt omni"\
+		"a. Tu vero, inquam, ducas licet, si sequetur; Quo modo autem optimum, si bonum praeterea nullum est? Quae similitudo in genere etiam humano"\
+		" apparet. Alterum significari idem, ut si diceretur, officia media omnia aut pleraque servantem vivere. Quae qui non vident, nihil umquam m"\
+		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
+		"rerum facilis est et expedita distinctio.";
 int main (int argc, char *argv[]) {
 	f_memory_init();
 	d_pool_init;
 	d_pool_begin("main context") {
+		unsigned char *huffman_compressed = NULL, *huffman_decompressed = NULL;
+		size_t huffman_length = 0, again_length;
 		int index;
 		s_object *array_strings, *array_substrings;
 		s_object *string_pool[] = {
@@ -19,6 +71,12 @@ int main (int argc, char *argv[]) {
 			f_stream_new_temporary(d_new(stream), d_P(d_KSTR("temporary_file"))),
 			NULL
 		};
+		f_huffman_compression(huffman_string, f_string_strlen(huffman_string)+1, &huffman_compressed, &huffman_length);
+                f_huffman_decompression(huffman_compressed, huffman_length, &huffman_decompressed, &again_length);
+		printf("[huffman compression: %zu bytes VS %zu bytes compressed string]\n", (f_string_strlen(huffman_string)+1), huffman_length);
+                printf("[and again: %zu]\n%s", again_length, huffman_decompressed);
+		d_free(huffman_compressed);
+		d_free(huffman_decompressed);
 		d_pool_begin("another context") {
 			while ((string_current = d_call(stream_pool[0], m_stream_read_string, string_readed, d_size))) {
 				string_readed = string_current;
