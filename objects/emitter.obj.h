@@ -31,7 +31,7 @@ d_declare_class(emitter) {
 	struct s_list *signals;
 } d_declare_class_tail(emitter);
 extern struct s_object *f_emitter_new(struct s_object *self);
-d_declare_method(emitter, register)(struct s_object *self, const char *id);
+d_declare_method(emitter, record)(struct s_object *self, const char *id);
 d_declare_method(emitter, get)(struct s_object *self, const char *id);
 d_declare_method(emitter, embed_parameter)(struct s_object *self, const char *id, void *parameter);
 d_declare_method(emitter, embed_function)(struct s_object *self, const char *id, f_emitter_action action);

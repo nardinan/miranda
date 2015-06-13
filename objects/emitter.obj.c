@@ -22,7 +22,7 @@ struct s_object *f_emitter_new(struct s_object *self) {
 	return self;
 }
 
-d_define_method(emitter, register)(struct s_object *self, const char *id) {
+d_define_method(emitter, record)(struct s_object *self, const char *id) {
 	d_using(emitter);
 	struct s_signal *signal;
 	if ((signal = (struct s_signal *) d_malloc(sizeof(struct s_signal)))) {
@@ -85,7 +85,7 @@ d_define_method(emitter, delete)(struct s_object *self, struct s_emitter_attribu
 }
 
 d_define_class(emitter) {
-	d_hook_method(emitter, e_flag_public, register),
+	d_hook_method(emitter, e_flag_public, record),
 	d_hook_method(emitter, e_flag_private, get),
 	d_hook_method(emitter, e_flag_public, embed_parameter),
 	d_hook_method(emitter, e_flag_public, embed_function),
