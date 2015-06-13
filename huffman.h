@@ -34,7 +34,6 @@ typedef struct s_huffman_node {
 typedef struct s_huffman_code {
 	unsigned char code, bytes_encode[d_huffman_encode_bytes], bits_number;
 } s_huffman_code;
-static int p_huffman_compare(const void *value, const void *reference);
 extern void p_huffman_destroy(struct s_huffman_node *node);
 extern void p_huffman_compression_append(struct s_huffman_code code, unsigned char *output, size_t *current_byte, size_t *current_bit);
 extern int p_huffman_compression_code(struct s_huffman_node *node, struct s_huffman_code *code, unsigned char byte[], unsigned char bytes_number,
