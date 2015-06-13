@@ -61,10 +61,10 @@ d_exception_declare(wrong_casting);
 #define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym))->method((obj),__VA_ARGS__))
 extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol);
 #define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type,e_flag_null))
-extern struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
+extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
 #define d_prepare(obj,kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,\
 			p_object_attributes_malloc(sizeof(struct s_##kind##_attributes),v_##kind##_type)))
-extern struct s_attributes *p_object_attributes_malloc(size_t size, const char *type);
+extern __attribute__ ((warn_unused_result)) struct s_attributes *p_object_attributes_malloc(size_t size, const char *type);
 extern struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, struct s_attributes *attributes);
 #define d_cast(obj,kind) ((struct s_##kind##_attributes *)p_object_cast((obj),v_##kind##_type))
 extern struct s_attributes *p_object_cast(struct s_object *object, const char *type);
