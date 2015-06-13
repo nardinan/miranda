@@ -2,7 +2,7 @@
 #include "objects/objects.h"
 #define d_size 1024
 unsigned char *huffman_string =
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse numquam probabis; "\
+		"Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
 		"Te ipsum, dignissimum maioribus tuis, voluptasne induxit, ut adolescentulus eriperes P. Tubulo putas dicere? Qui non moveatur et offensione"\
 		" turpitudinis et comprobatione honestatis? Tamen a proposito, inquam, aberramus. Istam voluptatem, inquit, Epicurus ignorat? Nummus in Croe"\
 		"si divitiis obscuratur, pars est tamen divitiarum. Efficiens dici potest. Quis Aristidem non mortuum diligit? Quarum ambarum rerum cum medi"\
