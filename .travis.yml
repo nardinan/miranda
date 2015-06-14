@@ -1,6 +1,8 @@
 language: c
 
 compiler:
-        -gcc
+        - gcc
 
-script: make
+script:
+        - make
+        - sudo make install
