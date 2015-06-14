@@ -1,5 +1,5 @@
-#include "ground.h"
-#include "objects/objects.h"
+#include <miranda/ground.h>
+#include <miranda/objects/objects.h>
 #define d_size 1024
 unsigned char *huffman_string =
 		"Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
