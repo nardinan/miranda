@@ -108,7 +108,7 @@ void p_console_append_history(struct s_console *console, const char *buffer) {
 			strcpy(console->history[index-1], console->history[index]);
 		console->history_last--;
 	}
-	strncpy(console->history[console->history_last++], buffer, d_string_buffer_size);
+	strncpy(console->history[console->history_last++], buffer, (d_string_buffer_size-1));
 	console->history_pointer = console->history_last;
 }
 

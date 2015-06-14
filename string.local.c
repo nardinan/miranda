@@ -164,6 +164,8 @@ char *f_string_format_args(char *buffer, size_t *computed_size, size_t size, cha
 						case 'p':
 							written = snprintf(target, remaining+1, argument, va_arg(parameters, void *));
 							break;
+						default:
+							written = 0;
 					}
 					*computed_size += written;
 					written = ((written>remaining)?remaining:written);

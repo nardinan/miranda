@@ -24,7 +24,7 @@ d_exception_define(private_method, 2, "private method exception");
 d_exception_define(wrong_casting, 3, "wrong casting exception");
 const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol) {
 	struct s_virtual_table *singleton;
-	const struct s_method *result;
+	const struct s_method *result = NULL;
 	int index;
 	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
 		for (index = 0; singleton->virtual_table[index].symbol; index++)

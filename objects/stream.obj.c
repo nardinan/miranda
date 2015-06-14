@@ -86,14 +86,12 @@ struct s_object *f_stream_new_file(struct s_object *self, struct s_object *strin
 
 struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *string_name) {
 	struct s_stream_attributes *attributes = p_stream_alloc(self);
-	FILE *output;
 	attributes->string_name = d_retain(string_name);
 	attributes->parameters = d_stream_flag_write_read;
 	attributes->flags.temporary = d_true;
-	if ((output = tmpfile())) {
-		attributes->descriptor = fileno(output);
+	if ((attributes->descriptor = mkstemp("magrathea_XXXXXX.tmp")) >= 0)
 		attributes->flags.opened = d_true;
-	} else
+	else
 		d_throw(v_exception_unreachable, "unreachable temporary file exception");
 	return self;
 }

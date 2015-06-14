@@ -26,7 +26,7 @@ d_define_method(emitter, record)(struct s_object *self, const char *id) {
 	d_using(emitter);
 	struct s_signal *signal;
 	if ((signal = (struct s_signal *) d_malloc(sizeof(struct s_signal)))) {
-		strncpy(signal->id, id, d_emitter_name_size);
+		strncpy(signal->id, id, (d_emitter_name_size-1));
 		f_list_append(emitter_attributes->signals, (struct s_list_node *)signal, e_list_insert_head);
 	}
 	return (void *)signal;
