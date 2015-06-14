@@ -1,4 +1,6 @@
-library_path=/usr/local/lib
+library_path=/usr/lib
+include_path=/usr/include
+project=miranda
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o huffman.o
 name = miranda_ground
 cc = gcc -g
@@ -12,8 +14,12 @@ all: $(objects)
 	for current_dir in $(folders); do make -C $${current_dir}; done
 
 install:
-	for current_dir in $(folders); do cp $${current_dir}/*.so $(library_path); done
-	cp $(executable) $(library_path)
+	for current_dir in $(folders); do cp -f $${current_dir}/*.so $(library_path); done
+	cp -f $(executable) $(library_path)
+	mkdir -p $(include_path)/$(project)
+	for current_dir in $(folders); \
+		do mkdir -p $(include_path)/$(project)/$${current_dir} && cp $${current_dir}/*.h $(include_path)/$(project)/$${current_dir}; done
+	cp *.h $(include_path)/$(project)
 
 endian.local.o: endian.local.c endian.local.h types.h
 	$(cc) $(cflags) endian.local.c
