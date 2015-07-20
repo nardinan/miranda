@@ -47,7 +47,7 @@ struct s_object *f_array_new_list(struct s_object *self, size_t size, ...) {
 }
 
 struct s_object *f_array_new_args(struct s_object *self, size_t size, va_list parameters) {
-	struct s_array_attributes *attributes = d_cast(self, array);
+	struct s_array_attributes *attributes = p_array_alloc(self);
 	struct s_object *object;
 	size_t index;
 	if ((attributes->content = (struct s_object **) d_malloc(size*sizeof(struct s_object *)))) {
@@ -144,15 +144,14 @@ d_define_method(array, size)(struct s_object *self, size_t *size) {
 }
 
 d_define_method(array, delete)(struct s_object *self, struct s_array_attributes *attributes) {
-	d_using(array);
 	int index;
-	if (array_attributes->content) {
-		for (index = 0; index < array_attributes->size; ++index)
-			if (array_attributes->content[index]) {
-				d_delete(array_attributes->content[index]);
-				array_attributes->content[index] = NULL;
+	if (attributes->content) {
+		for (index = 0; index < attributes->size; ++index)
+			if (attributes->content[index]) {
+				d_delete(attributes->content[index]);
+				attributes->content[index] = NULL;
 			}
-		d_free(array_attributes->content);
+		d_free(attributes->content);
 	}
 	return NULL;
 }

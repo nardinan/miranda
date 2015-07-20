@@ -46,7 +46,7 @@ int f_string_strcmp(const char *left, const char *right) {
 char *f_string_append(char **string, char *postfix, size_t *space) {
 	size_t size_string = f_string_strlen(*string), size_element = f_string_strlen(postfix), total;
 	if ((total = size_string+size_element+1) >= *space) {
-		if ((*string = (char *) d_realloc(*string, total)))
+		if ((*string = (char *) d_realloc(*string, (total+1))))
 			*space = total;
 		else
 			d_die(d_error_malloc);
