@@ -81,6 +81,7 @@ extern struct s_object *f_object_compare(struct s_object *object, struct s_objec
 	const char v_##kind##_type[]=#kind;\
 	struct s_method v_##kind##_vtable[]=
 #define d_hook_method(kind,flag,sym) {m_##kind##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
+#define d_hook_method_override(kind,flag,own,sym) { m_##own##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
 #define d_hook_delete(kind) {m_object_delete,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_delete)}
 #define d_hook_hash(kind) {m_object_hash,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_hash)}
 #define d_hook_compare(kind) {m_object_compare,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_compare)}
@@ -90,6 +91,8 @@ extern struct s_object *f_object_compare(struct s_object *object, struct s_objec
 	struct s_object *p_##kind##_##sym
 #define d_define_method(kind,sym)\
 	const char m_##kind##_##sym[]=#sym;\
+	struct s_object *p_##kind##_##sym
+#define d_define_method_override(kind,sym)\
 	struct s_object *p_##kind##_##sym
 #define d_using(kind) struct s_##kind##_attributes *kind##_attributes = d_cast(self, kind)
 #endif

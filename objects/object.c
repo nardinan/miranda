@@ -27,7 +27,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 	const struct s_method *result = NULL;
 	int index;
 	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
-		for (index = 0; singleton->virtual_table[index].symbol; index++)
+		for (index = 0; singleton->virtual_table[index].symbol; ++index)
 			if (singleton->virtual_table[index].symbol == symbol) {
 				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file))
 					d_throw(v_exception_private_method, "this method is private and you're out of context");
