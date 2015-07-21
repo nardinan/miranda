@@ -25,4 +25,5 @@
 #include "string.obj.h"
 #include "array.obj.h"
 #include "stream.obj.h"
+#include "json.obj.h"
 #endif

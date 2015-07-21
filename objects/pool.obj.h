@@ -32,7 +32,7 @@ extern struct s_object *f_pool_new(struct s_object *self);
 do{\
 	d_call(v_default_pool,m_pool_insert,p_object_malloc(__FILE__,__LINE__,(c),e_flag_placeholder));\
 	do
-#define d_P(p) d_call(v_default_pool,m_pool_insert,(p))
+#define d_p(p) d_call(v_default_pool,m_pool_insert,(p))
 d_declare_method(pool, insert)(struct s_object *self, struct s_object *pointer);
 #define d_pool_end(b)\
 	while(0);\
