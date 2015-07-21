@@ -18,7 +18,6 @@
 #ifndef miranda_object_json_h
 #define miranda_object_json_h
 #include "stream.obj.h"
-#define d_json_tabs(o,t) for(int tb=((t)+1);(--tb)>0;write((o),"\t",sizeof(char)))
 #define d_json_name_size 32
 #define d_json_value_size 20
 #define d_json_value_maximum_decimals 6

@@ -317,6 +317,7 @@ void p_json_write_value(struct s_json_node_value *node, int level, int output) {
 	struct s_json_node_value *local_value;
 	struct s_json_node *local_node;
 	char buffer[d_json_value_size], *digital_position;
+	int index;
 	switch (node->type) {
 		case e_json_node_type_array:
 			write(output, "[", sizeof(char));
@@ -331,14 +332,14 @@ void p_json_write_value(struct s_json_node_value *node, int level, int output) {
 			write(output, "{", sizeof(char));
 			d_foreach(node->object_entry, local_node, struct s_json_node) {
 				write(output, "\n", sizeof(char));
-				d_json_tabs(output, (level+1));
+				for (index = ((level+1)+1); (--index) > 0; write(output, "\t", sizeof(char)));
 				dprintf(output, "\"%s\":", local_node->key);
 				p_json_write_value(&(local_node->value), (level + 1), output);
 				if (local_node->head.next)
 					write(output, ",", sizeof(char));
 			}
 			write(output, "\n", sizeof(char));
-			d_json_tabs(output, level);
+			for (index = (level+1); (--index) > 0; write(output, "\t", sizeof(char)));
 			write(output, "}", sizeof(char));
 			break;
 		case e_json_node_type_string:
