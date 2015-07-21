@@ -243,6 +243,12 @@ d_define_method(stream, lock)(struct s_object *self, int lock) {
 	return self;
 }
 
+d_define_method(stream, get_descriptor)(struct s_object *self, int *descriptor) {
+	d_using(stream);
+	*descriptor = stream_attributes->descriptor;
+	return self;
+}
+
 d_define_method(stream, delete)(struct s_object *self, struct s_stream_attributes *attributes) {
 	if ((!attributes->flags.supplied) && (attributes->flags.opened))
 		close(attributes->descriptor);
@@ -260,6 +266,7 @@ d_define_class(stream) {
 	d_hook_method(stream, e_flag_public, size),
 	d_hook_method(stream, e_flag_public, seek),
 	d_hook_method(stream, e_flag_public, lock),
+	d_hook_method(stream, e_flag_public, get_descriptor),
 	d_hook_delete(stream),
 	d_hook_method_tail
 };

@@ -57,6 +57,7 @@ d_declare_method(stream, read_string)(struct s_object *self, struct s_object *st
 d_declare_method(stream, size)(struct s_object *self, size_t *size);
 d_declare_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream_seek whence, off_t *moved);
 d_declare_method(stream, lock)(struct s_object *self, int lock);
+d_declare_method(stream, get_descriptor)(struct s_object *self, int *descriptor);
 d_declare_method(stream, delete)(struct s_object *self, struct s_stream_attributes *attributes);
 d_declare_method(stream, hash)(struct s_object *self, t_hash_value *value);
 d_declare_method(stream, compare)(struct s_object *self, struct s_object *other);
