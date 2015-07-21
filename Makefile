@@ -7,7 +7,7 @@ cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders = objects objects/graphic
+folders = objects
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
