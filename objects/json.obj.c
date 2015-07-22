@@ -16,8 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "json.obj.h"
-d_exception_define(malformed_key,	9, "malformed JSON key exception");
-d_exception_define(malformed_value,	10,"malformed JSON value exception");
+d_exception_define(malformed_key,	9,  "malformed JSON key exception");
+d_exception_define(malformed_value,	10, "malformed JSON value exception");
+d_exception_define(wrong_type,		11, "wrong type required exception");
+const char *v_json_node_types[] = {
+	"string",
+	"integer/double",
+	"boolean",
+	"array",
+	"object",
+	"null",
+	"undefined"
+};
 struct s_json_attributes *p_json_alloc(struct s_object *self) {
 	struct s_json_attributes *result = d_prepare(self, json);
 	f_memory_new(self);	/* inherit */
@@ -160,6 +170,12 @@ void p_json_analyzer_free(struct s_json_node_value *value) {
 					d_free(local_node);
 				}
 			f_list_destroy(&(value->object_entry));
+			break;
+		case e_json_node_type_string:
+			if ((value->allocated) && (value->string_entry)) {
+				d_free(value->string_entry);
+				value->string_entry = NULL;
+			}
 		default:
 			break;
 	}
@@ -247,7 +263,7 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
 					current_action = e_json_node_action_undefined;
 				if (current_action != e_json_node_action_undefined) {
 					if (nodes)
-						f_list_insert(nodes, (struct s_list_node *)local_value, e_list_insert_head);
+						f_list_append(nodes, (struct s_list_node *)local_value, e_list_insert_tail);
 					local_value = NULL;
 				} else
 					d_throw(v_exception_malformed_value, "unexpected undefined token as closing character");
@@ -293,7 +309,7 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
 						current_action = e_json_node_action_end;
 					else
 						current_action = e_json_node_action_key;
-					f_list_append(nodes, (struct s_list_node *)local_node, e_list_insert_head);
+					f_list_append(nodes, (struct s_list_node *)local_node, e_list_insert_tail);
 					local_node = NULL;
 				} d_catch(exception) {
 					d_exception_dump(stderr, exception);
@@ -393,55 +409,168 @@ d_define_method(json, write)(struct s_object *self, struct s_object *stream_file
 	return self;
 }
 
-d_define_method(json, get_value)(struct s_object *self, va_list parameters) {
+d_define_method(json, get_value)(struct s_object *self, const char *format, va_list parameters) {
 	d_using(json);
-	struct s_json_node_value *node = json_attributes->root, *local_value;
+	struct s_json_node_value *value = json_attributes->root, *local_value;
 	struct s_json_node *local_node;
 	int argument_long;
-	char *argument_string;
+	char *argument_string, *pointer = (char *)format;
 	t_boolean founded = d_false;
-	while ((!founded) && (node))
-		switch (node->type) {
+	while ((*pointer) && (value)) {
+		switch (value->type) {
 			case e_json_node_type_array:
-				local_value = (struct s_json_node_value *)node->array_entry->head;
+				local_value = (struct s_json_node_value *)value->array_entry->head;
 				for (argument_long = va_arg(parameters, long); argument_long > 0; --argument_long)
 					if (local_value)
 						local_value = (struct s_json_node_value *)local_value->head.next;
-				node = local_value;
+				value = local_value;
 				break;
 			case e_json_node_type_object:
 				argument_string = va_arg(parameters, char *);
-				d_foreach(node->object_entry, local_node, struct s_json_node)
+				d_foreach(value->object_entry, local_node, struct s_json_node)
 					if (f_string_strcmp(local_node->key, argument_string) == 0)
 						break;
-				node = &(local_node->value);
+				value = &(local_node->value);
 				break;
 			default:
 				founded = d_true;
 		}
-	return (struct s_object *)node;
+		if (founded)
+			break;
+		pointer++;
+	}
+	return (struct s_object *)value;
 }
 
-d_define_method(json, get_string)(struct s_object *self, char **string_supply, ...) {
-	struct s_json_node_value *node = NULL;
+d_define_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
 	va_list parameters;
-	va_start(parameters, string_supply);
-	if ((node = (struct s_json_node_value *)d_call(self, m_json_get_value, parameters)))
-		if (node->type == e_json_node_type_string)
-			*string_supply = node->string_entry;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		if (value->type == e_json_node_type_string)
+			*string_supply = value->string_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "string has been required but %s has been returned", v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
 	va_end(parameters);
-	return (struct s_object *)node;
+	return (struct s_object *)value;
 }
 
-d_define_method(json, get_float)(struct s_object *self, float *value_supply, ...) {
-	struct s_json_node_value *node = NULL;
+d_define_method(json, get_float)(struct s_object *self, float *value_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
 	va_list parameters;
-	va_start(parameters, value_supply);
-	if ((node = (struct s_json_node_value *)d_call(self, m_json_get_value, parameters)))
-		if (node->type == e_json_node_type_value)
-			*value_supply = node->value_entry;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		if (value->type == e_json_node_type_value)
+			*value_supply = value->value_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "int/double has been required but %s has been returned", v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
 	va_end(parameters);
-	return (struct s_object *)node;
+	return (struct s_object *)value;
+}
+
+d_define_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	va_list parameters;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		if (value->type == e_json_node_type_boolean)
+			*boolean_supply = value->boolean_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "boolean has been required but %s has been returned", v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
+	va_end(parameters);
+	return (struct s_object *)value;
+}
+
+d_define_method(json, set_value)(struct s_object *self, const char *format, va_list parameters) {
+	struct s_json_node_value *value = NULL, *local_value = NULL;
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		switch (value->type) {
+			case e_json_node_type_array:
+				if ((local_value = (struct s_json_node_value *) d_malloc(sizeof(struct s_json_node_value)))) {
+					local_value->type = e_json_node_type_null;
+					f_list_append(value->array_entry, (struct s_list_node *)local_value, e_list_insert_tail);
+				} else
+					d_die(d_error_malloc);
+				value = local_value;
+				break;
+			case e_json_node_type_object:
+				d_throw(v_exception_wrong_type, "a string isn't writable in an oject");
+			default:
+				break;
+		}
+		p_json_analyzer_free(value);
+	}
+	return (struct s_object *)value;
+}
+
+d_define_method(json, set_string)(struct s_object *self, char *string_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	struct s_exception *exception;
+	va_list parameters;
+	va_start(parameters, format);
+	d_try {
+		if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+			value->type = e_json_node_type_string;
+			value->allocated = d_true;
+			if ((value->string_entry = (char *) d_malloc(f_string_strlen(string_supply) + 1)))
+				strcpy(value->string_entry, string_supply);
+			else
+				d_die(d_error_malloc);
+		}
+	} d_catch(exception) {
+		d_exception_dump(stderr, exception);
+		d_raise;
+	} d_endtry;
+	va_end(parameters);
+	return (struct s_object *)value;
+}
+
+d_define_method(json, set_float)(struct s_object *self, float value_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	struct s_exception *exception;
+	va_list parameters;
+	va_start(parameters, format);
+	d_try {
+		if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+			value->type = e_json_node_type_value;
+			value->value_entry = value_supply;
+		}
+	} d_catch(exception) {
+		d_exception_dump(stderr, exception);
+		d_raise;
+	} d_endtry;
+	va_end(parameters);
+	return (struct s_object *)value;
+}
+
+d_define_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	struct s_exception *exception;
+	va_list parameters;
+	va_start(parameters, format);
+	d_try {
+		if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+			value->type = e_json_node_type_boolean;
+			value->boolean_entry = boolean_supply;
+		}
+	} d_catch(exception) {
+		d_exception_dump(stderr, exception);
+		d_raise;
+	} d_endtry;
+	va_end(parameters);
+	return (struct s_object *)value;
 }
 
 d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes) {
@@ -466,6 +595,11 @@ d_define_class(json) {
 	d_hook_method(json, e_flag_private, get_value),
 	d_hook_method(json, e_flag_public, get_string),
 	d_hook_method(json, e_flag_public, get_float),
+	d_hook_method(json, e_flag_public, get_boolean),
+	d_hook_method(json, e_flag_private, set_value),
+	d_hook_method(json, e_flag_public, set_string),
+	d_hook_method(json, e_flag_public, set_float),
+	d_hook_method(json, e_flag_public, set_boolean),
 	d_hook_delete(json),
 	d_hook_method_tail
 };

@@ -30,6 +30,7 @@
 #define d_json_separator_characters ":="
 d_exception_declare(malformed_key);
 d_exception_declare(malformed_value);
+d_exception_declare(wrong_type);
 typedef enum e_json_token_types {
 	e_json_token_type_symbol,
 	e_json_token_type_word,
@@ -53,7 +54,7 @@ typedef enum e_json_node_actions {
 	e_json_node_action_undefined
 } e_json_node_actions;
 typedef enum e_json_node_types {
-	e_json_node_type_string,
+	e_json_node_type_string = 0,
 	e_json_node_type_value,
 	e_json_node_type_boolean,
 	e_json_node_type_array,
@@ -63,6 +64,7 @@ typedef enum e_json_node_types {
 } e_json_node_types;
 typedef struct s_json_node_value {
 	d_list_node_head;
+	t_boolean allocated;
 	enum e_json_node_types type;
 	union {
 		char *string_entry;
@@ -81,6 +83,7 @@ d_declare_class(json) {
 	struct s_list *tokens;
 	struct s_json_node_value *root;
 } d_declare_class_tail(json);
+extern const char *v_json_node_types[];
 struct s_json_attributes *p_json_alloc(struct s_object *self);
 extern void p_json_tokenizer_free(struct s_json_token *token);
 extern size_t p_json_tokenizer_string_append(struct s_json_token *local_token, char *source_head, char *source_tail);
@@ -93,9 +96,11 @@ extern void p_json_write_value(struct s_json_node_value *node, int level, int ou
 extern struct s_object *f_json_new(struct s_object *self, struct s_object *string_name);
 extern struct s_object *f_json_new_stream(struct s_object *self, struct s_object *stream_file);
 d_declare_method(json, write)(struct s_object *self, struct s_object *stream_file);
-d_declare_method(json, get_value)(struct s_object *self, va_list parameters);
-d_declare_method(json, get_string)(struct s_object *self, char **string_supply, ...);
-d_declare_method(json, get_float)(struct s_object *self, float *value_supply, ...);
+d_declare_method(json, get_value)(struct s_object *self, const char *format, va_list parameters);
+d_declare_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...);
+d_declare_method(json, get_float)(struct s_object *self, float *value_supply, const char *format, ...);
+d_declare_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...);
+d_declare_method(json, set_string)(struct s_object *self, char *string_supply, const char *format, ...);
 d_declare_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes);
 #endif
 

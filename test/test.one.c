@@ -60,7 +60,7 @@ int main (int argc, char *argv[]) {
 		char *string_supply = NULL;
 		size_t huffman_length = 0, again_length;
 		int index = 0;
-		s_object *array_strings, *array_substrings;
+		s_object *array_strings, *array_substrings, *json_object = NULL;
 		s_object *string_pool[] = {
 			f_string_new(d_new(string), "name of the program is '%s'      ", argv[0]),
 			f_string_new(d_new(string), "string contains:"),
@@ -76,19 +76,30 @@ int main (int argc, char *argv[]) {
 			NULL
 		};
 		d_try {
-			s_object *json_object = f_json_new_stream(d_new(json), stream_pool[1]);
+			json_object = f_json_new_stream(d_new(json), stream_pool[1]);
 			d_call(json_object, m_json_write, stream_pool[3]);
 			printf("\n");
+			index = 0;
 			while (d_true)
-				if (d_call(json_object, m_json_get_string, &string_supply, "skills", index++, "category"))
+				if (d_call(json_object, m_json_get_string, &string_supply, "sds", "skills", index++, "category"))
 			 	      	printf("skills[%d].category: %s\n", (index-1), string_supply);
 				else
 					break;
-			d_delete(json_object);
+			index = 0;
+			while (d_true)
+				if (d_call(json_object, m_json_get_string, &string_supply, "sd", "interests", index++))
+					printf("interests[%d]: %s\n", (index-1), string_supply);
+				else
+					break;
+			d_call(json_object, m_json_set_string, "Physics", "s", "interests");
+			d_call(json_object, m_json_write, stream_pool[3]);
+			printf("\n");
 		} d_catch(exception) {
 			d_exception_dump(stderr, exception);
 			d_raise;
 		} d_endtry;
+		if (json_object)
+			d_delete(json_object);
 		f_huffman_compression(huffman_string, f_string_strlen(huffman_string)+1, &huffman_compressed, &huffman_length);
 		f_huffman_decompression(huffman_compressed, huffman_length, &huffman_decompressed, &again_length);
 		printf("[huffman compression: %zu bytes VS %zu bytes compressed string]\n", (f_string_strlen(huffman_string)+1), huffman_length);
