@@ -336,14 +336,19 @@ void p_json_write_value(struct s_json_node_value *node, int level, int output) {
 	struct s_json_node *local_node;
 	char buffer[d_json_value_size], *digital_position;
 	int index;
+	t_boolean first_entry;
 	switch (node->type) {
 		case e_json_node_type_array:
 			write(output, "[", sizeof(char));
-			d_foreach(node->array_entry, local_value, struct s_json_node_value) {
-				p_json_write_value(local_value, (level + 1), output);
-				if (local_value->head.next)
-					write(output, ",", sizeof(char));
-			}
+			first_entry = d_false;
+			d_foreach(node->array_entry, local_value, struct s_json_node_value)
+				if (local_value->type != e_json_node_type_null) {
+					/* we have to remove every NULL value in arrays */
+					if (!first_entry)
+						write(output, ",", sizeof(char));
+					first_entry = d_false;
+					p_json_write_value(local_value, (level + 1), output);
+				}
 			write(output, "]", sizeof(char));
 			break;
 		case e_json_node_type_object:
@@ -637,6 +642,18 @@ d_define_method(json, insert_value)(struct s_object *self, const char *key, cons
 	return (struct s_object *)local_node;
 }
 
+d_define_method(json, delete_value)(struct s_object *self, const char *format, ...) {
+	struct s_json_node_value *value;
+	va_list parameters;
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		p_json_analyzer_free(value);
+		value->type = e_json_node_type_null;
+	}
+	va_end(parameters);
+	return (struct s_object *)value;
+}
+
 d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes) {
 	struct s_json_token *local_token;
 	if (attributes->tokens) {
@@ -666,6 +683,7 @@ d_define_class(json) {
 	d_hook_method(json, e_flag_public, set_boolean),
 	d_hook_method(json, e_flag_public, set_array),
 	d_hook_method(json, e_flag_public, insert_value),
+	d_hook_method(json, e_flag_public, delete_value),
 	d_hook_delete(json),
 	d_hook_method_tail
 };

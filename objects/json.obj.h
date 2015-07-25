@@ -106,6 +106,7 @@ d_declare_method(json, set_float)(struct s_object *self, float value_supply, con
 d_declare_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supply, const char *format, ...);
 d_declare_method(json, set_array)(struct s_object *self, const char *format, ...);
 d_declare_method(json, insert_value)(struct s_object *self, const char *key, const char *format, ...);
+d_declare_method(json, delete_value)(struct s_object *self, const char *format, ...);
 d_declare_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes);
 #endif
 
