@@ -92,6 +92,11 @@ int main (int argc, char *argv[]) {
 				else
 					break;
 			d_call(json_object, m_json_set_string, "Physics", "s", "interests");
+			d_call(json_object, m_json_insert_value, "languages", "s", "favorites");
+			d_call(json_object, m_json_set_array, "ss", "favorites", "languages");
+			d_call(json_object, m_json_set_string, "C", "ss", "favorites", "languages");
+			d_call(json_object, m_json_set_string, "C++", "ss", "favorites", "languages");
+			d_call(json_object, m_json_set_string, "bash", "ss", "favorites", "languages");
 			d_call(json_object, m_json_write, stream_pool[3]);
 			printf("\n");
 		} d_catch(exception) {

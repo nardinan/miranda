@@ -75,6 +75,7 @@ typedef struct s_json_node_value {
 } s_json_node_value;
 typedef struct s_json_node {
 	d_list_node_head;
+	t_boolean allocated;
 	char *key;
 	struct s_json_node_value value;
 } s_json_node;
@@ -103,6 +104,8 @@ d_declare_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_su
 d_declare_method(json, set_string)(struct s_object *self, char *string_supply, const char *format, ...);
 d_declare_method(json, set_float)(struct s_object *self, float value_supply, const char *format, ...);
 d_declare_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supply, const char *format, ...);
+d_declare_method(json, set_array)(struct s_object *self, const char *format, ...);
+d_declare_method(json, insert_value)(struct s_object *self, const char *key, const char *format, ...);
 d_declare_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes);
 #endif
 

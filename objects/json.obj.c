@@ -167,6 +167,8 @@ void p_json_analyzer_free(struct s_json_node_value *value) {
 			while (value->object_entry->head)
 				if ((local_node = (struct s_json_node *)f_list_delete(value->object_entry, value->object_entry->head))) {
 					p_json_analyzer_free(&(local_node->value));
+					if ((local_node->allocated) && (local_node->key))
+						d_free(local_node->key);
 					d_free(local_node);
 				}
 			f_list_destroy(&(value->object_entry));
@@ -430,7 +432,10 @@ d_define_method(json, get_value)(struct s_object *self, const char *format, va_l
 				d_foreach(value->object_entry, local_node, struct s_json_node)
 					if (f_string_strcmp(local_node->key, argument_string) == 0)
 						break;
-				value = &(local_node->value);
+				if (local_node)
+					value = &(local_node->value);
+				else
+					value = NULL;
 				break;
 			default:
 				founded = d_true;
@@ -506,7 +511,7 @@ d_define_method(json, set_value)(struct s_object *self, const char *format, va_l
 				value = local_value;
 				break;
 			case e_json_node_type_object:
-				d_throw(v_exception_wrong_type, "a string isn't writable in an oject");
+				d_throw(v_exception_wrong_type, "a base-type isn't writable in an oject");
 			default:
 				break;
 		}
@@ -573,6 +578,65 @@ d_define_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supp
 	return (struct s_object *)value;
 }
 
+d_define_method(json, set_array)(struct s_object *self, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	struct s_exception *exception;
+	va_list parameters;
+	va_start(parameters, format);
+	d_try {
+		if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+			value->type = e_json_node_type_array;
+			f_list_init(&(value->array_entry));
+		}
+	} d_catch(exception) {
+		d_exception_dump(stderr, exception);
+		d_raise;
+	} d_endtry;
+	va_end(parameters);
+	return (struct s_object *)value;
+}
+
+d_define_method(json, insert_value)(struct s_object *self, const char *key, const char *format, ...) {
+	struct s_json_node_value *value = NULL, *local_value = NULL;
+	struct s_json_node *local_node = NULL;
+	va_list parameters;
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
+		p_json_write_value(value, 0, STDOUT_FILENO);
+		if ((local_node = (struct s_json_node *) d_malloc(sizeof(struct s_json_node)))) {
+			local_node->allocated = d_true;
+			if ((local_node->key = (char *) d_malloc(f_string_strlen(key) + 1))) {
+				strcpy(local_node->key, key);
+				local_node->value.type = e_json_node_type_null;
+				switch (value->type) {
+					case e_json_node_type_array:
+						if ((local_value = (struct s_json_node_value *) d_malloc(sizeof(struct s_json_node_value)))) {
+							local_value->type = e_json_node_type_object;
+							f_list_init(&(local_value->object_entry));
+							f_list_append(local_value->object_entry, (struct s_list_node *)local_node, e_list_insert_tail);
+						} else
+							d_die(d_error_malloc);
+						f_list_append(value->array_entry, (struct s_list_node *)local_value, e_list_insert_tail);
+						break;
+					case e_json_node_type_null:
+						/* promotion of the NULL entry to a real object */
+						value->type = e_json_node_type_object;
+						f_list_init(&(local_value->object_entry));
+					case e_json_node_type_object:
+						f_list_append(value->object_entry, (struct s_list_node *)local_node, e_list_insert_tail);
+						break;
+					default:
+						d_throw(v_exception_wrong_type, "an object isn't writable in a base-type");
+				}
+			} else
+				d_die(d_error_malloc);
+		} else
+			d_die(d_error_malloc);
+	}
+	va_end(parameters);
+	return (struct s_object *)local_node;
+}
+
 d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes) {
 	struct s_json_token *local_token;
 	if (attributes->tokens) {
@@ -600,6 +664,8 @@ d_define_class(json) {
 	d_hook_method(json, e_flag_public, set_string),
 	d_hook_method(json, e_flag_public, set_float),
 	d_hook_method(json, e_flag_public, set_boolean),
+	d_hook_method(json, e_flag_public, set_array),
+	d_hook_method(json, e_flag_public, insert_value),
 	d_hook_delete(json),
 	d_hook_method_tail
 };
