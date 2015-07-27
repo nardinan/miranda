@@ -241,7 +241,7 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
 				if (local_value->type != e_json_node_type_undefined)
 					current_action = e_json_node_action_close;
 				else
-					d_throw(v_exception_malformed_value, "unexpected undefined token as value");
+					d_throw(v_exception_malformed_value, "unexpected undefined token as value exception");
 				break;
 			case e_json_node_action_close:
 				if (local_token->type == e_json_token_type_symbol) {
@@ -268,7 +268,7 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
 						f_list_append(nodes, (struct s_list_node *)local_value, e_list_insert_tail);
 					local_value = NULL;
 				} else
-					d_throw(v_exception_malformed_value, "unexpected undefined token as closing character");
+					d_throw(v_exception_malformed_value, "unexpected undefined token as closing character exception");
 			default:
 				break;
 		}
@@ -295,13 +295,13 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
 					local_node->key = local_token->string_entry;
 					current_action = e_json_node_action_symbol;
 				} else
-					d_throw(v_exception_malformed_key, "unexpected non-string token as key");
+					d_throw(v_exception_malformed_key, "unexpected non-string token as key exception");
 				break;
 			case e_json_node_action_symbol:
 				if ((local_token->type == e_json_token_type_symbol) && (strchr(d_json_separator_characters, local_token->symbol_entry)))
 					current_action = e_json_node_action_value;
 				else {
-					snprintf(buffer, d_string_buffer_size, "unexpected non-symbol token after key %s", local_node->key);
+					snprintf(buffer, d_string_buffer_size, "unexpected non-symbol token after key '%s' exception", local_node->key);
 					d_throw(v_exception_malformed_key, buffer);
 				}
 				break;
@@ -461,7 +461,8 @@ d_define_method(json, get_string)(struct s_object *self, char **string_supply, c
 		if (value->type == e_json_node_type_string)
 			*string_supply = value->string_entry;
 		else {
-			snprintf(buffer, d_string_buffer_size, "string has been required but %s has been returned", v_json_node_types[value->type]);
+			snprintf(buffer, d_string_buffer_size, "string has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
 			d_throw(v_exception_wrong_type, buffer);
 		}
 	}
@@ -478,7 +479,8 @@ d_define_method(json, get_float)(struct s_object *self, float *value_supply, con
 		if (value->type == e_json_node_type_value)
 			*value_supply = value->value_entry;
 		else {
-			snprintf(buffer, d_string_buffer_size, "int/double has been required but %s has been returned", v_json_node_types[value->type]);
+			snprintf(buffer, d_string_buffer_size, "int/double has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
 			d_throw(v_exception_wrong_type, buffer);
 		}
 	}
@@ -495,7 +497,8 @@ d_define_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_sup
 		if (value->type == e_json_node_type_boolean)
 			*boolean_supply = value->boolean_entry;
 		else {
-			snprintf(buffer, d_string_buffer_size, "boolean has been required but %s has been returned", v_json_node_types[value->type]);
+			snprintf(buffer, d_string_buffer_size, "boolean has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
 			d_throw(v_exception_wrong_type, buffer);
 		}
 	}
@@ -516,7 +519,7 @@ d_define_method(json, set_value)(struct s_object *self, const char *format, va_l
 				value = local_value;
 				break;
 			case e_json_node_type_object:
-				d_throw(v_exception_wrong_type, "a base-type isn't writable in an oject");
+				d_throw(v_exception_wrong_type, "a base-type isn't writable in an oject exception");
 			default:
 				break;
 		}
@@ -607,7 +610,6 @@ d_define_method(json, insert_value)(struct s_object *self, const char *key, cons
 	va_list parameters;
 	va_start(parameters, format);
 	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
-		p_json_write_value(value, 0, STDOUT_FILENO);
 		if ((local_node = (struct s_json_node *) d_malloc(sizeof(struct s_json_node)))) {
 			local_node->allocated = d_true;
 			if ((local_node->key = (char *) d_malloc(f_string_strlen(key) + 1))) {
@@ -631,7 +633,7 @@ d_define_method(json, insert_value)(struct s_object *self, const char *key, cons
 						f_list_append(value->object_entry, (struct s_list_node *)local_node, e_list_insert_tail);
 						break;
 					default:
-						d_throw(v_exception_wrong_type, "an object isn't writable in a base-type");
+						d_throw(v_exception_wrong_type, "an object isn't writable in a base-type exception");
 				}
 			} else
 				d_die(d_error_malloc);

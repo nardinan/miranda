@@ -37,8 +37,7 @@ typedef enum e_json_token_types {
 	e_json_token_type_string,
 	e_json_token_type_value
 } e_json_token_types;
-typedef struct s_json_token {
-	d_list_node_head;
+typedef struct s_json_token { d_list_node_head;
 	enum e_json_token_types type;
 	union {
 		char symbol_entry, *string_entry;
@@ -62,8 +61,7 @@ typedef enum e_json_node_types {
 	e_json_node_type_null,
 	e_json_node_type_undefined
 } e_json_node_types;
-typedef struct s_json_node_value {
-	d_list_node_head;
+typedef struct s_json_node_value { d_list_node_head;
 	t_boolean allocated;
 	enum e_json_node_types type;
 	union {
@@ -73,8 +71,7 @@ typedef struct s_json_node_value {
 		struct s_list *array_entry, *object_entry;
 	};
 } s_json_node_value;
-typedef struct s_json_node {
-	d_list_node_head;
+typedef struct s_json_node { d_list_node_head;
 	t_boolean allocated;
 	char *key;
 	struct s_json_node_value value;

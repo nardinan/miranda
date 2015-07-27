@@ -30,8 +30,7 @@ typedef enum e_flag {
 	e_flag_placeholder	= 0x00000010
 } e_flag;
 typedef void *(*t_class_method)();
-typedef struct s_object {
-	struct s_list_node head;
+typedef struct s_object { d_list_node_head;
 	const char *type, *file;
 	unsigned int line;
 	struct s_attributes *last_attributes;
@@ -44,12 +43,10 @@ typedef struct s_method {
 	enum e_flag flag;
 	t_class_method method;
 } s_method;
-typedef struct s_virtual_table {
-	struct s_list_node head;
+typedef struct s_virtual_table { d_list_node_head;
 	struct s_method *virtual_table;
 } s_virtual_table;
-typedef struct s_attributes {
-	struct s_list_node head;
+typedef struct s_attributes { d_list_node_head;
 	const char *type;
 } s_attributes;
 extern const char m_object_delete[];
