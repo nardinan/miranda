@@ -1,6 +1,6 @@
 /*
  * miranda
- * Copyright (C) 2014 Andrea Nardinocchi (andrea@nardinan.it)
+ * Copyright (C) 2015 Andrea Nardinocchi (andrea@nardinan.it)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_objects_h
-#define miranda_objects_h
-#include "object.h"
-#include "memory.obj.h"
-#include "mutex.obj.h"
-#include "emitter.obj.h"
-#include "pool.obj.h"
-#include "string.obj.h"
-#include "array.obj.h"
+#ifndef miranda_io_h
+#define miranda_io_h
+#include "stream.obj.h"
+#include "json.obj.h"
+#include "resources.obj.h"
 #endif

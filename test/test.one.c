@@ -1,5 +1,6 @@
 #include <miranda/ground.h>
 #include <miranda/objects/objects.h>
+#include <miranda/objects/io/io.h>
 #define d_size 1024
 unsigned char *huffman_string =
 		"Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
@@ -75,6 +76,8 @@ int main (int argc, char *argv[]) {
 			f_stream_new(d_new(stream), d_pkstr("stdout"), STDOUT_FILENO),
 			NULL
 		};
+		s_object *resources = f_resources_new(d_new(resources), d_pkstr("/home/god/Pictures"), ".jpg");
+		d_delete(resources);
 		d_try {
 			json_object = f_json_new_stream(d_new(json), stream_pool[1]);
 			d_call(json_object, m_json_write, stream_pool[3]);

@@ -7,14 +7,15 @@ cc = gcc -g
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders = objects
+folders = objects objects/io
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
 	for current_dir in $(folders); do make -C $${current_dir}; done
 
 install:
-	for current_dir in $(folders); do cp -f $${current_dir}/*.so $(library_path); done
+	for current_dir in $(folders); \
+		do cp -f $${current_dir}/*.so $(library_path); done
 	cp -f $(executable) $(library_path)
 	mkdir -p $(include_path)/$(project)
 	for current_dir in $(folders); \

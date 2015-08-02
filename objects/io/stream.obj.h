@@ -20,7 +20,7 @@
 #include <sys/file.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "string.obj.h"
+#include "../string.obj.h"
 #define d_stream_block_size 5120
 #define d_stream_flag_append (O_WRONLY|O_CREAT|O_APPEND)
 #define d_stream_flag_truncate (O_WRONLY|O_CREAT|O_TRUNC)
@@ -30,6 +30,11 @@ d_exception_declare(malformed);
 d_exception_declare(unreachable);
 d_exception_declare(unsupported);
 d_exception_declare(closed);
+typedef enum e_stream_flags {
+	e_stream_flag_supplied = 	0x01,
+	e_stream_flag_opened =		0x02,
+	e_stream_flag_temporary =	0x04
+} e_stream_flags;
 typedef enum e_stream_seek {
 	e_stream_seek_begin,
 	e_stream_seek_current,
@@ -38,10 +43,7 @@ typedef enum e_stream_seek {
 d_declare_class(stream) {
 	struct s_attributes head;
 	struct s_object *string_name;
-	int descriptor, parameters;
-	struct {
-		unsigned int supplied:1, opened:1, temporary:1;
-	} flags;
+	int descriptor, parameters, flags;
 } d_declare_class_tail(stream);
 struct s_stream_attributes *p_stream_alloc(struct s_object *self);
 int p_stream_open_lock(const char *name);

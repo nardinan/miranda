@@ -41,7 +41,7 @@ typedef struct s_hash_table {
 	t_hash_value mask, fill;
 	t_hash_compare *compare;
 	t_hash_calculate *calculate;
-	s_hash_bucket *table;
+	struct s_hash_bucket *table;
 } s_hash_table;
 extern void p_hash_allocate(struct s_hash_table *table, t_hash_value dimension);
 extern void p_hash_resize(struct s_hash_table *table, t_hash_value dimension);

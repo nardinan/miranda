@@ -49,8 +49,7 @@ struct s_object *f_stream_new(struct s_object *self, struct s_object *string_nam
 	attributes->string_name = d_retain(string_name);
 	attributes->descriptor = descriptor;
 	attributes->parameters = fcntl(attributes->descriptor, F_GETFL);
-	attributes->flags.supplied = d_true;
-	attributes->flags.opened = d_true;
+	attributes->flags = (e_stream_flag_supplied|e_stream_flag_opened);
 	return self;
 }
 
@@ -74,7 +73,7 @@ struct s_object *f_stream_new_file(struct s_object *self, struct s_object *strin
 	}
 	if (attributes->parameters != -1) {
 		if ((attributes->descriptor = open(d_string_cstring(attributes->string_name), attributes->parameters, permission)) > -1)
-			attributes->flags.opened = d_true;
+			attributes->flags = e_stream_flag_opened;
 		else {
 			snprintf(buffer, d_string_buffer_size, "unreachable file %s exception", d_string_cstring(attributes->string_name));
 			d_throw(v_exception_unreachable, buffer);
@@ -89,13 +88,11 @@ struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *
 	char file_name[] = "magrathea_XXXXXX.tmp";
 	attributes->string_name = d_retain(string_name);
 	attributes->parameters = d_stream_flag_write_read;
-	attributes->flags.temporary = d_true;
-	/* the last six characters of template must be "XXXXXX" and these are replaced
-	 * with a string that makes the filename unique.  Since it will be modified, template must
-	 * not be a string constant, but should be declared as a character array.
+	/* (from man): [...] the last six characters of template must be "XXXXXX" and these are replaced with a string that makes the filename unique.
+	 * Since it will be modified, template must not be a string constant, but should be declared as a character array.
 	 */
 	if ((attributes->descriptor = mkstemp(file_name)) >= 0)
-		attributes->flags.opened = d_true;
+		attributes->flags = (e_stream_flag_temporary|e_stream_flag_opened);
 	else
 		d_throw(v_exception_unreachable, "unreachable temporary file exception");
 	return self;
@@ -104,7 +101,7 @@ struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *
 d_define_method(stream, write)(struct s_object *self, unsigned char *raw, size_t size, size_t *written) {
 	d_using(stream);
 	size_t written_local;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_WRONLY) == O_WRONLY)) {
 			written_local = write(stream_attributes->descriptor, raw, size);
 			if (written)
@@ -137,7 +134,7 @@ d_define_method(stream, write_stream)(struct s_object *self, struct s_object *st
 d_define_method(stream, read)(struct s_object *self, unsigned char *buffer, size_t size, size_t *readed) {
 	d_using(stream);
 	size_t readed_local;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			readed_local = read(stream_attributes->descriptor, buffer, size);
 			if (readed)
@@ -155,7 +152,7 @@ d_define_method(stream, read_string)(struct s_object *self, struct s_object *str
 	char character, buffer[d_stream_block_size];
 	size_t readed_local = 0;
 	int tail = d_true;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			while ((readed_local < size) && (read(stream_attributes->descriptor, &character, 1) > 0)) {
 				tail = d_false;
@@ -190,7 +187,7 @@ d_define_method(stream, read_string)(struct s_object *self, struct s_object *str
 d_define_method(stream, size)(struct s_object *self, size_t *size) {
 	d_using(stream);
 	off_t offset, current_offset;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
 			d_call(self, m_stream_seek, 0, e_stream_seek_current, &current_offset);
 			d_call(self, m_stream_seek, 0, e_stream_seek_begin, NULL);
@@ -209,7 +206,7 @@ d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream
 	d_using(stream);
 	int whence_local = SEEK_SET;
 	off_t moved_local;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		switch (whence) {
 			case e_stream_seek_begin:
 				whence_local = SEEK_SET;
@@ -234,7 +231,7 @@ d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream
 d_define_method(stream, lock)(struct s_object *self, int lock) {
 	d_using(stream);
 	int flags;
-	if (stream_attributes->flags.opened) {
+	if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
 		flags = fcntl(stream_attributes->descriptor, F_GETFL);
 		if (lock)
 			flags &= ~O_NONBLOCK;
@@ -255,7 +252,8 @@ d_define_method(stream, get_descriptor)(struct s_object *self, int *descriptor) 
 }
 
 d_define_method(stream, delete)(struct s_object *self, struct s_stream_attributes *attributes) {
-	if ((!attributes->flags.supplied) && (attributes->flags.opened))
+	if (((attributes->flags&e_stream_flag_supplied) != e_stream_flag_supplied) &&
+			((attributes->flags&e_stream_flag_opened) == e_stream_flag_opened))
 		close(attributes->descriptor);
 	if (attributes->string_name)
 		d_delete(attributes->string_name);
