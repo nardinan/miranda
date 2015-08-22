@@ -15,12 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_string_h
-#define miranda_string_h
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#ifndef miranda_local_string_h
+#define miranda_local_string_h
 #include "types.h"
 #include "logs.h"
 #define d_string_argument_size 24

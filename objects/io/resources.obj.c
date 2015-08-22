@@ -103,7 +103,7 @@ d_define_method(resources, get)(struct s_object *self, const char *key) {
 	struct s_resources_node *current_node;
 	if (!(current_node = f_hash_get(resources_attributes->nodes, (char *)key)))
 		current_node = resources_attributes->default_template;
-	return (struct s_object *)current_node;
+	d_cast_return(current_node);
 }
 
 d_define_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type) {

@@ -29,6 +29,7 @@ typedef enum e_flag {
 	e_flag_pooled		= 0x00000008,
 	e_flag_placeholder	= 0x00000010
 } e_flag;
+#define d_cast_return(v) return ((void *)(long long int)v)
 typedef void *(*t_class_method)();
 typedef struct s_object { d_list_node_head;
 	const char *type, *file;

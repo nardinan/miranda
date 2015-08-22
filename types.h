@@ -17,6 +17,10 @@
  */
 #ifndef miranda_types_h
 #define miranda_types_h
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 typedef unsigned char t_boolean;
 #define d_true 1
 #define d_false 0

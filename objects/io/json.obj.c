@@ -340,7 +340,7 @@ void p_json_write_value(struct s_json_node_value *node, int level, int output) {
 	switch (node->type) {
 		case e_json_node_type_array:
 			write(output, "[", sizeof(char));
-			first_entry = d_false;
+			first_entry = d_true;
 			d_foreach(node->array_entry, local_value, struct s_json_node_value)
 				if (local_value->type != e_json_node_type_null) {
 					/* we have to remove every NULL value in arrays */
@@ -449,7 +449,7 @@ d_define_method(json, get_value)(struct s_object *self, const char *format, va_l
 			break;
 		pointer++;
 	}
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...) {
@@ -467,7 +467,7 @@ d_define_method(json, get_string)(struct s_object *self, char **string_supply, c
 		}
 	}
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, get_float)(struct s_object *self, float *value_supply, const char *format, ...) {
@@ -485,7 +485,7 @@ d_define_method(json, get_float)(struct s_object *self, float *value_supply, con
 		}
 	}
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...) {
@@ -503,7 +503,7 @@ d_define_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_sup
 		}
 	}
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, set_value)(struct s_object *self, const char *format, va_list parameters) {
@@ -525,7 +525,7 @@ d_define_method(json, set_value)(struct s_object *self, const char *format, va_l
 		}
 		p_json_analyzer_free(value);
 	}
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, set_string)(struct s_object *self, char *string_supply, const char *format, ...) {
@@ -547,7 +547,7 @@ d_define_method(json, set_string)(struct s_object *self, char *string_supply, co
 		d_raise;
 	} d_endtry;
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, set_float)(struct s_object *self, float value_supply, const char *format, ...) {
@@ -565,7 +565,7 @@ d_define_method(json, set_float)(struct s_object *self, float value_supply, cons
 		d_raise;
 	} d_endtry;
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supply, const char *format, ...) {
@@ -583,7 +583,7 @@ d_define_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supp
 		d_raise;
 	} d_endtry;
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, set_array)(struct s_object *self, const char *format, ...) {
@@ -601,7 +601,7 @@ d_define_method(json, set_array)(struct s_object *self, const char *format, ...)
 		d_raise;
 	} d_endtry;
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, insert_value)(struct s_object *self, const char *key, const char *format, ...) {
@@ -641,7 +641,7 @@ d_define_method(json, insert_value)(struct s_object *self, const char *key, cons
 			d_die(d_error_malloc);
 	}
 	va_end(parameters);
-	return (struct s_object *)local_node;
+	d_cast_return(local_node);
 }
 
 d_define_method(json, delete_value)(struct s_object *self, const char *format, ...) {
@@ -653,7 +653,7 @@ d_define_method(json, delete_value)(struct s_object *self, const char *format, .
 		value->type = e_json_node_type_null;
 	}
 	va_end(parameters);
-	return (struct s_object *)value;
+	d_cast_return(value);
 }
 
 d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *attributes) {
