@@ -17,6 +17,7 @@
  */
 #ifndef miranda_list_h
 #define miranda_list_h
+#include "memory.h"
 #include "string.local.h"
 #define d_foreach(l,n,k) for((l)->current=(l)->head;(((n)=(k *)(l)->current));(l)->current=(l)->current->next)
 #define d_list_rewind(l) (l)->current=((l)->current->back)?(l)->current->back:(l)->current

@@ -16,85 +16,81 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "memory.h"
-struct s_list *v_memory;
-void f_memory_init (void) {
-	f_list_init(&v_memory);
-}
-
+struct s_memory_head *v_memory_root;
 void f_memory_destroy(void) {
-	struct s_memory_node *node;
 	struct s_memory_tail *tail;
 	struct s_memory_head *head;
-	if (v_memory) {
-		d_foreach(v_memory, node, struct s_memory_node) {
-			head = (struct s_memory_head *)(node->pointer-sizeof(struct s_memory_head));
-			tail = (struct s_memory_tail *)(node->pointer+head->dimension);
-			d_log(e_log_level_ever, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", node->pointer, head->dimension,
-					tail->file, tail->line, head->checksum, tail->checksum);
-			free((void *)(node->pointer-sizeof(struct s_memory_head)));
-		}
-		f_list_destroy(&v_memory);
+	while (v_memory_root) {
+		head = v_memory_root;
+		tail = (struct s_memory_tail *)((void *)v_memory_root + sizeof(struct s_memory_head) + head->dimension);
+		d_log(e_log_level_ever, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
+				head->dimension, tail->file, tail->line, head->checksum, tail->checksum);
+		v_memory_root = head->next;
+		free(head);
 	}
 }
 
 void *p_malloc(size_t dimension, const char *file, unsigned int line) {
-	struct s_memory_node *node;
 	struct s_memory_tail *tail;
 	struct s_memory_head *head;
-	size_t total_dimension = sizeof(struct s_memory_head)+dimension+sizeof(struct s_memory_tail);
+	size_t total_dimension = sizeof(struct s_memory_head) + dimension + sizeof(struct s_memory_tail);
 	void *pointer;
-	if ((node = (struct s_memory_node *) malloc(sizeof(struct s_memory_node))) && (pointer = (void *) malloc(total_dimension))) {
+	if ((pointer = (struct s_memory_head *) calloc(1, total_dimension))) {
 		memset(pointer, 0, total_dimension);
-		f_list_append(v_memory, (struct s_list_node *)node, e_list_insert_head);
-		head = (struct s_memory_head *)(pointer);
+		head = (struct s_memory_head *)pointer;
+		tail = (struct s_memory_tail *)(pointer + sizeof(struct s_memory_head) + dimension);
+		pointer = (void *)(pointer + sizeof(struct s_memory_head));
+		head->next = v_memory_root;
+		v_memory_root = head;
 		head->dimension = dimension;
 		head->checksum = (unsigned int)d_memory_checksum;
-		node->pointer = pointer+sizeof(struct s_memory_head);
-		tail = (struct s_memory_tail *)(node->pointer+dimension);
 		tail->checksum = (unsigned int)d_memory_checksum;
 		tail->line = line;
 		tail->file = file;
-		tail->node = node;
-		d_log(e_log_level_high, "pointer %p (%hu bytes) has been allocated (in %s::%d) [0x%x-0x%x]", node->pointer, head->dimension, tail->file,
+		d_log(e_log_level_high, "pointer %p (%hu bytes) has been allocated (in %s::%d) [0x%x-0x%x]", pointer, head->dimension, tail->file,
 				tail->line, head->checksum, tail->checksum);
 	} else
 		d_die(d_error_malloc);
-	return node->pointer;
+	return pointer;
 }
 
 void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int line) {
 	struct s_memory_head *head;
 	void *backup_pointer;
-	size_t minimum_dimension;
-	if ((backup_pointer = p_malloc(dimension, file, line))) {
-		if ((pointer) && (head = (struct s_memory_head *)(pointer-sizeof(struct s_memory_head)))) {
-			minimum_dimension = (dimension>head->dimension)?head->dimension:dimension;
-			memcpy(backup_pointer, pointer, minimum_dimension);
+	if (pointer) {
+		head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
+		if (head->dimension < dimension) {
+			if ((backup_pointer = p_malloc(dimension, file, line)))
+				memcpy(backup_pointer, pointer, head->dimension);
 			p_free(pointer, file, line);
-		}
+		} else
+			backup_pointer = pointer;
 	} else
-		d_die(d_error_malloc);
+		backup_pointer = p_malloc(dimension, file, line);
 	return backup_pointer;
 }
 
 void p_free(void *pointer, const char *file, unsigned int line) {
-	struct s_memory_node *node;
 	struct s_memory_tail *tail;
-	struct s_memory_head *head;
-	int founded = d_false;
-	d_foreach(v_memory, node, struct s_memory_node)
-		if (node->pointer == pointer) {
-			head = (struct s_memory_head *)(node->pointer-sizeof(struct s_memory_head));
-			tail = (struct s_memory_tail *)(node->pointer+head->dimension);
+	struct s_memory_head *head = v_memory_root, *previous = NULL;
+	void *other_pointer;
+	while (head) {
+		other_pointer = ((void *)head + sizeof(struct s_memory_head));
+		if (pointer == other_pointer) {
+			tail = (struct s_memory_tail *)(pointer + head->dimension);
 			if (tail->checksum == (unsigned int)d_memory_checksum) {
-				f_list_delete(v_memory, (struct s_list_node *)node);
-				free((void *)(pointer-sizeof(struct s_memory_head)));
+				if (previous)
+					previous->next = head->next;
+				else
+					v_memory_root = head->next;
+				free(head);
 			} else
 				d_err(e_log_level_ever, "wrong checksum with %p (%s::%d)", pointer, file, line);
-			founded = d_true;
 			break;
 		}
-	if (!founded)
+		previous = head;
+		head = head->next;
+	}
+	if (!head)
 		d_err(e_log_level_ever, "double free with %p (%s::%d)", pointer, file, line);
 }
-
