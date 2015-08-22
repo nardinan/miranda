@@ -1,5 +1,5 @@
-objects = stream.obj.o json.obj.o resources.obj.o
-name = miranda_io
+objects = point.obj.o line.obj.o
+name = miranda_math
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -c
@@ -10,14 +10,11 @@ executable = lib$(name).so
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared $(libs)
 
-stream.obj.o: stream.obj.c stream.obj.h ../string.obj.h
-	$(cc) $(cflags) stream.obj.c
+point.obj.o: point.obj.c point.obj.h ../memory.obj.h ../mutex.obj.h ../../math.local.h
+	$(cc) $(cflags) point.obj.c
 
-json.obj.o: json.obj.c json.obj.h stream.obj.h
-	$(cc) $(cflags) json.obj.c
-
-resources.obj.o: resources.obj.c resources.obj.h stream.obj.h
-	$(cc) $(cflags) resources.obj.c
+line.obj.o: line.obj.c line.obj.h point.obj.h
+	$(cc) $(cflags) line.obj.c
 
 clean:
 	rm -f *.o

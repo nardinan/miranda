@@ -1,6 +1,8 @@
+#define d_miranda_debug 1
 #include <miranda/ground.h>
 #include <miranda/objects/objects.h>
 #include <miranda/objects/io/io.h>
+#include <miranda/objects/math/math.h>
 #define d_size 1024
 unsigned char *huffman_string =
 		"Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
@@ -53,9 +55,11 @@ unsigned char *huffman_string =
 		"agnum ac cognitione dignum amaverunt. Duo Reges: constructio interrete. Eiuro, inquit adridens, iniquum, hac quidem de re; Et harum quidem "\
 		"rerum facilis est et expedita distinctio.";
 int main (int argc, char *argv[]) {
-	f_memory_init();
 	d_pool_init;
 	d_pool_begin("main context") {
+#ifdef d_miranda_debug
+		printf("[debug mode with safe pointers]\n");
+#endif
 		struct s_exception *exception;
 		unsigned char *huffman_compressed = NULL, *huffman_decompressed = NULL;
 		char *string_supply = NULL;
@@ -77,6 +81,16 @@ int main (int argc, char *argv[]) {
 			NULL
 		};
 		s_object *resources = f_resources_new(d_new(resources), d_pkstr("/home/god/Pictures"), ".jpg");
+		s_object *line_A = f_line_new(d_new(line), -40, -75, 150, 120),
+			 *line_B = f_line_new(d_new(line), -40, 75, 100, 0),
+			 *line_C = f_line_new(d_new(line), -40, 75, -100, 75);
+		if (d_call(line_A, m_line_intersect, line_B))
+			printf("intersection between line A and line B\n");
+		if (d_call(line_A, m_line_intersect, line_C))
+			printf("intersection between line A and line C\n");
+		d_delete(line_A);
+		d_delete(line_B);
+		d_delete(line_C);
 		d_delete(resources);
 		d_try {
 			json_object = f_json_new_stream(d_new(json), stream_pool[1]);
@@ -145,6 +159,7 @@ int main (int argc, char *argv[]) {
 		d_delete(array_strings);
 		for (index = 0; string_pool[index]; ++index)
 			d_delete(string_pool[index]);
+		d_assert(d_false);
 	} d_pool_end(d_true);
 	d_pool_destroy;
 	f_memory_destroy();

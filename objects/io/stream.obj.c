@@ -163,9 +163,10 @@ d_define_method(stream, read_string)(struct s_object *self, struct s_object *str
 			}
 			if (!tail) {
 				buffer[readed_local] = '\0';
-				if (!string_supplied)
+				if (!string_supplied) {
 					string_supplied = f_string_new_size(d_new(string), buffer, (readed_local + 1));
-				else {
+					printf("string supplied wasn't here and now we have a %zu string \n", (readed_local + 1));
+				} else {
 					string_attributes = d_cast(string_supplied, string);
 					if (string_attributes->size < (readed_local + 1)) {
 						string_attributes->content = d_realloc(string_attributes->content, (readed_local + 1));

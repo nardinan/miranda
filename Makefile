@@ -3,11 +3,12 @@ include_path = /usr/include
 project = miranda
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o huffman.o
 name = miranda_ground
-cc = gcc -g
+debug = -Dd_miranda_debug=1
+cc = gcc -g $(debug)
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders = objects objects/io
+folders = objects objects/io objects/math
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
@@ -21,6 +22,7 @@ install:
 	for current_dir in $(folders); \
 		do mkdir -p $(include_path)/$(project)/$${current_dir} && cp -f $${current_dir}/*.h $(include_path)/$(project)/$${current_dir}; done
 	cp -f *.h $(include_path)/$(project)
+	ldconfig
 
 endian.local.o: endian.local.c endian.local.h types.h
 	$(cc) $(cflags) endian.local.c

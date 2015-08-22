@@ -48,7 +48,7 @@ d_define_method(pool, clean)(struct s_object *self, int skip) {
 				f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
 				f_object_delete(value);
 			} else
-				memory_attributes->references--;
+				--(memory_attributes->references);
 		} else if ((value->flags&e_flag_placeholder) == e_flag_placeholder) {
 			f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
 			d_free(value);
