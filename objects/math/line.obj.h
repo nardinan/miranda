@@ -20,16 +20,16 @@
 #include "point.obj.h"
 d_declare_class(line) {
 	struct s_attributes head;
-	float starting_x, starting_y, ending_x, ending_y;
+	double starting_x, starting_y, ending_x, ending_y;
 } d_declare_class_tail(line);
 struct s_line_attributes *p_line_alloc(struct s_object *self);
-extern struct s_object *f_line_new(struct s_object *self, float starting_x, float starting_y, float ending_x, float ending_y);
+extern struct s_object *f_line_new(struct s_object *self, double starting_x, double starting_y, double ending_x, double ending_y);
 extern struct s_object *f_line_new_points(struct s_object *self, struct s_object *point_starting, struct s_object *point_ending);
-d_declare_method(line, set_starting_x)(struct s_object *self, float starting_x, t_boolean keep_ratio);
-d_declare_method(line, set_starting_y)(struct s_object *self, float starting_y, t_boolean keep_ratio);
-d_declare_method(line, set_ending_x)(struct s_object *self, float ending_x);
-d_declare_method(line, set_ending_y)(struct s_object *self, float ending_y);
-d_declare_method(line, get)(struct s_object *self, float *starting_x, float *starting_y, float *ending_x, float *ending_y);
+d_declare_method(line, set_starting_x)(struct s_object *self, double starting_x, t_boolean keep_ratio);
+d_declare_method(line, set_starting_y)(struct s_object *self, double starting_y, t_boolean keep_ratio);
+d_declare_method(line, set_ending_x)(struct s_object *self, double ending_x);
+d_declare_method(line, set_ending_y)(struct s_object *self, double ending_y);
+d_declare_method(line, get)(struct s_object *self, double *starting_x, double *starting_y, double *ending_x, double *ending_y);
 d_declare_method(line, intersect)(struct s_object *self, struct s_object *other);
 d_declare_method(line, intersect_point)(struct s_object *self, struct s_object *other, struct s_object *intersect);
 #endif

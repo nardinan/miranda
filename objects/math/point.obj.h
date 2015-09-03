@@ -23,15 +23,15 @@
 #define d_point_precision_default 5
 d_declare_class(point) {
 	struct s_attributes head;
-	int x, y;
+	double x, y;
 } d_declare_class_tail(point);
 struct s_point_attributes *p_point_alloc(struct s_object *self);
-extern struct s_object *f_point_new(struct s_object *self, float x, float y);
-d_declare_method(point, set_x)(struct s_object *self, float x);
-d_declare_method(point, set_y)(struct s_object *self, float y);
-d_declare_method(point, get)(struct s_object *self, float *x, float *y);
-d_declare_method(point, add)(struct s_object *self, float x, float y);
-d_declare_method(point, subtract)(struct s_object *self, float x, float y);
-d_declare_method(point, distance)(struct s_object *self, struct s_object *point, float *distance, float *distance_square);
+extern struct s_object *f_point_new(struct s_object *self, double x, double y);
+d_declare_method(point, set_x)(struct s_object *self, double x);
+d_declare_method(point, set_y)(struct s_object *self, double y);
+d_declare_method(point, get)(struct s_object *self, double *x, double *y);
+d_declare_method(point, add)(struct s_object *self, double x, double y);
+d_declare_method(point, subtract)(struct s_object *self, double x, double y);
+d_declare_method(point, distance)(struct s_object *self, struct s_object *point, double *distance, double *distance_square);
 #endif
 

@@ -23,26 +23,26 @@ struct s_point_attributes *p_point_alloc(struct s_object *self) {
 	return result;
 }
 
-struct s_object *f_point_new(struct s_object *self, float x, float y) {
+struct s_object *f_point_new(struct s_object *self, double x, double y) {
 	struct s_point_attributes *attributes = p_point_alloc(self);
 	attributes->x = x;
 	attributes->y = y;
 	return self;
 }
 
-d_define_method(point, set_x)(struct s_object *self, float x) {
+d_define_method(point, set_x)(struct s_object *self, double x) {
 	d_using(point);
 	point_attributes->x = x;
 	return self;
 }
 
-d_define_method(point, set_y)(struct s_object *self, float y) {
+d_define_method(point, set_y)(struct s_object *self, double y) {
 	d_using(point);
 	point_attributes->y = y;
 	return self;
 }
 
-d_define_method(point, get)(struct s_object *self, float *x, float *y) {
+d_define_method(point, get)(struct s_object *self, double *x, double *y) {
 	d_using(point);
 	if (x)
 		*x = point_attributes->x;
@@ -51,24 +51,24 @@ d_define_method(point, get)(struct s_object *self, float *x, float *y) {
 	return self;
 }
 
-d_define_method(point, add)(struct s_object *self, float x, float y) {
+d_define_method(point, add)(struct s_object *self, double x, double y) {
 	d_using(point);
 	point_attributes->x += x;
 	point_attributes->y += y;
 	return self;
 }
 
-d_define_method(point, subtract)(struct s_object *self, float x, float y) {
+d_define_method(point, subtract)(struct s_object *self, double x, double y) {
 	d_using(point);
 	point_attributes->x -= x;
 	point_attributes->y -= y;
 	return self;
 }
 
-d_define_method(point, distance)(struct s_object *self, struct s_object *point, float *distance, float *distance_square) {
+d_define_method(point, distance)(struct s_object *self, struct s_object *point, double *distance, double *distance_square) {
 	d_using(point);
 	struct s_point_attributes *other_attributes = d_cast(point, point);
-	float current_distance_square;
+	double current_distance_square;
 	current_distance_square = ((point_attributes->x - other_attributes->x) * (point_attributes->x - other_attributes->x)) +
 		((point_attributes->y - other_attributes->y) * (point_attributes->y - other_attributes->y));
 	if (distance_square)

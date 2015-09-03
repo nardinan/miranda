@@ -22,7 +22,7 @@ struct s_line_attributes *p_line_alloc(struct s_object *self) {
 	return result;
 }
 
-struct s_object *f_line_new(struct s_object *self, float starting_x, float starting_y, float ending_x, float ending_y) {
+struct s_object *f_line_new(struct s_object *self, double starting_x, double starting_y, double ending_x, double ending_y) {
 	struct s_line_attributes *attributes = p_line_alloc(self);
 	attributes->starting_x = starting_x;
 	attributes->starting_y = starting_y;
@@ -36,7 +36,7 @@ struct s_object *f_line_new_points(struct s_object *self, struct s_object *point
 	return f_line_new(self, starting_attributes->x, starting_attributes->y, ending_attributes->x, ending_attributes->y);
 }
 
-d_define_method(line, set_starting_x)(struct s_object *self, float starting_x, t_boolean keep_ratio) {
+d_define_method(line, set_starting_x)(struct s_object *self, double starting_x, t_boolean keep_ratio) {
 	d_using(line);
 	if (keep_ratio)
 		line_attributes->ending_x = starting_x + (line_attributes->ending_x-line_attributes->starting_x);
@@ -44,7 +44,7 @@ d_define_method(line, set_starting_x)(struct s_object *self, float starting_x, t
 	return self;
 }
 
-d_define_method(line, set_starting_y)(struct s_object *self, float starting_y, t_boolean keep_ratio) {
+d_define_method(line, set_starting_y)(struct s_object *self, double starting_y, t_boolean keep_ratio) {
 	d_using(line);
 	if (keep_ratio)
 		line_attributes->ending_y = starting_y + (line_attributes->ending_y-line_attributes->starting_y);
@@ -52,19 +52,19 @@ d_define_method(line, set_starting_y)(struct s_object *self, float starting_y, t
 	return self;
 }
 
-d_define_method(line, set_ending_x)(struct s_object *self, float ending_x) {
+d_define_method(line, set_ending_x)(struct s_object *self, double ending_x) {
 	d_using(line);
 	line_attributes->ending_x = ending_x;
 	return self;
 }
 
-d_define_method(line, set_ending_y)(struct s_object *self, float ending_y) {
+d_define_method(line, set_ending_y)(struct s_object *self, double ending_y) {
 	d_using(line);
 	line_attributes->ending_y = ending_y;
 	return self;
 }
 
-d_define_method(line, get)(struct s_object *self, float *starting_x, float *starting_y, float *ending_x, float *ending_y) {
+d_define_method(line, get)(struct s_object *self, double *starting_x, double *starting_y, double *ending_x, double *ending_y) {
 	d_using(line);
 	if (starting_x)
 		*starting_x = line_attributes->starting_x;
@@ -85,7 +85,7 @@ d_define_method(line, intersect_point)(struct s_object *self, struct s_object *o
 	d_using(line);
 	struct s_line_attributes *other_attributes = d_cast(other, line);
 	struct s_point_attributes *intersection_attributes;
-	float projection_A_ending_x, projection_A_ending_y, projection_B_starting_x, projection_B_starting_y, projection_B_ending_x, projection_B_ending_y,
+	double projection_A_ending_x, projection_A_ending_y, projection_B_starting_x, projection_B_starting_y, projection_B_ending_x, projection_B_ending_y,
 	      size_A, cos, sin, rotated_B_starting_x, rotated_B_starting_y, rotated_B_ending_x, rotated_B_ending_y, intersection_position;
 	t_boolean result = d_false;
 	projection_A_ending_x = line_attributes->ending_x - line_attributes->starting_x;
