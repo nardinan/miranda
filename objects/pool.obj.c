@@ -41,18 +41,29 @@ d_define_method(pool, clean)(struct s_object *self, int skip) {
 	d_using(pool);
 	struct s_memory_attributes *memory_attributes;
 	struct s_object *next, *value = (struct s_object *)pool_attributes->pool->head;
+	struct s_exception *exception;
+	t_boolean delete_object = skip;
 	while (value) {
 		next = (struct s_object *)value->head.next;
-		if ((memory_attributes = d_cast(value, memory))) {
-			if ((skip) || (memory_attributes->references == 0)) {
-				f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
-				f_object_delete(value);
-			} else
-				--(memory_attributes->references);
-		} else if ((value->flags&e_flag_placeholder) == e_flag_placeholder) {
+		if ((value->flags&e_flag_placeholder) == e_flag_placeholder) {
 			f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
 			d_free(value);
 			break;
+		} else {
+			d_try {
+				memory_attributes = d_cast(value, memory);
+				if (memory_attributes->references > 0)
+					--(memory_attributes->references);
+				if (memory_attributes->references == 0)
+					delete_object = d_true;
+			} d_catch(exception) {
+				exception = exception; /* warning avoid */
+				delete_object = d_true;
+			} d_endtry;
+			if (delete_object) {
+				f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
+				f_object_delete(value);
+			}
 		}
 		value = next;
 	}
@@ -66,7 +77,7 @@ d_define_method(pool, delete)(struct s_object *self, struct s_pool_attributes *a
 
 d_define_class(pool) {
 	d_hook_method(pool, e_flag_public, insert),
-	d_hook_method(pool, e_flag_public, clean),
-	d_hook_delete(pool),
-	d_hook_method_tail
+		d_hook_method(pool, e_flag_public, clean),
+		d_hook_delete(pool),
+		d_hook_method_tail
 };
