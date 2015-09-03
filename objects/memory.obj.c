@@ -29,10 +29,21 @@ d_define_method(memory, retain)(struct s_object *self) {
 }
 
 d_define_method(memory, release)(struct s_object *self) {
-	d_using(memory);
-	if (memory_attributes->references > 0)
-		memory_attributes->references--;
-	return ((memory_attributes->references==0) && ((self->flags&e_flag_pooled)!=e_flag_pooled))?NULL:self;
+	struct s_memory_attributes *memory_attributes;
+	struct s_object *result = NULL;
+	struct s_exception *exception;
+	d_try {
+		memory_attributes = d_cast(self, memory);
+		if (memory_attributes->references > 0) {
+			memory_attributes->references--;
+			if ((memory_attributes->references > 0) || ((self->flags&e_flag_pooled) == e_flag_pooled))
+				result = self;
+		}
+	} d_catch(exception) {
+		/* the object is abstract */
+		result = NULL;
+	}
+	return result;
 }
 
 d_define_class(memory) {
