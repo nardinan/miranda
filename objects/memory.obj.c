@@ -31,7 +31,7 @@ d_define_method(memory, retain)(struct s_object *self) {
 d_define_method(memory, release)(struct s_object *self) {
 	struct s_memory_attributes *memory_attributes;
 	struct s_object *result = NULL;
-	struct s_exception *exception;
+	struct s_exception *exception = NULL;
 	d_try {
 		memory_attributes = d_cast(self, memory);
 		if (memory_attributes->references > 0) {
@@ -40,9 +40,9 @@ d_define_method(memory, release)(struct s_object *self) {
 				result = self;
 		}
 	} d_catch(exception) {
-		/* the object is abstract */
+		exception = exception; /* warning avoid */
 		result = NULL;
-	}
+	} d_endtry;
 	return result;
 }
 
