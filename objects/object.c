@@ -24,33 +24,43 @@ d_exception_define(private_method, 2, "private method exception");
 d_exception_define(wrong_casting, 3, "wrong casting exception");
 const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol) {
 	struct s_virtual_table *singleton;
+	char buffer[d_string_buffer_size];
 	const struct s_method *result = NULL;
 	int index;
 	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
 		for (index = 0; singleton->virtual_table[index].symbol; ++index)
 			if (singleton->virtual_table[index].symbol == symbol) {
-				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file))
-					d_throw(v_exception_private_method, "this method is private and you're out of context");
-				else {
+				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) {
+					snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)",
+							symbol, file, line);
+					d_throw(v_exception_private_method, buffer);
+				} else {
 					result = &(singleton->virtual_table[index]);
 					break;
 				}
 			}
-	if (!result)
-		d_throw(v_exception_undefined_method, "this symbol is undefined or is a member of another class");
+	if (!result) {
+		snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or is a member of another class (%s, %d)", symbol, file, line);
+		d_throw(v_exception_undefined_method, buffer);
+	}
 	return result;
+}
+
+struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags) {
+	provided->type = type;
+	provided->file = file;
+	provided->line = line;
+	memset(&(provided->virtual_tables), 0, sizeof(struct s_list));
+	memset(&(provided->attributes), 0, sizeof(struct s_list));
+	provided->flags = flags;
+	return provided;
 }
 
 struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags) {
 	struct s_object *result;
-	if ((result = d_malloc_explicit(sizeof(struct s_object), file, line))) {
-		result->type = type;
-		result->file = file;
-		result->line = line;
-		memset(&(result->virtual_tables), 0, sizeof(struct s_list));
-		memset(&(result->attributes), 0, sizeof(struct s_list));
-		result->flags = flags;
-	} else
+	if ((result = d_malloc_explicit(sizeof(struct s_object), file, line)))
+		p_object_prepare(result, file, line, type, (flags | e_flag_allocated));
+	else
 		d_die(d_error_malloc);
 	return result;
 }
@@ -77,6 +87,7 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
 
 struct s_attributes *p_object_cast(struct s_object *object, const char *type) {
 	struct s_attributes *result = NULL;
+	char buffer[d_string_buffer_size];
 	if ((object->last_attributes) && (object->last_attributes->type == type))
 		result = object->last_attributes;
 	else {
@@ -86,8 +97,10 @@ struct s_attributes *p_object_cast(struct s_object *object, const char *type) {
 				break;
 			}
 	}
-	if (!result)
-		d_throw(v_exception_wrong_casting, "this object can't be casted in this way");
+	if (!result) {
+		snprintf(buffer, d_string_buffer_size, "this object can't be casted as '%s' or is an abstract class exception", type);
+		d_throw(v_exception_wrong_casting, buffer);
+	}
 	return result;
 }
 
@@ -107,7 +120,8 @@ void f_object_delete(struct s_object *object) {
 		d_free(attributes);
 		d_free(virtual_table);
 	}
-	d_free(object);
+	if ((object->flags&e_flag_allocated) == e_flag_allocated)
+		d_free(object);
 }
 
 t_hash_value f_object_hash(struct s_object *object) {

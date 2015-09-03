@@ -27,7 +27,8 @@ typedef enum e_flag {
 	e_flag_public		= 0x00000002,
 	e_flag_hashed		= 0x00000004,
 	e_flag_pooled		= 0x00000008,
-	e_flag_placeholder	= 0x00000010
+	e_flag_placeholder	= 0x00000010,
+	e_flag_allocated	= 0x00000020
 } e_flag;
 #define d_cast_return(v) return ((void *)(long long int)v)
 typedef void *(*t_class_method)();
@@ -59,6 +60,8 @@ d_exception_declare(wrong_casting);
 #define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym))->method((obj),__VA_ARGS__))
 extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol);
 #define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type,e_flag_null))
+#define d_use(obj,kind) (p_object_prepare((obj),__FILE__,__LINE__,v_##kind##_type,e_flag_null))
+extern struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags);
 extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
 #define d_prepare(obj,kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,\
 			p_object_attributes_malloc(sizeof(struct s_##kind##_attributes),v_##kind##_type)))
@@ -79,7 +82,7 @@ extern struct s_object *f_object_compare(struct s_object *object, struct s_objec
 	const char v_##kind##_type[]=#kind;\
 	struct s_method v_##kind##_vtable[]=
 #define d_hook_method(kind,flag,sym) {m_##kind##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
-#define d_hook_method_override(kind,flag,own,sym) { m_##own##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
+#define d_hook_method_override(kind,flag,own,sym) {m_##own##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
 #define d_hook_delete(kind) {m_object_delete,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_delete)}
 #define d_hook_hash(kind) {m_object_hash,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_hash)}
 #define d_hook_compare(kind) {m_object_compare,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_compare)}
