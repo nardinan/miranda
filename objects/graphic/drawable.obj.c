@@ -43,19 +43,23 @@ d_define_method(drawable, draw)(struct s_object *self, struct s_object *environm
 }
 
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-		double current_w, double current_h) {
+		double focus_x, double focus_y, double current_w, double current_h, double zoom) {
 	d_using(drawable);
-	double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y;
+	double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y, this_focus_x,
+	       this_focus_y, this_zoom;
 	struct s_object *result = self;
 	d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
 	d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
 	d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);
-	new_x = ((this_x * current_w)/reference_w) - offset_x;
-	new_y = ((this_y * current_h)/reference_h) - offset_y;
-	new_w = (this_w * current_w)/reference_w;
-	new_h = (this_h * current_h)/reference_h;
-	new_center_x = (this_center_x * new_w)/this_w;
-	new_center_y = (this_center_y * new_h)/this_h;
+	this_focus_x = offset_x + focus_x;
+	this_focus_y = offset_y + focus_y;
+	this_zoom = drawable_attributes->zoom + zoom;
+	new_x = (((((this_x * current_w)/reference_w) - offset_x) - this_focus_x) * this_zoom) + this_focus_x;
+	new_y = (((((this_y * current_h)/reference_h) - offset_y) - this_focus_y) * this_zoom) + this_focus_y;
+	new_w = ((this_w * current_w)/reference_w) * this_zoom;
+	new_h = ((this_h * current_h)/reference_h) * this_zoom;
+	new_center_x = ((this_center_x * new_w)/this_w) * this_zoom;
+	new_center_y = ((this_center_y * new_h)/this_h) * this_zoom;
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_x, new_x);
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_y, new_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_x, new_w);
@@ -85,6 +89,12 @@ d_define_method(drawable, set_center)(struct s_object *self, double x, double y)
 d_define_method(drawable, set_angle)(struct s_object *self, double angle) {
 	d_using(drawable);
 	drawable_attributes->angle = fmod(angle, 360.0);
+	return self;
+}
+
+d_define_method(drawable, set_zoom)(struct s_object *self, double zoom) {
+	d_using(drawable);
+	drawable_attributes->zoom = zoom;
 	return self;
 }
 

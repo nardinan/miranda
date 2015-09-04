@@ -38,7 +38,7 @@ d_declare_class(environment) {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	t_environment_call init_call, main_call, quit_call;
-	double reference_w, reference_h, current_w, current_h, camera_origin_x, camera_origin_y, fps;
+	double reference_w, reference_h, current_w, current_h, camera_origin_x, camera_origin_y, camera_focus_x, camera_focus_y, zoom, fps;
 	struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
 	t_boolean continue_loop, scalable_geometry;
 } d_declare_class_tail(environment);
@@ -52,6 +52,10 @@ d_declare_method(environment, set_size)(struct s_object *self, int width, int he
 d_declare_method(environment, get_size)(struct s_object *self, int *width, int *height);
 d_declare_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y);
 d_declare_method(environment, get_camera)(struct s_object *self, double *offset_x, double *offset_y);
+d_declare_method(environment, set_focus)(struct s_object *self, double camera_focus_x, double camera_focus_y);
+d_declare_method(environment, get_focus)(struct s_object *self, double *camera_focus_x, double *camera_focus_y);
+d_declare_method(environment, set_zoom)(struct s_object *self, double zoom);
+d_declare_method(environment, get_zoom)(struct s_object *self, double *zoom);
 d_declare_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable);

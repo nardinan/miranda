@@ -54,6 +54,9 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 	attributes->current_h = height;
 	attributes->camera_origin_x = 0;
 	attributes->camera_origin_y = 0;
+	attributes->camera_focus_x = (width / 2.0);
+	attributes->camera_focus_y = (height / 2.0);
+	attributes->zoom = 1;
 	attributes->scalable_geometry = d_true;
 	attributes->continue_loop = d_true;
 	return self;
@@ -101,8 +104,38 @@ d_define_method(environment, set_camera)(struct s_object *self, double offset_x,
 
 d_define_method(environment, get_camera)(struct s_object *self, double *offset_x, double *offset_y) {
 	d_using(environment);
-	*offset_x = environment_attributes->camera_origin_x;
-	*offset_y = environment_attributes->camera_origin_y;
+	if (offset_x)
+		*offset_x = environment_attributes->camera_origin_x;
+	if (offset_y)
+		*offset_y = environment_attributes->camera_origin_y;
+	return self;
+}
+
+d_define_method(environment, set_focus)(struct s_object *self, double focus_x, double focus_y) {
+	d_using(environment);
+	environment_attributes->camera_focus_x = focus_x;
+	environment_attributes->camera_focus_y = focus_y;
+	return self;
+}
+
+d_define_method(environment, get_focus)(struct s_object *self, double *focus_x, double *focus_y) {
+	d_using(environment);
+	if (focus_x)
+		*focus_x = environment_attributes->camera_focus_x;
+	if (focus_y)
+		*focus_y = environment_attributes->camera_focus_y;
+	return self;
+}
+
+d_define_method(environment, set_zoom)(struct s_object *self, double zoom) {
+	d_using(environment);
+	environment_attributes->zoom = zoom;
+	return self;
+}
+
+d_define_method(environment, get_zoom)(struct s_object *self, double *zoom) {
+	d_using(environment);
+	*zoom = environment_attributes->zoom;
 	return self;
 }
 
@@ -140,7 +173,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 	environment_attributes->init_call(self);
 	while (environment_attributes->continue_loop) {
 		d_try {
-			while (SDL_PollEvent(&local_event)) {
+			if (SDL_PollEvent(&local_event)) {
 				d_foreach(&(environment_attributes->eventable), eventable_object, struct s_object)
 					d_call(eventable_object, m_eventable_event, self, &local_event);
 				if (local_event.type == SDL_QUIT)
@@ -157,8 +190,11 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 												environment_attributes->reference_h,
 												environment_attributes->camera_origin_x,
 												environment_attributes->camera_origin_y,
+												environment_attributes->camera_focus_x,
+												environment_attributes->camera_focus_y,
 												environment_attributes->current_w,
-												environment_attributes->current_h)))
+												environment_attributes->current_h,
+												environment_attributes->zoom)))
 									while (((int)d_call(drawable_object, m_drawable_draw, self)) ==
 											d_drawable_return_continue);
 						}
@@ -201,6 +237,10 @@ d_define_class(environment) {
 	d_hook_method(environment, e_flag_public, get_size),
 	d_hook_method(environment, e_flag_public, set_camera),
 	d_hook_method(environment, e_flag_public, get_camera),
+	d_hook_method(environment, e_flag_public, set_focus),
+	d_hook_method(environment, e_flag_public, get_focus),
+	d_hook_method(environment, e_flag_public, set_zoom),
+	d_hook_method(environment, e_flag_public, get_zoom),
 	d_hook_method(environment, e_flag_public, add_drawable),
 	d_hook_method(environment, e_flag_public, del_drawable),
 	d_hook_method(environment, e_flag_public, add_eventable),

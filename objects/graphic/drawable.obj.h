@@ -34,7 +34,7 @@ typedef enum e_drawable_flips {
 d_declare_class(drawable) {
 	struct s_attributes head;
 	struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
-	double angle;
+	double angle, zoom;
 	enum e_drawable_flips flip;
 	int flags;
 } d_declare_class_tail(drawable);
@@ -42,10 +42,11 @@ struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object  *self, int flags);
 d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-		double current_w, double current_h);
+		double focus_x, double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(drawable, set_position)(struct s_object *self, double x, double y);
 d_declare_method(drawable, set_center)(struct s_object *self, double x, double y);
 d_declare_method(drawable, set_angle)(struct s_object *self, double angle);
+d_declare_method(drawable, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(drawable, flip)(struct s_object *self, enum e_drawable_flips flip);
 d_declare_method(drawable, get_flags)(struct s_object *self);
 #endif

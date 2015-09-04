@@ -31,7 +31,6 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_stream_attributes *stream_attributes = d_cast(stream, stream);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-	struct s_object *result = self;
 	char *memblock, buffer[d_string_buffer_size];
 	struct stat file_stats;
 	int width, height;
@@ -63,7 +62,7 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
 		snprintf(buffer, d_string_buffer_size, "wrong type for file %s exception", d_string_cstring(stream_attributes->string_name));
 		d_throw(v_exception_wrong_type, buffer);
 	}
-	return result;
+	return self;
 }
 
 d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *environment) {
