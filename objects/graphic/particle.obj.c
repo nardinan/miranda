@@ -65,6 +65,8 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
 				       	(particle_attributes->particles[index].core.speed_zoom * real_elapsed_update);
 				particle_attributes->particles[index].core.angle +=
 					(particle_attributes->particles[index].core.speed_angle * real_elapsed_update);
+				particle_attributes->particles[index].core.direction_angle +=
+					(particle_attributes->particles[index].core.speed_direction_angle * real_elapsed_update);
 				radians = (particle_attributes->particles[index].core.direction_angle * d_math_pi)/180.0;
 				speed_x = particle_attributes->particles[index].core.speed_linear * cos(radians);
 				speed_y = particle_attributes->particles[index].core.speed_linear * sin(radians);
@@ -86,8 +88,7 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
 			particle_attributes->particles[index].core.gravity_y = d_particle_randomizeF(particle_attributes, gravity_y);
 			particle_attributes->particles[index].core.direction_angle = d_particle_randomizeF(particle_attributes, direction_angle);
 			particle_attributes->particles[index].core.speed_linear = d_particle_randomizeF(particle_attributes, speed_linear);
-			particle_attributes->particles[index].core.speed_radial = d_particle_randomizeF(particle_attributes, speed_radial);
-			particle_attributes->particles[index].core.speed_tangential = d_particle_randomizeF(particle_attributes, speed_tangential);
+			particle_attributes->particles[index].core.speed_direction_angle = d_particle_randomizeF(particle_attributes, speed_direction_angle);
 			particle_attributes->particles[index].core.speed_zoom = d_particle_randomizeF(particle_attributes, speed_zoom);
 			particle_attributes->particles[index].core.speed_angle = d_particle_randomizeF(particle_attributes, speed_angle);
 			particle_attributes->particles[index].core.mask_R = d_particle_randomizeF(particle_attributes, mask_R);

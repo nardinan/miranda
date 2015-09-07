@@ -30,7 +30,7 @@
 		(v)=(min);\
 }while(0)
 typedef struct s_particle_configuration_core {
-	double position_x, position_y, zoom, angle, gravity_x, gravity_y, direction_angle, speed_linear, speed_radial, speed_tangential, speed_zoom,
+	double position_x, position_y, zoom, angle, gravity_x, gravity_y, direction_angle, speed_linear, speed_direction_angle, speed_zoom,
 	       speed_angle, mask_R, mask_G, mask_B, mask_A, speed_R, speed_G, speed_B, speed_A, lifetime;
 } s_particle_configuration_core;
 typedef void (*t_particle_initializer)(struct s_particle_configuration_core *particle);
