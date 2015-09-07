@@ -31,6 +31,12 @@ typedef enum e_drawable_flips {
 	e_drawable_flip_vertical =	SDL_FLIP_VERTICAL,
 	e_drawable_flip_none =		SDL_FLIP_NONE
 } e_drawable_flips;
+typedef enum e_drawable_blends {
+	e_drawable_blend_alpha = 	SDL_BLENDMODE_BLEND,
+	e_drawable_blend_add =		SDL_BLENDMODE_ADD,
+	e_drawable_blend_mod =		SDL_BLENDMODE_MOD,
+	e_drawable_blend_none = 	SDL_BLENDMODE_NONE
+} e_drawable_blends;
 d_declare_class(drawable) {
 	struct s_attributes head;
 	struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
@@ -40,7 +46,9 @@ d_declare_class(drawable) {
 } d_declare_class_tail(drawable);
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object  *self, int flags);
-d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment); /* abstract */
+d_declare_method(drawable, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha); /* abstract */
+d_declare_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blends blend); /* abstract */
 d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
 		double focus_x, double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(drawable, set_position)(struct s_object *self, double x, double y);

@@ -42,6 +42,16 @@ d_define_method(drawable, draw)(struct s_object *self, struct s_object *environm
 	return self;
 }
 
+d_define_method(drawable, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+	d_war(e_log_level_ever, "'set_mask' method has not been implemented yet");
+	return self;
+}
+
+d_define_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
+	d_war(e_log_level_ever, "'set_blend' method has not been implemented yet");
+	return self;
+}
+
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
 		double focus_x, double focus_y, double current_w, double current_h, double zoom) {
 	d_using(drawable);
@@ -121,6 +131,8 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
 
 d_define_class(drawable) {
 	d_hook_method(drawable, e_flag_public, draw),
+	d_hook_method(drawable, e_flag_public, set_mask),
+	d_hook_method(drawable, e_flag_public, set_blend),
 	d_hook_method(drawable, e_flag_public, normalize_scale),
 	d_hook_method(drawable, e_flag_public, set_position),
 	d_hook_method(drawable, e_flag_public, set_center),
