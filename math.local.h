@@ -22,6 +22,7 @@
 #include <math.h>
 #define d_math_pi 3.14159265358979323846
 #define d_math_default_precision 0.001
+#define d_math_frand (((double)(rand()%1000))/1000.0)
 extern float f_math_mean(float *values, size_t elements);
 extern float f_math_sqrt(float value, float precision);
 extern float f_math_rms(float *values, size_t elements, float precision);
