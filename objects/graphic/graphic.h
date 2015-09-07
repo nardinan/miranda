@@ -21,4 +21,5 @@
 #include "drawable.obj.h"
 #include "eventable.obj.h"
 #include "bitmap.obj.h"
+#include "particle.obj.h"
 #endif

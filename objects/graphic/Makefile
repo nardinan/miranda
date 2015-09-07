@@ -1,4 +1,4 @@
-objects = environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o
+objects = environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o particle.obj.o
 name = miranda_graphic
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -21,6 +21,9 @@ eventable.obj.o: eventable.obj.c eventable.obj.h ../memory.obj.h ../mutex.obj.h
 
 bitmap.obj.o: bitmap.obj.c bitmap.obj.h environment.obj.h ../io/stream.obj.h
 	$(cc) $(cflags) bitmap.obj.c
+
+particle.obj.o: particle.obj.c particle.obj.h environment.obj.h
+	$(cc) $(cflags) particle.obj.c
 
 clean:
 	rm -f *.o
