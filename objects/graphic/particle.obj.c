@@ -79,7 +79,9 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
 				memcpy(&(particle_attributes->particles[index].update), &current, sizeof(struct timeval));
 			} else
 				particle_attributes->particles[index].alive = d_false;
-		} else if (generated < max_particles) {
+		} else if ((generated < max_particles) && ((particle_attributes->particles[index].was_alive == d_false) ||
+					(particle_attributes->configuration.single_shoot == d_false))) {
+			particle_attributes->particles[index].was_alive = d_true;
 			memcpy(&(particle_attributes->particles[index].born), &current, sizeof(struct timeval));
 			memcpy(&(particle_attributes->particles[index].update), &current, sizeof(struct timeval));
 			particle_attributes->particles[index].core.position_x = d_particle_randomizeF(particle_attributes, position_x) + local_position_x;
@@ -174,9 +176,9 @@ d_define_method(particle, delete)(struct s_object *self, struct s_particle_attri
 
 d_define_class(particle) {
 	d_hook_method(particle, e_flag_private, update),
-	d_hook_method_override(particle, e_flag_public, drawable, draw),
-	d_hook_method_override(particle, e_flag_public, drawable, set_mask),
-	d_hook_method_override(particle, e_flag_public, drawable, set_blend),
-	d_hook_delete(particle),
-	d_hook_method_tail
+		d_hook_method_override(particle, e_flag_public, drawable, draw),
+		d_hook_method_override(particle, e_flag_public, drawable, set_mask),
+		d_hook_method_override(particle, e_flag_public, drawable, set_blend),
+		d_hook_delete(particle),
+		d_hook_method_tail
 };

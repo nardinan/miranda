@@ -38,13 +38,13 @@ typedef struct s_particle_configuration {
 	unsigned int particles, emission_rate;
 	struct s_particle_configuration_core minimum, maximum;
 	t_particle_initializer initializer; /* isn't mandatory */
-	t_boolean expired;
+	t_boolean expired, single_shoot;
 	enum e_drawable_blends blend;
 } s_particle_configuration;
 typedef struct s_particle_information {
 	struct timeval born, update;
 	struct s_particle_configuration_core core;
-	t_boolean alive;
+	t_boolean alive, was_alive;
 } s_particle_information;
 d_declare_class(particle) {
 	struct s_attributes head;
