@@ -18,9 +18,9 @@
 #include "particle.obj.h"
 struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
 	struct s_particle_attributes *result = d_prepare(self, particle);
-	f_memory_new(self);				/* inherit */
-	f_mutex_new(self);				/* inherit */
-	f_drawable_new(self, e_drawable_kind_single);	/* inherit */
+	f_memory_new(self);									/* inherit */
+	f_mutex_new(self);									/* inherit */
+	f_drawable_new(self, (e_drawable_kind_multiple|e_drawable_kind_force_visibility));	/* inherit */
 	return result;
 }
 
@@ -39,9 +39,11 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
 	d_using(particle);
 	unsigned int index;
 	struct timeval current, elapsed_begin, elapsed_update;
-	double real_elapsed_begin, real_elapsed_update, radians, speed_x, speed_y;
+	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable);
+	double local_position_x, local_position_y, real_elapsed_begin, real_elapsed_update, radians, speed_x, speed_y;
 	unsigned int generated = 0;
 	gettimeofday(&current, NULL);
+	d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
 	for (index = 0; index < particle_attributes->configuration.particles; ++index) {
 		if (particle_attributes->particles[index].alive) {
 			timersub(&current, &(particle_attributes->particles[index].born), &elapsed_begin);
@@ -80,8 +82,8 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
 		} else if (generated < max_particles) {
 			memcpy(&(particle_attributes->particles[index].born), &current, sizeof(struct timeval));
 			memcpy(&(particle_attributes->particles[index].update), &current, sizeof(struct timeval));
-			particle_attributes->particles[index].core.position_x = d_particle_randomizeF(particle_attributes, position_x);
-			particle_attributes->particles[index].core.position_y = d_particle_randomizeF(particle_attributes, position_y);
+			particle_attributes->particles[index].core.position_x = d_particle_randomizeF(particle_attributes, position_x) + local_position_x;
+			particle_attributes->particles[index].core.position_y = d_particle_randomizeF(particle_attributes, position_y) + local_position_y;
 			particle_attributes->particles[index].core.zoom = d_particle_randomizeF(particle_attributes, zoom);
 			particle_attributes->particles[index].core.angle = d_particle_randomizeF(particle_attributes, angle);
 			particle_attributes->particles[index].core.gravity_x = d_particle_randomizeF(particle_attributes, gravity_x);
@@ -134,8 +136,8 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 					(unsigned int)particle_attributes->particles[index].core.mask_G,
 					(unsigned int)particle_attributes->particles[index].core.mask_B,
 					(unsigned int)particle_attributes->particles[index].core.mask_A);
-			position_x = (particle_attributes->particles[index].core.position_x + local_position_x);
-			position_y = (particle_attributes->particles[index].core.position_y + local_position_y);
+			position_x = particle_attributes->particles[index].core.position_x;
+			position_y = particle_attributes->particles[index].core.position_y;
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double)position_y);
 			drawable_attributes_core->zoom = particle_attributes->particles[index].core.zoom;

@@ -79,8 +79,9 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
 	d_call(&(drawable_attributes->point_normalized_center), m_point_set_x, new_center_x);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_set_y, new_center_y);
 	/* is the object still visible ? */
-	if ((new_x > current_w) || (new_y > current_h) || (new_x < (new_w * -1)) || (new_y < (new_h * -1)))
-		result = NULL;
+	if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility)
+		if ((new_x > current_w) || (new_y > current_h) || (new_x < -new_w) || (new_y < -new_h))
+			result = NULL;
 	return result;
 }
 

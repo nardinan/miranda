@@ -22,9 +22,10 @@
 #define d_drawable_return_continue 	1
 #define d_drawable_return_last 		0
 typedef enum e_drawable_kinds {
-	e_drawable_kind_single =	0x01,
-	e_drawable_kind_multiple = 	0x02,
-	e_drawable_kind_hidden = 	0x04
+	e_drawable_kind_single =		0x01,
+	e_drawable_kind_multiple = 		0x02,
+	e_drawable_kind_hidden = 		0x04,
+	e_drawable_kind_force_visibility =	0x08
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
 	e_drawable_flip_horizontal = 	SDL_FLIP_HORIZONTAL,
