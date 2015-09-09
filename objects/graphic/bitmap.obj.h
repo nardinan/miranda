@@ -30,7 +30,7 @@ d_declare_class(bitmap) {
 	SDL_Texture *image;
 } d_declare_class_tail(bitmap);
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self);
-extern struct s_object *f_bitmap_new(struct s_object  *self, struct s_object *stream, struct s_object *environment);
+extern struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, struct s_object *environment);
 d_declare_method(bitmap, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(bitmap, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(bitmap, set_maskA)(struct s_object *self, unsigned int alpha);

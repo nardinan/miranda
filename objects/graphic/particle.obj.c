@@ -32,10 +32,10 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
 	memset(&(attributes->particles), 0, (sizeof(struct s_particle_information) * d_particle_cores));
 	d_call(attributes->drawable_core, m_drawable_set_blend, attributes->configuration.blend);
 	attributes->initialized = d_false;
-	attributes->mask_R = 1;
-	attributes->mask_G = 1;
-	attributes->mask_B = 1;
-	attributes->mask_A = 1;
+	attributes->mask_R = 255;
+	attributes->mask_G = 255;
+	attributes->mask_B = 255;
+	attributes->mask_A = 255;
 	return self;
 }
 
@@ -121,7 +121,7 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 	d_using(particle);
 	unsigned int index, new_particles;
 	struct timeval current, elapsed_update;
-	double real_elapsed_update, local_position_x, local_position_y, position_x, position_y;
+	double real_elapsed_update, local_position_x, local_position_y, position_x, position_y, normalized_R, normalized_G, normalized_B, normalized_A;
 	struct s_drawable_attributes *drawable_attributes_core = d_cast(particle_attributes->drawable_core, drawable),
 				     *drawable_attributes_self = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
@@ -138,12 +138,15 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
 	for (index = 0; index < particle_attributes->configuration.particles; ++index)
 		if (particle_attributes->particles[index].alive) {
+			normalized_R = ((particle_attributes->particles[index].core.mask_R/255.0)*(particle_attributes->mask_R/255.0))*255.0;
+			normalized_G = ((particle_attributes->particles[index].core.mask_G/255.0)*(particle_attributes->mask_G/255.0))*255.0;
+			normalized_B = ((particle_attributes->particles[index].core.mask_B/255.0)*(particle_attributes->mask_B/255.0))*255.0;
+			normalized_A = ((particle_attributes->particles[index].core.mask_A/255.0)*(particle_attributes->mask_A/255.0))*255.0;
 			d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB,
-					((unsigned int)particle_attributes->particles[index].core.mask_R * particle_attributes->mask_R),
-					((unsigned int)particle_attributes->particles[index].core.mask_G * particle_attributes->mask_G),
-					((unsigned int)particle_attributes->particles[index].core.mask_B * particle_attributes->mask_B));
-			d_call(particle_attributes->drawable_core, m_drawable_set_maskA,
-					((unsigned int)particle_attributes->particles[index].core.mask_A * particle_attributes->mask_A));
+					(unsigned int)normalized_R,
+					(unsigned int)normalized_G,
+					(unsigned int)normalized_B);
+			d_call(particle_attributes->drawable_core, m_drawable_set_maskA, (unsigned int)normalized_A);
 			position_x = particle_attributes->particles[index].core.position_x;
 			position_y = particle_attributes->particles[index].core.position_y;
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
