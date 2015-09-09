@@ -48,7 +48,8 @@ d_declare_class(drawable) {
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object  *self, int flags);
 d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment); /* abstract */
-d_declare_method(drawable, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha); /* abstract */
+d_declare_method(drawable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue); /* abstract */
+d_declare_method(drawable, set_maskA)(struct s_object *self, unsigned int alpha); /* abstract */
 d_declare_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blends blend); /* abstract */
 d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
 		double focus_x, double focus_y, double current_w, double current_h, double zoom);

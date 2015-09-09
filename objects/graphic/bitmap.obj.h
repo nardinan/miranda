@@ -21,7 +21,6 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <SDL2/SDL_image.h>
 #include "environment.obj.h"
 #include "../io/stream.obj.h"
 d_exception_declare(wrong_type);
@@ -33,7 +32,8 @@ d_declare_class(bitmap) {
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self);
 extern struct s_object *f_bitmap_new(struct s_object  *self, struct s_object *stream, struct s_object *environment);
 d_declare_method(bitmap, draw)(struct s_object *self, struct s_object *environment);
-d_declare_method(bitmap, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
+d_declare_method(bitmap, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
+d_declare_method(bitmap, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(bitmap, set_blend)(struct s_object *self, enum e_drawable_blends blend);
 d_declare_method(bitmap, delete)(struct s_object *self, struct s_bitmap_attributes *attributes);
 #endif

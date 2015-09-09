@@ -18,9 +18,11 @@
 #ifndef miranda_graphic_environment_h
 #define miranda_graphic_environment_h
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "drawable.obj.h"
 #include "eventable.obj.h"
-#define d_environment_default_title "miranda engine"
+#define d_environment_default_title "miranda"
 #define d_environment_default_systems (SDL_INIT_VIDEO|SDL_INIT_AUDIO)
 #define d_environment_default_fps 60.0
 #define d_environment_default_reference_w 1024
@@ -40,7 +42,7 @@ d_declare_class(environment) {
 	t_environment_call init_call, main_call, quit_call;
 	double reference_w, reference_h, current_w, current_h, camera_origin_x, camera_origin_y, camera_focus_x, camera_focus_y, zoom, fps;
 	struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
-	t_boolean continue_loop, scalable_geometry;
+	t_boolean continue_loop;
 } d_declare_class_tail(environment);
 struct s_environment_attributes *p_environment_alloc(struct s_object *self);
 extern struct s_object *f_environment_new(struct s_object *self, int width, int height);

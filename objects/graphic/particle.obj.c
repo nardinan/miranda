@@ -32,6 +32,10 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
 	memset(&(attributes->particles), 0, (sizeof(struct s_particle_information) * d_particle_cores));
 	d_call(attributes->drawable_core, m_drawable_set_blend, attributes->configuration.blend);
 	attributes->initialized = d_false;
+	attributes->mask_R = 1;
+	attributes->mask_G = 1;
+	attributes->mask_B = 1;
+	attributes->mask_A = 1;
 	return self;
 }
 
@@ -134,10 +138,12 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
 	for (index = 0; index < particle_attributes->configuration.particles; ++index)
 		if (particle_attributes->particles[index].alive) {
-			d_call(particle_attributes->drawable_core, m_drawable_set_mask, (unsigned int)particle_attributes->particles[index].core.mask_R,
-					(unsigned int)particle_attributes->particles[index].core.mask_G,
-					(unsigned int)particle_attributes->particles[index].core.mask_B,
-					(unsigned int)particle_attributes->particles[index].core.mask_A);
+			d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB,
+					((unsigned int)particle_attributes->particles[index].core.mask_R * particle_attributes->mask_R),
+					((unsigned int)particle_attributes->particles[index].core.mask_G * particle_attributes->mask_G),
+					((unsigned int)particle_attributes->particles[index].core.mask_B * particle_attributes->mask_B));
+			d_call(particle_attributes->drawable_core, m_drawable_set_maskA,
+					((unsigned int)particle_attributes->particles[index].core.mask_A * particle_attributes->mask_A));
 			position_x = particle_attributes->particles[index].core.position_x;
 			position_y = particle_attributes->particles[index].core.position_y;
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
@@ -158,9 +164,18 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 	d_cast_return(d_drawable_return_last);
 }
 
-d_define_method_override(particle, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+d_define_method_override(particle, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
 	d_using(particle);
-	return d_call(particle_attributes->drawable_core, m_drawable_set_mask, red, green, blue, alpha);
+	particle_attributes->mask_R = red;
+	particle_attributes->mask_G = green,
+	particle_attributes->mask_B = blue;
+	return self;
+}
+
+d_define_method_override(particle, set_maskA)(struct s_object *self, unsigned int alpha) {
+	d_using(particle);
+	particle_attributes->mask_A = alpha;
+	return self;
 }
 
 d_define_method_override(particle, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
@@ -176,9 +191,10 @@ d_define_method(particle, delete)(struct s_object *self, struct s_particle_attri
 
 d_define_class(particle) {
 	d_hook_method(particle, e_flag_private, update),
-		d_hook_method_override(particle, e_flag_public, drawable, draw),
-		d_hook_method_override(particle, e_flag_public, drawable, set_mask),
-		d_hook_method_override(particle, e_flag_public, drawable, set_blend),
-		d_hook_delete(particle),
-		d_hook_method_tail
+	d_hook_method_override(particle, e_flag_public, drawable, draw),
+	d_hook_method_override(particle, e_flag_public, drawable, set_maskRGB),
+	d_hook_method_override(particle, e_flag_public, drawable, set_maskA),
+	d_hook_method_override(particle, e_flag_public, drawable, set_blend),
+	d_hook_delete(particle),
+	d_hook_method_tail
 };

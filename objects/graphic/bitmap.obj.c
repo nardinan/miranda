@@ -86,9 +86,14 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
 	d_cast_return(d_drawable_return_last);
 }
 
-d_define_method_override(bitmap, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+d_define_method_override(bitmap, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
 	d_using(bitmap);
 	SDL_SetTextureColorMod(bitmap_attributes->image, red, green, blue);
+	return self;
+}
+
+d_define_method_override(bitmap, set_maskA)(struct s_object *self, unsigned int alpha) {
+	d_using(bitmap);
 	SDL_SetTextureAlphaMod(bitmap_attributes->image, alpha);
 	return self;
 }
@@ -106,7 +111,8 @@ d_define_method(bitmap, delete)(struct s_object *self, struct s_bitmap_attribute
 
 d_define_class(bitmap) {
 	d_hook_method_override(bitmap, e_flag_public, drawable, draw),
-	d_hook_method_override(bitmap, e_flag_public, drawable, set_mask),
+	d_hook_method_override(bitmap, e_flag_public, drawable, set_maskRGB),
+	d_hook_method_override(bitmap, e_flag_public, drawable, set_maskA),
 	d_hook_method_override(bitmap, e_flag_public, drawable, set_blend),
 	d_hook_delete(bitmap),
 	d_hook_method_tail

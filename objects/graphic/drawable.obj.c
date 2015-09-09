@@ -43,8 +43,13 @@ d_define_method(drawable, draw)(struct s_object *self, struct s_object *environm
 	return self;
 }
 
-d_define_method(drawable, set_mask)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
-	d_war(e_log_level_ever, "'set_mask' method has not been implemented yet");
+d_define_method(drawable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+	d_war(e_log_level_ever, "'set_maskRGB' method has not been implemented yet");
+	return self;
+}
+
+d_define_method(drawable, set_maskA)(struct s_object *self, unsigned int alpha) {
+	d_war(e_log_level_ever, "'set_maskA' method has not been implemented yet");
 	return self;
 }
 
@@ -134,7 +139,8 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
 
 d_define_class(drawable) {
 	d_hook_method(drawable, e_flag_public, draw),
-	d_hook_method(drawable, e_flag_public, set_mask),
+	d_hook_method(drawable, e_flag_public, set_maskRGB),
+	d_hook_method(drawable, e_flag_public, set_maskA),
 	d_hook_method(drawable, e_flag_public, set_blend),
 	d_hook_method(drawable, e_flag_public, normalize_scale),
 	d_hook_method(drawable, e_flag_public, set_position),
