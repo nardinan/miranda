@@ -40,12 +40,22 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 			memset(&(attributes->drawable[surface][index]), 0, sizeof(struct s_list));
 	memset(&(attributes->eventable), 0, sizeof(struct s_list));
 	if ((initialized_systems = SDL_WasInit(d_environment_default_systems)) != d_environment_default_systems)
-		if (SDL_Init(d_environment_default_systems&(~initialized_systems)) < 0)
+		if (SDL_Init(d_environment_default_systems&(d_environment_default_systems&(~initialized_systems))) < 0) {
+			d_err(e_log_level_ever, "SDL graphical system returns an error during the initialization (flags 0x%08x)",
+					(d_environment_default_systems&(~initialized_systems)));
 			initialized = d_false;
-	if (initialized)
+		}
+	if (initialized) {
+		/* TTF initialization */
+		if (TTF_WasInit() == 0)
+			if (TTF_Init() < 0) {
+				initialized = d_false;
+				d_err(e_log_level_ever, "SDL font system returns an error during the initialization");
+			}
 		if ((attributes->window = SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
 						(flags|SDL_WINDOW_OPENGL))))
 			attributes->renderer = SDL_CreateRenderer(attributes->window, -1, (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+	}
 	attributes->fps = d_environment_default_fps;
 	/* geometry */
 	attributes->reference_w = d_environment_default_reference_w;
@@ -57,7 +67,6 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 	attributes->camera_focus_x = (width / 2.0);
 	attributes->camera_focus_y = (height / 2.0);
 	attributes->zoom = 1;
-	attributes->scalable_geometry = d_true;
 	attributes->continue_loop = d_true;
 	return self;
 }
@@ -226,6 +235,7 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
 				f_list_delete(&(attributes->drawable[surface][index]), attributes->drawable[surface][index].head);
 	SDL_DestroyRenderer(attributes->renderer);
 	SDL_DestroyWindow(attributes->window);
+	TTF_Quit();
 	SDL_Quit();
 	return NULL;
 }
