@@ -45,7 +45,7 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
 				d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
 				d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
 				d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width/2.0));
-				d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(width/2.0));
+				d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height/2.0));
 			} else {
 				snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for bitmap %s exception",
 						d_string_cstring(stream_attributes->string_name));
