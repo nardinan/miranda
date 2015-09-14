@@ -37,34 +37,17 @@ d_define_method(pool, insert)(struct s_object *self, struct s_object *pointer) {
 	return pointer;
 }
 
-d_define_method(pool, clean)(struct s_object *self, int skip) {
+d_define_method(pool, clean)(struct s_object *self) {
 	d_using(pool);
-	struct s_memory_attributes *memory_attributes;
 	struct s_object *next, *value = (struct s_object *)pool_attributes->pool->head;
-	struct s_exception *exception;
-	t_boolean delete_object = skip;
 	while (value) {
 		next = (struct s_object *)value->head.next;
+		f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
 		if ((value->flags&e_flag_placeholder) == e_flag_placeholder) {
-			f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
 			d_free(value);
 			break;
-		} else {
-			d_try {
-				memory_attributes = d_cast(value, memory);
-				if (memory_attributes->references > 0)
-					--(memory_attributes->references);
-				if (memory_attributes->references == 0)
-					delete_object = d_true;
-			} d_catch(exception) {
-				exception = exception; /* warning avoid */
-				delete_object = d_true;
-			} d_endtry;
-			if (delete_object) {
-				f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
-				f_object_delete(value);
-			}
-		}
+		} else
+			d_delete(value);
 		value = next;
 	}
 	return self;

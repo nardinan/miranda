@@ -34,11 +34,11 @@ do{\
 	do
 #define d_p(p) d_call(v_default_pool,m_pool_insert,(p))
 d_declare_method(pool, insert)(struct s_object *self, struct s_object *pointer);
-#define d_pool_end(b)\
+#define d_pool_end\
 	while(0);\
-	d_call(v_default_pool,m_pool_clean,(b));\
+	d_call(v_default_pool,m_pool_clean,NULL);\
 }while(0)
-d_declare_method(pool, clean)(struct s_object *self, int skip);
+d_declare_method(pool, clean)(struct s_object *self);
 d_declare_method(pool, delete)(struct s_object *self, struct s_pool_attributes *attributes);
 #endif
 

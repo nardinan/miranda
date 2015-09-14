@@ -36,7 +36,7 @@ d_define_method(memory, release)(struct s_object *self) {
 		memory_attributes = d_cast(self, memory);
 		if (memory_attributes->references > 0) {
 			memory_attributes->references--;
-			if ((memory_attributes->references > 0) || ((self->flags&e_flag_pooled) == e_flag_pooled))
+			if (memory_attributes->references > 0)
 				result = self;
 		}
 	} d_catch(exception) {
