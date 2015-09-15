@@ -3,6 +3,9 @@ language: c
 compiler:
         - gcc
 
+before_install:
+        - sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev
+
 script:
         - make
         - sudo make install
