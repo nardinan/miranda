@@ -4,7 +4,13 @@ compiler:
         - gcc
 
 before_install:
-        - sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev
+        - uname -a
+        - lsb_release -a
+        - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
+        - sudo apt-get update -qq
+
+install:
+        - sudo apt-get install -qq libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev
 
 script:
         - make
