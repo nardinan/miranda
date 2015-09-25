@@ -41,7 +41,7 @@ typedef struct s_json_token { d_list_node_head;
 	enum e_json_token_types type;
 	union {
 		char symbol_entry, *string_entry;
-		float value_entry;
+		double value_entry;
 	};
 } s_json_token;
 typedef enum e_json_node_actions {
@@ -66,7 +66,7 @@ typedef struct s_json_node_value { d_list_node_head;
 	enum e_json_node_types type;
 	union {
 		char *string_entry;
-		float value_entry;
+		double value_entry;
 		t_boolean boolean_entry;
 		struct s_list *array_entry, *object_entry;
 	};
@@ -96,10 +96,10 @@ extern struct s_object *f_json_new_stream(struct s_object *self, struct s_object
 d_declare_method(json, write)(struct s_object *self, struct s_object *stream_file);
 d_declare_method(json, get_value)(struct s_object *self, const char *format, va_list parameters);
 d_declare_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...);
-d_declare_method(json, get_float)(struct s_object *self, float *value_supply, const char *format, ...);
+d_declare_method(json, get_double)(struct s_object *self, double *value_supply, const char *format, ...);
 d_declare_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...);
 d_declare_method(json, set_string)(struct s_object *self, char *string_supply, const char *format, ...);
-d_declare_method(json, set_float)(struct s_object *self, float value_supply, const char *format, ...);
+d_declare_method(json, set_double)(struct s_object *self, double value_supply, const char *format, ...);
 d_declare_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supply, const char *format, ...);
 d_declare_method(json, set_array)(struct s_object *self, const char *format, ...);
 d_declare_method(json, insert_value)(struct s_object *self, const char *key, const char *format, ...);

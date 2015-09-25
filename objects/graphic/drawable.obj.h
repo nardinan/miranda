@@ -30,6 +30,7 @@ typedef enum e_drawable_kinds {
 typedef enum e_drawable_flips {
 	e_drawable_flip_horizontal = 	SDL_FLIP_HORIZONTAL,
 	e_drawable_flip_vertical =	SDL_FLIP_VERTICAL,
+	e_drawable_flip_both =		(SDL_FLIP_HORIZONTAL|SDL_FLIP_VERTICAL),
 	e_drawable_flip_none =		SDL_FLIP_NONE
 } e_drawable_flips;
 typedef enum e_drawable_blends {

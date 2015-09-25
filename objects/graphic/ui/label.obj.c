@@ -40,6 +40,7 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	SDL_Color white = {
 		255,
 		255,
+		255,
 		255
 	};
 	if (label_attributes->string_content)
@@ -47,7 +48,7 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	label_attributes->string_content = d_retain(string_content);
 	if (label_attributes->image)
 		SDL_DestroyTexture(label_attributes->image);
-	if ((unoptimized_surface = TTF_RenderText_Solid(font, d_string_cstring(string_content), white))) {
+	if ((unoptimized_surface = TTF_RenderText_Blended(font, d_string_cstring(string_content), white))) {
 		label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
 		if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
 			d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);

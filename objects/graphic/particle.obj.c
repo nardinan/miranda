@@ -153,6 +153,7 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double)position_y);
 			drawable_attributes_core->zoom = particle_attributes->particles[index].core.zoom;
 			drawable_attributes_core->angle = particle_attributes->particles[index].core.angle;
+			drawable_attributes_core->flip = drawable_attributes_self->flip;
 			if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, environment_attributes->reference_w,
 							environment_attributes->reference_h,
 							environment_attributes->camera_origin_x,

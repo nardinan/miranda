@@ -163,7 +163,7 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
 
 d_define_class(resources) {
 	d_hook_method(resources, e_flag_private, get),
-		d_hook_method(resources, e_flag_public, get_stream),
-		d_hook_delete(resources),
-		d_hook_method_tail
+	d_hook_method(resources, e_flag_public, get_stream),
+	d_hook_delete(resources),
+	d_hook_method_tail
 };

@@ -470,7 +470,7 @@ d_define_method(json, get_string)(struct s_object *self, char **string_supply, c
 	d_cast_return(value);
 }
 
-d_define_method(json, get_float)(struct s_object *self, float *value_supply, const char *format, ...) {
+d_define_method(json, get_double)(struct s_object *self, double *value_supply, const char *format, ...) {
 	struct s_json_node_value *value = NULL;
 	va_list parameters;
 	char buffer[d_string_buffer_size];
@@ -550,7 +550,7 @@ d_define_method(json, set_string)(struct s_object *self, char *string_supply, co
 	d_cast_return(value);
 }
 
-d_define_method(json, set_float)(struct s_object *self, float value_supply, const char *format, ...) {
+d_define_method(json, set_double)(struct s_object *self, double value_supply, const char *format, ...) {
 	struct s_json_node_value *value = NULL;
 	struct s_exception *exception;
 	va_list parameters;
@@ -677,11 +677,11 @@ d_define_class(json) {
 	d_hook_method(json, e_flag_public, write),
 	d_hook_method(json, e_flag_private, get_value),
 	d_hook_method(json, e_flag_public, get_string),
-	d_hook_method(json, e_flag_public, get_float),
+	d_hook_method(json, e_flag_public, get_double),
 	d_hook_method(json, e_flag_public, get_boolean),
 	d_hook_method(json, e_flag_private, set_value),
 	d_hook_method(json, e_flag_public, set_string),
-	d_hook_method(json, e_flag_public, set_float),
+	d_hook_method(json, e_flag_public, set_double),
 	d_hook_method(json, e_flag_public, set_boolean),
 	d_hook_method(json, e_flag_public, set_array),
 	d_hook_method(json, e_flag_public, insert_value),
