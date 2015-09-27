@@ -32,10 +32,10 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
 	memset(&(attributes->particles), 0, (sizeof(struct s_particle_information) * d_particle_cores));
 	d_call(attributes->drawable_core, m_drawable_set_blend, attributes->configuration.blend);
 	attributes->initialized = d_false;
-	attributes->mask_R = 255;
-	attributes->mask_G = 255;
-	attributes->mask_B = 255;
-	attributes->mask_A = 255;
+	attributes->mask_R = 255.0;
+	attributes->mask_G = 255.0;
+	attributes->mask_B = 255.0;
+	attributes->mask_A = 255.0;
 	return self;
 }
 
@@ -151,8 +151,8 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 			position_y = particle_attributes->particles[index].core.position_y;
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
 			d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double)position_y);
-			drawable_attributes_core->zoom = particle_attributes->particles[index].core.zoom;
-			drawable_attributes_core->angle = particle_attributes->particles[index].core.angle;
+			drawable_attributes_core->zoom = (particle_attributes->particles[index].core.zoom * drawable_attributes_self->zoom);
+			drawable_attributes_core->angle = (particle_attributes->particles[index].core.angle + drawable_attributes_self->angle);
 			drawable_attributes_core->flip = drawable_attributes_self->flip;
 			if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, environment_attributes->reference_w,
 							environment_attributes->reference_h,
