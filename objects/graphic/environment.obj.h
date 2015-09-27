@@ -31,8 +31,7 @@
 #define d_environment_tolerance 25
 typedef int (* t_environment_call)(struct s_object *);
 typedef enum e_environment_surfaces {
-	e_environment_surface_under_light = 0,
-	e_environment_surface_over_light,
+	e_environment_surface_primary = 0,
 	e_environment_surface_NULL
 } e_environment_surfaces;
 d_declare_class(environment) {
