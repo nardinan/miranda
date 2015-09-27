@@ -124,7 +124,7 @@ d_define_method(resources, get_stream)(struct s_object *self, const char *key, e
 					current_node->last_timestamp = informations.st_mtime;
 					current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
 				}
-				stream_file = d_retain(current_node->stream_file);
+				stream_file = current_node->stream_file;
 				break;
 			case e_resources_type_read:
 				stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
