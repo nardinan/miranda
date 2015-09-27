@@ -22,4 +22,5 @@
 #include "eventable.obj.h"
 #include "bitmap.obj.h"
 #include "particle.obj.h"
+#include "animation.obj.h"
 #endif

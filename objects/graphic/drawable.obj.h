@@ -37,7 +37,8 @@ typedef enum e_drawable_blends {
 	e_drawable_blend_alpha = 	SDL_BLENDMODE_BLEND,
 	e_drawable_blend_add =		SDL_BLENDMODE_ADD,
 	e_drawable_blend_mod =		SDL_BLENDMODE_MOD,
-	e_drawable_blend_none = 	SDL_BLENDMODE_NONE
+	e_drawable_blend_none = 	SDL_BLENDMODE_NONE,
+	e_drawable_blend_undefined
 } e_drawable_blends;
 d_declare_class(drawable) {
 	struct s_attributes head;
