@@ -26,7 +26,11 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 
 struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
 	struct s_label_attributes *attributes = p_label_alloc(self);
-	attributes = attributes; /* avoid the warning */
+	attributes->last_blend = e_drawable_blend_undefined;
+	attributes->last_mask_R = 255.0;
+	attributes->last_mask_G = 255.0;
+	attributes->last_mask_B = 255.0;
+	attributes->last_mask_A = 255.0;
 	return p_label_set_content(self, string_content, font, environment);
 }
 
@@ -55,6 +59,11 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 			d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
 			d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width/2.0));
 			d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height/2.0));
+			if (label_attributes->last_blend != e_drawable_blend_undefined)
+				d_call(self, m_drawable_set_blend, label_attributes->last_blend);
+			d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
+				(unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
+			d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
 		} else {
 			snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception",
 					d_string_cstring(string_content));
@@ -92,18 +101,23 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 
 d_define_method_override(label, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
 	d_using(label);
+	label_attributes->last_mask_R = red;
+	label_attributes->last_mask_G = green;
+	label_attributes->last_mask_B = blue;
 	SDL_SetTextureColorMod(label_attributes->image, red, green, blue);
 	return self;
 }
 
 d_define_method_override(label, set_maskA)(struct s_object *self, unsigned int alpha) {
 	d_using(label);
+	label_attributes->last_mask_A = alpha;
 	SDL_SetTextureAlphaMod(label_attributes->image, alpha);
 	return self;
 }
 
 d_define_method_override(label, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
 	d_using(label);
+	label_attributes->last_blend = blend;
 	SDL_SetTextureBlendMode(label_attributes->image, blend);
 	return self;
 }
@@ -115,6 +129,7 @@ d_define_method(label, delete)(struct s_object *self, struct s_label_attributes 
 }
 
 d_define_class(label) {
+	d_hook_method(label, e_flag_public, set_content),
 	d_hook_method_override(label, e_flag_public, drawable, draw),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskA),
