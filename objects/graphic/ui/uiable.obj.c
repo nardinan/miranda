@@ -48,20 +48,26 @@ d_define_method(uiable, set_offset)(struct s_object *self, double offset_x, doub
 	return self;
 }
 
-d_define_method(uiable, draw_background)(struct s_object *self, struct s_object *environment) {
+d_define_method(uiable, draw_background)(struct s_object *self, double position_x, double position_y, double dimension_w, double dimension_h,
+		struct s_object *environment) {
 	d_using(uiable);
-	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
+				     *drawable_attributes_core = d_cast(uiable_attributes->background, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-	double local_x, local_y, local_w, local_h;
-	d_call(&(drawable_attributes->point_destination), m_point_get, &local_x, &local_y);
-	d_call(&(drawable_attributes->point_dimension), m_point_get, &local_w, &local_h);
+	double local_x = position_x, local_y = position_y, local_w = dimension_w, local_h = dimension_h, local_center_x, local_center_y;
 	local_x += uiable_attributes->offset_x;
 	local_y += uiable_attributes->offset_y;
 	local_w -= uiable_attributes->offset_x + uiable_attributes->offset_w;
 	local_h -= uiable_attributes->offset_y + uiable_attributes->offset_h;
+	local_center_x = (dimension_w/2.0)+uiable_attributes->offset_x;
+	local_center_y = (dimension_h/2.0)+uiable_attributes->offset_y;
 	d_call(uiable_attributes->background, m_drawable_set_position, local_x, local_y);
 	d_call(uiable_attributes->background, m_drawable_set_dimension, local_w, local_h);
-	if ((d_call(uiable_attributes->background, m_drawable_normalize_scale, environment_attributes->reference_w,
+	d_call(uiable_attributes->background, m_drawable_set_center, local_center_x, local_center_y);
+	drawable_attributes_core->angle = drawable_attributes_self->angle;
+	drawable_attributes_core->zoom = drawable_attributes_self->zoom;
+	/* do not inerith the flip (this object, the background, doesn't flip) */
+	if (d_call(uiable_attributes->background, m_drawable_normalize_scale, environment_attributes->reference_w,
 						environment_attributes->reference_h,
 						environment_attributes->camera_origin_x,
 						environment_attributes->camera_origin_y,
@@ -69,7 +75,7 @@ d_define_method(uiable, draw_background)(struct s_object *self, struct s_object 
 						environment_attributes->camera_focus_y,
 						environment_attributes->current_w,
 						environment_attributes->current_h,
-						environment_attributes->zoom)))
+						(environment_attributes->zoom)))
 		while (((int)d_call(uiable_attributes->background, m_drawable_draw, environment)) == d_drawable_return_continue);
 	d_cast_return(d_drawable_return_last);
 }

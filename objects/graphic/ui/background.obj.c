@@ -52,10 +52,11 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
 				     *drawable_attributes_core;
-	double local_x, local_y, local_w, local_h, component_w[e_background_component_NULL], component_h[e_background_component_NULL];
+	double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_background_component_NULL], component_h[e_background_component_NULL];
 	int index;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_x, &local_y);
 	d_call(&(drawable_attributes_self->point_dimension), m_point_get, &local_w, &local_h);
+	d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x, &center_y);
 	for (index = 0; index < e_background_component_NULL; ++index)
 		if (background_attributes->background[index]) {
 			drawable_attributes_core = d_cast(background_attributes->background[index], drawable);
@@ -68,29 +69,51 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 		d_call(background_attributes->background[e_background_component_center], m_drawable_set_dimension,
 				(local_w+2),
 				(local_h+2));
+		d_call(background_attributes->background[e_background_component_center], m_drawable_set_center,
+				(center_x+1),
+				(center_y+1));
 	}
-	if (background_attributes->background[e_background_component_corner_top_left])
+	if (background_attributes->background[e_background_component_corner_top_left]) {
 		d_call(background_attributes->background[e_background_component_corner_top_left], m_drawable_set_position,
 		      		(local_x-component_w[e_background_component_corner_top_left]),
 				(local_y-component_h[e_background_component_corner_top_left]));
-	if (background_attributes->background[e_background_component_corner_top_right])
+		d_call(background_attributes->background[e_background_component_corner_top_left], m_drawable_set_center,
+				(center_x+component_w[e_background_component_corner_top_left]),
+				(center_y+component_h[e_background_component_corner_top_left]));
+	}
+	if (background_attributes->background[e_background_component_corner_top_right]) {
 		d_call(background_attributes->background[e_background_component_corner_top_right], m_drawable_set_position,
 				(local_x+local_w),
 				(local_y-component_h[e_background_component_corner_top_right]));
-	if (background_attributes->background[e_background_component_corner_bottom_left])
+		d_call(background_attributes->background[e_background_component_corner_top_right], m_drawable_set_center,
+				(center_x-local_w)-1,
+				(center_y+component_h[e_background_component_corner_top_right]));
+	}
+	if (background_attributes->background[e_background_component_corner_bottom_left]) {
 		d_call(background_attributes->background[e_background_component_corner_bottom_left], m_drawable_set_position,
 				(local_x-component_w[e_background_component_corner_bottom_left]),
 				(local_y+local_h));
-	if (background_attributes->background[e_background_component_corner_bottom_right])
+		d_call(background_attributes->background[e_background_component_corner_bottom_left], m_drawable_set_center,
+				(center_x+component_w[e_background_component_corner_bottom_left]),
+				(center_y-local_h));
+	}
+	if (background_attributes->background[e_background_component_corner_bottom_right]) {
 		d_call(background_attributes->background[e_background_component_corner_bottom_right], m_drawable_set_position,
 				(local_x+local_w),
 				(local_y+local_h));
+		d_call(background_attributes->background[e_background_component_corner_bottom_right], m_drawable_set_center,
+				(center_x-local_w)-1,
+				(center_y-local_h)-1);
+	}
 	if (background_attributes->background[e_background_component_top]) {
 		d_call(background_attributes->background[e_background_component_top], m_drawable_set_position,
 				(local_x-1),
 				(local_y-component_h[e_background_component_top]));
 		d_call(background_attributes->background[e_background_component_top], m_drawable_set_dimension_w,
 				(local_w+2));
+		d_call(background_attributes->background[e_background_component_top], m_drawable_set_center,
+				(center_x+1),
+				(center_y+component_h[e_background_component_top]));
 	}
 	if (background_attributes->background[e_background_component_bottom]) {
 		d_call(background_attributes->background[e_background_component_bottom], m_drawable_set_position,
@@ -98,6 +121,9 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 				(local_y+local_h));
 		d_call(background_attributes->background[e_background_component_bottom], m_drawable_set_dimension_w,
 				(local_w+2));
+		d_call(background_attributes->background[e_background_component_bottom], m_drawable_set_center,
+				(center_x+1),
+				(center_y-local_h));
 	}
 	if (background_attributes->background[e_background_component_left]) {
 		d_call(background_attributes->background[e_background_component_left], m_drawable_set_position,
@@ -105,6 +131,9 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 				(local_y-1));
 		d_call(background_attributes->background[e_background_component_left], m_drawable_set_dimension_h,
 				(local_h+2));
+		d_call(background_attributes->background[e_background_component_left], m_drawable_set_center,
+				(center_x+component_w[e_background_component_left]),
+				(center_y+1));
 	}
 	if (background_attributes->background[e_background_component_right]) {
 		d_call(background_attributes->background[e_background_component_right], m_drawable_set_position,
@@ -112,9 +141,16 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 				(local_y-1));
 		d_call(background_attributes->background[e_background_component_right], m_drawable_set_dimension_h,
 				(local_h+2));
+		d_call(background_attributes->background[e_background_component_right], m_drawable_set_center,
+				(center_x-local_w)-1,
+				(center_y+1));
 	}
 	for (index = 0; index < e_background_component_NULL; ++index)
-		if (background_attributes->background[index])
+		if (background_attributes->background[index]) {
+			drawable_attributes_core = d_cast(background_attributes->background[index], drawable);
+			drawable_attributes_core->angle = drawable_attributes_self->angle;
+			drawable_attributes_core->zoom = drawable_attributes_self->zoom;
+			/* do not inerith the flip (this object, the background, doesn't flip) */
 			if ((d_call(background_attributes->background[index], m_drawable_normalize_scale, environment_attributes->reference_w,
 						environment_attributes->reference_h,
 						environment_attributes->camera_origin_x,
@@ -125,6 +161,7 @@ d_define_method(background, draw)(struct s_object *self, struct s_object *enviro
 						environment_attributes->current_h,
 						environment_attributes->zoom)))
 			while (((int)d_call(background_attributes->background[index], m_drawable_draw, environment)) == d_drawable_return_continue);
+		}
 	d_cast_return(d_drawable_return_last);
 }
 

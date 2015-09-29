@@ -27,6 +27,7 @@ struct s_uiable_attributes *p_uiable_alloc(struct s_object *self, int flags);
 extern struct s_object *f_uiable_new(struct s_object *self, int flags);
 d_declare_method(uiable, set_background)(struct s_object *self, struct s_object *drawable, enum e_background_components component);
 d_declare_method(uiable, set_offset)(struct s_object *self, double offset_x, double offset_y, double offset_w, double offset_h);
-d_declare_method(uiable, draw_background)(struct s_object *self, struct s_object *environment);
+d_declare_method(uiable, draw_background)(struct s_object *self, double position_x, double position_y, double dimension_w, double dimension_h,
+		struct s_object *environment);
 d_declare_method(uiable, delete)(struct s_object *self, struct s_uiable_attributes *attributes);
 #endif
