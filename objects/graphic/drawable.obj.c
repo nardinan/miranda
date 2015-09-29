@@ -75,8 +75,8 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
 	this_zoom = drawable_attributes->zoom * zoom;
 	new_w = ((this_w * current_w)/reference_w) * this_zoom;
 	new_h = ((this_h * current_h)/reference_h) * this_zoom;
-	new_center_x = ((this_center_x * new_w)/this_w) * this_zoom;
-	new_center_y = ((this_center_y * new_h)/this_h) * this_zoom;
+	new_center_x = ((this_center_x * new_w)/this_w) * zoom;
+	new_center_y = ((this_center_y * new_h)/this_h) * zoom;
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_x, new_x);
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_y, new_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_x, new_w);
