@@ -34,9 +34,9 @@ d_declare_class(animation) {
 	struct s_list frames;
 	struct s_animation_frame *current_frame;
 	struct timeval last_update;
+	int cycles, remaining_cycles;
 	enum e_animation_directions status;
 	enum e_drawable_blends last_blend;
-	int cycles, remaining_cycles;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, time_ratio;
 } d_declare_class_tail(animation);
 struct s_animation_attributes *p_animation_alloc(struct s_object *self);
