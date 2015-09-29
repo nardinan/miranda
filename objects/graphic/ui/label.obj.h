@@ -18,6 +18,7 @@
 #ifndef miranda_graphic_label_h
 #define miranda_graphic_label_h
 #include "fonts.obj.h"
+#include "uiable.obj.h"
 d_declare_class(label) {
 	struct s_attributes head;
 	SDL_Texture *image;

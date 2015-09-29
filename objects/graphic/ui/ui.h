@@ -18,5 +18,7 @@
 #ifndef miranda_ui_h
 #define miranda_ui_h
 #include "fonts.obj.h"
+#include "background.obj.h"
+#include "uiable.obj.h"
 #include "label.obj.h"
 #endif

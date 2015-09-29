@@ -1,4 +1,4 @@
-objects = fonts.obj.o label.obj.o
+objects = fonts.obj.o background.obj.o uiable.obj.o label.obj.o
 name = miranda_ui
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -12,6 +12,12 @@ all: $(objects)
 
 fonts.obj.o: fonts.obj.c fonts.obj.h ../bitmap.obj.h
 	$(cc) $(cflags) fonts.obj.c
+
+background.obj.o: background.obj.c background.obj.h ../environment.obj.h
+	$(cc) $(cflags) background.obj.c
+
+uiable.obj.o: uiable.obj.c uiable.obj.h background.obj.h
+	$(cc) $(cflags) uiable.obj.c
 
 label.obj.o: label.obj.c label.obj.h fonts.obj.h
 	$(cc) $(cflags) label.obj.c
