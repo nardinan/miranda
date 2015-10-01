@@ -68,15 +68,19 @@ void f_list_insert(struct s_list *list, struct s_list_node *node, struct s_list_
 }
 
 struct s_list_node *f_list_delete(struct s_list *list, struct s_list_node *node) {
-	if (node->next)
-		node->next->back = node->back;
-	else
-		list->tail = node->back;
-	if (node->back)
-		node->back->next = node->next;
-	else
-		list->head = node->next;
-	list->fill--;
+	if (d_list_node_in(list, node)) {
+		if (node->next)
+			node->next->back = node->back;
+		else
+			list->tail = node->back;
+		if (node->back)
+			node->back->next = node->next;
+		else
+			list->head = node->next;
+		node->next = NULL;
+		node->back = NULL;
+		list->fill--;
+	}
 	return node;
 }
 

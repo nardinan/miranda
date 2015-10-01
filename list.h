@@ -21,6 +21,7 @@
 #include "string.local.h"
 #define d_foreach(l,n,k) for((l)->current=(l)->head;(((n)=(k *)(l)->current));(l)->current=(l)->current->next)
 #define d_list_rewind(l) (l)->current=((l)->current->back)?(l)->current->back:(l)->current
+#define d_list_node_in(l,n) (((n)->next!=NULL)||((n)->back!=NULL)||((l)->head==(n)))
 #define d_list_node_head struct s_list_node head
 #define d_list_node_constant {NULL, NULL}
 typedef size_t t_list_value;

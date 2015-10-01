@@ -30,7 +30,7 @@ typedef enum e_flag {
 	e_flag_placeholder	= 0x00000010,
 	e_flag_allocated	= 0x00000020
 } e_flag;
-#define d_cast_return(v) return ((void *)(long long int)v)
+#define d_cast_return(v) return ((void *)(intptr_t)v)
 typedef void *(*t_class_method)();
 typedef struct s_object { d_list_node_head;
 	const char *type, *file;

@@ -18,9 +18,9 @@
 #include "label.obj.h"
 struct s_label_attributes *p_label_alloc(struct s_object *self) {
 	struct s_label_attributes *result = d_prepare(self, label);
-	f_memory_new(self);				/* inherit */
-	f_mutex_new(self);				/* inherit */
-	f_uiable_new(self);				/* inherit */
+	f_memory_new(self);	/* inherit */
+	f_mutex_new(self);	/* inherit */
+	f_uiable_new(self);	/* inherit */
 	return result;
 }
 
