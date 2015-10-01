@@ -46,19 +46,22 @@ typedef struct s_method {
 	t_class_method method;
 } s_method;
 typedef struct s_virtual_table { d_list_node_head;
+	const char *type;
 	struct s_method *virtual_table;
 } s_virtual_table;
 typedef struct s_attributes { d_list_node_head;
 	const char *type;
 } s_attributes;
+extern const char v_undefined_type[];
 extern const char m_object_delete[];
 extern const char m_object_hash[];
 extern const char m_object_compare[];
 d_exception_declare(undefined_method);
 d_exception_declare(private_method);
 d_exception_declare(wrong_casting);
-#define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym))->method((obj),__VA_ARGS__))
-extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol);
+#define d_call_owner(obj,kind,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_##kind##_type)->method((obj),__VA_ARGS__))
+#define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_undefined_type)->method((obj),__VA_ARGS__))
+extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type);
 #define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type,e_flag_null))
 #define d_use(obj,kind) (p_object_prepare((obj),__FILE__,__LINE__,v_##kind##_type,e_flag_null))
 extern struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags);

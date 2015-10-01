@@ -16,29 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "object.h"
+const char v_undefined_type[] = "undefined";
 const char m_object_delete[] = "delete";
 const char m_object_hash[] = "hash";
 const char m_object_compare[] = "compare";
 d_exception_define(undefined_method, 1, "undefined method exception");
 d_exception_define(private_method, 2, "private method exception");
 d_exception_define(wrong_casting, 3, "wrong casting exception");
-const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol) {
+const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type) {
 	struct s_virtual_table *singleton;
 	char buffer[d_string_buffer_size];
 	const struct s_method *result = NULL;
 	int index;
 	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
-		for (index = 0; singleton->virtual_table[index].symbol; ++index)
-			if (singleton->virtual_table[index].symbol == symbol) {
-				if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) {
-					snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)",
-							symbol, file, line);
-					d_throw(v_exception_private_method, buffer);
-				} else {
-					result = &(singleton->virtual_table[index]);
-					break;
+		if ((type == v_undefined_type) || (type == singleton->type))
+			for (index = 0; singleton->virtual_table[index].symbol; ++index)
+				if (singleton->virtual_table[index].symbol == symbol) {
+					if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) {
+						snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)",
+								symbol, file, line);
+						d_throw(v_exception_private_method, buffer);
+					} else {
+						result = &(singleton->virtual_table[index]);
+						break;
+					}
 				}
-			}
 	if (!result) {
 		snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or is a member of another class (%s, %d)", symbol, file, line);
 		d_throw(v_exception_undefined_method, buffer);
@@ -78,6 +80,7 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
 	struct s_virtual_table *node;
 	if ((node = (struct s_virtual_table *) d_malloc(sizeof(struct s_virtual_table)))) {
 		node->virtual_table = virtual_table;
+		node->type = attributes->type;
 		f_list_append(&(object->virtual_tables), (struct s_list_node *)node, e_list_insert_head);
 		f_list_append(&(object->attributes), (struct s_list_node *)attributes, e_list_insert_head);
 	} else
