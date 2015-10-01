@@ -116,6 +116,12 @@ d_define_method(drawable, set_dimension_h)(struct s_object *self, double h) {
 	return self;
 }
 
+d_define_method(drawable, get_dimension)(struct s_object *self, double *w, double *h) {
+	d_using(drawable);
+	d_call(&(drawable_attributes->point_dimension), m_point_get, w, h);
+	return self;
+}
+
 d_define_method(drawable, set_center)(struct s_object *self, double x, double y) {
 	d_using(drawable);
 	d_call(&(drawable_attributes->point_center), m_point_set_x, x);
@@ -166,6 +172,7 @@ d_define_class(drawable) {
 	d_hook_method(drawable, e_flag_public, set_dimension),
 	d_hook_method(drawable, e_flag_public, set_dimension_w),
 	d_hook_method(drawable, e_flag_public, set_dimension_h),
+	d_hook_method(drawable, e_flag_public, get_dimension),
 	d_hook_method(drawable, e_flag_public, set_center),
 	d_hook_method(drawable, e_flag_public, set_angle),
 	d_hook_method(drawable, e_flag_public, set_zoom),

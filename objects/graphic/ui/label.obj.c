@@ -20,7 +20,7 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 	struct s_label_attributes *result = d_prepare(self, label);
 	f_memory_new(self);				/* inherit */
 	f_mutex_new(self);				/* inherit */
-	f_uiable_new(self, e_drawable_kind_single);	/* inherit */
+	f_uiable_new(self);				/* inherit */
 	return result;
 }
 
@@ -79,15 +79,12 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(label);
-	double position_x, position_y, dimension_w, dimension_h, center_x, center_y, original_position_x, original_position_y, original_dimension_w,
-	       original_dimension_h;
+	double position_x, position_y, dimension_w, dimension_h, center_x, center_y;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	SDL_Rect destination;
 	SDL_Point center;
-	d_call(&(drawable_attributes->point_destination), m_point_get, &original_position_x, &original_position_y);
-	d_call(&(drawable_attributes->point_dimension), m_point_get, &original_dimension_w, &original_dimension_h);
-	d_call(self, m_uiable_draw_background, original_position_x, original_position_y, original_dimension_w, original_dimension_h, environment);
+	d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);

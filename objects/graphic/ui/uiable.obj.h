@@ -17,17 +17,31 @@
  */
 #ifndef miranda_graphic_uiable_h
 #define miranda_graphic_uiable_h
-#include "background.obj.h"
+#include "../environment.obj.h"
+enum e_uiable_components {
+	e_uiable_component_top,
+	e_uiable_component_bottom,
+	e_uiable_component_left,
+	e_uiable_component_right,
+	e_uiable_component_center,
+	e_uiable_component_corner_top_left,
+	e_uiable_component_corner_top_right,
+	e_uiable_component_corner_bottom_left,
+	e_uiable_component_corner_bottom_right,
+	e_uiable_component_NULL
+} e_uiable_components;
 d_declare_class(uiable) {
 	struct s_attributes head;
-	struct s_object *background;
-	double offset_x, offset_y, offset_w, offset_h;
+	struct s_object *background[e_uiable_component_NULL];
+	enum e_drawable_blends last_blend;
+	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
 } d_declare_class_tail(uiable);
-struct s_uiable_attributes *p_uiable_alloc(struct s_object *self, int flags);
-extern struct s_object *f_uiable_new(struct s_object *self, int flags);
-d_declare_method(uiable, set_background)(struct s_object *self, struct s_object *drawable, enum e_background_components component);
-d_declare_method(uiable, set_offset)(struct s_object *self, double offset_x, double offset_y, double offset_w, double offset_h);
-d_declare_method(uiable, draw_background)(struct s_object *self, double position_x, double position_y, double dimension_w, double dimension_h,
-		struct s_object *environment);
+struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
+extern struct s_object *f_uiable_new(struct s_object *self);
+d_declare_method(uiable, set)(struct s_object *self, struct s_object *drawable, enum e_uiable_components component);
+d_declare_method(uiable, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
+d_declare_method(uiable, set_maskA)(struct s_object *self, unsigned int alpha);
+d_declare_method(uiable, set_blend)(struct s_object *self, enum e_drawable_blends blend);
 d_declare_method(uiable, delete)(struct s_object *self, struct s_uiable_attributes *attributes);
 #endif
