@@ -72,6 +72,11 @@ d_define_method(animation, set_status)(struct s_object *self, enum e_animation_d
 	return self;
 }
 
+d_define_method(animation, get_status)(struct s_object *self) {
+	d_using(animation);
+	d_cast_return(animation_attributes->status);
+}
+
 d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(animation);
 	struct s_animation_frame *next_frame, *first_frame;
@@ -194,6 +199,7 @@ d_define_method(animation, delete)(struct s_object *self, struct s_animation_att
 d_define_class(animation) {
 	d_hook_method(animation, e_flag_public, append_frame),
 	d_hook_method(animation, e_flag_public, set_status),
+	d_hook_method(animation, e_flag_public, get_status),
 	d_hook_method_override(animation, e_flag_public, drawable, draw),
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
