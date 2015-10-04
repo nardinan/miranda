@@ -123,7 +123,8 @@ d_define_method(resources, get_stream)(struct s_object *self, const char *key, e
 				if (!current_node->stream_file) {
 					current_node->last_timestamp = informations.st_mtime;
 					current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
-				}
+				} else
+					d_call(current_node->stream_file, m_stream_seek, 0, e_stream_seek_begin, NULL);
 				stream_file = current_node->stream_file;
 				break;
 			case e_resources_type_read:
