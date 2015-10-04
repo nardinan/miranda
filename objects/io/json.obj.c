@@ -184,16 +184,26 @@ void p_json_analyzer_free(struct s_json_node_value *value) {
 }
 
 char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *provided_value, struct s_list *nodes) {
-	struct s_json_token *local_token;
+	struct s_json_token *local_token, *next_token;
 	struct s_json_node_value *local_value = provided_value;
 	enum e_json_node_actions current_action = e_json_node_action_value;
 	char last_character = '\0';
+	t_boolean negative_value = d_false;
 	while ((local_token = (struct s_json_token *)tokens->current)) {
 		if (!local_value)
 			if (!(local_value = (struct s_json_node_value *) d_malloc(sizeof(struct s_json_node_value))))
 				d_die(d_error_malloc);
 		switch (current_action) {
 			case e_json_node_action_value:
+				/* special case: the local_token is the symbol '-' or '+' and the next token is a number */
+				if ((local_token->type == e_json_token_type_symbol) && (strchr(d_json_numeric_character, local_token->symbol_entry)) &&
+						((next_token = (struct s_json_token *)tokens->current->next)) &&
+						(next_token->type == e_json_token_type_value)) {
+					if (strchr(d_json_numeric_negative_character, local_token->symbol_entry))
+						negative_value = d_true;
+					tokens->current = tokens->current->next;
+					local_token = next_token;
+				}
 				switch (local_token->type) {
 					case e_json_token_type_symbol:
 						/* a symbol means that is either a object or an array */
@@ -229,7 +239,11 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
 						break;
 					case e_json_token_type_value:
 						local_value->type = e_json_node_type_value;
-						local_value->value_entry = local_token->value_entry;
+						if (negative_value) {
+							local_value->value_entry = -(local_token->value_entry);
+							negative_value = d_false;
+						} else
+							local_value->value_entry = local_token->value_entry;
 						break;
 					case e_json_token_type_string:
 						local_value->type = e_json_node_type_string;
