@@ -23,7 +23,7 @@ void f_memory_destroy(void) {
 	while (v_memory_root) {
 		head = v_memory_root;
 		tail = (struct s_memory_tail *)((void *)v_memory_root + sizeof(struct s_memory_head) + head->dimension);
-		d_log(e_log_level_ever, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
+		d_log(e_log_level_medium, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
 				head->dimension, tail->file, tail->line, head->checksum, tail->checksum);
 		v_memory_root = head->next;
 		free(head);
