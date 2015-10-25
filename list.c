@@ -30,8 +30,6 @@ void f_list_destroy(struct s_list **list) {
 }
 
 void f_list_append(struct s_list *list, struct s_list_node *node, enum e_list_insert_kind kind) {
-	node->next = NULL;
-	node->back = NULL;
 	switch (kind) {
 		case e_list_insert_head:
 			if (list->head)

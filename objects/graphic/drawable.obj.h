@@ -56,10 +56,14 @@ d_declare_method(drawable, set_blend)(struct s_object *self, enum e_drawable_ble
 d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
 		double focus_x, double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(drawable, set_position)(struct s_object *self, double x, double y);
+d_declare_method(drawable, get_position)(struct s_object *self, double *x, double *y);
+d_declare_method(drawable, get_scaled_position)(struct s_object *self, double *x, double *y);
+d_declare_method(drawable, get_scaled_center)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_dimension)(struct s_object *self, double w, double h);
 d_declare_method(drawable, set_dimension_w)(struct s_object *self, double w);
 d_declare_method(drawable, set_dimension_h)(struct s_object *self, double h);
 d_declare_method(drawable, get_dimension)(struct s_object *self, double *w, double *h);
+d_declare_method(drawable, get_scaled_dimension)(struct s_object *self, double *w, double *h);
 d_declare_method(drawable, set_center)(struct s_object *self, double x, double y);
 d_declare_method(drawable, set_angle)(struct s_object *self, double angle);
 d_declare_method(drawable, set_zoom)(struct s_object *self, double zoom);

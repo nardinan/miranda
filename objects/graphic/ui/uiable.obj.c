@@ -16,6 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "uiable.obj.h"
+const char *v_uiable_components[e_uiable_component_NULL] = {
+	"T",
+	"B",
+	"L",
+	"R",
+	"C",
+	"CTL",
+	"CTR",
+	"CBL",
+	"CBR",
+	NULL
+};
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
 	struct s_uiable_attributes *result = d_prepare(self, uiable);
 	f_memory_new(self);									/* inherit */

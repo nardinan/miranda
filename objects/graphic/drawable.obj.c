@@ -97,6 +97,24 @@ d_define_method(drawable, set_position)(struct s_object *self, double x, double 
 	return self;
 }
 
+d_define_method(drawable, get_position)(struct s_object *self, double *x, double *y) {
+	d_using(drawable);
+	d_call(&(drawable_attributes->point_destination), m_point_get, x, y);
+	return self;
+}
+
+d_define_method(drawable, get_scaled_position)(struct s_object *self, double *x, double *y) {
+	d_using(drawable);
+	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, x, y);
+	return self;
+}
+
+d_define_method(drawable, get_scaled_center)(struct s_object *self, double *x, double *y) {
+	d_using(drawable);
+	d_call(&(drawable_attributes->point_normalized_center), m_point_get, x, y);
+	return self;
+}
+
 d_define_method(drawable, set_dimension)(struct s_object *self, double w, double h) {
 	d_using(drawable);
 	d_call(&(drawable_attributes->point_dimension), m_point_set_x, w);
@@ -119,6 +137,12 @@ d_define_method(drawable, set_dimension_h)(struct s_object *self, double h) {
 d_define_method(drawable, get_dimension)(struct s_object *self, double *w, double *h) {
 	d_using(drawable);
 	d_call(&(drawable_attributes->point_dimension), m_point_get, w, h);
+	return self;
+}
+
+d_define_method(drawable, get_scaled_dimension)(struct s_object *self, double *w, double *h) {
+	d_using(drawable);
+	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, w, h);
 	return self;
 }
 
@@ -175,10 +199,14 @@ d_define_class(drawable) {
 	d_hook_method(drawable, e_flag_public, set_blend),
 	d_hook_method(drawable, e_flag_public, normalize_scale),
 	d_hook_method(drawable, e_flag_public, set_position),
+	d_hook_method(drawable, e_flag_public, get_position),
+	d_hook_method(drawable, e_flag_public, get_scaled_position),
+	d_hook_method(drawable, e_flag_public, get_scaled_center),
 	d_hook_method(drawable, e_flag_public, set_dimension),
 	d_hook_method(drawable, e_flag_public, set_dimension_w),
 	d_hook_method(drawable, e_flag_public, set_dimension_h),
 	d_hook_method(drawable, e_flag_public, get_dimension),
+	d_hook_method(drawable, e_flag_public, get_scaled_dimension),
 	d_hook_method(drawable, e_flag_public, set_center),
 	d_hook_method(drawable, e_flag_public, set_angle),
 	d_hook_method(drawable, e_flag_public, set_zoom),

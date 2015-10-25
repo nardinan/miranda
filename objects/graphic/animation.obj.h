@@ -48,5 +48,8 @@ d_declare_method(animation, draw)(struct s_object *self, struct s_object *enviro
 d_declare_method(animation, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(animation, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(animation, set_blend)(struct s_object *self, enum e_drawable_blends blend);
+d_declare_method(animation, get_scaled_center)(struct s_object *self, double *x, double *y);
+d_declare_method(animation, get_dimension)(struct s_object *self, double *w, double *h);
+d_declare_method(animation, get_scaled_dimension)(struct s_object *self, double *w, double *h);
 d_declare_method(animation, delete)(struct s_object *self, struct s_animation_attributes *attributes);
 #endif

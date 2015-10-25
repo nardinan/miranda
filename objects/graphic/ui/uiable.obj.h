@@ -30,6 +30,7 @@ enum e_uiable_components {
 	e_uiable_component_corner_bottom_right,
 	e_uiable_component_NULL
 } e_uiable_components;
+extern const char *v_uiable_components[e_uiable_component_NULL];
 d_declare_class(uiable) {
 	struct s_attributes head;
 	struct s_object *background[e_uiable_component_NULL];

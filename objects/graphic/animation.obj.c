@@ -186,6 +186,33 @@ d_define_method_override(animation, set_blend)(struct s_object *self, enum e_dra
 	return self;
 }
 
+d_define_method_override(animation, get_scaled_center)(struct s_object *self, double *x, double *y) {
+	d_using(animation);
+	*x = NAN;
+	*y = NAN;
+	if (animation_attributes->current_frame)
+		d_call(animation_attributes->current_frame->drawable, m_drawable_get_scaled_center, x, y);
+	return self;
+}
+
+d_define_method_override(animation, get_dimension)(struct s_object *self, double *w, double *h) {
+	d_using(animation);
+	*w = NAN;
+	*h = NAN;
+	if (animation_attributes->current_frame)
+		d_call(animation_attributes->current_frame->drawable, m_drawable_get_dimension, w, h);
+	return self;
+}
+
+d_define_method_override(animation, get_scaled_dimension)(struct s_object *self, double *w, double *h) {
+	d_using(animation);
+	*w = NAN;
+	*h = NAN;
+	if (animation_attributes->current_frame)
+		d_call(animation_attributes->current_frame->drawable, m_drawable_get_scaled_dimension, w, h);
+	return self;
+}
+
 d_define_method(animation, delete)(struct s_object *self, struct s_animation_attributes *attributes) {
 	struct s_animation_frame *current_frame;
 	while ((current_frame = (struct s_animation_frame *)attributes->frames.head)) {
@@ -204,6 +231,9 @@ d_define_class(animation) {
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
 	d_hook_method_override(animation, e_flag_public, drawable, set_blend),
+	d_hook_method_override(animation, e_flag_public, drawable, get_scaled_center),
+	d_hook_method_override(animation, e_flag_public, drawable, get_dimension),
+	d_hook_method_override(animation, e_flag_public, drawable, get_scaled_dimension),
 	d_hook_delete(animation),
 	d_hook_method_tail
 };

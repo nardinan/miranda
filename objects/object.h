@@ -17,6 +17,7 @@
  */
 #ifndef miranda_object_h
 #define miranda_object_h
+#include <stdint.h>
 #include "../list.h"
 #include "../hash.h"
 #include "../exception.h"
