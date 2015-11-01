@@ -22,6 +22,7 @@
 d_declare_class(label) {
 	struct s_attributes head;
 	SDL_Texture *image;
+	TTF_Font *last_font;
 	struct s_object *string_content;
 	enum e_drawable_blends last_blend;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;

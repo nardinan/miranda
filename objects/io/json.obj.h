@@ -40,6 +40,7 @@ typedef enum e_json_token_types {
 	e_json_token_type_value
 } e_json_token_types;
 typedef struct s_json_token { d_list_node_head;
+	unsigned int line_number;
 	enum e_json_token_types type;
 	union {
 		char symbol_entry, *string_entry;
@@ -83,7 +84,7 @@ d_declare_class(json) {
 	struct s_list *tokens;
 	struct s_json_node_value *root;
 } d_declare_class_tail(json);
-extern const char *v_json_node_types[];
+extern const char *v_json_token_types[], *v_json_node_types[];
 struct s_json_attributes *p_json_alloc(struct s_object *self);
 extern void p_json_tokenizer_free(struct s_json_token *token);
 extern size_t p_json_tokenizer_string_append(struct s_json_token *local_token, char *source_head, char *source_tail);

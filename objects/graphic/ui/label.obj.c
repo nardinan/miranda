@@ -31,6 +31,7 @@ struct s_object *f_label_new(struct s_object *self, struct s_object *string_cont
 	attributes->last_mask_G = 255.0;
 	attributes->last_mask_B = 255.0;
 	attributes->last_mask_A = 255.0;
+	attributes->last_font = font;
 	return p_label_set_content(self, string_content, font, environment);
 }
 
@@ -40,6 +41,7 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	char buffer[d_string_buffer_size];
 	int width, height;
+	TTF_Font *current_font = (font)?font:label_attributes->last_font;
 	SDL_Surface *unoptimized_surface;
 	SDL_Color white = {
 		255,
@@ -52,7 +54,7 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	label_attributes->string_content = d_retain(string_content);
 	if (label_attributes->image)
 		SDL_DestroyTexture(label_attributes->image);
-	if ((unoptimized_surface = TTF_RenderText_Blended(font, d_string_cstring(string_content), white))) {
+	if ((unoptimized_surface = TTF_RenderText_Blended(current_font, d_string_cstring(string_content), white))) {
 		label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
 		if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
 			d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);

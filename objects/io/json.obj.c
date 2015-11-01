@@ -19,7 +19,12 @@
 d_exception_define(malformed_key,	9,  "malformed JSON key exception");
 d_exception_define(malformed_value,	10, "malformed JSON value exception");
 d_exception_define(wrong_type,		11, "wrong type required exception");
-const char *v_json_node_types[] = {
+const char *v_json_token_types[] ={
+	"symbol",
+	"word",
+	"string",
+	"value"
+}, *v_json_node_types[] = {
 	"string",
 	"integer/double",
 	"boolean",
@@ -58,7 +63,7 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
 	struct s_object *current_string, *string_readed = NULL;
 	size_t length;
 	char *string_pointer, *head_pointer = NULL, string_definition_character = '\0', last_character = '\0';
-	int index, decimal_digits = d_json_decimal_null;
+	int index, decimal_digits = d_json_decimal_null, line_number = 0;
 	t_boolean submit_token, keep_index;
 	while ((current_string = d_call(stream_file, m_stream_read_string, string_readed, d_stream_block_size))) {
 		string_readed = current_string;
@@ -106,6 +111,7 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
 					}
 				} else if (!strchr(d_json_ignorable_characters, string_pointer[index])) {
 					if ((local_token = (struct s_json_token *) d_malloc(sizeof(struct s_json_token)))) {
+						local_token->line_number = line_number;
 						if (isalpha(string_pointer[index])) {
 							/* it has to be a word */
 							local_token->type = e_json_token_type_word;
@@ -141,6 +147,7 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
 				head_pointer = NULL;
 			}
 		}
+		++line_number;
 	}
 	if (local_token) {
 		if (head_pointer)
