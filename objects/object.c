@@ -28,7 +28,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 	char buffer[d_string_buffer_size];
 	const struct s_method *result = NULL;
 	int index;
-	d_foreach(&(object->virtual_tables), singleton, struct s_virtual_table)
+	d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
 		if ((type == v_undefined_type) || (type == singleton->type))
 			for (index = 0; singleton->virtual_table[index].symbol; ++index)
 				if (singleton->virtual_table[index].symbol == symbol) {
@@ -41,6 +41,9 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 						break;
 					}
 				}
+		if (result)
+			break;
+	}
 	if (!result) {
 		snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or is a member of another class (%s, %d)", symbol, file, line);
 		d_throw(v_exception_undefined_method, buffer);
@@ -94,7 +97,7 @@ struct s_attributes *p_object_cast(struct s_object *object, const char *type) {
 	if ((object->last_attributes) && (object->last_attributes->type == type))
 		result = object->last_attributes;
 	else {
-		d_foreach(&(object->attributes), result, struct s_attributes)
+		d_reverse_foreach(&(object->attributes), result, struct s_attributes)
 			if (result->type == type) {
 				object->last_attributes = result;
 				break;
@@ -111,8 +114,7 @@ void f_object_delete(struct s_object *object) {
 	struct s_attributes *attributes;
 	struct s_virtual_table *virtual_table;
 	int index;
-	while ((attributes = (struct s_attributes *)object->attributes.head) &&
-			(virtual_table = (struct s_virtual_table *)object->virtual_tables.head)) {
+	while ((attributes = (struct s_attributes *)object->attributes.tail) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.tail)) {
 		for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 			if (virtual_table->virtual_table[index].symbol == m_object_delete) {
 				virtual_table->virtual_table[index].method(object, attributes);
@@ -132,15 +134,13 @@ t_hash_value f_object_hash(struct s_object *object) {
 	int index;
 	t_hash_value result = 0, current;
 	if ((object->flags&e_flag_hashed) != e_flag_hashed) {
-		virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
-		while (virtual_table) {
+		d_reverse_foreach(&(object->virtual_tables), virtual_table, struct s_virtual_table) {
 			for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 				if (virtual_table->virtual_table[index].symbol == m_object_hash) {
 					virtual_table->virtual_table[index].method(object, &current);
 					result += current;
 					break;
 				}
-			virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
 		}
 		object->hash_value = result;
 		object->flags |= e_flag_hashed;
@@ -153,12 +153,12 @@ struct s_object *p_object_compare_single(struct s_object *object, struct s_objec
 	struct s_virtual_table *virtual_table;
 	struct s_object *result = NULL;
 	int index;
-	virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
-	while ((!result) && (virtual_table)) {
+	d_reverse_foreach(&(object->virtual_tables), virtual_table, struct s_virtual_table) {
 		for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
 			if (virtual_table->virtual_table[index].symbol == m_object_compare)
 				result = virtual_table->virtual_table[index].method(object, other);
-		virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
+		if (result)
+			break;
 	}
 	return result;
 }
@@ -169,4 +169,3 @@ struct s_object *f_object_compare(struct s_object *object, struct s_object *othe
 		result = p_object_compare_single(other, object);
 	return result;
 }
-

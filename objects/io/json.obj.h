@@ -26,7 +26,7 @@
 #define d_json_decimal_characters "."
 #define d_json_numeric_character "+-"
 #define d_json_numeric_negative_character "-"
-#define d_json_division_characters " ,.:;{}()[]<>*/\\"
+#define d_json_division_characters " ,.:;{}()[]<>*/\\#"
 #define d_json_string_character "\"'"
 #define d_json_ignorable_characters " \n\r\t"
 #define d_json_separator_characters ":="

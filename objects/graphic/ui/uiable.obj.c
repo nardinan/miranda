@@ -30,7 +30,6 @@ const char *v_uiable_components[e_uiable_component_NULL] = {
 };
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
 	struct s_uiable_attributes *result = d_prepare(self, uiable);
-	f_memory_new(self);									/* inherit */
 	f_mutex_new(self);									/* inherit */
 	f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));	/* inherit */
 	return result;

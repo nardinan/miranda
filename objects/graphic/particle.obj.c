@@ -18,7 +18,6 @@
 #include "particle.obj.h"
 struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
 	struct s_particle_attributes *result = d_prepare(self, particle);
-	f_memory_new(self);									/* inherit */
 	f_mutex_new(self);									/* inherit */
 	f_drawable_new(self, (e_drawable_kind_multiple|e_drawable_kind_force_visibility));	/* inherit */
 	return result;

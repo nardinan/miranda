@@ -4,7 +4,7 @@ debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
-libs = -L.. -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lSDL2 -lSDL2_image -lSDL2_ttf
+libs = -L.. -L../math -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_math -lSDL2 -lSDL2_image -lSDL2_ttf
 executable = lib$(name).so
 
 all: $(objects)
