@@ -112,6 +112,33 @@ d_define_method(array, remove)(struct s_object *self, size_t position) {
 	return result;
 }
 
+d_define_method(array, push)(struct s_object *self, struct s_object *element) {
+	d_using(array);
+	size_t index;
+	for (index = (array_attributes->size - 1); index > 0; --index)
+		if (array_attributes->content[index])
+			break;
+	if (array_attributes->content[index])
+		++index;
+	d_call(self, m_array_insert, element, index);
+	return self;
+}
+
+d_define_method(array, pop)(struct s_object *self) {
+	d_using(array);
+	size_t shift, next;
+	struct s_object *result = NULL;
+	for (shift = 0; shift < array_attributes->size; ++shift)
+		if ((result = array_attributes->content[shift]))
+			break;
+	for (next = (shift + 1); next < array_attributes->size; ++next) {
+		array_attributes->content[next - (shift + 1)] = array_attributes->content[next];
+		array_attributes->content[next] = NULL;
+	}
+	return result;
+}
+
+
 d_define_method(array, get)(struct s_object *self, size_t position) {
 	d_using(array);
 	struct s_object *result = NULL;
@@ -188,6 +215,8 @@ d_define_method(array, compare)(struct s_object *self, struct s_object *other) {
 d_define_class(array) {
 	d_hook_method(array, e_flag_public, insert),
 	d_hook_method(array, e_flag_public, remove),
+	d_hook_method(array, e_flag_public, push),
+	d_hook_method(array, e_flag_public, pop),
 	d_hook_method(array, e_flag_public, get),
 	d_hook_method(array, e_flag_public, reset),
 	d_hook_method(array, e_flag_public, next),
