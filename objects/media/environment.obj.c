@@ -52,6 +52,13 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 				initialized = d_false;
 				d_err(e_log_level_ever, "SDL font system returns an error during the initialization");
 			}
+		/* MIX initialization */
+		initialized_systems = Mix_Init(d_environment_default_codecs);
+		if (((initialized_systems&d_environment_default_codecs) != d_environment_default_codecs) ||
+				(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, d_environment_channels, d_environment_audio_chunk) < 0)) {
+			initialized = d_false;
+			d_err(e_log_level_ever, "SDL audio systems returns an error during the initialization (%s)", Mix_GetError());
+		}
 		if ((attributes->window = SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
 						(flags|SDL_WINDOW_OPENGL))))
 			attributes->renderer = SDL_CreateRenderer(attributes->window, -1, (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
@@ -235,7 +242,9 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
 				f_list_delete(&(attributes->drawable[surface][index]), attributes->drawable[surface][index].head);
 	SDL_DestroyRenderer(attributes->renderer);
 	SDL_DestroyWindow(attributes->window);
+	Mix_CloseAudio();
 	TTF_Quit();
+	Mix_Quit();
 	SDL_Quit();
 	return NULL;
 }

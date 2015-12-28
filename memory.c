@@ -20,14 +20,18 @@ struct s_memory_head *v_memory_root;
 void f_memory_destroy(void) {
 	struct s_memory_tail *tail;
 	struct s_memory_head *head;
+	unsigned int elements = 0;
 	while (v_memory_root) {
 		head = v_memory_root;
 		tail = (struct s_memory_tail *)((void *)v_memory_root + sizeof(struct s_memory_head) + head->dimension);
-		d_log(e_log_level_medium, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
+		d_log(e_log_level_high, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
 				head->dimension, tail->file, tail->line, head->checksum, tail->checksum);
 		v_memory_root = head->next;
+		++elements;
 		free(head);
 	}
+	if (elements > 0)
+		d_log(e_log_level_medium, "%d pointer(s) %s still here", elements, ((elements == 1)?"was":"were"));
 }
 
 void *p_malloc(size_t dimension, const char *file, unsigned int line) {

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_graphic_uiable_h
-#define miranda_graphic_uiable_h
+#ifndef miranda_media_uiable_h
+#define miranda_media_uiable_h
 #include "../environment.obj.h"
 enum e_uiable_components {
 	e_uiable_component_top,

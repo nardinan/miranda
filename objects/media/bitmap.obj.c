@@ -21,6 +21,7 @@ d_exception_define(texture,	13, "ungenerable texture excepton");
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self) {
 	struct s_bitmap_attributes *result = d_prepare(self, bitmap);
 	f_mutex_new(self);				/* inherit */
+	f_memory_new(self);				/* inherit */
 	f_drawable_new(self, e_drawable_kind_single);	/* inherit */
 	return result;
 }

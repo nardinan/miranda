@@ -1,10 +1,10 @@
-objects = environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o particle.obj.o animation.obj.o
-name = miranda_graphic
+objects = environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
+name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
-libs = -L.. -L../math -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_math -lSDL2 -lSDL2_image -lSDL2_ttf
+libs = -L.. -L../math -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_math -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 executable = lib$(name).so
 
 all: $(objects)
@@ -27,6 +27,9 @@ particle.obj.o: particle.obj.c particle.obj.h environment.obj.h
 
 animation.obj.o: animation.obj.c animation.obj.h environment.obj.h
 	$(cc) $(cflags) animation.obj.c
+
+track.obj.o: track.obj.c track.obj.h bitmap.obj.h
+	$(cc) $(cflags) track.obj.c
 
 clean:
 	rm -f *.o

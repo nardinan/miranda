@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_graphic_label_h
-#define miranda_graphic_label_h
+#ifndef miranda_media_label_h
+#define miranda_media_label_h
 #include "fonts.obj.h"
 #include "uiable.obj.h"
 d_declare_class(label) {

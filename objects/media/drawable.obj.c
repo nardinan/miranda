@@ -18,8 +18,7 @@
 #include "drawable.obj.h"
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self) {
 	struct s_drawable_attributes *result = d_prepare(self, drawable);
-	/* abstract (no inerithance from memory) */
-	f_memory_new(self);
+	/* abstract (no memory inheritance) */
 	return result;
 }
 

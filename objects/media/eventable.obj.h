@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_graphic_eventable_h
-#define miranda_graphic_eventable_h
+#ifndef miranda_media_eventable_h
+#define miranda_media_eventable_h
 #include <SDL2/SDL_events.h>
 #include "../memory.obj.h"
 #include "../mutex.obj.h"

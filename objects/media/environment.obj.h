@@ -15,20 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_graphic_environment_h
-#define miranda_graphic_environment_h
+#ifndef miranda_media_environment_h
+#define miranda_media_environment_h
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "drawable.obj.h"
 #include "eventable.obj.h"
 #define d_environment_default_title "miranda"
 #define d_environment_default_systems (SDL_INIT_VIDEO|SDL_INIT_AUDIO)
+#define d_environment_default_codecs (MIX_INIT_OGG)
 #define d_environment_default_fps 60.0
 #define d_environment_default_reference_w 1024
 #define d_environment_default_reference_h 768
 #define d_environment_layers 16
-#define d_environment_tolerance 25
+#define d_environment_tolerance 60.0
+#define d_environment_channels 2
+#define d_environment_audio_chunk 4096
 typedef int (* t_environment_call)(struct s_object *);
 typedef enum e_environment_surfaces {
 	e_environment_surface_primary = 0,

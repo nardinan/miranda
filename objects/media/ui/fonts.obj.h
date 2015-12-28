@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_graphic_fonts_h
-#define miranda_graphic_fonts_h
+#ifndef miranda_media_fonts_h
+#define miranda_media_fonts_h
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include "../bitmap.obj.h"
-#include "../../io/stream.obj.h"
 #define d_fonts_collection 128
 #define d_fonts_default 0
 typedef struct s_fonts_pack {
