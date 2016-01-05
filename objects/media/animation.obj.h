@@ -29,11 +29,14 @@ typedef struct s_animation_frame { d_list_node_head;
 	struct s_object *drawable;
 	double offset_x, offset_y, zoom, time;
 } s_animation_frame;
+typedef void (*t_animation_reboot)(struct s_object *);
 d_declare_class(animation) {
 	struct s_attributes head;
 	struct s_list frames;
 	struct s_animation_frame *current_frame;
 	struct timeval last_update;
+	t_animation_reboot callback;
+	struct s_object *raw_data;
 	int cycles, remaining_cycles;
 	enum e_animation_directions status;
 	enum e_drawable_blends last_blend;
@@ -44,6 +47,7 @@ extern struct s_object *f_animation_new(struct s_object *self, int cycles, doubl
 d_declare_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time);
 d_declare_method(animation, set_status)(struct s_object *self, enum e_animation_directions status);
 d_declare_method(animation, get_status)(struct s_object *self);
+d_declare_method(animation, set_callback)(struct s_object *self, t_animation_reboot callback, struct s_object *raw_data);
 d_declare_method(animation, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(animation, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(animation, set_maskA)(struct s_object *self, unsigned int alpha);

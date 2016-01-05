@@ -77,6 +77,13 @@ d_define_method(animation, get_status)(struct s_object *self) {
 	d_cast_return(animation_attributes->status);
 }
 
+d_define_method(animation, set_callback)(struct s_object *self, t_animation_reboot callback, struct s_object *raw_data) {
+	d_using(animation);
+	animation_attributes->callback = callback;
+	animation_attributes->raw_data = raw_data;
+	return self;
+}
+
 d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(animation);
 	struct s_animation_frame *next_frame, *first_frame;
@@ -107,6 +114,11 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
 					if (animation_attributes->remaining_cycles != 0) {
 						if (animation_attributes->remaining_cycles > 0)
 							--(animation_attributes->remaining_cycles);
+						if (animation_attributes->current_frame != first_frame)
+							/* we need at least two frame to call the animation callback
+							 * (remember that this is only when the object is visible) */
+							if (animation_attributes->callback)
+								animation_attributes->callback(animation_attributes->raw_data);
 						animation_attributes->current_frame = first_frame;
 					} else {
 						animation_attributes->current_frame = NULL;
@@ -227,6 +239,7 @@ d_define_class(animation) {
 	d_hook_method(animation, e_flag_public, append_frame),
 	d_hook_method(animation, e_flag_public, set_status),
 	d_hook_method(animation, e_flag_public, get_status),
+	d_hook_method(animation, e_flag_public, set_callback),
 	d_hook_method_override(animation, e_flag_public, drawable, draw),
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
