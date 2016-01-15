@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include "stream.obj.h"
-#define d_resources_key_size 32
+#define d_resources_key_size 64
 #define d_resources_file_default_permission 0766
 #define d_resources_folder_separator '/'
 typedef enum e_resources_types {
