@@ -21,11 +21,13 @@
 #include "../math/point.obj.h"
 #define d_drawable_return_continue 	1
 #define d_drawable_return_last 		0
+#define d_drawable_default_contour_color 255.0, 0, 0, 255.0 /* red */
 typedef enum e_drawable_kinds {
 	e_drawable_kind_single 			= 0x01,
 	e_drawable_kind_multiple 		= 0x02,
 	e_drawable_kind_hidden 			= 0x04,
-	e_drawable_kind_force_visibility 	= 0x08
+	e_drawable_kind_force_visibility 	= 0x08,
+	e_drawable_kind_contour			= 0x10
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
 	e_drawable_flip_horizontal 	= SDL_FLIP_HORIZONTAL,
