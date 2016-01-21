@@ -60,12 +60,16 @@ d_define_method(animation, append_frame)(struct s_object *self, struct s_object 
 
 d_define_method(animation, set_status)(struct s_object *self, enum e_animation_directions status) {
 	d_using(animation);
+	enum e_animation_directions previous_status = animation_attributes->status;
 	switch ((animation_attributes->status = status)) {
 		case e_animation_direction_forward:
 			animation_attributes->remaining_cycles = (animation_attributes->cycles - 1);
 			break;
 		case e_animation_direction_rewind:
 			animation_attributes->remaining_cycles = animation_attributes->cycles;
+			if ((previous_status != e_animation_direction_stop) ||
+					(animation_attributes->current_frame != (struct s_animation_frame *)animation_attributes->frames.head))
+				--animation_attributes->remaining_cycles;
 		default:
 			break;
 	}
@@ -120,16 +124,13 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
 							if (animation_attributes->callback)
 								animation_attributes->callback(animation_attributes->raw_data);
 						animation_attributes->current_frame = first_frame;
-					} else {
-						animation_attributes->current_frame = NULL;
+					} else
 						animation_attributes->status = e_animation_direction_stop;
-					}
 				} else
 					animation_attributes->current_frame = next_frame;
 				memcpy(&(animation_attributes->last_update), &current, sizeof(struct timeval));
 			}
-		} else
-			animation_attributes->current_frame = NULL;
+		}
 	}
 	if (!animation_attributes->current_frame) {
 		switch (animation_attributes->status) {
