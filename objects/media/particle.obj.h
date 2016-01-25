@@ -58,6 +58,8 @@ d_declare_class(particle) {
 struct s_particle_attributes *p_particle_alloc(struct s_object *self);
 extern struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment,
 		struct s_particle_configuration *configuration);
+d_declare_method(particle, reset)(struct s_object *self);
+d_declare_method(particle, is_completed)(struct s_object *self);
 d_declare_method(particle, update)(struct s_object *self, unsigned int max_particles);
 d_declare_method(particle, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(particle, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);

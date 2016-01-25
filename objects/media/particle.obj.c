@@ -39,6 +39,28 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
 	return self;
 }
 
+d_define_method(particle, reset)(struct s_object *self) {
+	d_using(particle);
+	unsigned int index;
+	for (index = 0; index < particle_attributes->configuration.particles; ++index) {
+		particle_attributes->particles[index].alive = d_false;
+		particle_attributes->particles[index].was_alive = d_false;
+	}
+	return self;
+}
+
+d_define_method(particle, is_completed)(struct s_object *self) {
+	d_using(particle);
+	t_boolean result = d_true;
+	unsigned int index;
+	for (index = 0; index < particle_attributes->configuration.particles; ++index)
+		if ((!particle_attributes->particles[index].was_alive) || (particle_attributes->particles[index].alive)) {
+			result = d_false;
+			break;
+		}
+	d_cast_return(result);
+}
+
 d_define_method(particle, update)(struct s_object *self, unsigned int max_particles) {
 	d_using(particle);
 	unsigned int index;
@@ -194,6 +216,8 @@ d_define_method(particle, delete)(struct s_object *self, struct s_particle_attri
 }
 
 d_define_class(particle) {
+	d_hook_method(particle, e_flag_public, reset),
+	d_hook_method(particle, e_flag_public, is_completed),
 	d_hook_method(particle, e_flag_private, update),
 	d_hook_method_override(particle, e_flag_public, drawable, draw),
 	d_hook_method_override(particle, e_flag_public, drawable, set_maskRGB),
