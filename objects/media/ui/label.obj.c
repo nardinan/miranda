@@ -25,14 +25,16 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 }
 
 struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
-	return f_label_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, environment);
+	return f_label_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_top,
+			environment);
 }
 
 struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *string_content, TTF_Font *font, enum e_label_background_formats format,
-		enum e_label_alignments alignment, struct s_object *environment) {
+		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
 	struct s_label_attributes *attributes = p_label_alloc(self);
 	attributes->format = format;
-	attributes->alignment = alignment;
+	attributes->alignment_x = alignment_x;
+	attributes->alignment_y = alignment_y;
 	attributes->last_blend = e_drawable_blend_undefined;
 	attributes->last_mask_R = 255.0;
 	attributes->last_mask_G = 255.0;
@@ -109,7 +111,7 @@ d_define_method(label, set_container_dimension)(struct s_object *self, double wi
 
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(label);
-	double position_x, position_y, dimension_w, dimension_h, center_x, center_y;
+	double position_x, position_y, dimension_w, dimension_h, center_x, center_y, width_factor, height_factor;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	SDL_Rect source, destination;
@@ -118,19 +120,43 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
+	width_factor = (dimension_w/label_attributes->last_width);
+	height_factor = (dimension_h/label_attributes->last_height);
 	source.x = 0;
 	source.y = 0;
+	destination.x = position_x;
+	destination.y = position_y;
 	if (label_attributes->format == e_label_background_format_fixed) {
 		source.w = d_math_min(label_attributes->last_width, label_attributes->string_width);
 		source.h = d_math_min(label_attributes->last_height, label_attributes->string_height);
+		switch (label_attributes->alignment_x) {
+			case e_label_alignment_center:
+				if ((source.x = d_math_max(((label_attributes->string_width-label_attributes->last_width)/2.0), 0)) == 0)
+					destination.x = position_x + (((label_attributes->last_width - label_attributes->string_width)/2.0) * width_factor);
+				break;
+			case e_label_alignment_right:
+				if ((source.x = d_math_max((label_attributes->string_width-label_attributes->last_width), 0)) == 0)
+					destination.x = position_x + ((label_attributes->last_width - label_attributes->string_width) * width_factor);
+			default:
+				break;
+		}
+		switch (label_attributes->alignment_y) {
+			case e_label_alignment_center:
+				if ((source.y = d_math_max(((label_attributes->string_height-label_attributes->last_height)/2.0), 0)) == 0)
+					destination.y = position_y + (((label_attributes->last_height - label_attributes->string_height)/2.0) * height_factor);
+				break;
+			case e_label_alignment_bottom:
+				if ((source.y = d_math_max((label_attributes->string_height-label_attributes->last_height), 0)) == 0)
+					destination.y = position_y + ((label_attributes->last_height - label_attributes->string_height) * height_factor);
+			default:
+				break;
+		}
 	} else if (label_attributes->format == e_label_background_format_adaptable) {
 		source.w = label_attributes->string_width;
 		source.h = label_attributes->string_height;
 	}
-	destination.x = position_x;
-	destination.y = position_y;
-	destination.w = source.w * (dimension_w/label_attributes->last_width);
-	destination.h = source.h * (dimension_h/label_attributes->last_height);
+	destination.w = source.w * width_factor;
+	destination.h = source.h * height_factor;
 	center.x = center_x;
 	center.y = center_y;
 	SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
@@ -169,11 +195,11 @@ d_define_method(label, delete)(struct s_object *self, struct s_label_attributes 
 
 d_define_class(label) {
 	d_hook_method(label, e_flag_public, set_content),
-	d_hook_method(label, e_flag_public, set_container_dimension),
-	d_hook_method_override(label, e_flag_public, drawable, draw),
-	d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
-	d_hook_method_override(label, e_flag_public, drawable, set_maskA),
-	d_hook_method_override(label, e_flag_public, drawable, set_blend),
-	d_hook_delete(label),
-	d_hook_method_tail
+		d_hook_method(label, e_flag_public, set_container_dimension),
+		d_hook_method_override(label, e_flag_public, drawable, draw),
+		d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
+		d_hook_method_override(label, e_flag_public, drawable, set_maskA),
+		d_hook_method_override(label, e_flag_public, drawable, set_blend),
+		d_hook_delete(label),
+		d_hook_method_tail
 };
