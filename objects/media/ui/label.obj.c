@@ -25,7 +25,14 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 }
 
 struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
+	return f_label_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, environment);
+}
+
+struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *string_content, TTF_Font *font, enum e_label_background_formats format,
+		enum e_label_alignments alignment, struct s_object *environment) {
 	struct s_label_attributes *attributes = p_label_alloc(self);
+	attributes->format = format;
+	attributes->alignment = alignment;
 	attributes->last_blend = e_drawable_blend_undefined;
 	attributes->last_mask_R = 255.0;
 	attributes->last_mask_G = 255.0;
@@ -57,14 +64,20 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	if ((unoptimized_surface = TTF_RenderText_Blended(current_font, d_string_cstring(string_content), white))) {
 		label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
 		if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
-			d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
-			d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
-			d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width/2.0));
-			d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height/2.0));
+			label_attributes->string_width = width;
+			label_attributes->string_height = height;
+			if (label_attributes->format == e_label_background_format_adaptable) {
+				label_attributes->last_width = width;
+				label_attributes->last_height = height;
+			}
+			d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
+			d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
+			d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width/2.0));
+			d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height/2.0));
 			if (label_attributes->last_blend != e_drawable_blend_undefined)
 				d_call(self, m_drawable_set_blend, label_attributes->last_blend);
 			d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
-				(unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
+					(unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
 			d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
 		} else {
 			snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception",
@@ -79,24 +92,48 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 	return self;
 }
 
+d_define_method(label, set_container_dimension)(struct s_object *self, double width, double height) {
+	d_using(label);
+	struct s_drawable_attributes *drawable_attributes;
+	label_attributes->last_width = width;
+	label_attributes->last_height = height;
+	if (label_attributes->format == e_label_background_format_fixed) {
+		drawable_attributes = d_cast(self, drawable);
+		d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
+		d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
+		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width/2.0));
+		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height/2.0));
+	}
+	return self;
+}
+
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(label);
 	double position_x, position_y, dimension_w, dimension_h, center_x, center_y;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-	SDL_Rect destination;
+	SDL_Rect source, destination;
 	SDL_Point center;
 	d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
+	source.x = 0;
+	source.y = 0;
+	if (label_attributes->format == e_label_background_format_fixed) {
+		source.w = d_math_min(label_attributes->last_width, label_attributes->string_width);
+		source.h = d_math_min(label_attributes->last_height, label_attributes->string_height);
+	} else if (label_attributes->format == e_label_background_format_adaptable) {
+		source.w = label_attributes->string_width;
+		source.h = label_attributes->string_height;
+	}
 	destination.x = position_x;
 	destination.y = position_y;
-	destination.w = dimension_w;
-	destination.h = dimension_h;
+	destination.w = source.w * (dimension_w/label_attributes->last_width);
+	destination.h = source.h * (dimension_h/label_attributes->last_height);
 	center.x = center_x;
 	center.y = center_y;
-	SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, NULL, &destination, drawable_attributes->angle, &center,
+	SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
 			drawable_attributes->flip);
 	d_cast_return(d_drawable_return_last);
 }
@@ -132,6 +169,7 @@ d_define_method(label, delete)(struct s_object *self, struct s_label_attributes 
 
 d_define_class(label) {
 	d_hook_method(label, e_flag_public, set_content),
+	d_hook_method(label, e_flag_public, set_container_dimension),
 	d_hook_method_override(label, e_flag_public, drawable, draw),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskA),

@@ -30,16 +30,24 @@ enum e_uiable_components {
 	e_uiable_component_corner_bottom_right,
 	e_uiable_component_NULL
 } e_uiable_components;
+enum e_uiable_modes {
+	e_uiable_mode_idle = 0,
+	e_uiable_mode_active,
+	e_uiable_mode_selected,
+	e_uiable_mode_NULL
+} e_uiable_modes;
 extern const char *v_uiable_components[e_uiable_component_NULL];
 d_declare_class(uiable) {
 	struct s_attributes head;
-	struct s_object *background[e_uiable_component_NULL];
+	struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
+	enum e_uiable_modes selected_mode;
 	enum e_drawable_blends last_blend;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
 extern struct s_object *f_uiable_new(struct s_object *self);
-d_declare_method(uiable, set)(struct s_object *self, struct s_object *drawable, enum e_uiable_components component);
+d_declare_method(uiable, set)(struct s_object *self, struct s_object *drawable, enum e_uiable_modes mode, enum e_uiable_components component);
+d_declare_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode);
 d_declare_method(uiable, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(uiable, set_maskA)(struct s_object *self, unsigned int alpha);

@@ -19,17 +19,31 @@
 #define miranda_media_label_h
 #include "fonts.obj.h"
 #include "uiable.obj.h"
+enum e_label_background_formats {
+	e_label_background_format_adaptable = 0,
+	e_label_background_format_fixed
+} e_label_background_formats;
+enum e_label_alignments {
+	e_label_alignment_left = 0,
+	e_label_alignment_center,
+	e_label_alignment_right
+} e_label_alignments;
 d_declare_class(label) {
 	struct s_attributes head;
 	SDL_Texture *image;
 	TTF_Font *last_font;
 	struct s_object *string_content;
+	enum e_label_background_formats format;
+	enum e_label_alignments alignment;
 	enum e_drawable_blends last_blend;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
+	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, last_width, last_height, string_width, string_height;
 } d_declare_class_tail(label);
 struct s_label_attributes *p_label_alloc(struct s_object *self);
 extern struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
+extern struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *string_content, TTF_Font *font, enum e_label_background_formats format,
+		enum e_label_alignments alignment, struct s_object *environment);
 d_declare_method(label, set_content)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
+d_declare_method(label, set_container_dimension)(struct s_object *self, double width, double height);
 d_declare_method(label, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(label, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(label, set_maskA)(struct s_object *self, unsigned int alpha);
