@@ -20,7 +20,7 @@
 #include "bitmap.obj.h"
 #define d_track_auto_channel -1
 #define d_track_infinite_loop -1
-#define d_track_default_volume 128
+#define d_track_default_volume 32
 #define d_track_default_fade_delay 500
 d_exception_declare(chunk);
 d_declare_class(track) {
