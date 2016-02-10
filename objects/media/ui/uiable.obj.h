@@ -36,10 +36,12 @@ enum e_uiable_modes {
 	e_uiable_mode_selected,
 	e_uiable_mode_NULL
 } e_uiable_modes;
+extern unsigned int v_uiable_id;
 extern const char *v_uiable_components[e_uiable_component_NULL];
 d_declare_class(uiable) {
 	struct s_attributes head;
 	struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
+	unsigned int component_id;
 	enum e_uiable_modes selected_mode;
 	enum e_drawable_blends last_blend;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;

@@ -20,4 +20,5 @@
 #include "fonts.obj.h"
 #include "uiable.obj.h"
 #include "label.obj.h"
+#include "field.obj.h"
 #endif

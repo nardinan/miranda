@@ -24,12 +24,12 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 	return result;
 }
 
-struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
+struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
 	return f_label_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_top,
 			environment);
 }
 
-struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *string_content, TTF_Font *font, enum e_label_background_formats format,
+struct s_object *f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
 		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
 	struct s_label_attributes *attributes = p_label_alloc(self);
 	attributes->format = format;
@@ -41,16 +41,45 @@ struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *s
 	attributes->last_mask_B = 255.0;
 	attributes->last_mask_A = 255.0;
 	attributes->last_font = font;
-	return p_label_set_content(self, string_content, font, environment);
+	return p_label_set_content_char(self, string_content, font, environment);
 }
 
-d_define_method(label, set_content)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
+d_define_method(label, set_content_string)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment) {
+	struct s_string_attributes *string_attributes = d_cast(string_content, string);
+	return p_label_set_content_char(self, string_attributes->content, font, environment);
+}
+
+d_define_method(label, set_content_char)(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
 	d_using(label);
-	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+	size_t string_length = f_string_strlen(string_content);
+	if (string_length > 0) {
+		if (label_attributes->string_content) {
+			/* realloc only if really needed */
+			if (label_attributes->size < string_length) {
+				if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, (string_length+1))))
+					label_attributes->size = (string_length+1);
+				else
+					d_die(d_error_malloc);
+			}
+		} else if ((label_attributes->string_content = (char *)d_malloc(string_length+1)))
+			label_attributes->size = (string_length+1);
+		else
+			d_die(d_error_malloc);
+		strncpy(label_attributes->string_content, string_content, string_length);
+		label_attributes->string_content[string_length] = '\0';
+	} else if (label_attributes->string_content)
+		memset(label_attributes->string_content, '\0', label_attributes->size);
+	p_label_update_texture(self, font, environment);
+	return self;
+}
+
+d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, struct s_object *environment) {
+	d_using(label);
 	char buffer[d_string_buffer_size];
 	int width, height;
-	TTF_Font *current_font = (font)?font:label_attributes->last_font;
+	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+	TTF_Font *current_font;
 	SDL_Surface *unoptimized_surface;
 	SDL_Color white = {
 		255,
@@ -58,37 +87,45 @@ d_define_method(label, set_content)(struct s_object *self, struct s_object *stri
 		255,
 		255
 	};
-	if (label_attributes->string_content)
-		d_delete(label_attributes->string_content);
-	label_attributes->string_content = d_retain(string_content);
-	if (label_attributes->image)
+	if (label_attributes->image) {
 		SDL_DestroyTexture(label_attributes->image);
-	if ((unoptimized_surface = TTF_RenderText_Blended(current_font, d_string_cstring(string_content), white))) {
-		label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
-		if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
-			label_attributes->string_width = width;
-			label_attributes->string_height = height;
-			if (label_attributes->format == e_label_background_format_adaptable) {
-				label_attributes->last_width = width;
-				label_attributes->last_height = height;
+		label_attributes->image = NULL;
+	}
+	if ((current_font = font) || (current_font = label_attributes->last_font)) {
+		label_attributes->last_font = current_font;
+		if (f_string_strlen(label_attributes->string_content) > 0) {
+			if ((unoptimized_surface = TTF_RenderText_Blended(current_font, label_attributes->string_content, white))) {
+				label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
+				if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
+					label_attributes->string_width = width;
+					label_attributes->string_height = height;
+					if (label_attributes->format == e_label_background_format_adaptable) {
+						label_attributes->last_width = width;
+						label_attributes->last_height = height;
+					}
+					d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
+					d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
+					d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width/2.0));
+					d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height/2.0));
+					if (label_attributes->last_blend != e_drawable_blend_undefined)
+						d_call(self, m_drawable_set_blend, label_attributes->last_blend);
+					d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
+							(unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
+					d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
+				} else {
+					snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception",
+							label_attributes->string_content);
+					d_throw(v_exception_texture, buffer);
+				}
+				SDL_FreeSurface(unoptimized_surface);
+			} else {
+				snprintf(buffer, d_string_buffer_size, "ungenerable texture for label \"%s\" exception",
+						label_attributes->string_content);
+				d_throw(v_exception_texture, buffer);
 			}
-			d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
-			d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
-			d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width/2.0));
-			d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height/2.0));
-			if (label_attributes->last_blend != e_drawable_blend_undefined)
-				d_call(self, m_drawable_set_blend, label_attributes->last_blend);
-			d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
-					(unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
-			d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
-		} else {
-			snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception",
-					d_string_cstring(string_content));
-			d_throw(v_exception_texture, buffer);
 		}
-		SDL_FreeSurface(unoptimized_surface);
 	} else {
-		snprintf(buffer, d_string_buffer_size, "ungenerable texture for label \"%s\" exception", d_string_cstring(string_content));
+		snprintf(buffer, d_string_buffer_size, "ungenerable texture for label \"%s\" with missing font exception", label_attributes->string_content);
 		d_throw(v_exception_texture, buffer);
 	}
 	return self;
@@ -116,51 +153,56 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	SDL_Rect source, destination;
 	SDL_Point center;
-	d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
-	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
-	d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
-	width_factor = (dimension_w/label_attributes->last_width);
-	height_factor = (dimension_h/label_attributes->last_height);
-	source.x = 0;
-	source.y = 0;
-	destination.x = position_x;
-	destination.y = position_y;
-	if (label_attributes->format == e_label_background_format_fixed) {
-		source.w = d_math_min(label_attributes->last_width, label_attributes->string_width);
-		source.h = d_math_min(label_attributes->last_height, label_attributes->string_height);
-		switch (label_attributes->alignment_x) {
-			case e_label_alignment_center:
-				if ((source.x = d_math_max(((label_attributes->string_width-label_attributes->last_width)/2.0), 0)) == 0)
-					destination.x = position_x + (((label_attributes->last_width - label_attributes->string_width)/2.0) * width_factor);
-				break;
-			case e_label_alignment_right:
-				if ((source.x = d_math_max((label_attributes->string_width-label_attributes->last_width), 0)) == 0)
-					destination.x = position_x + ((label_attributes->last_width - label_attributes->string_width) * width_factor);
-			default:
-				break;
+	if (label_attributes->image) {
+		d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
+		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
+		d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
+		width_factor = (dimension_w/label_attributes->last_width);
+		height_factor = (dimension_h/label_attributes->last_height);
+		source.x = 0;
+		source.y = 0;
+		destination.x = position_x;
+		destination.y = position_y;
+		if (label_attributes->format == e_label_background_format_fixed) {
+			source.w = d_math_min(label_attributes->last_width, label_attributes->string_width);
+			source.h = d_math_min(label_attributes->last_height, label_attributes->string_height);
+			switch (label_attributes->alignment_x) {
+				case e_label_alignment_center:
+					if ((source.x = d_math_max(((label_attributes->string_width-label_attributes->last_width)/2.0), 0)) == 0)
+						destination.x = position_x + (((label_attributes->last_width - label_attributes->string_width)/2.0) *
+								width_factor);
+					break;
+				case e_label_alignment_right:
+					if ((source.x = d_math_max((label_attributes->string_width-label_attributes->last_width), 0)) == 0)
+						destination.x = position_x + ((label_attributes->last_width - label_attributes->string_width) * width_factor);
+				default:
+					break;
+			}
+			switch (label_attributes->alignment_y) {
+				case e_label_alignment_center:
+					if ((source.y = d_math_max(((label_attributes->string_height-label_attributes->last_height)/2.0), 0)) == 0)
+						destination.y = position_y + (((label_attributes->last_height - label_attributes->string_height)/2.0) *
+								height_factor);
+					break;
+				case e_label_alignment_bottom:
+					if ((source.y = d_math_max((label_attributes->string_height-label_attributes->last_height), 0)) == 0)
+						destination.y = position_y + ((label_attributes->last_height - label_attributes->string_height) *
+								height_factor);
+				default:
+					break;
+			}
+		} else if (label_attributes->format == e_label_background_format_adaptable) {
+			source.w = label_attributes->string_width;
+			source.h = label_attributes->string_height;
 		}
-		switch (label_attributes->alignment_y) {
-			case e_label_alignment_center:
-				if ((source.y = d_math_max(((label_attributes->string_height-label_attributes->last_height)/2.0), 0)) == 0)
-					destination.y = position_y + (((label_attributes->last_height - label_attributes->string_height)/2.0) * height_factor);
-				break;
-			case e_label_alignment_bottom:
-				if ((source.y = d_math_max((label_attributes->string_height-label_attributes->last_height), 0)) == 0)
-					destination.y = position_y + ((label_attributes->last_height - label_attributes->string_height) * height_factor);
-			default:
-				break;
-		}
-	} else if (label_attributes->format == e_label_background_format_adaptable) {
-		source.w = label_attributes->string_width;
-		source.h = label_attributes->string_height;
+		destination.w = source.w * width_factor;
+		destination.h = source.h * height_factor;
+		center.x = center_x;
+		center.y = center_y;
+		SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
+				drawable_attributes->flip);
 	}
-	destination.w = source.w * width_factor;
-	destination.h = source.h * height_factor;
-	center.x = center_x;
-	center.y = center_y;
-	SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-			drawable_attributes->flip);
 	d_cast_return(d_drawable_return_last);
 }
 
@@ -189,17 +231,20 @@ d_define_method_override(label, set_blend)(struct s_object *self, enum e_drawabl
 
 d_define_method(label, delete)(struct s_object *self, struct s_label_attributes *attributes) {
 	SDL_DestroyTexture(attributes->image);
-	d_delete(attributes->string_content);
+	if (attributes->string_content)
+		d_free(attributes->string_content);
 	return NULL;
 }
 
 d_define_class(label) {
-	d_hook_method(label, e_flag_public, set_content),
-		d_hook_method(label, e_flag_public, set_container_dimension),
-		d_hook_method_override(label, e_flag_public, drawable, draw),
-		d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
-		d_hook_method_override(label, e_flag_public, drawable, set_maskA),
-		d_hook_method_override(label, e_flag_public, drawable, set_blend),
-		d_hook_delete(label),
-		d_hook_method_tail
+	d_hook_method(label, e_flag_public, set_content_string),
+	d_hook_method(label, e_flag_public, set_content_char),
+	d_hook_method(label, e_flag_public, update_texture),
+	d_hook_method(label, e_flag_public, set_container_dimension),
+	d_hook_method_override(label, e_flag_public, drawable, draw),
+	d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
+	d_hook_method_override(label, e_flag_public, drawable, set_maskA),
+	d_hook_method_override(label, e_flag_public, drawable, set_blend),
+	d_hook_delete(label),
+	d_hook_method_tail
 };

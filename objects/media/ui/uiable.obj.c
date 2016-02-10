@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "uiable.obj.h"
+unsigned int v_uiable_id = 0;
 const char *v_uiable_components[e_uiable_component_NULL] = {
 	"T",
 	"B",
@@ -42,6 +43,7 @@ struct s_object *f_uiable_new(struct s_object *self) {
 	attributes->last_mask_G = 255.0;
 	attributes->last_mask_B = 255.0;
 	attributes->last_mask_A = 255.0;
+	attributes->component_id = v_uiable_id++;
 	return self;
 }
 
@@ -226,6 +228,7 @@ d_define_method(uiable, delete)(struct s_object *self, struct s_uiable_attribute
 
 d_define_class(uiable) {
 	d_hook_method(uiable, e_flag_public, set),
+	d_hook_method(uiable, e_flag_public, mode),
 	d_hook_method_override(uiable, e_flag_public, drawable, draw),
 	d_hook_method_override(uiable, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(uiable, e_flag_public, drawable, set_maskA),

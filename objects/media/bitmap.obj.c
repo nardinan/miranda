@@ -67,21 +67,26 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
 
 d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(bitmap);
-	double position_x, position_y, dimension_w, dimension_h, center_x, center_y;
+	double position_x, position_y, dimension_w, dimension_h, original_dimension_w, original_dimension_h, center_x, center_y;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-	SDL_Rect destination;
+	SDL_Rect source, destination;
 	SDL_Point center;
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
+	d_call(&(drawable_attributes->point_dimension), m_point_get, &original_dimension_w, &original_dimension_h);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
+	source.x = 0;
+	source.y = 0;
+	source.w = original_dimension_w;
+	source.h = original_dimension_h;
 	destination.x = position_x;
 	destination.y = position_y;
 	destination.w = dimension_w;
 	destination.h = dimension_h;
 	center.x = center_x;
 	center.y = center_y;
-	SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, NULL, &destination, drawable_attributes->angle, &center,
+	SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
 			drawable_attributes->flip);
 	if ((drawable_attributes->flags&e_drawable_kind_contour) == e_drawable_kind_contour) {
 		SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);

@@ -34,17 +34,20 @@ d_declare_class(label) {
 	struct s_attributes head;
 	SDL_Texture *image;
 	TTF_Font *last_font;
-	struct s_object *string_content;
+	char *string_content;
+	size_t size;
 	enum e_label_background_formats format;
 	enum e_label_alignments alignment_x, alignment_y;
 	enum e_drawable_blends last_blend;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, last_width, last_height, string_width, string_height;
 } d_declare_class_tail(label);
 struct s_label_attributes *p_label_alloc(struct s_object *self);
-extern struct s_object *f_label_new(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
-extern struct s_object *f_label_new_alignment(struct s_object *self, struct s_object *string_content, TTF_Font *font, enum e_label_background_formats format,
+extern struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
+extern struct s_object *f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
 		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment);
-d_declare_method(label, set_content)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
+d_declare_method(label, set_content_string)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
+d_declare_method(label, set_content_char)(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
+d_declare_method(label, update_texture)(struct s_object *self, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, set_container_dimension)(struct s_object *self, double width, double height);
 d_declare_method(label, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(label, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
