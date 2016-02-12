@@ -34,6 +34,7 @@ d_declare_class(label) {
 	struct s_attributes head;
 	SDL_Texture *image;
 	TTF_Font *last_font;
+	SDL_Rect last_source, last_destination;
 	char *string_content;
 	size_t size;
 	enum e_label_background_formats format;

@@ -151,10 +151,10 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 	double position_x, position_y, dimension_w, dimension_h, center_x, center_y, width_factor, height_factor;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+	int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	SDL_Rect source, destination;
 	SDL_Point center;
 	if (label_attributes->image) {
-		d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 		d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
@@ -200,10 +200,12 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 		destination.h = source.h * height_factor;
 		center.x = center_x;
 		center.y = center_y;
+		label_attributes->last_source = source;
+		label_attributes->last_destination = destination;
 		SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
 				drawable_attributes->flip);
 	}
-	d_cast_return(d_drawable_return_last);
+	d_cast_return(result);
 }
 
 d_define_method_override(label, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
