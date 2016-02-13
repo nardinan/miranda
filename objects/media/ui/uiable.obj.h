@@ -40,6 +40,7 @@ enum e_uiable_modes {
 } e_uiable_modes;
 enum e_uiable_signals {
 	e_uiable_signal_selected = 0,
+	e_uiable_signal_unselected,
 	e_uiable_signal_clicked_left,
 	e_uiable_signal_clicked_right,
 	e_uiable_signal_changed,
@@ -53,6 +54,7 @@ d_declare_class(uiable) {
 	unsigned int component_id;
 	enum e_uiable_modes selected_mode;
 	enum e_drawable_blends last_blend;
+	t_boolean is_selected;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
