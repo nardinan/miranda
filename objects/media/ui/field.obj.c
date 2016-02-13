@@ -21,7 +21,6 @@ struct s_field_attributes *p_field_alloc(struct s_object *self, char *string_con
 		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
 	struct s_field_attributes *result = d_prepare(self, field);
 	f_label_new_alignment(self, string_content, font, format, alignment_x, alignment_y, environment);	/* inherit */
-	f_eventable_new(self);											/* inherit */
 	return result;
 }
 
@@ -62,6 +61,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
 	struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
 	t_boolean update_required = d_false;
 	size_t string_length, new_length, incoming_length;
+	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
 	if (uiable_attributes->selected_mode == e_uiable_mode_selected) { /* and the SDL_TextInput event should be enabled */
 		switch (current_event->type) {
 			case SDL_TEXTINPUT:
@@ -115,7 +115,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
 		if (update_required)
 			d_call(self, m_label_update_texture, NULL, environment);
 	}
-	return self;
+	return result;
 }
 
 d_define_method_override(field, draw)(struct s_object *self, struct s_object *environment) {
@@ -179,9 +179,9 @@ d_define_method(field, delete)(struct s_object *self, struct s_field_attributes 
 
 d_define_class(field) {
 	d_hook_method(field, e_flag_public, set_cursor),
-		d_hook_method(field, e_flag_public, set_size),
-		d_hook_method_override(field, e_flag_public, eventable, event),
-		d_hook_method_override(field, e_flag_public, drawable, draw),
-		d_hook_delete(field),
-		d_hook_method_tail
+	d_hook_method(field, e_flag_public, set_size),
+	d_hook_method_override(field, e_flag_public, eventable, event),
+	d_hook_method_override(field, e_flag_public, drawable, draw),
+	d_hook_delete(field),
+	d_hook_method_tail
 };

@@ -13,7 +13,7 @@ all: $(objects)
 fonts.obj.o: fonts.obj.c fonts.obj.h ../bitmap.obj.h
 	$(cc) $(cflags) fonts.obj.c
 
-uiable.obj.o: uiable.obj.c uiable.obj.h ../environment.obj.h
+uiable.obj.o: uiable.obj.c uiable.obj.h ../environment.obj.h ../../emitter.obj.h
 	$(cc) $(cflags) uiable.obj.c
 
 label.obj.o: label.obj.c label.obj.h fonts.obj.h

@@ -148,9 +148,9 @@ d_define_method(label, set_container_dimension)(struct s_object *self, double wi
 
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(label);
-	double position_x, position_y, dimension_w, dimension_h, center_x, center_y, width_factor, height_factor;
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+	double position_x, position_y, dimension_w, dimension_h, center_x, center_y, width_factor, height_factor;
 	int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	SDL_Rect source, destination;
 	SDL_Point center;

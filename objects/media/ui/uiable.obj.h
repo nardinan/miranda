@@ -18,6 +18,7 @@
 #ifndef miranda_media_uiable_h
 #define miranda_media_uiable_h
 #include "../environment.obj.h"
+#include "../../emitter.obj.h"
 enum e_uiable_components {
 	e_uiable_component_top,
 	e_uiable_component_bottom,
@@ -34,8 +35,16 @@ enum e_uiable_modes {
 	e_uiable_mode_idle = 0,
 	e_uiable_mode_active,
 	e_uiable_mode_selected,
+	e_uiable_mode_pressed,
 	e_uiable_mode_NULL
 } e_uiable_modes;
+enum e_uiable_signals {
+	e_uiable_signal_selected = 0,
+	e_uiable_signal_clicked_left,
+	e_uiable_signal_clicked_right,
+	e_uiable_signal_changed,
+	e_uiable_signal_NULL
+} e_uiable_signals;
 extern unsigned int v_uiable_id;
 extern const char *v_uiable_components[e_uiable_component_NULL];
 d_declare_class(uiable) {

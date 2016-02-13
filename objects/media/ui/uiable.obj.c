@@ -27,23 +27,35 @@ const char *v_uiable_components[e_uiable_component_NULL] = {
 	"CTR",
 	"CBL",
 	"CBR",
-	NULL
+};
+const char *v_uiable_signals[e_uiable_signal_NULL] = {
+	"selected",
+	"clicked_left",
+	"clicked_right",
+	"changed",
 };
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
 	struct s_uiable_attributes *result = d_prepare(self, uiable);
 	/* abstract (no memory inheritance) */
 	f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));	/* inherit */
+	f_eventable_new(self);									/* inherit */
+	f_emitter_new(self);									/* inherit */
 	return result;
 }
 
 struct s_object *f_uiable_new(struct s_object *self) {
 	struct s_uiable_attributes *attributes = p_uiable_alloc(self);
+	int index;
 	attributes->last_blend = e_drawable_blend_undefined;
 	attributes->last_mask_R = 255.0;
 	attributes->last_mask_G = 255.0;
 	attributes->last_mask_B = 255.0;
 	attributes->last_mask_A = 255.0;
 	attributes->component_id = v_uiable_id++;
+	for (index = 0; index != e_uiable_signal_NULL; ++index) {
+		d_call(self, m_emitter_record, v_uiable_signals[index]);
+		d_call(self, m_emitter_embed_parameter, v_uiable_signals[index], (void *)self);
+	}
 	return self;
 }
 
@@ -169,7 +181,7 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 			drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
 			drawable_attributes_core->angle = drawable_attributes_self->angle;
 			drawable_attributes_core->zoom = drawable_attributes_self->zoom;
-			/* do not inerith the flip (this object, the uiable, doesn't flip) */
+			/* doesn't inerith the flip (this object, the uiable, doesn't flip) */
 			if ((d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_normalize_scale,
 							environment_attributes->reference_w, environment_attributes->reference_h,
 							environment_attributes->camera_origin_x, environment_attributes->camera_origin_y,
@@ -179,6 +191,25 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 					d_drawable_return_continue);
 		}
 	d_cast_return(d_drawable_return_last);
+}
+
+d_define_method_override(uiable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
+	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+	double position_x, position_y, dimension_w, dimension_h;
+	int mouse_x, mouse_y;
+	d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
+	d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
+	SDL_GetMouseState(&mouse_x, &mouse_y);
+	if (((mouse_x >= position_x) && (mouse_x <= (position_x + dimension_w))) && ((mouse_y >= position_y) && (mouse_y <= (position_y + dimension_h)))) {
+		d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
+		if (current_event->type == SDL_MOUSEBUTTONDOWN) {
+			if (current_event->button.button == SDL_BUTTON_LEFT)
+				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_left]);
+			else if (current_event->button.button == SDL_BUTTON_RIGHT)
+				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_right]);
+		}
+	}
+	return self;
 }
 
 d_define_method_override(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
@@ -230,6 +261,7 @@ d_define_class(uiable) {
 	d_hook_method(uiable, e_flag_public, set),
 	d_hook_method(uiable, e_flag_public, mode),
 	d_hook_method_override(uiable, e_flag_public, drawable, draw),
+	d_hook_method_override(uiable, e_flag_public, eventable, event),
 	d_hook_method_override(uiable, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(uiable, e_flag_public, drawable, set_maskA),
 	d_hook_method_override(uiable, e_flag_public, drawable, set_blend),
