@@ -34,7 +34,7 @@ struct s_field_attributes *p_field_alloc(struct s_object *self, char *string_con
 extern struct s_object *f_field_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_field_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
 		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment);
-d_declare_method(field, set_cursor)(struct s_object *self, double cursor_R, double cursor_G, double cursor_B, double cursor_A);
+d_declare_method(field, set_cursor)(struct s_object *self, double red, double green, double blue, double alpha);
 d_declare_method(field, set_size)(struct s_object *self, size_t max_size);
 d_declare_method(field, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(field, draw)(struct s_object *self, struct s_object *environment);

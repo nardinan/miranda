@@ -41,12 +41,12 @@ struct s_object *f_field_new_alignment(struct s_object *self, char *string_conte
 	return self;
 }
 
-d_define_method(field, set_cursor)(struct s_object *self, double cursor_R, double cursor_G, double cursor_B, double cursor_A) {
+d_define_method(field, set_cursor)(struct s_object *self, double red, double green, double blue, double alpha) {
 	d_using(field);
-	field_attributes->last_cursor_R = cursor_R;
-	field_attributes->last_cursor_G = cursor_G;
-	field_attributes->last_cursor_B = cursor_B;
-	field_attributes->last_cursor_A = cursor_A;
+	field_attributes->last_cursor_R = red;
+	field_attributes->last_cursor_G = green;
+	field_attributes->last_cursor_B = blue;
+	field_attributes->last_cursor_A = alpha;
 	return self;
 }
 
@@ -67,25 +67,26 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
 			case SDL_TEXTINPUT:
 				string_length = f_string_strlen(label_attributes->string_content);
 				incoming_length = f_string_strlen(current_event->text.text);
-				if ((incoming_length > 0) && ((field_attributes->max_size == 0) ||
-							((string_length + incoming_length) < field_attributes->max_size))) {
-					if ((label_attributes->size == 0) || ((string_length + incoming_length) >= (label_attributes->size-1))) {
-						new_length = string_length + d_field_bucket;
-						while (new_length < (string_length + incoming_length + 1))
-							new_length += d_field_bucket;
-						if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, new_length)))
-							label_attributes->size = new_length;
-						else
-							d_die(d_error_malloc);
+				if (incoming_length > 0)
+					if ((field_attributes->max_size == 0) || ((string_length + incoming_length) < field_attributes->max_size)) {
+						if ((label_attributes->size == 0) || ((string_length + incoming_length) >= (label_attributes->size-1))) {
+							new_length = string_length + d_field_bucket;
+							while (new_length < (string_length + incoming_length + 1))
+								new_length += d_field_bucket;
+							if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, new_length)))
+								label_attributes->size = new_length;
+							else
+								d_die(d_error_malloc);
+						}
+						if (field_attributes->pointer < string_length)
+							memmove((label_attributes->string_content + (field_attributes->pointer + incoming_length)),
+									(label_attributes->string_content + field_attributes->pointer),
+									(label_attributes->size - field_attributes->pointer - incoming_length));
+						memcpy((label_attributes->string_content + field_attributes->pointer), current_event->text.text,
+								incoming_length);
+						field_attributes->pointer += incoming_length;
+						update_required = d_true;
 					}
-					if (field_attributes->pointer < string_length)
-						memmove((label_attributes->string_content + (field_attributes->pointer + incoming_length)),
-								(label_attributes->string_content + field_attributes->pointer),
-								(label_attributes->size - field_attributes->pointer - incoming_length));
-					memcpy((label_attributes->string_content + field_attributes->pointer), current_event->text.text, incoming_length);
-					field_attributes->pointer += incoming_length;
-					update_required = d_true;
-				}
 				break;
 			case SDL_KEYDOWN:
 				switch (current_event->key.keysym.sym) {
@@ -162,7 +163,8 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 		destination.w = (d_field_default_line_size * width_factor);
 		destination.h = label_attributes->last_destination.h;
 		if ((destination.x >= (label_attributes->last_destination.x - (d_field_default_line_size * width_factor))) &&
-				(destination.x <= (label_attributes->last_destination.x + label_attributes->last_destination.w + (d_field_default_line_size * width_factor)))) {
+				(destination.x <= (label_attributes->last_destination.x + label_attributes->last_destination.w +
+						   (d_field_default_line_size * width_factor)))) {
 			SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
 					field_attributes->last_cursor_R, field_attributes->last_cursor_A);
 			SDL_RenderDrawRect(environment_attributes->renderer, &destination);
@@ -177,9 +179,9 @@ d_define_method(field, delete)(struct s_object *self, struct s_field_attributes 
 
 d_define_class(field) {
 	d_hook_method(field, e_flag_public, set_cursor),
-	d_hook_method(field, e_flag_public, set_size),
-	d_hook_method_override(field, e_flag_public, eventable, event),
-	d_hook_method_override(field, e_flag_public, drawable, draw),
-	d_hook_delete(field),
-	d_hook_method_tail
+		d_hook_method(field, e_flag_public, set_size),
+		d_hook_method_override(field, e_flag_public, eventable, event),
+		d_hook_method_override(field, e_flag_public, drawable, draw),
+		d_hook_delete(field),
+		d_hook_method_tail
 };
