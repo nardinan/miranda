@@ -75,7 +75,10 @@ d_define_method(uiable, set)(struct s_object *self, struct s_object *drawable, e
 
 d_define_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode) {
 	d_using(uiable);
-	uiable_attributes->selected_mode = mode;
+	if (uiable_attributes->selected_mode != mode) {
+		uiable_attributes->selected_mode = mode;
+		d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+	}
 	return self;
 }
 
@@ -203,20 +206,27 @@ d_define_method_override(uiable, event)(struct s_object *self, struct s_object *
 		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
 		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 		SDL_GetMouseState(&mouse_x, &mouse_y);
-		if (((mouse_x >= position_x) && (mouse_x <= (position_x + dimension_w))) && ((mouse_y >= position_y) && (mouse_y <= (position_y + dimension_h)))) {
+		if (((mouse_x >= position_x) && (mouse_x <= (position_x + dimension_w))) &&
+				((mouse_y >= position_y) && (mouse_y <= (position_y + dimension_h)))) {
 			if (!uiable_attributes->is_selected) {
 				uiable_attributes->is_selected = d_true;
 				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
 			}
 			if (current_event->type == SDL_MOUSEBUTTONDOWN) {
-				if (current_event->button.button == SDL_BUTTON_LEFT)
+				if (current_event->button.button == SDL_BUTTON_LEFT) {
+					d_call(self, m_uiable_mode, e_uiable_mode_selected);
 					d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_left]);
-				else if (current_event->button.button == SDL_BUTTON_RIGHT)
+				} else if (current_event->button.button == SDL_BUTTON_RIGHT)
 					d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_right]);
 			}
-		} else if (uiable_attributes->is_selected) {
-			uiable_attributes->is_selected = d_false;
-			d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
+		} else {
+			if (uiable_attributes->is_selected) {
+				uiable_attributes->is_selected = d_false;
+				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
+			}
+			if (current_event->type == SDL_MOUSEBUTTONDOWN)
+				if (current_event->button.button == SDL_BUTTON_LEFT)
+					d_call(self, m_uiable_mode, e_uiable_mode_active);
 		}
 	} else
 		uiable_attributes->is_selected = d_false;

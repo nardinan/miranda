@@ -1,4 +1,4 @@
-objects = fonts.obj.o uiable.obj.o label.obj.o field.obj.o
+objects = fonts.obj.o uiable.obj.o label.obj.o field.obj.o button.obj.o
 name = miranda_ui
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -19,8 +19,11 @@ uiable.obj.o: uiable.obj.c uiable.obj.h ../environment.obj.h ../../emitter.obj.h
 label.obj.o: label.obj.c label.obj.h fonts.obj.h
 	$(cc) $(cflags) label.obj.c
 
-field.obj.o: field.obj.c field.obj.h label.obj.h ../eventable.obj.h
+field.obj.o: field.obj.c field.obj.h label.obj.h
 	$(cc) $(cflags) field.obj.c
+
+button.obj.o: button.obj.c button.obj.h label.obj.h
+	$(cc) $(cflags) button.obj.c
 
 clean:
 	rm -f *.o

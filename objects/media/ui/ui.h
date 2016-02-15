@@ -21,4 +21,5 @@
 #include "uiable.obj.h"
 #include "label.obj.h"
 #include "field.obj.h"
+#include "button.obj.h"
 #endif
