@@ -35,6 +35,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 	struct s_environment_attributes *attributes = p_environment_alloc(self);
 	int surface, index, initialized_systems;
 	t_boolean initialized = d_true;
+	SDL_DisplayMode current_display;
 	for (surface = 0; surface < e_environment_surface_NULL; ++surface)
 		for (index = 0; index < d_environment_layers; ++index)
 			memset(&(attributes->drawable[surface][index]), 0, sizeof(struct s_list));
@@ -58,6 +59,17 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 				(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, d_environment_channels, d_environment_audio_chunk) < 0)) {
 			initialized = d_false;
 			d_err(e_log_level_ever, "SDL audio systems returns an error during the initialization (%s)", Mix_GetError());
+		}
+		if ((!width) && (!height)) {
+			if (SDL_GetCurrentDisplayMode(d_environment_default_monitor, &current_display) == 0) {
+				d_log(e_log_level_medium, "SDL display uses resolution %d x %d", current_display.w, current_display.h);
+				width = current_display.w;
+				height = current_display.h;
+			} else {
+				d_err(e_log_level_ever, "SDL display isn't reachable or has not a resolution. I'll switch to the default one");
+				width = d_environment_default_reference_w;
+				height = d_environment_default_reference_h;
+			}
 		}
 		if ((attributes->window = SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
 						(flags|SDL_WINDOW_OPENGL))))

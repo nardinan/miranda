@@ -29,6 +29,7 @@
 #define d_environment_default_fps 60.0
 #define d_environment_default_reference_w 1024
 #define d_environment_default_reference_h 768
+#define d_environment_default_monitor 0 /* primary */
 #define d_environment_layers 16
 #define d_environment_tolerance 60.0
 #define d_environment_channels 2
