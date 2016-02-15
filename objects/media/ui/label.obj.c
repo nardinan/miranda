@@ -131,19 +131,42 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
 	return self;
 }
 
-d_define_method(label, set_container_dimension)(struct s_object *self, double width, double height) {
+d_define_method_override(label, set_dimension)(struct s_object *self, double w, double h) {
 	d_using(label);
 	struct s_drawable_attributes *drawable_attributes;
-	label_attributes->last_width = width;
-	label_attributes->last_height = height;
+	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension, w, h);
+	label_attributes->last_width = w;
+	label_attributes->last_height = h;
 	if (label_attributes->format == e_label_background_format_fixed) {
 		drawable_attributes = d_cast(self, drawable);
-		d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
-		d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
-		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width/2.0));
-		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height/2.0));
+		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
+		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
 	}
-	return self;
+	return result;
+}
+
+d_define_method_override(label, set_dimension_w)(struct s_object *self, double w) {
+	d_using(label);
+	struct s_drawable_attributes *drawable_attributes;
+	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_w, w);
+	label_attributes->last_width = w;
+	if (label_attributes->format == e_label_background_format_fixed) {
+		drawable_attributes = d_cast(self, drawable);
+		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
+	}
+	return result;
+}
+
+d_define_method_override(label, set_dimension_h)(struct s_object *self, double h) {
+	d_using(label);
+	struct s_drawable_attributes *drawable_attributes;
+	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_h, h);
+	label_attributes->last_height = h;
+	if (label_attributes->format == e_label_background_format_fixed) {
+		drawable_attributes = d_cast(self, drawable);
+		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
+	}
+	return result;
 }
 
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
@@ -242,7 +265,9 @@ d_define_class(label) {
 	d_hook_method(label, e_flag_public, set_content_string),
 	d_hook_method(label, e_flag_public, set_content_char),
 	d_hook_method(label, e_flag_public, update_texture),
-	d_hook_method(label, e_flag_public, set_container_dimension),
+	d_hook_method_override(label, e_flag_public, drawable, set_dimension),
+	d_hook_method_override(label, e_flag_public, drawable, set_dimension_w),
+	d_hook_method_override(label, e_flag_public, drawable, set_dimension_h),
 	d_hook_method_override(label, e_flag_public, drawable, draw),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
 	d_hook_method_override(label, e_flag_public, drawable, set_maskA),
