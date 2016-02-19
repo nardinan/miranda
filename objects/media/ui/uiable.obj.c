@@ -28,6 +28,11 @@ const char *v_uiable_components[e_uiable_component_NULL] = {
 	"CBL",
 	"CBR",
 };
+const char *v_uiable_modes[e_uiable_mode_NULL] = {
+	"idle",
+	"active",
+	"selected"
+};
 const char *v_uiable_signals[e_uiable_signal_NULL] = {
 	"selected",
 	"unselected",
@@ -280,12 +285,12 @@ d_define_method(uiable, delete)(struct s_object *self, struct s_uiable_attribute
 
 d_define_class(uiable) {
 	d_hook_method(uiable, e_flag_public, set),
-		d_hook_method(uiable, e_flag_public, mode),
-		d_hook_method_override(uiable, e_flag_public, drawable, draw),
-		d_hook_method_override(uiable, e_flag_public, eventable, event),
-		d_hook_method_override(uiable, e_flag_public, drawable, set_maskRGB),
-		d_hook_method_override(uiable, e_flag_public, drawable, set_maskA),
-		d_hook_method_override(uiable, e_flag_public, drawable, set_blend),
-		d_hook_delete(uiable),
-		d_hook_method_tail
+	d_hook_method(uiable, e_flag_public, mode),
+	d_hook_method_override(uiable, e_flag_public, drawable, draw),
+	d_hook_method_override(uiable, e_flag_public, eventable, event),
+	d_hook_method_override(uiable, e_flag_public, drawable, set_maskRGB),
+	d_hook_method_override(uiable, e_flag_public, drawable, set_maskA),
+	d_hook_method_override(uiable, e_flag_public, drawable, set_blend),
+	d_hook_delete(uiable),
+	d_hook_method_tail
 };

@@ -35,7 +35,6 @@ enum e_uiable_modes {
 	e_uiable_mode_idle = 0,
 	e_uiable_mode_active,
 	e_uiable_mode_selected,
-	e_uiable_mode_pressed,
 	e_uiable_mode_NULL
 } e_uiable_modes;
 enum e_uiable_signals {
@@ -48,6 +47,8 @@ enum e_uiable_signals {
 } e_uiable_signals;
 extern unsigned int v_uiable_id;
 extern const char *v_uiable_components[e_uiable_component_NULL];
+extern const char *v_uiable_modes[e_uiable_mode_NULL];
+extern const char *v_uiable_signals[e_uiable_signal_NULL];
 d_declare_class(uiable) {
 	struct s_attributes head;
 	struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];

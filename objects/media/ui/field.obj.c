@@ -25,7 +25,7 @@ struct s_field_attributes *p_field_alloc(struct s_object *self, char *string_con
 }
 
 struct s_object *f_field_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
-	return f_field_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_top,
+	return f_field_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_center,
 			environment);
 }
 
