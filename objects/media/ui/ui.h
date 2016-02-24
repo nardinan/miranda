@@ -22,4 +22,5 @@
 #include "label.obj.h"
 #include "field.obj.h"
 #include "button.obj.h"
+#include "scroll.obj.h"
 #endif
