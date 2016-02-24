@@ -221,8 +221,8 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 		}
 		destination.w = source.w * width_factor;
 		destination.h = source.h * height_factor;
-		center.x = center_x;
-		center.y = center_y;
+		center.x = (position_x + center_x) - destination.x;
+		center.y = (position_y + center_y) - destination.y;
 		label_attributes->last_source = source;
 		label_attributes->last_destination = destination;
 		SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,

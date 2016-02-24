@@ -95,12 +95,12 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 	double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_uiable_component_NULL], component_h[e_uiable_component_NULL];
 	int index;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_x, &local_y);
-	d_call(&(drawable_attributes_self->point_dimension), m_point_get, &local_w, &local_h);
-	d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x, &center_y);
+	d_call(&(drawable_attributes_self->point_normalized_dimension), m_point_get, &local_w, &local_h);
+	d_call(&(drawable_attributes_self->point_normalized_center), m_point_get, &center_x, &center_y);
 	for (index = 0; index < e_uiable_component_NULL; ++index)
 		if (uiable_attributes->background[uiable_attributes->selected_mode][index]) {
 			drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
-			d_call(&(drawable_attributes_core->point_dimension), m_point_get, &(component_w[index]), &(component_h[index]));
+			d_call(&(drawable_attributes_core->point_normalized_dimension), m_point_get, &(component_w[index]), &(component_h[index]));
 		}
 	if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center]) {
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center], m_drawable_set_position,
@@ -115,7 +115,7 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 	}
 	if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_left]) {
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_left], m_drawable_set_position,
-		      		(local_x-component_w[e_uiable_component_corner_top_left]),
+				(local_x-component_w[e_uiable_component_corner_top_left]),
 				(local_y-component_h[e_uiable_component_corner_top_left]));
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_left], m_drawable_set_center,
 				(center_x+component_w[e_uiable_component_corner_top_left]),
@@ -126,7 +126,7 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 				(local_x+local_w),
 				(local_y-component_h[e_uiable_component_corner_top_right]));
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_right], m_drawable_set_center,
-				(center_x-local_w)-1,
+				(center_x-local_w),
 				(center_y+component_h[e_uiable_component_corner_top_right]));
 	}
 	if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_left]) {
@@ -142,8 +142,8 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 				(local_x+local_w),
 				(local_y+local_h));
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_right], m_drawable_set_center,
-				(center_x-local_w)-1,
-				(center_y-local_h)-1);
+				(center_x-local_w),
+				(center_y-local_h));
 	}
 	if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top]) {
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top], m_drawable_set_position,
@@ -182,22 +182,26 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right], m_drawable_set_dimension_h,
 				(local_h+2));
 		d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right], m_drawable_set_center,
-				(center_x-local_w)-1,
+				(center_x-local_w),
 				(center_y+1));
 	}
 	for (index = 0; index < e_uiable_component_NULL; ++index)
 		if (uiable_attributes->background[uiable_attributes->selected_mode][index]) {
 			drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
 			drawable_attributes_core->angle = drawable_attributes_self->angle;
-			drawable_attributes_core->zoom = drawable_attributes_self->zoom;
-			/* doesn't inerith the flip (this object, the uiable, doesn't flip) */
+			/* doesn't inerith the flip (this object, the uiable, doesn't flip) and the zoom is hardcoded to one */
 			if ((d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_normalize_scale,
-							environment_attributes->reference_w, environment_attributes->reference_h,
-							environment_attributes->camera_origin_x, environment_attributes->camera_origin_y,
-							environment_attributes->camera_focus_x, environment_attributes->camera_focus_y,
-							environment_attributes->current_w, environment_attributes->current_h, environment_attributes->zoom)))
-			while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
-					d_drawable_return_continue);
+							environment_attributes->reference_w,
+							environment_attributes->reference_h,
+							environment_attributes->camera_origin_x,
+							environment_attributes->camera_origin_y,
+							environment_attributes->camera_focus_x,
+							environment_attributes->camera_focus_y,
+							environment_attributes->current_w,
+							environment_attributes->current_h,
+							(double)1.0)))
+				while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
+						d_drawable_return_continue);
 		}
 	d_cast_return(d_drawable_return_last);
 }
