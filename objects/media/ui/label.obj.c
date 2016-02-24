@@ -105,8 +105,6 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
 					}
 					d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
 					d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
-					d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width/2.0));
-					d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height/2.0));
 					if (label_attributes->last_blend != e_drawable_blend_undefined)
 						d_call(self, m_drawable_set_blend, label_attributes->last_blend);
 					d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
