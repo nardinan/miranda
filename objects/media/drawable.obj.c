@@ -30,6 +30,7 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
 	f_point_new(d_use(&(attributes->point_normalized_dimension), point), 0, 0);
 	f_point_new(d_use(&(attributes->point_center), point), 0, 0);
 	f_point_new(d_use(&(attributes->point_normalized_center), point), 0, 0);
+	f_square_new(d_use(&(attributes->square_collision_box), square), 0, 0, 0, 0);
 	attributes->zoom = 1;
 	attributes->angle = 0;
 	attributes->flip = e_drawable_flip_none;
@@ -39,6 +40,23 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
 
 d_define_method(drawable, draw)(struct s_object *self, struct s_object *environment) {
 	d_war(e_log_level_ever, "'draw' method has not been implemented yet");
+	return self;
+}
+
+d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *environment) {
+	d_using(drawable);
+	struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes->square_collision_box), square);
+	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+	d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
+	SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);
+	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
+			square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
+	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
+			square_attributes->normalize_bottom_right_x, square_attributes->normalize_bottom_right_y);
+	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalize_bottom_right_x, square_attributes->normalize_bottom_right_y,
+			square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
+	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
+			square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
 	return self;
 }
 
@@ -82,6 +100,12 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_y, new_h);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_set_x, new_center_x);
 	d_call(&(drawable_attributes->point_normalized_center), m_point_set_y, new_center_y);
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_x, new_x, d_false);
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_y, new_y, d_false);
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_x, (new_x+new_w));
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_y, (new_y+new_h));
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_angle, drawable_attributes->angle);
+	d_call(&(drawable_attributes->square_collision_box), m_square_set_center, new_center_x, new_center_y);
 	/* is the object still visible ? */
 	if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility)
 		if ((new_x > current_w) || (new_y > current_h) || (new_x < -new_w) || (new_y < -new_h))
@@ -193,6 +217,7 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
 
 d_define_class(drawable) {
 	d_hook_method(drawable, e_flag_public, draw),
+	d_hook_method(drawable, e_flag_public, draw_contour),
 	d_hook_method(drawable, e_flag_public, set_maskRGB),
 	d_hook_method(drawable, e_flag_public, set_maskA),
 	d_hook_method(drawable, e_flag_public, set_blend),

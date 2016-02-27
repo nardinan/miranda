@@ -18,7 +18,9 @@
 #ifndef miranda_media_drawable_h
 #define miranda_media_drawable_h
 #include <SDL2/SDL_render.h>
-#include "../math/point.obj.h"
+#include "../geometry/point.obj.h"
+#include "../geometry/square.obj.h"
+#include "environment.obj.h"
 #define d_drawable_return_continue 	1
 #define d_drawable_return_last 		0
 #define d_drawable_default_contour_color 255.0, 0, 0, 255.0 /* red */
@@ -45,6 +47,7 @@ typedef enum e_drawable_blends {
 d_declare_class(drawable) {
 	struct s_attributes head;
 	struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
+	struct s_object square_collision_box;
 	double angle, zoom;
 	enum e_drawable_flips flip;
 	int flags;
@@ -52,6 +55,7 @@ d_declare_class(drawable) {
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object *self, int flags);
 d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment); /* abstract */
+d_declare_method(drawable, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(drawable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue); /* abstract */
 d_declare_method(drawable, set_maskA)(struct s_object *self, unsigned int alpha); /* abstract */
 d_declare_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blends blend); /* abstract */

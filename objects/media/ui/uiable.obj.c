@@ -203,20 +203,18 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 				while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
 						d_drawable_return_continue);
 		}
+	if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
+		d_call(self, m_drawable_draw_contour, environment);
 	d_cast_return(d_drawable_return_last);
 }
 
 d_define_method_override(uiable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
 	d_using(uiable);
 	struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-	double position_x, position_y, dimension_w, dimension_h;
 	int mouse_x, mouse_y;
 	if (uiable_attributes->selected_mode != e_uiable_mode_idle) { /* is not off */
-		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
-		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 		SDL_GetMouseState(&mouse_x, &mouse_y);
-		if (((mouse_x >= position_x) && (mouse_x <= (position_x + dimension_w))) &&
-				((mouse_y >= position_y) && (mouse_y <= (position_y + dimension_h)))) {
+		if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, (double)mouse_x, (double)mouse_y))) {
 			if (!uiable_attributes->is_selected) {
 				uiable_attributes->is_selected = d_true;
 				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);

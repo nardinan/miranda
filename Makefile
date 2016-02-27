@@ -8,7 +8,7 @@ cc = gcc -g $(debug)
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders = objects objects/io objects/math objects/media objects/media/ui
+folders = objects objects/io objects/geometry objects/media objects/media/ui
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared

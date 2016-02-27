@@ -4,7 +4,8 @@ debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
-libs = -L.. -L../math -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_math -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lSDL2 -lSDL2_image -lSDL2_ttf \
+       -lSDL2_mixer
 executable = lib$(name).so
 
 all: $(objects)
@@ -13,7 +14,7 @@ all: $(objects)
 environment.obj.o: environment.obj.c environment.obj.h drawable.obj.h
 	$(cc) $(cflags) environment.obj.c
 
-drawable.obj.o: drawable.obj.c drawable.obj.h ../math/point.obj.h
+drawable.obj.o: drawable.obj.c drawable.obj.h ../geometry/point.obj.h ../geometry/square.obj.h
 	$(cc) $(cflags) drawable.obj.c
 
 eventable.obj.o: eventable.obj.c eventable.obj.h ../memory.obj.h ../mutex.obj.h

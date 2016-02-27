@@ -126,10 +126,11 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	char buffer[d_string_buffer_size], *string_subcontent;
 	int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
-	double position_x, position_y, dimension_w = 0, normalized_dimension_w, normalized_dimension_h, width_factor;
+	double position_x, position_y, dimension_w = 0, normalized_dimension_w, normalized_dimension_h, center_x, center_y, normalized_center_x,
+	       normalized_center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
+	       radians = (drawable_attributes->angle * d_math_pi)/180.0;
 	size_t string_length = f_string_strlen(label_attributes->string_content);
 	SDL_Surface *unoptimized_surface;
-	SDL_Rect destination;
 	SDL_Color white = {
 		255,
 		255,
@@ -139,6 +140,9 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 	if (uiable_attributes->selected_mode == e_uiable_mode_selected) {
 		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &normalized_dimension_w, &normalized_dimension_h);
 		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
+		d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
+		normalized_center_x = position_x + center_x;
+		normalized_center_y = position_y + center_y;
 		width_factor = (normalized_dimension_w/label_attributes->last_width);
 		if ((field_attributes->pointer > 0) && (field_attributes->pointer < string_length) && (string_length > 0)) {
 			if ((string_subcontent = (char *)d_malloc(field_attributes->pointer + 1))) {
@@ -155,19 +159,18 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 				d_free(string_subcontent);
 			} else
 				d_die(d_error_malloc);
-
 		} else if ((field_attributes->pointer == string_length) && (string_length > 0))
 			dimension_w = label_attributes->string_width;
-		destination.x = label_attributes->last_destination.x + (dimension_w * width_factor) - (label_attributes->last_source.x * width_factor) + 1;
-		destination.y = label_attributes->last_destination.y;
-		destination.w = (d_field_default_line_size * width_factor);
-		destination.h = label_attributes->last_destination.h;
-		if ((destination.x >= (label_attributes->last_destination.x - (d_field_default_line_size * width_factor))) &&
-				(destination.x <= (label_attributes->last_destination.x + label_attributes->last_destination.w +
-						   (d_field_default_line_size * width_factor)))) {
+		top_x = label_attributes->last_destination.x + (dimension_w * width_factor) - (label_attributes->last_source.x * width_factor) + 1;
+		top_y = label_attributes->last_destination.y;
+		bottom_x = top_x;
+		bottom_y = top_y + label_attributes->last_destination.h;
+		p_square_normalize_coordinate(NULL, top_x, top_y, normalized_center_x, normalized_center_y, radians, &top_x, &top_y);
+		p_square_normalize_coordinate(NULL, bottom_x, bottom_y, normalized_center_x, normalized_center_y, radians, &bottom_x, &bottom_y);
+		if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, top_x, top_y))) {
 			SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
 					field_attributes->last_cursor_R, field_attributes->last_cursor_A);
-			SDL_RenderDrawRect(environment_attributes->renderer, &destination);
+			SDL_RenderDrawLine(environment_attributes->renderer, top_x, top_y, bottom_x, bottom_y);
 		}
 	}
 	d_cast_return(result);

@@ -1,6 +1,6 @@
 /*
  * miranda
- * Copyright (C) 2015 Andrea Nardinocchi (andrea@nardinan.it)
+ * Copyright (C) 2016 Andrea Nardinocchi (andrea@nardinan.it)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_math_h
-#define miranda_math_h
+#ifndef miranda_geometry_h
+#define miranda_geometry_h
 #include "point.obj.h"
 #include "line.obj.h"
+#include "square.obj.h"
 #endif

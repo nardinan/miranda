@@ -19,7 +19,6 @@
 #define miranda_media_field_h
 #include "label.obj.h"
 #define d_field_bucket 32
-#define d_field_default_line_size 1
 #define d_field_default_R 0
 #define d_field_default_G 0
 #define d_field_default_B 0

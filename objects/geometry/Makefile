@@ -1,10 +1,10 @@
-objects = point.obj.o line.obj.o
-name = miranda_math
+objects = point.obj.o line.obj.o square.obj.o
+name = miranda_geometry
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
-libs = -L.. -L../.. -lpthread -lmiranda_ground -lmiranda_objects
+libs = -L.. -L../.. -lm -lpthread -lmiranda_ground -lmiranda_objects
 executable = lib$(name).so
 
 all: $(objects)
@@ -15,6 +15,9 @@ point.obj.o: point.obj.c point.obj.h ../memory.obj.h ../mutex.obj.h ../../math.l
 
 line.obj.o: line.obj.c line.obj.h point.obj.h
 	$(cc) $(cflags) line.obj.c
+
+square.obj.o: square.obj.c square.obj.h point.obj.h
+	$(cc) $(cflags) square.obj.c
 
 clean:
 	rm -f *.o

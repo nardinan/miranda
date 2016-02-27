@@ -18,7 +18,6 @@
 #ifndef miranda_media_particle_h
 #define miranda_media_particle_h
 #include <sys/time.h>
-#include <math.h>
 #include "environment.obj.h"
 #define d_particle_cores 2048
 #define d_particle_randomizeF(obj,key) ((obj)->configuration.minimum.key+(d_math_frand*((obj)->configuration.maximum.key-(obj)->configuration.minimum.key)))

@@ -17,6 +17,7 @@
  */
 #ifndef miranda_object_line_h
 #define miranda_object_line_h
+#include <math.h>
 #include "point.obj.h"
 d_declare_class(line) {
 	struct s_attributes head;

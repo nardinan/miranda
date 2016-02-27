@@ -88,10 +88,8 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
 	center.y = center_y;
 	SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
 			drawable_attributes->flip);
-	if ((drawable_attributes->flags&e_drawable_kind_contour) == e_drawable_kind_contour) {
-		SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);
-		SDL_RenderDrawRect(environment_attributes->renderer, &destination);
-	}
+	if ((drawable_attributes->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
+		d_call(self, m_drawable_draw_contour, environment);
 	d_cast_return(d_drawable_return_last);
 }
 

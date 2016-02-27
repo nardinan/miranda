@@ -186,6 +186,8 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 							environment_attributes->current_h,
 							environment_attributes->zoom)))
 				while (((int)d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
+			if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
+				d_call(particle_attributes->drawable_core, m_drawable_draw_contour, environment);
 		}
 	d_cast_return(d_drawable_return_last);
 }
