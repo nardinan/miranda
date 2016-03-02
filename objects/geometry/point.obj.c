@@ -30,6 +30,14 @@ struct s_object *f_point_new(struct s_object *self, double x, double y) {
 	return self;
 }
 
+d_define_method(point, set_point)(struct s_object *self, struct s_object *source) {
+	d_using(point);
+	struct s_point_attributes *point_attributes_source = d_cast(source, point);
+	point_attributes->x = point_attributes_source->x;
+	point_attributes->y = point_attributes_source->y;
+	return self;
+}
+
 d_define_method(point, set_x)(struct s_object *self, double x) {
 	d_using(point);
 	point_attributes->x = x;
@@ -78,6 +86,7 @@ d_define_method(point, distance)(struct s_object *self, struct s_object *point, 
 }
 
 d_define_class(point) {
+	d_hook_method(point, e_flag_public, set_point),
 	d_hook_method(point, e_flag_public, set_x),
 	d_hook_method(point, e_flag_public, set_y),
 	d_hook_method(point, e_flag_public, get),
