@@ -60,8 +60,8 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
 	double position_x, position_y, dimension_w, dimension_h;
 	int mouse_x, mouse_y;
 	if (uiable_attributes->selected_mode != e_uiable_mode_idle) {
-		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
-		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
+		d_call(&(drawable_attributes->point_destination), m_point_get, &position_x, &position_y);
+		d_call(&(drawable_attributes->point_dimension), m_point_get, &dimension_w, &dimension_h);
 		SDL_GetMouseState(&mouse_x, &mouse_y);
 		if (current_event->type == SDL_MOUSEWHEEL)
 			if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, (double)mouse_x, (double)mouse_y))) {
@@ -80,36 +80,36 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
 	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
 				     *drawable_attributes_image;
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-	double position_x_self, position_y_self, dimension_w_self, dimension_h_self, dimension_w_image, dimension_h_image, center_x_self, center_y_self,
-	       position_x, position_y, center_x, center_y;
+	double position_x_self, position_y_self, dimension_w_self, dimension_h_self, normalized_dimension_w_self, normalized_dimension_h_self, center_x_self,
+	       center_y_self, dimension_w_image, dimension_h_image, normalized_dimension_w_image, normalized_dimension_h_image, position_x, position_y,
+	       center_x, center_y, size_ratio;
 	int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	if (scroll_attributes->image) {
 		drawable_attributes_image = d_cast(scroll_attributes->image, drawable);
-		d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
+		d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &position_x_self, &position_y_self);
 		d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
-		d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x_self, &center_y_self);
+		d_call(&(drawable_attributes_self->point_normalized_dimension), m_point_get, &normalized_dimension_w_self, &normalized_dimension_h_self);
+		d_call(&(drawable_attributes_self->point_normalized_center), m_point_get, &center_x_self, &center_y_self);
 		d_call(&(drawable_attributes_image->point_dimension), m_point_get, &dimension_w_image, &dimension_h_image);
-		position_x = position_x_self - ((dimension_w_image - dimension_w_self)/2.0);
+		d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_get, &normalized_dimension_w_image, &normalized_dimension_h_image);
+		size_ratio = (normalized_dimension_h_self/dimension_h_self);
+		position_x = position_x_self - ((normalized_dimension_w_image - normalized_dimension_w_self)/2.0);
 		position_y = position_y_self + (((double)(scroll_attributes->position - scroll_attributes->minimum)/
 					(double)(scroll_attributes->maximum - scroll_attributes->minimum)) *
-				d_math_max((dimension_h_self - dimension_h_image), 0));
+				d_math_max((normalized_dimension_h_self - normalized_dimension_h_image), 0));
 		center_x = (position_x_self + center_x_self) - position_x;
 		center_y = (position_y_self + center_y_self) - position_y;
 		d_call(scroll_attributes->image, m_drawable_set_position, position_x, position_y);
 		d_call(scroll_attributes->image, m_drawable_set_center, center_x, center_y);
-		drawable_attributes_image->zoom = (drawable_attributes_self->zoom * environment_attributes->zoom);
 		drawable_attributes_image->angle = drawable_attributes_self->angle;
 		drawable_attributes_image->flip = drawable_attributes_self->flip;
-		if ((d_call(scroll_attributes->image, m_drawable_normalize_scale, environment_attributes->reference_w,
-						environment_attributes->reference_h,
-						environment_attributes->camera_origin_x,
-						environment_attributes->camera_origin_y,
-						environment_attributes->camera_focus_x,
-						environment_attributes->camera_focus_y,
+		if ((d_call(scroll_attributes->image, m_drawable_keep_scale,
 						environment_attributes->current_w,
-						environment_attributes->current_h,
-						(double)1.0)))
+						environment_attributes->current_h))) {
+			d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_x, (double)(dimension_w_image * size_ratio));
+			d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_y, (double)(dimension_h_image * size_ratio));
 			while (((int)d_call(scroll_attributes->image, m_drawable_draw, environment)) == d_drawable_return_continue);
+		}
 	}
 	d_cast_return(result);
 }

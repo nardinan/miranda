@@ -160,10 +160,10 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
 	for (index = 0; index < particle_attributes->configuration.particles; ++index)
 		if (particle_attributes->particles[index].alive) {
-			normalized_R = ((particle_attributes->particles[index].core.mask_R/255.0)*(particle_attributes->mask_R/255.0))*255.0;
-			normalized_G = ((particle_attributes->particles[index].core.mask_G/255.0)*(particle_attributes->mask_G/255.0))*255.0;
-			normalized_B = ((particle_attributes->particles[index].core.mask_B/255.0)*(particle_attributes->mask_B/255.0))*255.0;
-			normalized_A = ((particle_attributes->particles[index].core.mask_A/255.0)*(particle_attributes->mask_A/255.0))*255.0;
+			normalized_R = ((particle_attributes->particles[index].core.mask_R/255.0) * (particle_attributes->mask_R/255.0)) * 255.0;
+			normalized_G = ((particle_attributes->particles[index].core.mask_G/255.0) * (particle_attributes->mask_G/255.0)) * 255.0;
+			normalized_B = ((particle_attributes->particles[index].core.mask_B/255.0) * (particle_attributes->mask_B/255.0)) * 255.0;
+			normalized_A = ((particle_attributes->particles[index].core.mask_A/255.0) * (particle_attributes->mask_A/255.0)) * 255.0;
 			d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB,
 					(unsigned int)normalized_R,
 					(unsigned int)normalized_G,

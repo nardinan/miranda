@@ -94,7 +94,7 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 				     *drawable_attributes_core;
 	double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_uiable_component_NULL], component_h[e_uiable_component_NULL];
 	int index;
-	d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_x, &local_y);
+	d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &local_x, &local_y);
 	d_call(&(drawable_attributes_self->point_normalized_dimension), m_point_get, &local_w, &local_h);
 	d_call(&(drawable_attributes_self->point_normalized_center), m_point_get, &center_x, &center_y);
 	for (index = 0; index < e_uiable_component_NULL; ++index)
@@ -190,16 +190,9 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 			drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
 			drawable_attributes_core->angle = drawable_attributes_self->angle;
 			/* doesn't inerith the flip (this object, the uiable, doesn't flip) and the zoom is hardcoded to one */
-			if ((d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_normalize_scale,
-							environment_attributes->reference_w,
-							environment_attributes->reference_h,
-							environment_attributes->camera_origin_x,
-							environment_attributes->camera_origin_y,
-							environment_attributes->camera_focus_x,
-							environment_attributes->camera_focus_y,
+			if ((d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_keep_scale,
 							environment_attributes->current_w,
-							environment_attributes->current_h,
-							(double)1.0)))
+							environment_attributes->current_h)))
 				while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
 						d_drawable_return_continue);
 		}

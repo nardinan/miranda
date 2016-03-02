@@ -40,7 +40,7 @@ struct s_object *f_field_new_alignment(struct s_object *self, char *string_conte
 	return self;
 }
 
-d_define_method(field, set_cursor)(struct s_object *self, double red, double green, double blue, double alpha) {
+d_define_method(field, set_cursor)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
 	d_using(field);
 	field_attributes->last_cursor_R = red;
 	field_attributes->last_cursor_G = green;
@@ -126,8 +126,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	char buffer[d_string_buffer_size], *string_subcontent;
 	int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
-	double position_x, position_y, dimension_w = 0, normalized_dimension_w, normalized_dimension_h, center_x, center_y, normalized_center_x,
-	       normalized_center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
+	double position_x, position_y, dimension_w, dimension_h, new_dimension_w = 0, center_x, center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
 	       radians = (drawable_attributes->angle * d_math_pi)/180.0;
 	size_t string_length = f_string_strlen(label_attributes->string_content);
 	SDL_Surface *unoptimized_surface;
@@ -138,18 +137,16 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 		255
 	};
 	if (uiable_attributes->selected_mode == e_uiable_mode_selected) {
-		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &normalized_dimension_w, &normalized_dimension_h);
 		d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
+		d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
 		d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
-		normalized_center_x = position_x + center_x;
-		normalized_center_y = position_y + center_y;
-		width_factor = (normalized_dimension_w/label_attributes->last_width);
+		width_factor = (dimension_w / label_attributes->last_width);
 		if ((field_attributes->pointer > 0) && (field_attributes->pointer < string_length) && (string_length > 0)) {
 			if ((string_subcontent = (char *)d_malloc(field_attributes->pointer + 1))) {
 				strncpy(string_subcontent, label_attributes->string_content, field_attributes->pointer);
 				/* we should be sure that the font exits */
 				if ((unoptimized_surface = TTF_RenderText_Blended(label_attributes->last_font, string_subcontent, white))) {
-					dimension_w = unoptimized_surface->w;
+					new_dimension_w = (unoptimized_surface->w - label_attributes->last_source.x) * width_factor;
 					SDL_FreeSurface(unoptimized_surface);
 				} else {
 					snprintf(buffer, d_string_buffer_size, "ungenerable texture for label \"%s\" exception",
@@ -160,14 +157,15 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 			} else
 				d_die(d_error_malloc);
 		} else if ((field_attributes->pointer == string_length) && (string_length > 0))
-			dimension_w = label_attributes->string_width;
-		top_x = label_attributes->last_destination.x + (dimension_w * width_factor) - (label_attributes->last_source.x * width_factor) + 1;
+			new_dimension_w = label_attributes->last_destination.w;
+		top_x = label_attributes->last_destination.x + new_dimension_w + d_field_cursor_offset;
 		top_y = label_attributes->last_destination.y;
 		bottom_x = top_x;
 		bottom_y = top_y + label_attributes->last_destination.h;
-		p_square_normalize_coordinate(NULL, top_x, top_y, normalized_center_x, normalized_center_y, radians, &top_x, &top_y);
-		p_square_normalize_coordinate(NULL, bottom_x, bottom_y, normalized_center_x, normalized_center_y, radians, &bottom_x, &bottom_y);
-		if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, top_x, top_y))) {
+		p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), radians, &top_x, &top_y);
+		p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), radians, &bottom_x, &bottom_y);
+		if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, top_x + (fabs(bottom_x - top_x)/2.0),
+						top_y + (fabs(bottom_y - top_y)/2.0))) {
 			SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
 					field_attributes->last_cursor_R, field_attributes->last_cursor_A);
 			SDL_RenderDrawLine(environment_attributes->renderer, top_x, top_y, bottom_x, bottom_y);
