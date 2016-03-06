@@ -223,6 +223,9 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
 		center.y = (position_y + center_y) - destination.y;
 		label_attributes->last_source = source;
 		label_attributes->last_destination = destination;
+		SDL_SetTextureColorMod(label_attributes->image, label_attributes->last_mask_R, label_attributes->last_mask_G, label_attributes->last_mask_B);
+		SDL_SetTextureAlphaMod(label_attributes->image, label_attributes->last_mask_A);
+		SDL_SetTextureBlendMode(label_attributes->image, label_attributes->last_blend);
 		SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
 				drawable_attributes->flip);
 	}
@@ -234,26 +237,30 @@ d_define_method_override(label, set_maskRGB)(struct s_object *self, unsigned int
 	label_attributes->last_mask_R = red;
 	label_attributes->last_mask_G = green;
 	label_attributes->last_mask_B = blue;
-	SDL_SetTextureColorMod(label_attributes->image, red, green, blue);
+	if (label_attributes->image)
+		SDL_SetTextureColorMod(label_attributes->image, red, green, blue);
 	return self;
 }
 
 d_define_method_override(label, set_maskA)(struct s_object *self, unsigned int alpha) {
 	d_using(label);
 	label_attributes->last_mask_A = alpha;
-	SDL_SetTextureAlphaMod(label_attributes->image, alpha);
+	if (label_attributes->image)
+		SDL_SetTextureAlphaMod(label_attributes->image, alpha);
 	return self;
 }
 
 d_define_method_override(label, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
 	d_using(label);
 	label_attributes->last_blend = blend;
-	SDL_SetTextureBlendMode(label_attributes->image, blend);
+	if (label_attributes->image)
+		SDL_SetTextureBlendMode(label_attributes->image, blend);
 	return self;
 }
 
 d_define_method(label, delete)(struct s_object *self, struct s_label_attributes *attributes) {
-	SDL_DestroyTexture(attributes->image);
+	if (attributes->image)
+		SDL_DestroyTexture(attributes->image);
 	if (attributes->string_content)
 		d_free(attributes->string_content);
 	return NULL;
