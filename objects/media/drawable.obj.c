@@ -239,6 +239,7 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
 	d_delete(&(attributes->point_normalized_dimension));
 	d_delete(&(attributes->point_center));
 	d_delete(&(attributes->point_normalized_center));
+	d_delete(&(attributes->square_collision_box));
 	return NULL;
 }
 
