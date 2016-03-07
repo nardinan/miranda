@@ -82,26 +82,32 @@ d_define_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blen
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
 		double focus_x, double focus_y, double current_w, double current_h, double zoom) {
 	d_using(drawable);
-	double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y, this_zoom;
+	double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y;
 	struct s_object *result = self;
 	d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
 	d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
 	d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);
-	new_x = (this_x + this_center_x) - (this_center_x * drawable_attributes->zoom);
-	new_y = (this_y + this_center_y) - (this_center_y * drawable_attributes->zoom);
-	new_x = (new_x + focus_x) - (focus_x * zoom);
-	new_y = (new_y + focus_y) - (focus_y * zoom);
-	this_zoom = drawable_attributes->zoom * zoom;
-	new_w = this_w * this_zoom;
-	new_h = this_h * this_zoom;
-	new_center_x = this_center_x * this_zoom;
-	new_center_y = this_center_y * this_zoom;
-	new_x = (new_x * current_w)/reference_w - offset_x;
-	new_y = (new_y * current_h)/reference_h - offset_y;
-	new_w = (new_w * current_w)/reference_w;
-	new_h = (new_h * current_h)/reference_h;
+	/* global zoom */
+	new_x = focus_x - ((focus_x - this_x) * zoom);
+	new_y = focus_y - ((focus_y - this_y) * zoom);
+	new_center_x = this_center_x * zoom;
+	new_center_y = this_center_y * zoom;
+	new_w = this_w * zoom;
+	new_h = this_h * zoom;
+	/* local zoom */
+	new_x = (new_x + new_center_x) - (new_center_x * drawable_attributes->zoom);
+	new_y = (new_y + new_center_y) - (new_center_y * drawable_attributes->zoom);
+	new_center_x = new_center_x * drawable_attributes->zoom;
+	new_center_y = new_center_y * drawable_attributes->zoom;
+	new_w = new_w * drawable_attributes->zoom;
+	new_h = new_h * drawable_attributes->zoom;
+	/* screen scale */
 	new_center_x = (new_center_x * current_w)/reference_w;
 	new_center_y = (new_center_y * current_h)/reference_h;
+	new_x = (new_x * current_w)/reference_w;
+	new_y = (new_y * current_h)/reference_h;
+	new_w = (new_w * current_w)/reference_w;
+	new_h = (new_h * current_h)/reference_h;
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_x, new_x);
 	d_call(&(drawable_attributes->point_normalized_destination), m_point_set_y, new_y);
 	d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_x, new_w);
