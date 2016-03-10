@@ -60,6 +60,16 @@ d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable
 
 d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable) {
 	d_using(list);
+	struct s_object *current_entry = uiable;
+	int index = 0;
+	while (((struct s_list_node *)current_entry)->back) {
+		current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
+		++index;
+	}
+	if (list_attributes->selected > index)
+		--list_attributes->selected;
+	else if (list_attributes->selected == index)
+		list_attributes->selected = d_list_selected_NULL;
 	f_list_delete(&(list_attributes->uiables), (struct s_list_node *)uiable);
 	d_delete(uiable);
 	return uiable;
@@ -107,8 +117,9 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
 	d_using(list);
 	struct s_uiable_attributes *uiable_attributes_entry;
 	struct s_object *current_entry;
-	struct s_object *result = d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
+	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
 	int index = 0;
+	d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
 	d_foreach(&(list_attributes->uiables), current_entry, struct s_object)
 		d_call(current_entry, m_eventable_event, environment, current_event);
 	d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
@@ -116,7 +127,7 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
 		if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
 			if (list_attributes->selected != index) {
 				list_attributes->selected = index;
-				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
 			}
 			break;
 		}

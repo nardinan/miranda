@@ -43,6 +43,7 @@ enum e_uiable_signals {
 	e_uiable_signal_clicked_left,
 	e_uiable_signal_clicked_right,
 	e_uiable_signal_changed,
+	e_uiable_signal_content_changed,
 	e_uiable_signal_NULL
 } e_uiable_signals;
 extern unsigned int v_uiable_id;

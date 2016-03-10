@@ -39,6 +39,7 @@ const char *v_uiable_signals[e_uiable_signal_NULL] = {
 	"clicked_left",
 	"clicked_right",
 	"changed",
+	"content_changed"
 };
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
 	struct s_uiable_attributes *result = d_prepare(self, uiable);
