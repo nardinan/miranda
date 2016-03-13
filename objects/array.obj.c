@@ -199,12 +199,12 @@ d_define_method(array, hash)(struct s_object *self, t_hash_value *value) {
 
 d_define_method(array, compare)(struct s_object *self, struct s_object *other) {
 	d_using(array);
-	struct s_array_attributes *other_attributes = d_cast(other, array);
+	struct s_array_attributes *array_attributes_other = d_cast(other, array);
 	struct s_object *result = NULL;
 	int index, compare = 0;
-	if (((compare = (array_attributes->size-other_attributes->size)) == 0) && ((compare = (array_attributes->elements-other_attributes->elements)) == 0))
+	if (((compare = (array_attributes->size-array_attributes_other->size)) == 0) && ((compare = (array_attributes->elements-array_attributes_other->elements)) == 0))
 		for (index = 0; (index < array_attributes->size) && (compare == 0); ++index)
-			compare = (array_attributes->content[index]-other_attributes->content[index]);
+			compare = (array_attributes->content[index]-array_attributes_other->content[index]);
 	if (compare < 0)
 		result = self;
 	else if (compare > 0)

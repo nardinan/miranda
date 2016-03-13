@@ -208,7 +208,7 @@ d_define_method_override(uiable, event)(struct s_object *self, struct s_object *
 	int mouse_x, mouse_y;
 	if (uiable_attributes->selected_mode != e_uiable_mode_idle) { /* is not off */
 		SDL_GetMouseState(&mouse_x, &mouse_y);
-		if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_is_set_inside, (double)mouse_x, (double)mouse_y))) {
+		if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
 			if (!uiable_attributes->is_selected) {
 				uiable_attributes->is_selected = d_true;
 				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);

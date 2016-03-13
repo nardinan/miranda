@@ -83,10 +83,10 @@ d_define_method(string, trim)(struct s_object *self) {
 
 d_define_method(string, append)(struct s_object *self, struct s_object *other) {
 	d_using(string);
-	struct s_string_attributes *other_attributes = d_cast(other, string);
+	struct s_string_attributes *string_attributes_other = d_cast(other, string);
 	size_t length;
 	if ((!string_attributes->flags.constant) && (length = f_string_strlen(string_attributes->content))) {
-		f_string_append(&(string_attributes->content), other_attributes->content, &length);
+		f_string_append(&(string_attributes->content), string_attributes_other->content, &length);
 		string_attributes->length = f_string_strlen(string_attributes->content);
 	}
 	return self;
@@ -170,10 +170,10 @@ d_define_method(string, hash)(struct s_object *self, t_hash_value *value) {
 
 d_define_method(string, compare)(struct s_object *self, struct s_object *other) {
 	d_using(string);
-	struct s_string_attributes *other_attributes = d_cast(other, string);
+	struct s_string_attributes *string_attributes_other = d_cast(other, string);
 	struct s_object *result = NULL;
 	int compare;
-	if ((compare = f_string_strcmp(string_attributes->content, other_attributes->content)) > 0)
+	if ((compare = f_string_strcmp(string_attributes->content, string_attributes_other->content)) > 0)
 		result = self;
 	else if (compare < 0)
 		result = other;

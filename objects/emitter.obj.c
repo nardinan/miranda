@@ -65,7 +65,7 @@ d_define_method(emitter, raise)(struct s_object *self, const char *id) {
 	struct s_signal *signal;
 	void *result = NULL;
 	if ((signal = d_call(self, m_emitter_get, id))) {
-		d_log(e_log_level_medium, "signal '%s' has been raised from %s (%s::%d)", id, self->type, self->file, self->line);
+		d_log(e_log_level_high, "signal '%s' has been raised from %s (%s::%d)", id, self->type, self->file, self->line);
 		if (signal->action)
 			result = signal->action(self, signal->parameters, signal->parameters_size);
 	}

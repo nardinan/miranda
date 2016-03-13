@@ -16,7 +16,7 @@ point.obj.o: point.obj.c point.obj.h ../memory.obj.h ../mutex.obj.h ../../math.l
 line.obj.o: line.obj.c line.obj.h point.obj.h
 	$(cc) $(cflags) line.obj.c
 
-square.obj.o: square.obj.c square.obj.h point.obj.h
+square.obj.o: square.obj.c square.obj.h line.obj.h
 	$(cc) $(cflags) square.obj.c
 
 clean:
