@@ -32,6 +32,7 @@ d_declare_method(line, set_ending_x)(struct s_object *self, double ending_x);
 d_declare_method(line, set_ending_y)(struct s_object *self, double ending_y);
 d_declare_method(line, get)(struct s_object *self, double *starting_x, double *starting_y, double *ending_x, double *ending_y);
 d_declare_method(line, intersect)(struct s_object *self, struct s_object *other);
-d_declare_method(line, intersect_point)(struct s_object *self, struct s_object *other, struct s_object *intersect);
+d_declare_method(line, intersect_coordinates)(struct s_object *self, double starting_x_A, double starting_y_A, double ending_x_A, double ending_y_A,
+		double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B);
 #endif
 

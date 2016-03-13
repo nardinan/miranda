@@ -32,8 +32,8 @@ struct s_object *f_line_new(struct s_object *self, double starting_x, double sta
 }
 
 struct s_object *f_line_new_points(struct s_object *self, struct s_object *point_starting, struct s_object *point_ending) {
-	struct s_point_attributes *starting_attributes = d_cast(point_starting, point), *ending_attributes = d_cast(point_ending, point);
-	return f_line_new(self, starting_attributes->x, starting_attributes->y, ending_attributes->x, ending_attributes->y);
+	struct s_point_attributes *point_attributes_starting = d_cast(point_starting, point), *point_attributes_ending = d_cast(point_ending, point);
+	return f_line_new(self, point_attributes_starting->x, point_attributes_starting->y, point_attributes_ending->x, point_attributes_ending->y);
 }
 
 d_define_method(line, set_starting_x)(struct s_object *self, double starting_x, t_boolean keep_ratio) {
@@ -78,41 +78,25 @@ d_define_method(line, get)(struct s_object *self, double *starting_x, double *st
 }
 
 d_define_method(line, intersect)(struct s_object *self, struct s_object *other) {
-	return d_call(self, m_line_intersect_point, other, NULL);
+	d_using(line);
+	struct s_line_attributes *line_attributes_other = d_cast(other, line);
+	return d_call(self, m_line_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x,
+			line_attributes->ending_y, line_attributes_other->starting_x, line_attributes_other->starting_y, line_attributes_other->ending_x,
+			line_attributes_other->ending_y);
 }
 
-d_define_method(line, intersect_point)(struct s_object *self, struct s_object *other, struct s_object *intersection) {
-	d_using(line);
-	struct s_line_attributes *other_attributes = d_cast(other, line);
-	struct s_point_attributes *intersection_attributes;
-	double projection_A_ending_x, projection_A_ending_y, projection_B_starting_x, projection_B_starting_y, projection_B_ending_x, projection_B_ending_y,
-	      size_A, cos, sin, rotated_B_starting_x, rotated_B_starting_y, rotated_B_ending_x, rotated_B_ending_y, intersection_position;
+d_define_method(line, intersect_coordinates)(struct s_object *self, double starting_x_A, double starting_y_A, double ending_x_A, double ending_y_A,
+		double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B) {
+	double length_x_A, length_y_A, length_x_B, length_y_B, s, t;
 	t_boolean result = d_false;
-	projection_A_ending_x = line_attributes->ending_x - line_attributes->starting_x;
-	projection_A_ending_y = line_attributes->ending_y - line_attributes->starting_y;
-	projection_B_starting_x = other_attributes->starting_x - line_attributes->starting_x;
-	projection_B_starting_y = other_attributes->starting_y - line_attributes->starting_y;
-	projection_B_ending_x = other_attributes->ending_x - line_attributes->starting_x;
-	projection_B_ending_y = other_attributes->ending_y - line_attributes->starting_y;
-	size_A = f_math_sqrt((projection_A_ending_x*projection_A_ending_x) + (projection_B_ending_y*projection_B_ending_y), d_math_default_precision);
-	cos = projection_A_ending_x/size_A;
-	sin = projection_A_ending_y/size_A;
-	rotated_B_starting_x = (projection_B_starting_x * cos) + (projection_B_starting_y * sin);
-	rotated_B_starting_y = (projection_B_starting_y * cos) - (projection_B_starting_x * sin);
-	rotated_B_ending_x = (projection_B_ending_x * cos) + (projection_B_ending_y * sin);
-	rotated_B_ending_y = (projection_B_ending_y * cos) - (projection_B_ending_x * sin);
-	if (((rotated_B_starting_y >= 0) && (rotated_B_ending_y < 0)) || ((rotated_B_starting_y < 0) && (rotated_B_ending_y >= 0))) {
-		intersection_position = rotated_B_ending_x + (rotated_B_starting_x - rotated_B_ending_x) * rotated_B_ending_y /
-			(rotated_B_ending_y - rotated_B_starting_y);
-		if ((intersection_position >= 0) && (intersection_position <= size_A)) {
-			if (intersection)
-				if ((intersection_attributes = d_cast(intersection, point))) {
-					intersection_attributes->x = line_attributes->starting_x + (intersection_position * cos);
-					intersection_attributes->y = line_attributes->starting_y + (intersection_position * sin);
-				}
-			result = d_true;
-		}
-	}
+	length_x_A = ending_x_A - starting_x_A;
+	length_y_A = ending_y_A - starting_y_A;
+	length_x_B = ending_x_B - starting_x_B;
+	length_y_B = ending_y_B - starting_y_B;
+	s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / (-length_x_B * length_y_A + length_x_A * length_y_B);
+	t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / (-length_x_B * length_y_A + length_x_A * length_y_B);
+	if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1))
+		result = d_true;
 	d_cast_return(result);
 }
 
@@ -123,6 +107,6 @@ d_define_class(line) {
 	d_hook_method(line, e_flag_public, set_ending_y),
 	d_hook_method(line, e_flag_public, get),
 	d_hook_method(line, e_flag_public, intersect),
-	d_hook_method(line, e_flag_public, intersect_point),
+	d_hook_method(line, e_flag_public, intersect_coordinates),
 	d_hook_method_tail
 };

@@ -73,12 +73,12 @@ d_define_method(point, subtract)(struct s_object *self, double x, double y) {
 	return self;
 }
 
-d_define_method(point, distance)(struct s_object *self, struct s_object *point, double *distance, double *distance_square) {
+d_define_method(point, distance)(struct s_object *self, struct s_object *other, double *distance, double *distance_square) {
 	d_using(point);
-	struct s_point_attributes *other_attributes = d_cast(point, point);
+	struct s_point_attributes *point_attributes_other = d_cast(other, point);
 	double current_distance_square;
-	current_distance_square = ((point_attributes->x - other_attributes->x) * (point_attributes->x - other_attributes->x)) +
-		((point_attributes->y - other_attributes->y) * (point_attributes->y - other_attributes->y));
+	current_distance_square = ((point_attributes->x - point_attributes_other->x) * (point_attributes->x - point_attributes_other->x)) +
+		((point_attributes->y - point_attributes_other->y) * (point_attributes->y - point_attributes_other->y));
 	if (distance_square)
 		*distance_square = current_distance_square;
 	*distance = f_math_sqrt(current_distance_square, d_point_precision_default);

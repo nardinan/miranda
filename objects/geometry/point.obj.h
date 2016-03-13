@@ -33,6 +33,6 @@ d_declare_method(point, set_y)(struct s_object *self, double y);
 d_declare_method(point, get)(struct s_object *self, double *x, double *y);
 d_declare_method(point, add)(struct s_object *self, double x, double y);
 d_declare_method(point, subtract)(struct s_object *self, double x, double y);
-d_declare_method(point, distance)(struct s_object *self, struct s_object *point, double *distance, double *distance_square);
+d_declare_method(point, distance)(struct s_object *self, struct s_object *other, double *distance, double *distance_square);
 #endif
 

@@ -17,7 +17,7 @@
  */
 #ifndef miranda_object_square_h
 #define miranda_object_square_h
-#include "point.obj.h"
+#include "line.obj.h"
 d_declare_class(square) {
 	struct s_attributes head;
 	double top_left_x, top_left_y, bottom_right_x, bottom_right_y, center_x, center_y, angle, normalized_top_left_x, normalized_top_left_y,
@@ -37,7 +37,8 @@ d_declare_method(square, set_center)(struct s_object *self, double center_x, dou
 d_declare_method(square, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
 		double radians, double *normalized_x, double *normalized_y);
 d_declare_method(square, normalize)(struct s_object *self);
-d_declare_method(square, is_point_inside)(struct s_object *self, struct s_object *point);
-d_declare_method(square, is_set_inside)(struct s_object *self, double x, double y);
+d_declare_method(square, inside)(struct s_object *self, struct s_object *point);
+d_declare_method(square, inside_coordinates)(struct s_object *self, double x, double y);
+d_declare_method(square, collision)(struct s_object *self, struct s_object *other);
 #endif
 

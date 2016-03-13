@@ -115,12 +115,12 @@ d_define_method(square, normalize)(struct s_object *self) {
 	return self;
 }
 
-d_define_method(square, is_point_inside)(struct s_object *self, struct s_object *point) {
+d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 	struct s_point_attributes *point_attributes = d_cast(point, point);
-	return d_call(self, m_square_is_set_inside, point_attributes->x, point_attributes->y);
+	return d_call(self, m_square_inside_coordinates, point_attributes->x, point_attributes->y);
 }
 
-d_define_method(square, is_set_inside)(struct s_object *self, double x, double y) {
+d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
 	d_using(square);
 	double radians = ((360.0 - square_attributes->angle) * d_math_pi)/180.0, normalized_center_x, normalized_center_y, normalized_x, normalized_y;
 	t_boolean result = d_false;
@@ -134,6 +134,31 @@ d_define_method(square, is_set_inside)(struct s_object *self, double x, double y
 	d_cast_return(result);
 }
 
+d_define_method(square, collision)(struct s_object *self, struct s_object *other) {
+	d_using(square);
+	struct s_square_attributes *square_attributes_other = d_cast(other, square);
+	t_boolean result = d_false;
+	d_call(self, m_square_normalize, NULL);
+	d_call(other, m_square_normalize, NULL);
+	if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x,
+					square_attributes_other->normalized_top_left_y)))
+		if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x,
+						square_attributes_other->normalized_top_right_y)))
+			if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalize_bottom_right_x,
+							square_attributes_other->normalize_bottom_right_y)))
+				if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
+								square_attributes_other->normalized_bottom_left_y)))
+					if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x,
+									square_attributes->normalized_top_left_y)))
+						if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x,
+										square_attributes->normalized_top_right_y)))
+							if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalize_bottom_right_x,
+											square_attributes->normalize_bottom_right_y)))
+								result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
+										square_attributes->normalized_bottom_left_y);
+	d_cast_return(result);
+}
+
 d_define_class(square) {
 	d_hook_method(square, e_flag_public, set_top_left_x),
 	d_hook_method(square, e_flag_public, set_top_left_y),
@@ -143,7 +168,8 @@ d_define_class(square) {
 	d_hook_method(square, e_flag_public, set_center),
 	d_hook_method(square, e_flag_private, normalize_coordinate),
 	d_hook_method(square, e_flag_public, normalize),
-	d_hook_method(square, e_flag_public, is_point_inside),
-	d_hook_method(square, e_flag_public, is_set_inside),
+	d_hook_method(square, e_flag_public, inside),
+	d_hook_method(square, e_flag_public, inside_coordinates),
+	d_hook_method(square, e_flag_public, collision),
 	d_hook_method_tail
 };
