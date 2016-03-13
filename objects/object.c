@@ -52,6 +52,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 }
 
 struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags) {
+	memset(provided, 0, sizeof(struct s_object));
 	provided->type = type;
 	provided->file = file;
 	provided->line = line;
