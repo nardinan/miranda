@@ -135,11 +135,10 @@ d_define_method_override(label, set_dimension)(struct s_object *self, double w, 
 	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension, w, h);
 	label_attributes->last_width = w;
 	label_attributes->last_height = h;
-	if (label_attributes->format == e_label_background_format_fixed) {
-		drawable_attributes = d_cast(self, drawable);
-		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
-		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
-	}
+	label_attributes->format = e_label_background_format_fixed;
+	drawable_attributes = d_cast(self, drawable);
+	d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
+	d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
 	return result;
 }
 
@@ -148,10 +147,9 @@ d_define_method_override(label, set_dimension_w)(struct s_object *self, double w
 	struct s_drawable_attributes *drawable_attributes;
 	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_w, w);
 	label_attributes->last_width = w;
-	if (label_attributes->format == e_label_background_format_fixed) {
-		drawable_attributes = d_cast(self, drawable);
-		d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
-	}
+	label_attributes->format = e_label_background_format_fixed;
+	drawable_attributes = d_cast(self, drawable);
+	d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(w/2.0));
 	return result;
 }
 
@@ -160,10 +158,9 @@ d_define_method_override(label, set_dimension_h)(struct s_object *self, double h
 	struct s_drawable_attributes *drawable_attributes;
 	struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_h, h);
 	label_attributes->last_height = h;
-	if (label_attributes->format == e_label_background_format_fixed) {
-		drawable_attributes = d_cast(self, drawable);
-		d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
-	}
+	label_attributes->format = e_label_background_format_fixed;
+	drawable_attributes = d_cast(self, drawable);
+	d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(h/2.0));
 	return result;
 }
 

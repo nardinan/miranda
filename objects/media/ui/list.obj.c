@@ -144,9 +144,10 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	struct s_object *current_entry;
 	double position_x, position_y, position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, normalized_dimension_w_self,
-	       normalized_dimension_h_self, dimension_w_self, dimension_h_self, center_x_self, center_y_self, normalized_dimension_w_scroll,
-	       normalized_dimension_h_scroll, position_x_entry, position_y_entry, dimension_w_entry, dimension_h_entry, normalized_dimension_w_entry,
-	       normalized_dimension_h_entry, center_x, center_y, normalized_center_x_self, normalized_center_y_self, new_position_y;
+	       normalized_dimension_h_self, dimension_w_self, dimension_h_self, center_x_self, center_y_self, dimension_w_scroll, dimension_h_scroll,
+	       normalized_dimension_w_scroll, normalized_dimension_h_scroll, position_x_entry, position_y_entry, dimension_w_entry, dimension_h_entry,
+	       normalized_dimension_w_entry, normalized_dimension_h_entry, center_x, center_y, normalized_center_x_self, normalized_center_y_self,
+	       new_position_y;
 	int index = 0, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	drawable_attributes_scroll->angle = drawable_attributes_self->angle;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
@@ -155,6 +156,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 	d_call(&(drawable_attributes_self->point_normalized_dimension), m_point_get, &normalized_dimension_w_self, &normalized_dimension_h_self);
 	d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x_self, &center_y_self);
 	d_call(&(drawable_attributes_self->point_normalized_center), m_point_get, &normalized_center_x_self, &normalized_center_y_self);
+	d_call(&(drawable_attributes_scroll->point_dimension), m_point_get, &dimension_w_scroll, &dimension_h_scroll);
 	d_call(list_attributes->scroll, m_drawable_set_dimension_h, dimension_h_self);
 	drawable_attributes_scroll->angle = drawable_attributes_self->angle;
 	drawable_attributes_scroll->zoom = drawable_attributes_self->zoom;
@@ -192,6 +194,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 				center_x = center_x_self;
 				center_y = (position_y_self + center_y_self) - new_position_y;
 				d_call(current_entry, m_drawable_set_position, position_x_self, new_position_y);
+				d_call(current_entry, m_drawable_set_dimension_w, (dimension_w_self - dimension_w_scroll));
 				d_call(current_entry, m_drawable_set_center, center_x, center_y);
 				drawable_attributes_entry->angle = drawable_attributes_self->angle;
 				drawable_attributes_entry->zoom = drawable_attributes_self->zoom;
