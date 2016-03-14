@@ -155,15 +155,15 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
 		drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
 		drawable_attributes_core->angle = drawable_attributes_self->angle;
 		drawable_attributes_core->flip = drawable_attributes_self->flip;
-		if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, environment_attributes->reference_w,
-						environment_attributes->reference_h,
-						environment_attributes->camera_origin_x,
-						environment_attributes->camera_origin_y,
-						environment_attributes->camera_focus_x,
-						environment_attributes->camera_focus_y,
+		if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
+						environment_attributes->reference_h[environment_attributes->current_surface],
+						environment_attributes->camera_origin_x[environment_attributes->current_surface],
+						environment_attributes->camera_origin_y[environment_attributes->current_surface],
+						environment_attributes->camera_focus_x[environment_attributes->current_surface],
+						environment_attributes->camera_focus_y[environment_attributes->current_surface],
 						environment_attributes->current_w,
 						environment_attributes->current_h,
-						environment_attributes->zoom)))
+						environment_attributes->zoom[environment_attributes->current_surface])))
 			while (((int)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
 
 	}

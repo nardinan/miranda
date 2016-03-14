@@ -176,15 +176,15 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 			drawable_attributes_core->zoom = (particle_attributes->particles[index].core.zoom * drawable_attributes_self->zoom);
 			drawable_attributes_core->angle = (particle_attributes->particles[index].core.angle + drawable_attributes_self->angle);
 			drawable_attributes_core->flip = drawable_attributes_self->flip;
-			if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, environment_attributes->reference_w,
-							environment_attributes->reference_h,
-							environment_attributes->camera_origin_x,
-							environment_attributes->camera_origin_y,
-							environment_attributes->camera_focus_x,
-							environment_attributes->camera_focus_y,
+			if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
+							environment_attributes->reference_h[environment_attributes->current_surface],
+							environment_attributes->camera_origin_x[environment_attributes->current_surface],
+							environment_attributes->camera_origin_y[environment_attributes->current_surface],
+							environment_attributes->camera_focus_x[environment_attributes->current_surface],
+							environment_attributes->camera_focus_y[environment_attributes->current_surface],
 							environment_attributes->current_w,
 							environment_attributes->current_h,
-							environment_attributes->zoom)))
+							environment_attributes->zoom[environment_attributes->current_surface])))
 				while (((int)d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
 			if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
 				d_call(particle_attributes->drawable_core, m_drawable_draw_contour, environment);

@@ -77,15 +77,15 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 	}
 	attributes->fps = d_environment_default_fps;
 	/* geometry */
-	attributes->reference_w = d_environment_default_reference_w;
-	attributes->reference_h = d_environment_default_reference_h;
 	attributes->current_w = width;
 	attributes->current_h = height;
-	attributes->camera_origin_x = 0;
-	attributes->camera_origin_y = 0;
-	attributes->camera_focus_x = (width / 2.0);
-	attributes->camera_focus_y = (height / 2.0);
-	attributes->zoom = 1;
+	for (index = 0; index < e_environment_surface_NULL; ++index) {
+		attributes->reference_w[index] = d_environment_default_reference_w;
+		attributes->reference_h[index] = d_environment_default_reference_h;
+		attributes->camera_focus_x[index] = (width / 2.0);
+		attributes->camera_focus_y[index] = (height / 2.0);
+		attributes->zoom[index] = 1;
+	}
 	attributes->continue_loop = d_true;
 	return self;
 }
@@ -123,47 +123,63 @@ d_define_method(environment, get_size)(struct s_object *self, int *width, int *h
 	return self;
 }
 
-d_define_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y) {
+d_define_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y, enum e_environment_surfaces surface) {
 	d_using(environment);
-	environment_attributes->camera_origin_x = offset_x;
-	environment_attributes->camera_origin_y = offset_y;
+	environment_attributes->camera_origin_x[surface] = offset_x;
+	environment_attributes->camera_origin_y[surface] = offset_y;
 	return self;
 }
 
-d_define_method(environment, get_camera)(struct s_object *self, double *offset_x, double *offset_y) {
+d_define_method(environment, get_camera)(struct s_object *self, double *offset_x, double *offset_y, enum e_environment_surfaces surface) {
 	d_using(environment);
 	if (offset_x)
-		*offset_x = environment_attributes->camera_origin_x;
+		*offset_x = environment_attributes->camera_origin_x[surface];
 	if (offset_y)
-		*offset_y = environment_attributes->camera_origin_y;
+		*offset_y = environment_attributes->camera_origin_y[surface];
 	return self;
 }
 
-d_define_method(environment, set_focus)(struct s_object *self, double focus_x, double focus_y) {
+d_define_method(environment, set_reference)(struct s_object *self, double reference_w, double reference_h, enum e_environment_surfaces surface) {
 	d_using(environment);
-	environment_attributes->camera_focus_x = focus_x;
-	environment_attributes->camera_focus_y = focus_y;
+	environment_attributes->reference_w[surface] = reference_w;
+	environment_attributes->reference_h[surface] = reference_h;
 	return self;
 }
 
-d_define_method(environment, get_focus)(struct s_object *self, double *focus_x, double *focus_y) {
+d_define_method(environment, get_reference)(struct s_object *self, double *reference_w, double *reference_h, enum e_environment_surfaces surface) {
+	d_using(environment);
+	if (reference_w)
+		*reference_w = environment_attributes->reference_w[surface];
+	if (reference_h)
+		*reference_h = environment_attributes->reference_h[surface];
+	return self;
+}
+
+d_define_method(environment, set_focus)(struct s_object *self, double focus_x, double focus_y, enum e_environment_surfaces surface) {
+	d_using(environment);
+	environment_attributes->camera_focus_x[surface] = focus_x;
+	environment_attributes->camera_focus_y[surface] = focus_y;
+	return self;
+}
+
+d_define_method(environment, get_focus)(struct s_object *self, double *focus_x, double *focus_y, enum e_environment_surfaces surface) {
 	d_using(environment);
 	if (focus_x)
-		*focus_x = environment_attributes->camera_focus_x;
+		*focus_x = environment_attributes->camera_focus_x[surface];
 	if (focus_y)
-		*focus_y = environment_attributes->camera_focus_y;
+		*focus_y = environment_attributes->camera_focus_y[surface];
 	return self;
 }
 
-d_define_method(environment, set_zoom)(struct s_object *self, double zoom) {
+d_define_method(environment, set_zoom)(struct s_object *self, double zoom, enum e_environment_surfaces surface) {
 	d_using(environment);
-	environment_attributes->zoom = zoom;
+	environment_attributes->zoom[surface] = zoom;
 	return self;
 }
 
-d_define_method(environment, get_zoom)(struct s_object *self, double *zoom) {
+d_define_method(environment, get_zoom)(struct s_object *self, double *zoom, enum e_environment_surfaces surface) {
 	d_using(environment);
-	*zoom = environment_attributes->zoom;
+	*zoom = environment_attributes->zoom[surface];
 	return self;
 }
 
@@ -209,27 +225,29 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 			}
 			SDL_RenderClear(environment_attributes->renderer);
 			if (environment_attributes->main_call(self)) {
-				for (surface = 0; surface < e_environment_surface_NULL; ++surface)
+				for (surface = 0; surface < e_environment_surface_NULL; ++surface) {
+					environment_attributes->current_surface = surface;
 					for (index = 0; index < d_environment_layers; ++index)
 						d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
 							flags = (int)d_call(drawable_object, m_drawable_get_flags, NULL);
 							if ((flags&e_drawable_kind_hidden) != e_drawable_kind_hidden)
-								if ((d_call(drawable_object, m_drawable_normalize_scale, environment_attributes->reference_w,
-												environment_attributes->reference_h,
-												environment_attributes->camera_origin_x,
-												environment_attributes->camera_origin_y,
-												environment_attributes->camera_focus_x,
-												environment_attributes->camera_focus_y,
+								if ((d_call(drawable_object, m_drawable_normalize_scale, environment_attributes->reference_w[surface],
+												environment_attributes->reference_h[surface],
+												environment_attributes->camera_origin_x[surface],
+												environment_attributes->camera_origin_y[surface],
+												environment_attributes->camera_focus_x[surface],
+												environment_attributes->camera_focus_y[surface],
 												environment_attributes->current_w,
 												environment_attributes->current_h,
-												environment_attributes->zoom)))
+												environment_attributes->zoom[surface])))
 									while (((int)d_call(drawable_object, m_drawable_draw, self)) ==
 											d_drawable_return_continue);
 						}
+				}
 				current_time = SDL_GetTicks();
 				if ((waiting_time = required_time - (current_time - starting_time)) > 0)
 					SDL_Delay(waiting_time);
-				else if (waiting_time < (d_environment_tolerance * -1))
+				else if ((waiting_time * -1) > d_environment_tolerance)
 					d_war(e_log_level_medium, "loop time has a delay of %d mS", (waiting_time * -1));
 				starting_time = current_time;
 				/* align the FPS time delay and then refresh the image */
