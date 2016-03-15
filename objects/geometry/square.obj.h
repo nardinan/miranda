@@ -21,8 +21,8 @@
 d_declare_class(square) {
 	struct s_attributes head;
 	double top_left_x, top_left_y, bottom_right_x, bottom_right_y, center_x, center_y, angle, normalized_top_left_x, normalized_top_left_y,
-	       normalized_top_right_x, normalized_top_right_y, normalized_bottom_left_x, normalized_bottom_left_y, normalize_bottom_right_x,
-	       normalize_bottom_right_y;
+	       normalized_top_right_x, normalized_top_right_y, normalized_bottom_left_x, normalized_bottom_left_y, normalized_bottom_right_x,
+	       normalized_bottom_right_y;
 	t_boolean normalized;
 } d_declare_class_tail(square);
 struct s_square_attributes *p_square_alloc(struct s_object *self);

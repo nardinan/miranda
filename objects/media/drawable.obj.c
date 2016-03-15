@@ -54,8 +54,8 @@ d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *
 	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
 			square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
 	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
-			square_attributes->normalize_bottom_right_x, square_attributes->normalize_bottom_right_y);
-	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalize_bottom_right_x, square_attributes->normalize_bottom_right_y,
+			square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y);
+	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y,
 			square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
 	SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
 			square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);

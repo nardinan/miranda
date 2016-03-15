@@ -109,7 +109,7 @@ d_define_method(square, normalize)(struct s_object *self) {
 		d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->bottom_right_y, normalized_center_x,
 				normalized_center_y, radians, &(square_attributes->normalized_bottom_left_x), &(square_attributes->normalized_bottom_left_y));
 		d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->bottom_right_y, normalized_center_x,
-				normalized_center_y, radians, &(square_attributes->normalize_bottom_right_x), &(square_attributes->normalize_bottom_right_y));
+				normalized_center_y, radians, &(square_attributes->normalized_bottom_right_x), &(square_attributes->normalized_bottom_right_y));
 		square_attributes->normalized = d_true;
 	}
 	return self;
@@ -144,16 +144,16 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
 					square_attributes_other->normalized_top_left_y)))
 		if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x,
 						square_attributes_other->normalized_top_right_y)))
-			if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalize_bottom_right_x,
-							square_attributes_other->normalize_bottom_right_y)))
+			if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_right_x,
+							square_attributes_other->normalized_bottom_right_y)))
 				if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
 								square_attributes_other->normalized_bottom_left_y)))
 					if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x,
 									square_attributes->normalized_top_left_y)))
 						if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x,
 										square_attributes->normalized_top_right_y)))
-							if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalize_bottom_right_x,
-											square_attributes->normalize_bottom_right_y)))
+							if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x,
+											square_attributes->normalized_bottom_right_y)))
 								result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
 										square_attributes->normalized_bottom_left_y);
 	d_cast_return(result);
