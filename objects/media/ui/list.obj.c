@@ -51,7 +51,6 @@ d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable
 			(unsigned int)list_attributes->last_mask_B);
 	d_call(uiable, m_drawable_set_maskA, (unsigned int)list_attributes->last_mask_A);
 	d_call(uiable, m_drawable_set_blend, list_attributes->last_blend);
-	d_call(uiable, m_drawable_set_flags, e_drawable_kind_contour);
 	f_list_append(&(list_attributes->uiables), d_retain(uiable), e_list_insert_tail);
 	++(list_attributes->uiable_entries);
 	d_call(list_attributes->scroll, m_scroll_set_range, 0, d_math_max((list_attributes->uiable_entries-1), 0));
