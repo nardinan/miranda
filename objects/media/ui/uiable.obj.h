@@ -57,11 +57,12 @@ d_declare_class(uiable) {
 	enum e_uiable_modes selected_mode;
 	enum e_drawable_blends last_blend;
 	t_boolean is_selected;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
+	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
 extern struct s_object *f_uiable_new(struct s_object *self);
 d_declare_method(uiable, set)(struct s_object *self, struct s_object *drawable, enum e_uiable_modes mode, enum e_uiable_components component);
+d_declare_method(uiable, set_background)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 d_declare_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode);
 d_declare_method(uiable, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);

@@ -79,6 +79,15 @@ d_define_method(uiable, set)(struct s_object *self, struct s_object *drawable, e
 	return self;
 }
 
+d_define_method(uiable, set_background)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+	d_using(uiable);
+	uiable_attributes->background_mask_R = red;
+	uiable_attributes->background_mask_G = green;
+	uiable_attributes->background_mask_B = blue;
+	uiable_attributes->background_mask_A = alpha;
+	return self;
+}
+
 d_define_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode) {
 	d_using(uiable);
 	if (uiable_attributes->selected_mode != mode) {
@@ -93,6 +102,18 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
 				     *drawable_attributes_core;
+	struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes_self->square_collision_box), square);
+	short background_x[] = {
+		square_attributes->normalized_top_left_x,
+		square_attributes->normalized_top_right_x,
+		square_attributes->normalized_bottom_right_x,
+		square_attributes->normalized_bottom_left_x
+	}, background_y[] = {
+		square_attributes->normalized_top_left_y,
+		square_attributes->normalized_top_right_y,
+		square_attributes->normalized_bottom_right_y,
+		square_attributes->normalized_bottom_left_y
+	};
 	double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_uiable_component_NULL], component_h[e_uiable_component_NULL];
 	int index;
 	d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &local_x, &local_y);
@@ -197,6 +218,9 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 				while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
 						d_drawable_return_continue);
 		}
+	filledPolygonRGBA(environment_attributes->renderer, background_x, background_y, (sizeof(background_x)/sizeof(background_x[0])),
+			uiable_attributes->background_mask_R, uiable_attributes->background_mask_G, uiable_attributes->background_mask_B,
+			uiable_attributes->background_mask_A);
 	if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
 		d_call(self, m_drawable_draw_contour, environment);
 	d_cast_return(d_drawable_return_last);
@@ -281,6 +305,7 @@ d_define_method(uiable, delete)(struct s_object *self, struct s_uiable_attribute
 
 d_define_class(uiable) {
 	d_hook_method(uiable, e_flag_public, set),
+	d_hook_method(uiable, e_flag_public, set_background),
 	d_hook_method(uiable, e_flag_public, mode),
 	d_hook_method_override(uiable, e_flag_public, drawable, draw),
 	d_hook_method_override(uiable, e_flag_public, eventable, event),
