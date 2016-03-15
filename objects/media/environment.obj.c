@@ -286,6 +286,8 @@ d_define_class(environment) {
 	d_hook_method(environment, e_flag_public, get_size),
 	d_hook_method(environment, e_flag_public, set_camera),
 	d_hook_method(environment, e_flag_public, get_camera),
+	d_hook_method(environment, e_flag_public, set_reference),
+	d_hook_method(environment, e_flag_public, get_reference),
 	d_hook_method(environment, e_flag_public, set_focus),
 	d_hook_method(environment, e_flag_public, get_focus),
 	d_hook_method(environment, e_flag_public, set_zoom),
