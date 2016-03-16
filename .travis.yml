@@ -8,9 +8,17 @@ before_install:
         - lsb_release -a
         - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
         - sudo apt-get update -qq
+        - wget -q http://www.ferzkopp.net/Software/SDL2_gfx/SDL2_gfx-1.0.1.tar.gz
 
 install:
-        - sudo apt-get install -qq libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev
+        - sudo apt-get install -qq libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev
+        - tar xf SDL2_gfx-1.0.1.tar.gz
+        - cd SDL2_gfx-1.0.1
+        - ./autogen.sh
+        - ./configure
+        - make
+        - sudo make install
+        - cd ..
 
 script:
         - make
