@@ -218,9 +218,8 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 						d_drawable_return_continue);
 		}
 	if (uiable_attributes->background_mask_A)
-		f_primitive_fill_polygon(environment_attributes->renderer, background_x, background_y, (sizeof(background_x)/sizeof(background_x[0])),
-				uiable_attributes->background_mask_R, uiable_attributes->background_mask_G, uiable_attributes->background_mask_B,
-				uiable_attributes->background_mask_A);
+		f_primitive_fill_polygon(environment_attributes->renderer, background_x, background_y, 4, uiable_attributes->background_mask_R,
+				uiable_attributes->background_mask_G, uiable_attributes->background_mask_B, uiable_attributes->background_mask_A);
 	if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
 		d_call(self, m_drawable_draw_contour, environment);
 	d_cast_return(d_drawable_return_last);

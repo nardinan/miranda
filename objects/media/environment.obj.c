@@ -72,8 +72,10 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 			}
 		}
 		if ((attributes->window = SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
-						(flags|SDL_WINDOW_OPENGL))))
+						(flags|SDL_WINDOW_OPENGL)))) {
 			attributes->renderer = SDL_CreateRenderer(attributes->window, -1, (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+			SDL_SetRenderDrawBlendMode(attributes->renderer, SDL_BLENDMODE_BLEND);
+		}
 	}
 	attributes->fps = d_environment_default_fps;
 	/* geometry */

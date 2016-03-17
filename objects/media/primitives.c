@@ -93,10 +93,35 @@ void f_primitive_fill_triangle(SDL_Renderer *renderer, int x_A, int y_A, int x_B
 }
 
 void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t entries, int red, int green, int blue, int alpha) {
-	int index;
-	if (entries > d_primitives_minimum_polygon_points) {
-		for (index = 0; index < (entries - d_primitives_minimum_polygon_points); ++index)
-			f_primitive_fill_triangle(renderer, x[index], y[index], x[index+1], y[index+1], x[index+2], y[index+2], red, green, blue, alpha);
-		f_primitive_fill_triangle(renderer, x[index], y[index], x[index+1], y[index+1], x[0], y[0], red, green, blue, alpha);
-	}
+	int bottom_y = y[0], top_y = y[0], position_y, *position_x, index, subindex, pointer, temporary, entry = 0;
+	if (entries > d_primitives_minimum_polygon_points)
+		if ((position_x = (int *) malloc(sizeof(int) * entries))) {
+			for (index = 1; index < entries; ++index) {
+				if (top_y > y[index])
+					top_y = y[index];
+				else if (bottom_y < y[index])
+					bottom_y = y[index];
+			}
+			SDL_SetRenderDrawColor(renderer, red, green, blue, alpha);
+			for (position_y = top_y; position_y <= bottom_y; ++position_y) {
+				entry = 0;
+				subindex = (entries - 1);
+				for (index = 0; index < entries; ++index) {
+					if (((y[index] < position_y) && (position_y <= y[subindex])) ||
+							((y[subindex] < position_y) && (position_y < y[index]))) {
+						position_x[entry++] = (int)rint(x[index] + ((double)position_y - y[index]) /
+								((double)y[subindex] - y[index]) * ((double)x[subindex] - x[index]));
+						for (pointer = (entry - 1); (pointer > 0) & (position_x[pointer-1] > position_x[pointer]); --pointer) {
+							temporary = position_x[pointer-1];
+							position_x[pointer-1] = position_x[pointer];
+							position_x[pointer] = temporary;
+						}
+					}
+					subindex = index;
+				}
+				for (index = 0; index < entry; index += 2)
+					SDL_RenderDrawLine(renderer, position_x[index], position_y, position_x[index + 1], position_y);
+			}
+			free(position_x);
+		}
 }
