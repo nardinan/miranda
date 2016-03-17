@@ -1,17 +1,20 @@
-objects = environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
+objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
 name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
-libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lSDL2 -lSDL2_image -lSDL2_gfx \
+libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lSDL2 -lSDL2_image \
        -lSDL2_ttf -lSDL2_mixer
 executable = lib$(name).so
 
 all: $(objects)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared $(libs)
 
-environment.obj.o: environment.obj.c environment.obj.h drawable.obj.h
+primitives.o: primitives.c primitives.h
+	$(cc) $(cflags) primitives.c
+
+environment.obj.o: environment.obj.c environment.obj.h primitives.h drawable.obj.h
 	$(cc) $(cflags) environment.obj.c
 
 drawable.obj.o: drawable.obj.c drawable.obj.h ../geometry/point.obj.h ../geometry/square.obj.h
