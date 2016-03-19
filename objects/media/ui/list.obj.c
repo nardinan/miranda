@@ -25,18 +25,9 @@ struct s_list_attributes *p_list_alloc(struct s_object *self) {
 }
 
 struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
-	return f_list_new_selected(self, scroll, d_list_default_R, d_list_default_G, d_list_default_B, d_list_default_A);
-}
-
-struct s_object *f_list_new_selected(struct s_object *self, struct s_object *scroll, unsigned int red, unsigned int green, unsigned int blue,
-		unsigned int alpha) {
 	struct s_list_attributes *attributes = p_list_alloc(self);
 	memset(&(attributes->uiables), 0, sizeof(struct s_list));
 	attributes->scroll = d_retain(scroll);
-	attributes->selected_mask_R = red;
-	attributes->selected_mask_G = green;
-	attributes->selected_mask_B = blue;
-	attributes->selected_mask_A = alpha;
 	attributes->last_blend = e_drawable_blend_undefined;
 	attributes->last_mask_R = 255.0;
 	attributes->last_mask_G = 255.0;
@@ -102,6 +93,34 @@ d_define_method(list, get_uiable)(struct s_object *self, unsigned int *index) {
 	return result;
 }
 
+d_define_method(list, set_selected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+	d_using(list);
+	list_attributes->selected_background_R = red;
+	list_attributes->selected_background_G = green;
+	list_attributes->selected_background_B = blue;
+	list_attributes->selected_background_A = alpha;
+	return self;
+}
+
+d_define_method(list, set_over)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+	d_using(list);
+	list_attributes->over_background_R = red;
+	list_attributes->over_background_G = green;
+	list_attributes->over_background_B = blue;
+	list_attributes->over_background_A = alpha;
+	return self;
+}
+
+d_define_method(list, set_unselected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
+	d_using(list);
+	list_attributes->unselected_background_R = red;
+	list_attributes->unselected_background_G = green;
+	list_attributes->unselected_background_B = blue;
+	list_attributes->unselected_background_A = alpha;
+	return self;
+
+}
+
 d_define_method_override(list, mode)(struct s_object *self, enum e_uiable_modes mode) {
 	d_using(list);
 	struct s_object *current_entry;
@@ -147,7 +166,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 	       normalized_dimension_w_scroll, normalized_dimension_h_scroll, position_x_entry, position_y_entry, dimension_w_entry, dimension_h_entry,
 	       normalized_dimension_w_entry, normalized_dimension_h_entry, center_x, center_y, normalized_center_x_self, normalized_center_y_self,
 	       new_position_y;
-	int index = 0, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+	int index = 0, mouse_x, mouse_y, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	drawable_attributes_scroll->angle = drawable_attributes_self->angle;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
 	d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
@@ -186,6 +205,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 		while (((int)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
 	}
 	if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0) {
+		SDL_GetMouseState(&mouse_x, &mouse_y);
 		new_position_y = position_y_self;
 		d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
 			if (index >= starting_uiable) {
@@ -212,17 +232,22 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 					d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry,
 							&normalized_dimension_h_entry);
 					if ((position_y_entry + normalized_dimension_h_entry) < (normalized_position_y_self + normalized_dimension_h_self)) {
-						if (list_attributes->selected == index) {
-							d_call(current_entry, m_drawable_set_maskRGB, (unsigned int)list_attributes->selected_mask_R,
-									(unsigned int)list_attributes->selected_mask_G,
-									(unsigned int)list_attributes->selected_mask_B);
-							d_call(current_entry, m_drawable_set_maskA, (unsigned int)list_attributes->selected_mask_A);
-						} else {
-							d_call(current_entry, m_drawable_set_maskRGB, (unsigned int)list_attributes->last_mask_R,
-									(unsigned int)list_attributes->last_mask_G,
-									(unsigned int)list_attributes->last_mask_B);
-							d_call(current_entry, m_drawable_set_maskA, (unsigned int)list_attributes->last_mask_A);
-						}
+						if (list_attributes->selected == index)
+							d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->selected_background_R,
+									(unsigned int)list_attributes->selected_background_G,
+									(unsigned int)list_attributes->selected_background_B,
+									(unsigned int)list_attributes->selected_background_A);
+						else if ((intptr_t)d_call(&(drawable_attributes_entry->square_collision_box), m_square_inside_coordinates,
+									(double)mouse_x, (double)mouse_y))
+							d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->over_background_R,
+									(unsigned int)list_attributes->over_background_G,
+									(unsigned int)list_attributes->over_background_B,
+									(unsigned int)list_attributes->over_background_A);
+						else
+							d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->unselected_background_R,
+									(unsigned int)list_attributes->unselected_background_G,
+									(unsigned int)list_attributes->unselected_background_B,
+									(unsigned int)list_attributes->unselected_background_A);
 						d_call(current_entry, m_drawable_set_blend, list_attributes->last_blend);
 						while (((int)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
 					} else
@@ -286,6 +311,9 @@ d_define_class(list) {
 	d_hook_method(list, e_flag_public, del_uiable),
 	d_hook_method(list, e_flag_public, set_uiable),
 	d_hook_method(list, e_flag_public, get_uiable),
+	d_hook_method(list, e_flag_public, set_selected),
+	d_hook_method(list, e_flag_public, set_over),
+	d_hook_method(list, e_flag_public, set_unselected),
 	d_hook_method_override(list, e_flag_public, uiable, mode),
 	d_hook_method_override(list, e_flag_public, eventable, event),
 	d_hook_method_override(list, e_flag_public, drawable, draw),

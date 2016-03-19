@@ -20,10 +20,6 @@
 #include "label.obj.h"
 #include "scroll.obj.h"
 #define d_list_selected_NULL -1
-#define d_list_default_R 0
-#define d_list_default_G 255
-#define d_list_default_B 0
-#define d_list_default_A 255
 d_declare_class(list) {
 	struct s_attributes head;
 	struct s_list uiables;
@@ -31,16 +27,19 @@ d_declare_class(list) {
 	ssize_t selected;
 	size_t uiable_entries;
 	enum e_drawable_blends last_blend;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, selected_mask_R, selected_mask_G, selected_mask_B, selected_mask_A;
+	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, selected_background_R, selected_background_G, selected_background_B, selected_background_A,
+	       over_background_R, over_background_G, over_background_B, over_background_A, unselected_background_R, unselected_background_G,
+	       unselected_background_B, unselected_background_A;
 } d_declare_class_tail(list);
 struct s_list_attributes *p_list_alloc(struct s_object *self);
 extern struct s_object *f_list_new(struct s_object *self, struct s_object *scroll);
-extern struct s_object *f_list_new_selected(struct s_object *self, struct s_object *scroll, unsigned int red, unsigned int green, unsigned int blue,
-		unsigned int alpha);
 d_declare_method(list, add_uiable)(struct s_object *self, struct s_object *uiable);
 d_declare_method(list, del_uiable)(struct s_object *self, struct s_object *uiable);
 d_declare_method(list, set_uiable)(struct s_object *self, struct s_object *uiable);
 d_declare_method(list, get_uiable)(struct s_object *self, unsigned int *index);
+d_declare_method(list, set_selected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
+d_declare_method(list, set_over)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
+d_declare_method(list, set_unselected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 d_declare_method(list, mode)(struct s_object *self, enum e_uiable_modes mode);
 d_declare_method(list, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(list, draw)(struct s_object *self, struct s_object *environment);

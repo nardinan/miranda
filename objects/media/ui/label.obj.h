@@ -19,11 +19,11 @@
 #define miranda_media_label_h
 #include "fonts.obj.h"
 #include "uiable.obj.h"
-enum e_label_background_formats {
+typedef enum e_label_background_formats {
 	e_label_background_format_adaptable = 0,
 	e_label_background_format_fixed
 } e_label_background_formats;
-enum e_label_alignments {
+typedef enum e_label_alignments {
 	e_label_alignment_left = 0,
 	e_label_alignment_top,
 	e_label_alignment_center,

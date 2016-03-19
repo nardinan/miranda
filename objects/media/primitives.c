@@ -95,7 +95,7 @@ void f_primitive_fill_triangle(SDL_Renderer *renderer, int x_A, int y_A, int x_B
 void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t entries, int red, int green, int blue, int alpha) {
 	int bottom_y = y[0], top_y = y[0], position_y, *position_x, index, subindex, pointer, temporary, entry = 0;
 	if (entries > d_primitives_minimum_polygon_points)
-		if ((position_x = (int *) malloc(sizeof(int) * entries))) {
+		if ((position_x = (int *) alloca(sizeof(int) * entries))) {
 			for (index = 1; index < entries; ++index) {
 				if (top_y > y[index])
 					top_y = y[index];
@@ -122,6 +122,5 @@ void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t ent
 				for (index = 0; index < entry; index += 2)
 					SDL_RenderDrawLine(renderer, position_x[index], position_y, position_x[index + 1], position_y);
 			}
-			free(position_x);
 		}
 }
