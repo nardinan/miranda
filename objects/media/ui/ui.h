@@ -24,4 +24,5 @@
 #include "button.obj.h"
 #include "scroll.obj.h"
 #include "list.obj.h"
+#include "container.obj.h"
 #endif
