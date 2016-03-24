@@ -26,6 +26,5 @@ d_declare_class(button) {
 struct s_button_attributes *p_button_alloc(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_button_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(button, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
-d_declare_method(button, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(button, delete)(struct s_object *self, struct s_button_attributes *attributes);
 #endif
