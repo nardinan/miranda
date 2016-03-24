@@ -219,7 +219,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 	environment_attributes->init_call(self);
 	while (environment_attributes->continue_loop) {
 		d_try {
-			if (SDL_PollEvent(&local_event)) {
+			while (SDL_PollEvent(&local_event)) {
 				d_foreach(&(environment_attributes->eventable), eventable_object, struct s_object)
 					d_call(eventable_object, m_eventable_event, self, &local_event);
 				if (local_event.type == SDL_QUIT)
