@@ -137,9 +137,30 @@ d_define_method(square, inside_coordinates)(struct s_object *self, double x, dou
 d_define_method(square, collision)(struct s_object *self, struct s_object *other) {
 	d_using(square);
 	struct s_square_attributes *square_attributes_other = d_cast(other, square);
+	double center_x_self, center_y_self, position_x_min, position_y_min, position_x_max, position_y_max, center_x_other, center_y_other;
 	t_boolean result = d_false;
 	d_call(self, m_square_normalize, NULL);
 	d_call(other, m_square_normalize, NULL);
+	position_x_min = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+			d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+	position_x_max = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+			d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+	position_y_min = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+			d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+	position_y_max = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+			d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+	center_x_self = position_x_min + ((position_x_max - position_x_min) / 2.0);
+	center_y_self = position_y_min + ((position_y_max - position_y_min) / 2.0);
+	position_x_min = d_math_min(d_math_min(square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_right_x),
+			d_math_min(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
+	position_x_max = d_math_max(d_math_max(square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_right_x),
+			d_math_max(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
+	position_y_min = d_math_min(d_math_min(square_attributes_other->normalized_top_left_y, square_attributes_other->normalized_top_right_y),
+			d_math_min(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
+	position_y_max = d_math_max(d_math_max(square_attributes_other->normalized_top_left_y, square_attributes_other->normalized_top_right_y),
+			d_math_max(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
+	center_x_other = position_x_min + ((position_x_max - position_x_min) / 2.0);
+	center_y_other = position_y_min + ((position_y_max - position_y_min) / 2.0);
 	if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x,
 					square_attributes_other->normalized_top_left_y)))
 		if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x,
@@ -154,8 +175,11 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
 										square_attributes->normalized_top_right_y)))
 							if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x,
 											square_attributes->normalized_bottom_right_y)))
-								result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
-										square_attributes->normalized_bottom_left_y);
+								if (!(result = (intptr_t)p_square_inside_coordinates(other,
+												square_attributes->normalized_bottom_left_x,
+												square_attributes->normalized_bottom_left_y)))
+									if (!(result = (intptr_t)p_square_inside_coordinates(self, center_x_other, center_y_other)))
+										result = (intptr_t)p_square_inside_coordinates(other, center_x_self, center_y_self);
 	d_cast_return(result);
 }
 
