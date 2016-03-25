@@ -114,7 +114,6 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
 						environment_attributes->zoom[environment_attributes->current_surface])))
 			while(((int)d_call(current_container->uiable, m_drawable_draw, environment)) == d_drawable_return_continue);
 	}
-	/* set the new width and the height for the next draw call */
 	d_call(self, m_drawable_set_dimension, max_w, max_h);
 	if ((container_attributes->floatable) && (container_attributes->grabbed)) {
 		SDL_GetMouseState(&mouse_x, &mouse_y);

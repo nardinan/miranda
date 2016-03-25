@@ -211,11 +211,10 @@ d_define_method(uiable, draw)(struct s_object *self, struct s_object *environmen
 			drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
 			drawable_attributes_core->angle = drawable_attributes_self->angle;
 			/* doesn't inerith the flip (this object, the uiable, doesn't flip) and the zoom is hardcoded to one */
-			if ((d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_keep_scale,
-							environment_attributes->current_w,
-							environment_attributes->current_h)))
-				while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
-						d_drawable_return_continue);
+			d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_keep_scale,
+					environment_attributes->current_w, environment_attributes->current_h);
+			while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
+					d_drawable_return_continue);
 		}
 	if (uiable_attributes->background_mask_A)
 		f_primitive_fill_polygon(environment_attributes->renderer, background_x, background_y, 4, uiable_attributes->background_mask_R,
