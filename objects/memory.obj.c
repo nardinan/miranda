@@ -24,7 +24,7 @@ struct s_object *f_memory_new(struct s_object *self) {
 
 d_define_method(memory, retain)(struct s_object *self) {
 	d_using(memory);
-	memory_attributes->references++;
+	++(memory_attributes->references);
 	return self;
 }
 

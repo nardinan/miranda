@@ -22,6 +22,7 @@
 #include "label.obj.h"
 #include "field.obj.h"
 #include "button.obj.h"
+#include "checkbox.obj.h"
 #include "scroll.obj.h"
 #include "list.obj.h"
 #include "container.obj.h"
