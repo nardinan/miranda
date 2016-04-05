@@ -19,7 +19,7 @@
 #define miranda_media_checkbox_h
 #include "label.obj.h"
 #define d_checkbox_alignment e_label_alignment_left
-#define d_checkbox_background e_label_background_format_fixed
+#define d_checkbox_background e_label_background_format_adaptable
 d_declare_class(checkbox) {
 	struct s_attributes head;
 	struct s_object *checked, *unchecked;

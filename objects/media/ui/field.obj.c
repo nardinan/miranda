@@ -159,9 +159,9 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 		} else if ((field_attributes->pointer == string_length) && (string_length > 0))
 			new_dimension_w = label_attributes->last_destination.w;
 		top_x = label_attributes->last_destination.x + new_dimension_w + d_field_cursor_offset;
-		top_y = label_attributes->last_destination.y;
+		top_y = label_attributes->last_destination.y + uiable_attributes->border_h;
 		bottom_x = top_x;
-		bottom_y = top_y + label_attributes->last_destination.h;
+		bottom_y = top_y + label_attributes->last_destination.h - (uiable_attributes->border_h * 2.0);
 		p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), radians, &top_x, &top_y);
 		p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), radians, &bottom_x, &bottom_y);
 		if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x)/2.0),

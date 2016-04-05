@@ -19,16 +19,17 @@
 #define miranda_media_uiable_h
 #include "../environment.obj.h"
 #include "../../emitter.obj.h"
+#define d_uiable_default_border 2
 enum e_uiable_components {
+	e_uiable_component_corner_top_left = 0,
+	e_uiable_component_corner_top_right,
+	e_uiable_component_corner_bottom_left,
+	e_uiable_component_corner_bottom_right,
 	e_uiable_component_top,
 	e_uiable_component_bottom,
 	e_uiable_component_left,
 	e_uiable_component_right,
 	e_uiable_component_center,
-	e_uiable_component_corner_top_left,
-	e_uiable_component_corner_top_right,
-	e_uiable_component_corner_bottom_left,
-	e_uiable_component_corner_bottom_right,
 	e_uiable_component_NULL
 } e_uiable_components;
 enum e_uiable_modes {
@@ -57,7 +58,8 @@ d_declare_class(uiable) {
 	enum e_uiable_modes selected_mode;
 	enum e_drawable_blends last_blend;
 	t_boolean is_selected;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
+	double border_h, border_w, last_mask_R, last_mask_G, last_mask_B, last_mask_A, background_mask_R, background_mask_G, background_mask_B,
+	       background_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
 extern struct s_object *f_uiable_new(struct s_object *self);
