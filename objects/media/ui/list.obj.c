@@ -26,13 +26,16 @@ struct s_list_attributes *p_list_alloc(struct s_object *self) {
 
 struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
 	struct s_list_attributes *attributes = p_list_alloc(self);
-	memset(&(attributes->uiables), 0, sizeof(struct s_list));
+	int index;
 	attributes->scroll = d_retain(scroll);
 	attributes->last_blend = e_drawable_blend_undefined;
 	attributes->last_mask_R = 255.0;
 	attributes->last_mask_G = 255.0;
 	attributes->last_mask_B = 255.0;
 	attributes->last_mask_A = 255.0;
+	attributes->multi_selection = d_true;
+	for (index = 0; index < d_list_max_selected; ++index)
+		attributes->selection[index] = d_list_selected_NULL;
 	return self;
 }
 
@@ -51,46 +54,76 @@ d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable
 d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable) {
 	d_using(list);
 	struct s_object *current_entry = uiable;
-	int index = 0;
+	int index, pointer = 0;
 	while (((struct s_list_node *)current_entry)->back) {
 		current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
-		++index;
+		++pointer;
 	}
-	if (list_attributes->selected > index)
-		--list_attributes->selected;
-	else if (list_attributes->selected == index)
-		list_attributes->selected = d_list_selected_NULL;
+	for (index = 0; index < d_list_max_selected; ++index)
+		if (list_attributes->selection[index] == pointer)
+			break;
+	for (; index < (d_list_max_selected-1); ++index)
+		list_attributes->selection[index] = list_attributes->selection[index+1];
+	list_attributes->selection[index] = d_list_selected_NULL;
+	/* clean all the pointers to the next elements */
+	for (index = 0; index < d_list_max_selected; ++index)
+		if (list_attributes->selection[index] > pointer)
+			--list_attributes->selection[index];
 	f_list_delete(&(list_attributes->uiables), (struct s_list_node *)uiable);
 	d_delete(uiable);
 	return uiable;
 }
 
-d_define_method(list, set_uiable)(struct s_object *self, struct s_object *uiable) {
-	d_using(list);
-	struct s_object *current_entry = uiable;
-	int index = 0;
-	while (((struct s_list_node *)current_entry)->back) {
-		current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
-		++index;
-	}
-	list_attributes->selected = index;
-	return self;
-}
-
-d_define_method(list, get_uiable)(struct s_object *self, unsigned int *index) {
+d_define_method(list, get_uiable)(struct s_object *self, unsigned int index) {
 	d_using(list);
 	struct s_object *current_entry, *result = NULL;
 	int current_index = 0;
-	if (list_attributes->selected != d_list_selected_NULL)
-		d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
-			if (list_attributes->selected == current_index) {
-				*index = current_index;
-				result = current_entry;
-				break;
-			}
-			++current_index;
+	d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
+		if (current_index == index) {
+			result = current_entry;
+			break;
 		}
+		++current_index;
+	}
 	return result;
+}
+
+d_define_method(list, set_selected_uiable)(struct s_object *self, struct s_object *uiable) {
+	d_using(list);
+	struct s_object *current_entry = uiable;
+	int index, pointer = 0;
+	t_boolean new_selection = d_false;
+	while (((struct s_list_node *)current_entry)->back) {
+		current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
+		++pointer;
+	}
+	if ((list_attributes->selection[0] != pointer) && (new_selection = d_true))
+		list_attributes->selection[0] = pointer;
+	for (index = 1; index < d_list_max_selected; ++index)
+		list_attributes->selection[index] = d_list_selected_NULL;
+	d_cast_return(new_selection);
+}
+
+d_define_method(list, add_selected_uiable)(struct s_object *self, struct s_object *uiable) {
+	d_using(list);
+	struct s_object *current_entry = uiable;
+	int index, pointer = 0;
+	t_boolean new_selection = d_false;
+	while (((struct s_list_node *)current_entry)->back) {
+		current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
+		++pointer;
+	}
+	for (index = 0; index < d_list_max_selected; ++index)
+		if ((list_attributes->selection[index] == pointer) || ((list_attributes->selection[index] == d_list_selected_NULL) && (new_selection = d_true))) {
+			list_attributes->selection[index] = pointer;
+			break;
+		}
+	d_cast_return(new_selection);
+}
+
+d_define_method(list, get_selected_uiable)(struct s_object *self) {
+	d_using(list);
+	d_cast_return(list_attributes->selection);
 }
 
 d_define_method(list, set_selected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
@@ -136,21 +169,26 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
 	struct s_uiable_attributes *uiable_attributes_entry;
 	struct s_object *current_entry;
 	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
+	const unsigned char *keystate = SDL_GetKeyboardState(NULL);
 	int index = 0;
+	t_boolean new_selection = d_false;
 	d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
 	d_foreach(&(list_attributes->uiables), current_entry, struct s_object)
 		d_call(current_entry, m_eventable_event, environment, current_event);
-	d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
-		uiable_attributes_entry = d_cast(current_entry, uiable);
-		if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
-			if (list_attributes->selected != index) {
-				list_attributes->selected = index;
-				d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
+	if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT))
+		d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
+			uiable_attributes_entry = d_cast(current_entry, uiable);
+			if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
+				if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
+					new_selection = (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
+				else
+					new_selection = (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
+				if (new_selection)
+					d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
+				break;
 			}
-			break;
+			++index;
 		}
-		++index;
-	}
 	return result;
 }
 
@@ -167,7 +205,8 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 	       normalized_dimension_w_scroll, normalized_dimension_h_scroll, position_x_entry, position_y_entry, dimension_w_entry, dimension_h_entry,
 	       normalized_dimension_w_entry, normalized_dimension_h_entry, center_x, center_y, normalized_center_x_self, normalized_center_y_self,
 	       new_position_y;
-	int index = 0, mouse_x, mouse_y, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+	int index, pointer = 0, mouse_x, mouse_y, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+	t_boolean is_selected;
 	drawable_attributes_scroll->angle = drawable_attributes_self->angle;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
 	d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
@@ -209,7 +248,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 		SDL_GetMouseState(&mouse_x, &mouse_y);
 		new_position_y = position_y_self;
 		d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
-			if (index >= starting_uiable) {
+			if (pointer >= starting_uiable) {
 				drawable_attributes_entry = d_cast(current_entry, drawable);
 				center_x = (center_x_self - uiable_attributes->border_w);
 				center_y = (position_y_self + center_y_self) - new_position_y;
@@ -233,7 +272,13 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 					d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry,
 							&normalized_dimension_h_entry);
 					if ((position_y_entry + normalized_dimension_h_entry) < (normalized_position_y_self + normalized_dimension_h_self)) {
-						if (list_attributes->selected == index)
+						is_selected = d_false;
+						for (index = 0; index < d_list_max_selected; ++index)
+							if (list_attributes->selection[index] == pointer) {
+								is_selected = d_true;
+								break;
+							}
+						if (is_selected)
 							d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->selected_background_R,
 									(unsigned int)list_attributes->selected_background_G,
 									(unsigned int)list_attributes->selected_background_B,
@@ -256,7 +301,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 					new_position_y += dimension_h_entry;
 				}
 			}
-			++index;
+			++pointer;
 		}
 	}
 	d_cast_return(result);
@@ -309,18 +354,19 @@ d_define_method(list, delete)(struct s_object *self, struct s_list_attributes *a
 
 d_define_class(list) {
 	d_hook_method(list, e_flag_public, add_uiable),
-	d_hook_method(list, e_flag_public, del_uiable),
-	d_hook_method(list, e_flag_public, set_uiable),
-	d_hook_method(list, e_flag_public, get_uiable),
-	d_hook_method(list, e_flag_public, set_selected),
-	d_hook_method(list, e_flag_public, set_over),
-	d_hook_method(list, e_flag_public, set_unselected),
-	d_hook_method_override(list, e_flag_public, uiable, mode),
-	d_hook_method_override(list, e_flag_public, eventable, event),
-	d_hook_method_override(list, e_flag_public, drawable, draw),
-	d_hook_method_override(list, e_flag_public, drawable, set_maskRGB),
-	d_hook_method_override(list, e_flag_public, drawable, set_maskA),
-	d_hook_method_override(list, e_flag_public, drawable, set_blend),
-	d_hook_delete(list),
-	d_hook_method_tail
+		d_hook_method(list, e_flag_public, del_uiable),
+		d_hook_method(list, e_flag_public, get_uiable),
+		d_hook_method(list, e_flag_public, set_selected_uiable),
+		d_hook_method(list, e_flag_public, add_selected_uiable),
+		d_hook_method(list, e_flag_public, set_selected),
+		d_hook_method(list, e_flag_public, set_over),
+		d_hook_method(list, e_flag_public, set_unselected),
+		d_hook_method_override(list, e_flag_public, uiable, mode),
+		d_hook_method_override(list, e_flag_public, eventable, event),
+		d_hook_method_override(list, e_flag_public, drawable, draw),
+		d_hook_method_override(list, e_flag_public, drawable, set_maskRGB),
+		d_hook_method_override(list, e_flag_public, drawable, set_maskA),
+		d_hook_method_override(list, e_flag_public, drawable, set_blend),
+		d_hook_delete(list),
+		d_hook_method_tail
 };

@@ -19,7 +19,7 @@
 #define miranda_media_button_h
 #include "label.obj.h"
 #define d_button_alignment e_label_alignment_center
-#define d_button_background e_label_background_format_fixed
+#define d_button_background e_label_background_format_adaptable
 d_declare_class(button) {
 	struct s_attributes head;
 } d_declare_class_tail(button);
