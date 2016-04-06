@@ -73,6 +73,11 @@ d_define_method(label, set_content_char)(struct s_object *self, char *string_con
 	return self;
 }
 
+d_define_method(label, get_content_char)(struct s_object *self) {
+	d_using(label);
+	d_cast_return(label_attributes->string_content);
+}
+
 d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, struct s_object *environment) {
 	d_using(label);
 	char buffer[d_string_buffer_size];
@@ -101,8 +106,8 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
 					label_attributes->string_width = width;
 					label_attributes->string_height = height;
 					if (label_attributes->format == e_label_background_format_adaptable) {
-						label_attributes->last_width = width + (uiable_attributes->border_w * 2.0); /* in order to compensate; the system automatically removes the border */
-						label_attributes->last_height = height + (uiable_attributes->border_h * 2.0); /* in order to compensate; the system automatically removes the border */
+						label_attributes->last_width = width + (uiable_attributes->border_w * 2.0);
+						label_attributes->last_height = height + (uiable_attributes->border_h * 2.0);
 					}
 					d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
 					d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
@@ -265,6 +270,7 @@ d_define_method(label, delete)(struct s_object *self, struct s_label_attributes 
 d_define_class(label) {
 	d_hook_method(label, e_flag_public, set_content_string),
 	d_hook_method(label, e_flag_public, set_content_char),
+	d_hook_method(label, e_flag_public, get_content_char),
 	d_hook_method(label, e_flag_public, update_texture),
 	d_hook_method_override(label, e_flag_public, drawable, set_dimension),
 	d_hook_method_override(label, e_flag_public, drawable, set_dimension_w),
