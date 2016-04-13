@@ -49,7 +49,9 @@ extern struct s_object *f_resources_new(struct s_object *self, struct s_object *
 extern struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path,
 		const char *extensions);
 d_declare_method(resources, get)(struct s_object *self, const char *key);
+d_declare_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type);
 d_declare_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type);
+d_declare_method(resources, get_stream_strict)(struct s_object *self, const char *key, enum e_resources_types type);
 d_declare_method(resources, delete)(struct s_object *self, struct s_resources_attributes *attributes);
 #endif
 

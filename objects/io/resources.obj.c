@@ -100,43 +100,55 @@ struct s_object *f_resources_new_template(struct s_object *self, struct s_object
 
 d_define_method(resources, get)(struct s_object *self, const char *key) {
 	d_using(resources);
-	struct s_resources_node *current_node;
-	if (!(current_node = f_hash_get(resources_attributes->nodes, (char *)key)))
-		current_node = resources_attributes->default_template;
-	d_cast_return(current_node);
+	d_cast_return(f_hash_get(resources_attributes->nodes, (char *)key));
 }
 
-d_define_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type) {
-	struct s_resources_node *current_node = (struct s_resources_node *)d_call(self, m_resources_get, key);
+d_define_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type) {
 	struct s_object *stream_file = NULL;
 	struct s_object *string_path = NULL;
 	struct stat informations;
-	if (current_node) {
-		string_path = f_string_new_constant(d_new(string), current_node->path);
-		switch (type) {
-			case e_resources_type_common:
-				stat(current_node->path, &informations);
-				if ((current_node->stream_file) && (current_node->last_timestamp < informations.st_mtime)) {
-					d_delete(current_node->stream_file);
-					current_node->stream_file = NULL;
-				}
-				if (!current_node->stream_file) {
-					current_node->last_timestamp = informations.st_mtime;
-					current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
-				} else
-					d_call(current_node->stream_file, m_stream_seek, 0, e_stream_seek_begin, NULL);
-				stream_file = current_node->stream_file;
-				break;
-			case e_resources_type_read:
-				stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
-				break;
-			case e_resources_type_write:
-				stream_file = f_stream_new_file(d_new(stream), string_path, "w", d_resources_file_default_permission);
-				break;
-		}
-		d_delete(string_path);
+	string_path = f_string_new_constant(d_new(string), current_node->path);
+	switch (type) {
+		case e_resources_type_common:
+			stat(current_node->path, &informations);
+			if ((current_node->stream_file) && (current_node->last_timestamp < informations.st_mtime)) {
+				d_delete(current_node->stream_file);
+				current_node->stream_file = NULL;
+			}
+			if (!current_node->stream_file) {
+				current_node->last_timestamp = informations.st_mtime;
+				current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
+			} else
+				d_call(current_node->stream_file, m_stream_seek, 0, e_stream_seek_begin, NULL);
+			stream_file = current_node->stream_file;
+			break;
+		case e_resources_type_read:
+			stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
+			break;
+		case e_resources_type_write:
+			stream_file = f_stream_new_file(d_new(stream), string_path, "w", d_resources_file_default_permission);
+			break;
 	}
+	d_delete(string_path);
 	return stream_file;
+}
+
+d_define_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type) {
+	d_using(resources);
+	struct s_resources_node *current_node;
+	struct s_object *result = NULL;
+	if ((current_node = (struct s_resources_node *)d_call(self, m_resources_get, key)) ||
+			(current_node = resources_attributes->default_template))
+		result = d_call(self, m_resources_open_stream, current_node, type);
+	return result;
+}
+
+d_define_method(resources, get_stream_strict)(struct s_object *self, const char *key, enum e_resources_types type) {
+	struct s_resources_node *current_node;
+	struct s_object *result = NULL;
+	if ((current_node = (struct s_resources_node *)d_call(self, m_resources_get, key)))
+		result = d_call(self, m_resources_open_stream, current_node, type);
+	return result;
 }
 
 d_define_method(resources, delete)(struct s_object *self, struct s_resources_attributes *attributes) {
@@ -164,7 +176,9 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
 
 d_define_class(resources) {
 	d_hook_method(resources, e_flag_private, get),
+	d_hook_method(resources, e_flag_private, open_stream),
 	d_hook_method(resources, e_flag_public, get_stream),
+	d_hook_method(resources, e_flag_public, get_stream_strict),
 	d_hook_delete(resources),
 	d_hook_method_tail
 };
