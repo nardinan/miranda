@@ -38,5 +38,6 @@ struct s_fonts_attributes *p_fonts_alloc(struct s_object *self);
 extern struct s_object *f_fonts_new(struct s_object *self);
 d_declare_method(fonts, add_font)(struct s_object *self, unsigned int id, struct s_object *stream, int size);
 d_declare_method(fonts, get_font)(struct s_object *self, unsigned int id, int style);
+d_declare_method(fonts, get_height)(struct s_object *self, unsigned int id);
 d_declare_method(fonts, delete)(struct s_object *self, struct s_fonts_attributes *attributes);
 #endif
