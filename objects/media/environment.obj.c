@@ -47,6 +47,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
 			initialized = d_false;
 		}
 	if (initialized) {
+		SDL_StartTextInput();
 		/* TTF initialization */
 		if (TTF_WasInit() == 0)
 			if (TTF_Init() < 0) {

@@ -33,9 +33,9 @@ enum e_uiable_components {
 	e_uiable_component_NULL
 } e_uiable_components;
 enum e_uiable_modes {
-	e_uiable_mode_idle = 0,
-	e_uiable_mode_active,
+	e_uiable_mode_active = 0,
 	e_uiable_mode_selected,
+	e_uiable_mode_idle,
 	e_uiable_mode_NULL
 } e_uiable_modes;
 enum e_uiable_signals {

@@ -29,9 +29,9 @@ const char *v_uiable_components[e_uiable_component_NULL] = {
 	"C"
 };
 const char *v_uiable_modes[e_uiable_mode_NULL] = {
-	"idle",
 	"active",
-	"selected"
+	"selected",
+	"idle"
 };
 const char *v_uiable_signals[e_uiable_signal_NULL] = {
 	"selected",
