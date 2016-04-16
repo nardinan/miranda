@@ -437,9 +437,8 @@ d_define_method(json, write)(struct s_object *self, struct s_object *stream_file
 	return self;
 }
 
-d_define_method(json, get_value)(struct s_object *self, const char *format, va_list parameters) {
-	d_using(json);
-	struct s_json_node_value *value = json_attributes->root, *local_value;
+d_define_method(json, get_value_relative)(struct s_object *self, struct s_json_node_value *starting_point, const char *format, va_list parameters) {
+	struct s_json_node_value *value = starting_point, *local_value;
 	struct s_json_node *local_node;
 	int argument_long;
 	char *argument_string, *pointer = (char *)format;
@@ -470,6 +469,77 @@ d_define_method(json, get_value)(struct s_object *self, const char *format, va_l
 			break;
 		pointer++;
 	}
+	d_cast_return(value);
+}
+
+d_define_method(json, get_value)(struct s_object *self, const char *format, va_list parameters) {
+	d_using(json);
+	return d_call(self, m_json_get_value_relative, json_attributes->root, format, parameters);
+}
+
+d_define_method(json, get_relative)(struct s_object *self, struct s_json_node_value *starting_point, const char *format, ...) {
+	d_using(json);
+	struct s_json_node_value *value = NULL;
+	va_list parameters;
+	if (!starting_point)
+		starting_point = json_attributes->root;
+	va_start(parameters, format);
+	value = (struct s_json_node_value *)d_call(self, m_json_get_value_relative, starting_point, format, parameters);
+	va_end(parameters);
+	d_cast_return(value);
+}
+
+d_define_method(json, get_string_relative)(struct s_object *self, struct s_json_node_value *starting_point, char **string_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	va_list parameters;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value_relative, starting_point, format, parameters))) {
+		if (value->type == e_json_node_type_string)
+			*string_supply = value->string_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "string has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
+	va_end(parameters);
+	d_cast_return(value);
+}
+
+d_define_method(json, get_double_relative)(struct s_object *self, struct s_json_node_value *starting_point, double *value_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	va_list parameters;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value_relative, starting_point, format, parameters))) {
+		if (value->type == e_json_node_type_value)
+			*value_supply = value->value_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "int/double has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
+	va_end(parameters);
+	d_cast_return(value);
+}
+
+d_define_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format, ...) {
+	struct s_json_node_value *value = NULL;
+	va_list parameters;
+	char buffer[d_string_buffer_size];
+	va_start(parameters, format);
+	if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value_relative, starting_point, format, parameters))) {
+		if (value->type == e_json_node_type_boolean)
+			*boolean_supply = value->boolean_entry;
+		else {
+			snprintf(buffer, d_string_buffer_size, "boolean has been required but '%s' has been returned exception",
+					v_json_node_types[value->type]);
+			d_throw(v_exception_wrong_type, buffer);
+		}
+	}
+	va_end(parameters);
 	d_cast_return(value);
 }
 
@@ -696,7 +766,12 @@ d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *a
 
 d_define_class(json) {
 	d_hook_method(json, e_flag_public, write),
+	d_hook_method(json, e_flag_private, get_value_relative),
 	d_hook_method(json, e_flag_private, get_value),
+	d_hook_method(json, e_flag_public, get_relative),
+	d_hook_method(json, e_flag_public, get_string_relative),
+	d_hook_method(json, e_flag_public, get_double_relative),
+	d_hook_method(json, e_flag_public, get_boolean_relative),
 	d_hook_method(json, e_flag_public, get_string),
 	d_hook_method(json, e_flag_public, get_double),
 	d_hook_method(json, e_flag_public, get_boolean),
