@@ -234,7 +234,8 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 						d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
 							flags = (int)d_call(drawable_object, m_drawable_get_flags, NULL);
 							if ((flags&e_drawable_kind_hidden) != e_drawable_kind_hidden)
-								if ((d_call(drawable_object, m_drawable_normalize_scale, environment_attributes->reference_w[surface],
+								if ((d_call(drawable_object, m_drawable_normalize_scale,
+												environment_attributes->reference_w[surface],
 												environment_attributes->reference_h[surface],
 												environment_attributes->camera_origin_x[surface],
 												environment_attributes->camera_origin_y[surface],

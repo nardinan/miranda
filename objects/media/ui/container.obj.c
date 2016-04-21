@@ -53,10 +53,16 @@ d_define_method_override(container, event)(struct s_object *self, struct s_objec
 	struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
 	struct s_container_uiable *current_container;
 	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
-	struct s_exception *exception;
+	struct s_exception *exception, *exception_eventable;
 	d_try {
-		d_foreach(&(container_attributes->entries), current_container, struct s_container_uiable)
-			d_call(current_container->uiable, m_eventable_event, environment, current_event);
+		d_foreach(&(container_attributes->entries), current_container, struct s_container_uiable) {
+			d_try {
+				d_call(current_container->uiable, m_eventable_event, environment, current_event);
+			} d_catch(exception_eventable) {
+				/* do nothing */
+				exception_eventable = exception_eventable;
+			} d_endtry;
+		}
 		if (container_attributes->floatable)
 			switch (current_event->type) {
 				case SDL_MOUSEBUTTONUP:

@@ -154,7 +154,7 @@ d_define_method(resources, get_stream_strict)(struct s_object *self, const char 
 d_define_method(resources, delete)(struct s_object *self, struct s_resources_attributes *attributes) {
 	struct s_resources_node *node;
 	struct s_hash_bucket *current_item, old_content;
-	t_hash_value elements = (attributes->nodes->mask+1), index;
+	t_hash_value elements = (attributes->nodes->mask + 1), index;
 	for (index = 0; index < elements; ++index) {
 		current_item = &(attributes->nodes->table[index]);
 		if (current_item->kind == e_hash_kind_fill) {
