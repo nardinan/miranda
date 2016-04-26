@@ -21,7 +21,7 @@
 #include "string.local.h"
 #define d_foreach(l,n,k) for((n)=(k *)(l)->head;(n);(n)=(k *)((struct s_list_node *)(n))->next)
 #define d_reverse_foreach(l,n,k) for((n)=(k *)(l)->tail;(n);(n)=(k *)((struct s_list_node *)(n))->back)
-#define d_list_rewind(l) (l)->current=((l)->current->back)?(l)->current->back:(l)->current
+#define d_list_rewind(n,k) (n)=(k *)((struct s_list_node *)(n))->back
 #define d_list_node_in(l,n) (((n)->next!=NULL)||((n)->back!=NULL)||((l)->head==(n)))
 #define d_list_node_head struct s_list_node head
 #define d_list_node_constant {NULL, NULL}
