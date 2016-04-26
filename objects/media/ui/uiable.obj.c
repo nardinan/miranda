@@ -61,10 +61,8 @@ struct s_object *f_uiable_new(struct s_object *self) {
 	attributes->border_w = d_uiable_default_border;
 	attributes->border_h = d_uiable_default_border;
 	attributes->component_id = v_uiable_id++;
-	for (index = 0; index != e_uiable_signal_NULL; ++index) {
+	for (index = 0; index != e_uiable_signal_NULL; ++index)
 		d_call(self, m_emitter_record, v_uiable_signals[index]);
-		d_call(self, m_emitter_embed_parameter, v_uiable_signals[index], (void *)self);
-	}
 	return self;
 }
 
@@ -99,7 +97,7 @@ d_define_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode) {
 	return self;
 }
 
-d_define_method(uiable, draw)(struct s_object *self, struct s_object *environment) {
+d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(uiable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),

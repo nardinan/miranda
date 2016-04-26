@@ -67,6 +67,7 @@ d_declare_method(uiable, set)(struct s_object *self, struct s_object *drawable, 
 d_declare_method(uiable, set_background)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 d_declare_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode);
 d_declare_method(uiable, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(uiable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(uiable, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(uiable, set_blend)(struct s_object *self, enum e_drawable_blends blend);
