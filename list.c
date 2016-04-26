@@ -48,7 +48,7 @@ void f_list_append(struct s_list *list, struct s_list_node *node, enum e_list_in
 			list->tail = node;
 			break;
 	}
-	list->fill++;
+	++(list->fill);
 }
 
 void f_list_insert(struct s_list *list, struct s_list_node *node, struct s_list_node *left) {
@@ -62,7 +62,7 @@ void f_list_insert(struct s_list *list, struct s_list_node *node, struct s_list_
 			f_list_append(list, node, e_list_insert_tail);
 	} else
 		f_list_append(list, node, e_list_insert_head);
-	list->fill++;
+	++(list->fill);
 }
 
 struct s_list_node *f_list_delete(struct s_list *list, struct s_list_node *node) {
@@ -77,7 +77,7 @@ struct s_list_node *f_list_delete(struct s_list *list, struct s_list_node *node)
 			list->head = node->next;
 		node->next = NULL;
 		node->back = NULL;
-		list->fill--;
+		--(list->fill);
 	}
 	return node;
 }
