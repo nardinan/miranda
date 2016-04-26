@@ -29,7 +29,10 @@ typedef enum e_drawable_kinds {
 	e_drawable_kind_multiple 		= 0x02,
 	e_drawable_kind_hidden 			= 0x04,
 	e_drawable_kind_force_visibility 	= 0x08,
-	e_drawable_kind_contour			= 0x10
+	e_drawable_kind_contour			= 0x10,
+	e_drawable_kind_ui_no_attribute_zoom 	= 0x20,
+	e_drawable_kind_ui_no_attribute_angle	= 0x40,
+	e_drawable_kind_ui_no_attribute_flip	= 0x80
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
 	e_drawable_flip_horizontal 	= SDL_FLIP_HORIZONTAL,
