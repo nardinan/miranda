@@ -22,7 +22,6 @@ const char m_object_hash[] = "hash";
 const char m_object_compare[] = "compare";
 d_exception_define(undefined_method, 1, "undefined method exception");
 d_exception_define(private_method, 2, "private method exception");
-d_exception_define(wrong_casting, 3, "wrong casting exception");
 const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type) {
 	struct s_virtual_table *singleton;
 	char buffer[d_string_buffer_size];
@@ -92,9 +91,8 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
 	return attributes;
 }
 
-struct s_attributes *p_object_cast(struct s_object *object, const char *type) {
+struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {
 	struct s_attributes *result = NULL;
-	char buffer[d_string_buffer_size];
 	if ((object->last_attributes) && (object->last_attributes->type == type))
 		result = object->last_attributes;
 	else {
@@ -103,10 +101,6 @@ struct s_attributes *p_object_cast(struct s_object *object, const char *type) {
 				object->last_attributes = result;
 				break;
 			}
-	}
-	if (!result) {
-		snprintf(buffer, d_string_buffer_size, "this object can't be casted as '%s' or is an abstract class exception", type);
-		d_throw(v_exception_wrong_casting, buffer);
 	}
 	return result;
 }
@@ -126,6 +120,7 @@ void f_object_delete(struct s_object *object) {
 		d_free(attributes);
 		d_free(virtual_table);
 	}
+	object->last_attributes = NULL;
 	if ((object->flags&e_flag_allocated) == e_flag_allocated)
 		d_free(object);
 }

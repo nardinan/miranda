@@ -59,7 +59,6 @@ extern const char m_object_hash[];
 extern const char m_object_compare[];
 d_exception_declare(undefined_method);
 d_exception_declare(private_method);
-d_exception_declare(wrong_casting);
 #define d_call_owner(obj,kind,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_##kind##_type)->method((obj),__VA_ARGS__))
 #define d_call(obj,sym,...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_undefined_type)->method((obj),__VA_ARGS__))
 extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type);
@@ -71,8 +70,9 @@ extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(con
 			p_object_attributes_malloc(sizeof(struct s_##kind##_attributes),v_##kind##_type)))
 extern __attribute__ ((warn_unused_result)) struct s_attributes *p_object_attributes_malloc(size_t size, const char *type);
 extern struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, struct s_attributes *attributes);
-#define d_cast(obj,kind) ((struct s_##kind##_attributes *)p_object_cast((obj),v_##kind##_type))
-extern struct s_attributes *p_object_cast(struct s_object *object, const char *type);
+#define d_cast(obj,kind) ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,(obj),v_##kind##_type))
+#define d_using(kind) struct s_##kind##_attributes *kind##_attributes = ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,self,v_##kind##_type))
+extern struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type);
 extern void f_object_delete(struct s_object *object);
 extern t_hash_value f_object_hash(struct s_object *object);
 extern struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other);
@@ -99,6 +99,5 @@ extern struct s_object *f_object_compare(struct s_object *object, struct s_objec
 	struct s_object *p_##kind##_##sym
 #define d_define_method_override(kind,sym)\
 	struct s_object *p_##kind##_##sym
-#define d_using(kind) struct s_##kind##_attributes *kind##_attributes = d_cast(self, kind)
 #endif
 
