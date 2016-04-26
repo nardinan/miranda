@@ -41,7 +41,7 @@ struct s_object *f_animation_new(struct s_object *self, int cycles, double time_
 d_define_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time) {
 	d_using(animation);
 	struct s_animation_frame *current_frame;
-	if ((current_frame = (struct s_animation_frame *)d_malloc(sizeof(struct s_animation_frame)))) {
+	if ((current_frame = (struct s_animation_frame *) d_malloc(sizeof(struct s_animation_frame)))) {
 		current_frame->drawable = d_retain(drawable);
 		if (animation_attributes->last_blend != e_drawable_blend_undefined)
 			d_call(current_frame->drawable, m_drawable_set_blend, animation_attributes->last_blend);

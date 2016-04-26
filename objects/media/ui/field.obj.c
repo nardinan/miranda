@@ -142,7 +142,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
 		d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
 		width_factor = (dimension_w / label_attributes->last_width);
 		if ((field_attributes->pointer > 0) && (field_attributes->pointer < string_length) && (string_length > 0)) {
-			if ((string_subcontent = (char *)d_malloc(field_attributes->pointer + 1))) {
+			if ((string_subcontent = (char *) d_malloc(field_attributes->pointer + 1))) {
 				strncpy(string_subcontent, label_attributes->string_content, field_attributes->pointer);
 				/* we should be sure that the font exits */
 				if ((unoptimized_surface = TTF_RenderText_Blended(label_attributes->last_font, string_subcontent, white))) {
