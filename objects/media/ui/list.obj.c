@@ -166,29 +166,47 @@ d_define_method_override(list, mode)(struct s_object *self, enum e_uiable_modes 
 
 d_define_method_override(list, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
 	d_using(list);
-	struct s_uiable_attributes *uiable_attributes_entry;
+	struct s_uiable_attributes *uiable_attributes_self = d_cast(self, uiable),
+				   *uiable_attributes_entry;
 	struct s_object *current_entry;
 	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
 	const unsigned char *keystate = SDL_GetKeyboardState(NULL);
-	int index = 0;
+	int pointer = 0, starting_uiable;
 	t_boolean new_selection = d_false;
 	d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
-	d_foreach(&(list_attributes->uiables), current_entry, struct s_object)
-		d_call(current_entry, m_eventable_event, environment, current_event);
-	if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT))
+	if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
 		d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
-			uiable_attributes_entry = d_cast(current_entry, uiable);
-			if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
-				if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
-					new_selection = (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
-				else
-					new_selection = (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
-				if (new_selection)
-					d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
-				break;
+			if (pointer >= starting_uiable) {
+				d_call(current_entry, m_eventable_event, environment, current_event);
+				if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
+					uiable_attributes_entry = d_cast(current_entry, uiable);
+					if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
+						if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
+							new_selection |= (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
+						else
+							new_selection |= (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
+					}
+				}
 			}
-			++index;
+			++pointer;
 		}
+	if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
+		if (list_attributes->selection[0] != d_list_selected_NULL)
+			switch (current_event->key.keysym.sym) {
+				case SDLK_UP:
+					if (list_attributes->selection[0] > 0) {
+						--(list_attributes->selection[0]);
+						new_selection = d_true;
+					}
+					break;
+				case SDLK_DOWN:
+					if (list_attributes->selection[0] < (list_attributes->uiable_entries - 1)) {
+						++(list_attributes->selection[0]);
+						new_selection = d_true;
+					}
+			}
+	if (new_selection)
+		d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
 	return result;
 }
 
@@ -358,6 +376,7 @@ d_define_class(list) {
 	d_hook_method(list, e_flag_public, get_uiable),
 	d_hook_method(list, e_flag_public, set_selected_uiable),
 	d_hook_method(list, e_flag_public, add_selected_uiable),
+	d_hook_method(list, e_flag_public, get_selected_uiable),
 	d_hook_method(list, e_flag_public, set_selected),
 	d_hook_method(list, e_flag_public, set_over),
 	d_hook_method(list, e_flag_public, set_unselected),
