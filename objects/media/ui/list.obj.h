@@ -26,7 +26,7 @@ d_declare_class(list) {
 	struct s_list uiables;
 	struct s_object *scroll;
 	ssize_t selection[d_list_max_selected];
-	size_t uiable_entries;
+	size_t uiable_entries, visible_entries;
 	t_boolean multi_selection;
 	enum e_drawable_blends last_blend;
 	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, selected_background_R, selected_background_G, selected_background_B, selected_background_A,

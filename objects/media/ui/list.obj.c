@@ -114,7 +114,8 @@ d_define_method(list, add_selected_uiable)(struct s_object *self, struct s_objec
 		++pointer;
 	}
 	for (index = 0; index < d_list_max_selected; ++index)
-		if ((list_attributes->selection[index] == pointer) || ((list_attributes->selection[index] == d_list_selected_NULL) && (new_selection = d_true))) {
+		if ((list_attributes->selection[index] == pointer) || ((list_attributes->selection[index] == d_list_selected_NULL) &&
+					(new_selection = d_true))) {
 			list_attributes->selection[index] = pointer;
 			break;
 		}
@@ -171,7 +172,7 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
 	struct s_object *current_entry;
 	struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
 	const unsigned char *keystate = SDL_GetKeyboardState(NULL);
-	int pointer = 0, starting_uiable;
+	int pointer = 0, forwarded_entries = 0, starting_uiable;
 	t_boolean new_selection = d_false;
 	d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
 	if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
@@ -187,6 +188,8 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
 							new_selection |= (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
 					}
 				}
+				if ((++forwarded_entries) == list_attributes->visible_entries)
+					break;
 			}
 			++pointer;
 		}
@@ -226,6 +229,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 	int index, pointer = 0, mouse_x, mouse_y, starting_uiable, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
 	t_boolean is_selected;
 	drawable_attributes_scroll->angle = drawable_attributes_self->angle;
+	list_attributes->visible_entries = 0;
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
 	d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
 	d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
@@ -314,6 +318,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
 									(unsigned int)list_attributes->unselected_background_A);
 						d_call(current_entry, m_drawable_set_blend, list_attributes->last_blend);
 						while (((int)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
+						++(list_attributes->visible_entries);
 					} else
 						break; /* not visible anymore */
 					new_position_y += dimension_h_entry;
