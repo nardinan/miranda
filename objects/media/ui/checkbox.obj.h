@@ -28,6 +28,8 @@ d_declare_class(checkbox) {
 struct s_checkbox_attributes *p_checkbox_alloc(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_checkbox_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(checkbox, set_drawable)(struct s_object *self, struct s_object *checked, struct s_object *unchecked);
+d_declare_method(checkbox, set_checked)(struct s_object *self, t_boolean is_checked);
+d_declare_method(checkbox, get_checked)(struct s_object *self);
 d_declare_method(checkbox, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(checkbox, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(checkbox, delete)(struct s_object *self, struct s_checkbox_attributes *attributes);

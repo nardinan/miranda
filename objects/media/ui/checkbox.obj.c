@@ -36,6 +36,17 @@ d_define_method(checkbox, set_drawable)(struct s_object *self, struct s_object *
 	return self;
 }
 
+d_define_method(checkbox, set_checked)(struct s_object *self, t_boolean is_checked) {
+	d_using(checkbox);
+	checkbox_attributes->is_checked = is_checked;
+	return self;
+}
+
+d_define_method(checkbox, get_checked)(struct s_object *self) {
+	d_using(checkbox);
+	d_cast_return(checkbox_attributes->is_checked);
+}
+
 d_define_method_override(checkbox, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
 	d_using(checkbox);
 	struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
@@ -51,12 +62,13 @@ d_define_method_override(checkbox, event)(struct s_object *self, struct s_object
 
 d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object *environment) {
 	d_using(checkbox);
+	struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
 	struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
 	struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
 				     *drawable_attributes_selected;
 	struct s_object *selected_component = NULL;
 	double position_x, position_y, new_position_x, new_position_y, center_x, center_y, new_center_x, new_center_y, dimension_w_self, dimension_h_self,
-	       dimension_w_selected, dimension_h_selected;
+	       dimension_w_selected, dimension_h_selected, new_dimension_w, new_dimension_h;
 	int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
 	d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x, &position_y);
 	d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
@@ -68,12 +80,15 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
 	if (selected_component) {
 		drawable_attributes_selected = d_cast(selected_component, drawable);
 		d_call(&(drawable_attributes_selected->point_dimension), m_point_get, &dimension_w_selected, &dimension_h_selected);
-		new_position_x = position_x + dimension_w_self - dimension_w_selected;
-		new_position_y = position_y + ((dimension_h_self - dimension_h_selected) / 2.0);
+		new_dimension_h = dimension_h_self - (uiable_attributes->border_h * 2.0);
+		new_dimension_w = (dimension_w_selected * new_dimension_h)/dimension_h_selected;
+		new_position_x = position_x + dimension_w_self - new_dimension_w - uiable_attributes->border_w;
+		new_position_y = position_y + ((dimension_h_self - new_dimension_h) / 2.0);
 		new_center_x = (position_x + center_x) - new_position_x;
 		new_center_y = (position_y + center_y) - new_position_y;
 		d_call(selected_component, m_drawable_set_position, new_position_x, new_position_y);
 		d_call(selected_component, m_drawable_set_center, new_center_x, new_center_y);
+		d_call(selected_component, m_drawable_set_dimension, new_dimension_w, new_dimension_h);
 		drawable_attributes_selected->angle = drawable_attributes_self->angle;
 		drawable_attributes_selected->zoom = drawable_attributes_self->zoom;
 		drawable_attributes_selected->flip = drawable_attributes_self->flip;
@@ -101,6 +116,8 @@ d_define_method(checkbox, delete)(struct s_object *self, struct s_checkbox_attri
 
 d_define_class(checkbox) {
 	d_hook_method(checkbox, e_flag_public, set_drawable),
+	d_hook_method(checkbox, e_flag_public, set_checked),
+	d_hook_method(checkbox, e_flag_public, get_checked),
 	d_hook_method_override(checkbox, e_flag_public, eventable, event),
 	d_hook_method_override(checkbox, e_flag_public, drawable, draw),
 	d_hook_delete(checkbox),
