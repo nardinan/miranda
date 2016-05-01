@@ -84,13 +84,16 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
 								head_pointer = &(string_pointer[index]);
 							break;
 						case e_json_token_type_word:
-							if (strchr(d_json_division_characters, string_pointer[index])) {
-								if (head_pointer)
-									p_json_tokenizer_string_append(local_token, head_pointer, &(string_pointer[index]));
-								submit_token = d_true;
-								keep_index = d_true;
-							} else if (!head_pointer)
-								head_pointer = &(string_pointer[index]);
+							if (!strchr(d_json_ignorable_characters, string_pointer[index])) {
+								if (strchr(d_json_division_characters, string_pointer[index])) {
+									if (head_pointer)
+										p_json_tokenizer_string_append(local_token, head_pointer,
+												&(string_pointer[index]));
+									submit_token = d_true;
+									keep_index = d_true;
+								} else if (!head_pointer)
+									head_pointer = &(string_pointer[index]);
+							}
 							break;
 						case e_json_token_type_value:
 							if (strchr(d_json_decimal_characters, string_pointer[index]))
@@ -766,22 +769,22 @@ d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *a
 
 d_define_class(json) {
 	d_hook_method(json, e_flag_public, write),
-	d_hook_method(json, e_flag_private, get_value_relative),
-	d_hook_method(json, e_flag_private, get_value),
-	d_hook_method(json, e_flag_public, get_relative),
-	d_hook_method(json, e_flag_public, get_string_relative),
-	d_hook_method(json, e_flag_public, get_double_relative),
-	d_hook_method(json, e_flag_public, get_boolean_relative),
-	d_hook_method(json, e_flag_public, get_string),
-	d_hook_method(json, e_flag_public, get_double),
-	d_hook_method(json, e_flag_public, get_boolean),
-	d_hook_method(json, e_flag_private, set_value),
-	d_hook_method(json, e_flag_public, set_string),
-	d_hook_method(json, e_flag_public, set_double),
-	d_hook_method(json, e_flag_public, set_boolean),
-	d_hook_method(json, e_flag_public, set_array),
-	d_hook_method(json, e_flag_public, insert_value),
-	d_hook_method(json, e_flag_public, delete_value),
-	d_hook_delete(json),
-	d_hook_method_tail
+		d_hook_method(json, e_flag_private, get_value_relative),
+		d_hook_method(json, e_flag_private, get_value),
+		d_hook_method(json, e_flag_public, get_relative),
+		d_hook_method(json, e_flag_public, get_string_relative),
+		d_hook_method(json, e_flag_public, get_double_relative),
+		d_hook_method(json, e_flag_public, get_boolean_relative),
+		d_hook_method(json, e_flag_public, get_string),
+		d_hook_method(json, e_flag_public, get_double),
+		d_hook_method(json, e_flag_public, get_boolean),
+		d_hook_method(json, e_flag_private, set_value),
+		d_hook_method(json, e_flag_public, set_string),
+		d_hook_method(json, e_flag_public, set_double),
+		d_hook_method(json, e_flag_public, set_boolean),
+		d_hook_method(json, e_flag_public, set_array),
+		d_hook_method(json, e_flag_public, insert_value),
+		d_hook_method(json, e_flag_public, delete_value),
+		d_hook_delete(json),
+		d_hook_method_tail
 };
