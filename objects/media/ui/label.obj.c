@@ -132,6 +132,7 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
 		snprintf(buffer, d_string_buffer_size, "ungenerable texture for label \"%s\" with missing font exception", label_attributes->string_content);
 		d_throw(v_exception_texture, buffer);
 	}
+	d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
 	return self;
 }
 
