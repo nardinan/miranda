@@ -26,8 +26,8 @@
 d_exception_declare(wrong_type);
 d_exception_declare(texture);
 d_declare_class(bitmap) {
-	struct s_attributes head;
-	SDL_Texture *image;
+    struct s_attributes head;
+    SDL_Texture *image;
 } d_declare_class_tail(bitmap);
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self);
 extern struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, struct s_object *environment);

@@ -20,32 +20,32 @@
 #include "fonts.obj.h"
 #include "uiable.obj.h"
 typedef enum e_label_background_formats {
-	e_label_background_format_adaptable = 0,
-	e_label_background_format_fixed
+    e_label_background_format_adaptable = 0,
+    e_label_background_format_fixed
 } e_label_background_formats;
 typedef enum e_label_alignments {
-	e_label_alignment_left = 0,
-	e_label_alignment_top,
-	e_label_alignment_center,
-	e_label_alignment_right,
-	e_label_alignment_bottom
+    e_label_alignment_left = 0,
+    e_label_alignment_top,
+    e_label_alignment_center,
+    e_label_alignment_right,
+    e_label_alignment_bottom
 } e_label_alignments;
 d_declare_class(label) {
-	struct s_attributes head;
-	SDL_Texture *image;
-	TTF_Font *last_font;
-	SDL_Rect last_source, last_destination;
-	char *string_content;
-	size_t size;
-	enum e_label_background_formats format;
-	enum e_label_alignments alignment_x, alignment_y;
-	enum e_drawable_blends last_blend;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, last_width, last_height, string_width, string_height;
+    struct s_attributes head;
+    SDL_Texture *image;
+    TTF_Font *last_font;
+    SDL_Rect last_source, last_destination;
+    char *string_content;
+    size_t size;
+    enum e_label_background_formats format;
+    enum e_label_alignments alignment_x, alignment_y;
+    enum e_drawable_blends last_blend;
+    double last_mask_R, last_mask_G, last_mask_B, last_mask_A, last_width, last_height, string_width, string_height;
 } d_declare_class_tail(label);
 struct s_label_attributes *p_label_alloc(struct s_object *self);
 extern struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
-		enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment);
+        enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment);
 d_declare_method(label, set_content_string)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, set_content_char)(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, get_content_char)(struct s_object *self);

@@ -22,9 +22,9 @@
 #define d_array_bucket 8
 d_exception_declare(bound);
 d_declare_class(array) {
-	struct s_attributes head;
-	size_t elements, size, bucket, pointer;
-	struct s_object **content;
+    struct s_attributes head;
+    size_t elements, size, bucket, pointer;
+    struct s_object **content;
 } d_declare_class_tail(array);
 struct s_array_attributes *p_array_alloc(struct s_object *self);
 extern struct s_object *f_array_new(struct s_object *self, size_t size);

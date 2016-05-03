@@ -21,12 +21,12 @@
 #include "pool.obj.h"
 #define d_string_buffer 8
 d_declare_class(string) {
-	struct s_attributes head;
-	char *content;
-	size_t size, length;
-	struct {
-		unsigned int constant:1;
-	} flags;
+    struct s_attributes head;
+    char *content;
+    size_t size, length;
+    struct {
+        unsigned int constant:1;
+    } flags;
 } d_declare_class_tail(string);
 struct s_string_attributes *p_string_alloc(struct s_object *self);
 #define d_str(...) f_string_new(d_new(string),__VA_ARGS__)

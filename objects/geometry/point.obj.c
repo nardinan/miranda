@@ -17,81 +17,81 @@
  */
 #include "point.obj.h"
 struct s_point_attributes *p_point_alloc(struct s_object *self) {
-	struct s_point_attributes *result = d_prepare(self, point);
-	f_memory_new(self);	/* inherit */
-	f_mutex_new(self);	/* inherit */
-	return result;
+    struct s_point_attributes *result = d_prepare(self, point);
+    f_memory_new(self);	/* inherit */
+    f_mutex_new(self);	/* inherit */
+    return result;
 }
 
 struct s_object *f_point_new(struct s_object *self, double x, double y) {
-	struct s_point_attributes *attributes = p_point_alloc(self);
-	attributes->x = x;
-	attributes->y = y;
-	return self;
+    struct s_point_attributes *attributes = p_point_alloc(self);
+    attributes->x = x;
+    attributes->y = y;
+    return self;
 }
 
 d_define_method(point, set_point)(struct s_object *self, struct s_object *source) {
-	d_using(point);
-	struct s_point_attributes *point_attributes_source = d_cast(source, point);
-	point_attributes->x = point_attributes_source->x;
-	point_attributes->y = point_attributes_source->y;
-	return self;
+    d_using(point);
+    struct s_point_attributes *point_attributes_source = d_cast(source, point);
+    point_attributes->x = point_attributes_source->x;
+    point_attributes->y = point_attributes_source->y;
+    return self;
 }
 
 d_define_method(point, set_x)(struct s_object *self, double x) {
-	d_using(point);
-	point_attributes->x = x;
-	return self;
+    d_using(point);
+    point_attributes->x = x;
+    return self;
 }
 
 d_define_method(point, set_y)(struct s_object *self, double y) {
-	d_using(point);
-	point_attributes->y = y;
-	return self;
+    d_using(point);
+    point_attributes->y = y;
+    return self;
 }
 
 d_define_method(point, get)(struct s_object *self, double *x, double *y) {
-	d_using(point);
-	if (x)
-		*x = point_attributes->x;
-	if (y)
-		*y = point_attributes->y;
-	return self;
+    d_using(point);
+    if (x)
+        *x = point_attributes->x;
+    if (y)
+        *y = point_attributes->y;
+    return self;
 }
 
 d_define_method(point, add)(struct s_object *self, double x, double y) {
-	d_using(point);
-	point_attributes->x += x;
-	point_attributes->y += y;
-	return self;
+    d_using(point);
+    point_attributes->x += x;
+    point_attributes->y += y;
+    return self;
 }
 
 d_define_method(point, subtract)(struct s_object *self, double x, double y) {
-	d_using(point);
-	point_attributes->x -= x;
-	point_attributes->y -= y;
-	return self;
+    d_using(point);
+    point_attributes->x -= x;
+    point_attributes->y -= y;
+    return self;
 }
 
 d_define_method(point, distance)(struct s_object *self, struct s_object *other, double *distance, double *distance_square) {
-	d_using(point);
-	struct s_point_attributes *point_attributes_other = d_cast(other, point);
-	double current_distance_square;
-	current_distance_square = ((point_attributes->x - point_attributes_other->x) * (point_attributes->x - point_attributes_other->x)) +
-		((point_attributes->y - point_attributes_other->y) * (point_attributes->y - point_attributes_other->y));
-	if (distance_square)
-		*distance_square = current_distance_square;
-	*distance = f_math_sqrt(current_distance_square, d_point_precision_default);
-	return self;
+    d_using(point);
+    struct s_point_attributes *point_attributes_other = d_cast(other, point);
+    double current_distance_square;
+    current_distance_square = ((point_attributes->x - point_attributes_other->x) * (point_attributes->x - point_attributes_other->x)) +
+        ((point_attributes->y - point_attributes_other->y) * (point_attributes->y - point_attributes_other->y));
+    if (distance_square)
+        *distance_square = current_distance_square;
+    *distance = f_math_sqrt(current_distance_square, d_point_precision_default);
+    return self;
 }
 
 d_define_class(point) {
-	d_hook_method(point, e_flag_public, set_point),
-	d_hook_method(point, e_flag_public, set_x),
-	d_hook_method(point, e_flag_public, set_y),
-	d_hook_method(point, e_flag_public, get),
-	d_hook_method(point, e_flag_public, add),
-	d_hook_method(point, e_flag_public, subtract),
-	d_hook_method(point, e_flag_public, distance),
-	d_hook_method_tail
+    d_hook_method(point, e_flag_public, set_point),
+        d_hook_method(point, e_flag_public, set_x),
+        d_hook_method(point, e_flag_public, set_y),
+        d_hook_method(point, e_flag_public, get),
+        d_hook_method(point, e_flag_public, add),
+        d_hook_method(point, e_flag_public, subtract),
+        d_hook_method(point, e_flag_public, distance),
+        d_hook_method_tail
 };

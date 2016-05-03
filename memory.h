@@ -30,20 +30,20 @@
 #define d_malloc_explicit(siz,f,l) calloc(1,(siz))
 #define d_realloc realloc
 #define d_free(ptr)\
-       do{\
-	       if(ptr)\
-	       		free(ptr);\
-       }while(0)
+    do{\
+        if(ptr)\
+        free(ptr);\
+    }while(0)
 #endif
 #define d_memory_checksum 0xfacefeed
 typedef struct s_memory_tail {
-	unsigned int checksum, line;
-	const char *file;
+    unsigned int checksum, line;
+    const char *file;
 } s_memory_tail;
 typedef struct s_memory_head {
-	struct s_memory_head *next;
-	size_t dimension;
-	unsigned int checksum;
+    struct s_memory_head *next;
+    size_t dimension;
+    unsigned int checksum;
 } s_memory_head;
 extern struct s_memory_head *v_memory_root;
 extern void f_memory_destroy(void);

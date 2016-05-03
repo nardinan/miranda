@@ -5,7 +5,7 @@ cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
 libs = -L.. -L../.. -L../../geometry -L../../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_geometry -lmiranda_media -lSDL2 -lSDL2_image \
-       -lSDL2_ttf
+	   -lSDL2_ttf
 executable = lib$(name).so
 
 all: $(objects)

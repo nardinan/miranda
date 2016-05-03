@@ -29,31 +29,31 @@
 #define d_war(l,c...) p_log_write(stdout,l,"\x1B[33mwar\x1B[0m",__FILE__,__FUNCTION__,__LINE__,##c)
 #define d_err(l,c...) p_log_write(stderr,l,"\x1B[31merr\x1B[0m",__FILE__,__FUNCTION__,__LINE__,##c)
 #define d_die(f...)\
-	do{\
-		d_err(e_log_level_ever,##f);\
-		exit(1);\
-	}while(0);
+    do{\
+        d_err(e_log_level_ever,##f);\
+        exit(1);\
+    }while(0);
 typedef enum e_log_level {
-	e_log_level_ever = 0,
-	e_log_level_low,
-	e_log_level_medium,
-	e_log_level_high
+    e_log_level_ever = 0,
+    e_log_level_low,
+    e_log_level_medium,
+    e_log_level_high
 } e_log_level;
 extern enum e_log_level v_log_level;
 extern const char v_log_level_description[][d_log_description_size];
 extern void p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, unsigned int line,
-	const char *format, ...);
+        const char *format, ...);
 #ifdef d_miranda_debug
 #define d_assert(c)\
-	do{\
-		if(!(c)){\
-			d_war(e_log_level_ever,"assertion \"" #c "\" fails");\
-			asm("0:"\
-				".pushsection embed-breakpoints;"\
-				".quad 0b;"\
-				".popsection;");\
-		}\
-	}while(0)
+    do{\
+        if(!(c)){\
+            d_war(e_log_level_ever,"assertion \"" #c "\" fails");\
+            asm("0:"\
+                    ".pushsection embed-breakpoints;"\
+                    ".quad 0b;"\
+                    ".popsection;");\
+        }\
+    }while(0)
 #else
 #define d_assert(c) c
 #endif

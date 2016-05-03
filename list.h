@@ -27,15 +27,15 @@
 #define d_list_node_constant {NULL, NULL}
 typedef size_t t_list_value;
 typedef enum e_list_insert_kind {
-	e_list_insert_head,
-	e_list_insert_tail
+    e_list_insert_head,
+    e_list_insert_tail
 } e_list_insert_kind;
 typedef struct s_list_node {
-	struct s_list_node *next, *back;
+    struct s_list_node *next, *back;
 } s_list_node;
 typedef struct s_list {
-	struct s_list_node *head, *tail, *current;
-	t_list_value fill;
+    struct s_list_node *head, *tail, *current;
+    t_list_value fill;
 } s_list;
 extern void f_list_init(struct s_list **list);
 extern void f_list_destroy(struct s_list **list);

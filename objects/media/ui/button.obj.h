@@ -21,7 +21,7 @@
 #define d_button_alignment e_label_alignment_center
 #define d_button_background e_label_background_format_adaptable
 d_declare_class(button) {
-	struct s_attributes head;
+    struct s_attributes head;
 } d_declare_class_tail(button);
 struct s_button_attributes *p_button_alloc(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_button_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);

@@ -33,21 +33,21 @@
 #define d_environment_audio_chunk 4096
 typedef int (* t_environment_call)(struct s_object *);
 typedef enum e_environment_surfaces {
-	e_environment_surface_primary = 0,
-	e_environment_surface_ui,
-	e_environment_surface_NULL
+    e_environment_surface_primary = 0,
+    e_environment_surface_ui,
+    e_environment_surface_NULL
 } e_environment_surfaces;
 d_declare_class(environment) {
-	struct s_attributes head;
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-	t_environment_call init_call, main_call, quit_call;
-	enum e_environment_surfaces current_surface;
-	double reference_w[e_environment_surface_NULL], reference_h[e_environment_surface_NULL], current_w, current_h,
-	       camera_origin_x[e_environment_surface_NULL], camera_origin_y[e_environment_surface_NULL], camera_focus_x[e_environment_surface_NULL],
-	       camera_focus_y[e_environment_surface_NULL], zoom[e_environment_surface_NULL], fps;
-	struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
-	t_boolean continue_loop;
+    struct s_attributes head;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    t_environment_call init_call, main_call, quit_call;
+    enum e_environment_surfaces current_surface;
+    double reference_w[e_environment_surface_NULL], reference_h[e_environment_surface_NULL], current_w, current_h,
+           camera_origin_x[e_environment_surface_NULL], camera_origin_y[e_environment_surface_NULL], camera_focus_x[e_environment_surface_NULL],
+           camera_focus_y[e_environment_surface_NULL], zoom[e_environment_surface_NULL], fps;
+           struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
+           t_boolean continue_loop;
 } d_declare_class_tail(environment);
 struct s_environment_attributes *p_environment_alloc(struct s_object *self);
 extern struct s_object *f_environment_new(struct s_object *self, int width, int height);

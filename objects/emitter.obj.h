@@ -21,14 +21,14 @@
 #define d_emitter_name_size 16
 typedef void *(*f_emitter_action)(struct s_object *, void **, size_t);
 typedef struct s_signal { d_list_node_head;
-	char id[d_emitter_name_size];
-	void **parameters;
-	size_t parameters_size;
-	f_emitter_action action;
+    char id[d_emitter_name_size];
+    void **parameters;
+    size_t parameters_size;
+    f_emitter_action action;
 } s_signal;
 d_declare_class(emitter) {
-	struct s_attributes head;
-	struct s_list *signals;
+    struct s_attributes head;
+    struct s_list *signals;
 } d_declare_class_tail(emitter);
 extern struct s_object *f_emitter_new(struct s_object *self);
 d_declare_method(emitter, record)(struct s_object *self, const char *id);

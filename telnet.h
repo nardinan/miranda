@@ -33,22 +33,22 @@
 #define d_telnet_timeout 100 /* microseconds */
 #define d_telnet_clients 256
 typedef struct s_telnet_socket {
-	int socket;
-	t_boolean initialized;
+    int socket;
+    t_boolean initialized;
 } s_telnet_socket;
 typedef struct s_telnet_client {
-	struct s_telnet_socket socket;
-	char buffer[d_string_buffer_size];
-	unsigned int data_pointer;
-	size_t buffer_bytes;
+    struct s_telnet_socket socket;
+    char buffer[d_string_buffer_size];
+    unsigned int data_pointer;
+    size_t buffer_bytes;
 } s_telnet_client;
 typedef void (*t_telnet_new_action)(struct s_telnet_client *, int);
 typedef void (*t_telnet_quit_action)(struct s_telnet_client *, int);
 typedef void (*t_telnet_buffer_action)(struct s_telnet_client *, int, const char *, size_t);
 typedef struct s_telnet {
-	struct s_telnet_socket socket;
-	struct s_telnet_client clients[d_telnet_clients];
-	struct sockaddr_in address;
+    struct s_telnet_socket socket;
+    struct s_telnet_client clients[d_telnet_clients];
+    struct sockaddr_in address;
 } s_telnet;
 extern int f_telnet_initialize(struct s_telnet **telnet);
 extern void p_telnet_destroy_client(struct s_telnet *telnet, int client);

@@ -21,26 +21,26 @@
 #include "environment.obj.h"
 #define d_animation_infinite_loop -1
 typedef enum e_animation_directions {
-	e_animation_direction_forward,
-	e_animation_direction_rewind,
-	e_animation_direction_stop
+    e_animation_direction_forward,
+    e_animation_direction_rewind,
+    e_animation_direction_stop
 } e_animation_directions;
 typedef struct s_animation_frame { d_list_node_head;
-	struct s_object *drawable;
-	double offset_x, offset_y, zoom, time;
+    struct s_object *drawable;
+    double offset_x, offset_y, zoom, time;
 } s_animation_frame;
 typedef void (*t_animation_reboot)(struct s_object *);
 d_declare_class(animation) {
-	struct s_attributes head;
-	struct s_list frames;
-	struct s_animation_frame *current_frame;
-	struct timeval last_update;
-	t_animation_reboot callback;
-	struct s_object *raw_data;
-	int cycles, remaining_cycles;
-	enum e_animation_directions status;
-	enum e_drawable_blends last_blend;
-	double last_mask_R, last_mask_G, last_mask_B, last_mask_A, time_ratio;
+    struct s_attributes head;
+    struct s_list frames;
+    struct s_animation_frame *current_frame;
+    struct timeval last_update;
+    t_animation_reboot callback;
+    struct s_object *raw_data;
+    int cycles, remaining_cycles;
+    enum e_animation_directions status;
+    enum e_drawable_blends last_blend;
+    double last_mask_R, last_mask_G, last_mask_B, last_mask_A, time_ratio;
 } d_declare_class_tail(animation);
 struct s_animation_attributes *p_animation_alloc(struct s_object *self);
 extern struct s_object *f_animation_new(struct s_object *self, int cycles, double time_ratio);

@@ -17,32 +17,32 @@
  */
 #include "math.local.h"
 float f_math_mean(float *values, size_t elements) {
-	float result = 0.0f;
-	int index;
-	for (index = 0; index < elements; ++index)
-		result += values[index];
-	result /= (float)elements;
-	return result;
+    float result = 0.0f;
+    int index;
+    for (index = 0; index < elements; ++index)
+        result += values[index];
+    result /= (float)elements;
+    return result;
 }
 
 float f_math_sqrt(float value, float precision) {
-	float result = value, level = 1.0f;
-	while ((result-level)>precision) {
-		result = (result+level)/2.0f;
-		level = value/result;
-	}
-	return result;
+    float result = value, level = 1.0f;
+    while ((result-level)>precision) {
+        result = (result+level)/2.0f;
+        level = value/result;
+    }
+    return result;
 }
 
 float f_math_rms(float *values, size_t elements, float precision) {
-	float mean = 0.0f, mean_square = 0.0f;
-	int index;
-	for (index = 0; index < elements; ++index) {
-		mean += values[index];
-		mean_square += (values[index]*values[index]);
-	}
-	mean /= (float)elements;
-	mean_square /= (float)elements;
-	return f_math_sqrt(fabs(mean_square-(mean*mean)), precision);
+    float mean = 0.0f, mean_square = 0.0f;
+    int index;
+    for (index = 0; index < elements; ++index) {
+        mean += values[index];
+        mean_square += (values[index]*values[index]);
+    }
+    mean /= (float)elements;
+    mean_square /= (float)elements;
+    return f_math_sqrt(fabs(mean_square-(mean*mean)), precision);
 }
 

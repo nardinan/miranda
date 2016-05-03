@@ -25,14 +25,14 @@
 #define d_fonts_collection 128
 #define d_fonts_default 0
 typedef struct s_fonts_pack {
-	char *font_block;
-	struct stat file_stats;
-	TTF_Font *font;
+    char *font_block;
+    struct stat file_stats;
+    TTF_Font *font;
 } s_fonts_pack;
 d_exception_declare(ttf);
 d_declare_class(fonts) {
-	struct s_attributes head;
-	struct s_fonts_pack fonts[d_fonts_collection];
+    struct s_attributes head;
+    struct s_fonts_pack fonts[d_fonts_collection];
 } d_declare_class_tail(fonts);
 struct s_fonts_attributes *p_fonts_alloc(struct s_object *self);
 extern struct s_object *f_fonts_new(struct s_object *self);

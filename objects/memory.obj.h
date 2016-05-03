@@ -19,17 +19,17 @@
 #define miranda_object_memory_h
 #include "object.h"
 d_declare_class(memory) {
-	struct s_attributes head;
-	int references;
+    struct s_attributes head;
+    int references;
 } d_declare_class_tail(memory);
 extern struct s_object *f_memory_new(struct s_object *self);
 #define d_retain(mem) (d_call((mem),m_memory_retain,NULL))
 d_declare_method(memory, retain)(struct s_object *self);
 #define d_delete(mem) \
-	do{\
-		if(!d_call((mem),m_memory_release,NULL))\
-			f_object_delete(mem);\
-	}while(0)
+    do{\
+        if(!d_call((mem),m_memory_release,NULL))\
+        f_object_delete(mem);\
+    }while(0)
 d_declare_method(memory, release)(struct s_object *self);
 #endif
 

@@ -22,8 +22,8 @@
 #include "../../math.local.h"
 #define d_point_precision_default 5
 d_declare_class(point) {
-	struct s_attributes head;
-	double x, y;
+    struct s_attributes head;
+    double x, y;
 } d_declare_class_tail(point);
 struct s_point_attributes *p_point_alloc(struct s_object *self);
 extern struct s_object *f_point_new(struct s_object *self, double x, double y);

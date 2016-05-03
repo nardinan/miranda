@@ -28,20 +28,20 @@ typedef long long t_hash_value;
 typedef t_hash_value (t_hash_calculate)(void *key);
 typedef int (t_hash_compare)(void *left, void *right);
 typedef enum e_hash_kind {
-	e_hash_kind_deleted,
-	e_hash_kind_empty,
-	e_hash_kind_fill
+    e_hash_kind_deleted,
+    e_hash_kind_empty,
+    e_hash_kind_fill
 } e_hash_kind;
 typedef struct s_hash_bucket {
-	t_hash_value hash;
-	void *key, *value;
-	enum e_hash_kind kind;
+    t_hash_value hash;
+    void *key, *value;
+    enum e_hash_kind kind;
 } s_hash_bucket;
 typedef struct s_hash_table {
-	t_hash_value mask, fill;
-	t_hash_compare *compare;
-	t_hash_calculate *calculate;
-	struct s_hash_bucket *table;
+    t_hash_value mask, fill;
+    t_hash_compare *compare;
+    t_hash_calculate *calculate;
+    struct s_hash_bucket *table;
 } s_hash_table;
 extern void p_hash_allocate(struct s_hash_table *table, t_hash_value dimension);
 extern void p_hash_resize(struct s_hash_table *table, t_hash_value dimension);

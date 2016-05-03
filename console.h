@@ -34,54 +34,54 @@
 struct s_console;
 struct s_console_command;
 typedef enum e_console_style {
-	e_console_style_reset = 0,
-	/* styles */
-	e_console_style_bold,
-	e_console_style_italic,
-	e_console_style_underline,
-	e_console_style_blink,
-	e_console_style_reverse,
-	/* colors */
-	e_console_style_red,
-	e_console_style_green,
-	e_console_style_yellow,
-	e_console_style_blue,
-	e_console_style_gray,
-	e_console_style_white,
-	/* utils */
-	e_console_style_clean_line,
-	e_console_style_clean_screen
+    e_console_style_reset = 0,
+    /* styles */
+    e_console_style_bold,
+    e_console_style_italic,
+    e_console_style_underline,
+    e_console_style_blink,
+    e_console_style_reverse,
+    /* colors */
+    e_console_style_red,
+    e_console_style_green,
+    e_console_style_yellow,
+    e_console_style_blue,
+    e_console_style_gray,
+    e_console_style_white,
+    /* utils */
+    e_console_style_clean_line,
+    e_console_style_clean_screen
 } e_console_style;
 typedef enum e_console_level {
-	e_console_level_guest = 0,
-	e_console_level_user,
-	e_console_level_admin
+    e_console_level_guest = 0,
+    e_console_level_user,
+    e_console_level_admin
 } e_console_level;
 extern const char *v_console_styles[];
 typedef int (*t_console_recall)(struct s_console *, struct s_console_command *, char **, size_t, int);
 typedef struct s_console_parameter {
-	char parameter[d_console_parameter_size], description[d_string_buffer_size];
-	t_boolean is_flag, optional, initialized;
+    char parameter[d_console_parameter_size], description[d_string_buffer_size];
+    t_boolean is_flag, optional, initialized;
 } s_console_parameter;
 typedef struct s_console_command {
-	char command[d_console_command_size], description[d_string_buffer_size];
-	struct s_console_parameter *parameters;
-	t_console_recall call;
-	enum e_console_level level;
-	t_boolean initialized;
+    char command[d_console_command_size], description[d_string_buffer_size];
+    struct s_console_parameter *parameters;
+    t_console_recall call;
+    enum e_console_level level;
+    t_boolean initialized;
 } s_console_command;
 typedef struct s_console_input {
-	char input[d_string_buffer_size], special[d_console_parameter_size];
-	int data_pointer, special_pointer;
-	t_boolean ready;
-	size_t data_length;
+    char input[d_string_buffer_size], special[d_console_parameter_size];
+    int data_pointer, special_pointer;
+    t_boolean ready;
+    size_t data_length;
 } s_console_input;
 typedef struct s_console {
-	enum e_console_level level;
-	struct s_console_command *commands;
-	struct termios old_configuration, current_configuration;
-	char history[d_console_history_size][d_string_buffer_size], prefix[d_string_buffer_size];
-	int history_last, history_pointer, descriptor, input_enabled;
+    enum e_console_level level;
+    struct s_console_command *commands;
+    struct termios old_configuration, current_configuration;
+    char history[d_console_history_size][d_string_buffer_size], prefix[d_string_buffer_size];
+    int history_last, history_pointer, descriptor, input_enabled;
 } s_console;
 extern int f_console_parameter(const char *symbol, char **tokens, size_t elements, int is_flag);
 extern int f_console_init(struct s_console **console, struct s_console_command *commands, int descriptor);

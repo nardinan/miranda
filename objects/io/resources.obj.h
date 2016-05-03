@@ -26,20 +26,20 @@
 #define d_resources_file_default_permission 0766
 #define d_resources_folder_separator '/'
 typedef enum e_resources_types {
-	e_resources_type_common,
-	e_resources_type_read,
-	e_resources_type_write
+    e_resources_type_common,
+    e_resources_type_read,
+    e_resources_type_write
 } e_resources_types;
 typedef struct s_resources_node {
-	char key[d_resources_key_size], path[PATH_MAX];
-	struct s_object *stream_file; /* read mode */
-	time_t last_timestamp;
+    char key[d_resources_key_size], path[PATH_MAX];
+    struct s_object *stream_file; /* read mode */
+    time_t last_timestamp;
 } s_resources_node;
 d_declare_class(resources) {
-	struct s_attributes head;
-	const char *extensions;
-	struct s_hash_table *nodes;
-	struct s_resources_node *default_template;
+    struct s_attributes head;
+    const char *extensions;
+    struct s_hash_table *nodes;
+    struct s_resources_node *default_template;
 } d_declare_class_tail(resources);
 struct s_resources_attributes *p_resources_alloc(struct s_object *self);
 extern t_hash_value p_resources_calculate(char *key);
@@ -47,7 +47,7 @@ extern void p_resources_scan_free(struct s_resources_node *node);
 extern struct s_resources_node *f_resources_scan(const char *directory, const char *extensions, struct s_hash_table *nodes);
 extern struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions);
 extern struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path,
-		const char *extensions);
+        const char *extensions);
 d_declare_method(resources, get)(struct s_object *self, const char *key);
 d_declare_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type);
 d_declare_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type);
