@@ -18,11 +18,11 @@
 #ifndef miranda_media_container_h
 #define miranda_media_container_h
 #include "label.obj.h"
-typedef struct s_container_uiable { d_list_node_head;
-    struct s_object *uiable;
+typedef struct s_container_drawable { d_list_node_head;
+    struct s_object *drawable;
     double position_x, position_y;
     t_boolean remove;
-} s_container_uiable;
+} s_container_drawable;
 d_declare_class(container) {
     struct s_attributes head;
     struct s_list entries;
@@ -32,8 +32,8 @@ d_declare_class(container) {
 struct s_container_attributes *p_container_alloc(struct s_object *self);
 extern struct s_object *f_container_new(struct s_object *self, double border_top, double border_bottom, double border_left, double border_right,
         t_boolean floatable);
-d_declare_method(container, add_uiable)(struct s_object *self, struct s_object *uiable, double position_x, double position_y);
-d_declare_method(container, del_uiable)(struct s_object *self, struct s_object *uiable);
+d_declare_method(container, add_drawable)(struct s_object *self, struct s_object *drawable, double position_x, double position_y);
+d_declare_method(container, del_drawable)(struct s_object *self, struct s_object *drawable);
 d_declare_method(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(container, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(container, delete)(struct s_object *self, struct s_container_attributes *attributes);
