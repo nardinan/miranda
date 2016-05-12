@@ -155,7 +155,8 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
         drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
         drawable_attributes_core->angle = drawable_attributes_self->angle;
         drawable_attributes_core->flip = drawable_attributes_self->flip;
-        if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
+        if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, 
+                        environment_attributes->reference_w[environment_attributes->current_surface],
                         environment_attributes->reference_h[environment_attributes->current_surface],
                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
                         environment_attributes->camera_origin_y[environment_attributes->current_surface],
@@ -165,7 +166,6 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                         environment_attributes->current_h,
                         environment_attributes->zoom[environment_attributes->current_surface])))
             while (((int)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
-
     }
     d_cast_return(d_drawable_return_last);
 }
@@ -201,37 +201,49 @@ d_define_method_override(animation, set_blend)(struct s_object *self, enum e_dra
 
 d_define_method_override(animation, get_scaled_position)(struct s_object *self, double *x, double *y) {
     d_using(animation);
+    struct s_animation_frame *current_frame = animation_attributes->current_frame;
     *x = NAN;
     *y = NAN;
-    if (animation_attributes->current_frame)
-        d_call(animation_attributes->current_frame->drawable, m_drawable_get_scaled_position, x, y);
+    if (!current_frame)
+        current_frame = (struct s_animation_frame *)animation_attributes->frames.head;
+    if (current_frame)
+        d_call(current_frame->drawable, m_drawable_get_scaled_position, x, y);
     return self;
 }
 
 d_define_method_override(animation, get_scaled_center)(struct s_object *self, double *x, double *y) {
     d_using(animation);
+    struct s_animation_frame *current_frame = animation_attributes->current_frame;
     *x = NAN;
     *y = NAN;
-    if (animation_attributes->current_frame)
-        d_call(animation_attributes->current_frame->drawable, m_drawable_get_scaled_center, x, y);
+    if (!current_frame)
+        current_frame = (struct s_animation_frame *)animation_attributes->frames.head;
+    if (current_frame)
+        d_call(current_frame->drawable, m_drawable_get_scaled_center, x, y);
     return self;
 }
 
 d_define_method_override(animation, get_dimension)(struct s_object *self, double *w, double *h) {
     d_using(animation);
+    struct s_animation_frame *current_frame = animation_attributes->current_frame;
     *w = NAN;
     *h = NAN;
-    if (animation_attributes->current_frame)
-        d_call(animation_attributes->current_frame->drawable, m_drawable_get_dimension, w, h);
+    if (!current_frame)
+        current_frame = (struct s_animation_frame *)animation_attributes->frames.head;
+    if (current_frame)
+        d_call(current_frame->drawable, m_drawable_get_dimension, w, h);
     return self;
 }
 
 d_define_method_override(animation, get_scaled_dimension)(struct s_object *self, double *w, double *h) {
     d_using(animation);
+    struct s_animation_frame *current_frame = animation_attributes->current_frame;
     *w = NAN;
     *h = NAN;
-    if (animation_attributes->current_frame)
-        d_call(animation_attributes->current_frame->drawable, m_drawable_get_scaled_dimension, w, h);
+    if (!current_frame)
+        current_frame = (struct s_animation_frame *)animation_attributes->frames.head;
+    if (current_frame)
+        d_call(current_frame->drawable, m_drawable_get_scaled_dimension, w, h);
     return self;
 }
 
