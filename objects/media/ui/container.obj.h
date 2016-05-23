@@ -26,7 +26,7 @@ typedef struct s_container_drawable { d_list_node_head;
 d_declare_class(container) {
     struct s_attributes head;
     struct s_list entries;
-    double border_top, border_bottom, border_left, border_right, offset_x, offset_y;
+    double border_top, border_bottom, border_left, border_right, offset_x, offset_y, distributed_zoom;
     t_boolean floatable, grabbed;
 } d_declare_class_tail(container);
 struct s_container_attributes *p_container_alloc(struct s_object *self);
@@ -36,5 +36,6 @@ d_declare_method(container, add_drawable)(struct s_object *self, struct s_object
 d_declare_method(container, del_drawable)(struct s_object *self, struct s_object *drawable);
 d_declare_method(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(container, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(container, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(container, delete)(struct s_object *self, struct s_container_attributes *attributes);
 #endif

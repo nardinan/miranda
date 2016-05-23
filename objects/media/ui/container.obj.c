@@ -31,6 +31,7 @@ struct s_object *f_container_new(struct s_object *self, double border_top, doubl
     attributes->border_bottom = border_bottom;
     attributes->border_left = border_left;
     attributes->border_right = border_right;
+    attributes->distributed_zoom = 1;
     if ((attributes->floatable = floatable)) {
         d_call(self, m_morpholable_set_freedom_x, d_true);
         d_call(self, m_morpholable_set_freedom_y, d_true);
@@ -87,8 +88,8 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
                                  *drawable_attributes_entry;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_container_drawable *current_container;
-    double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry,
-           normalized_position_x_entry, normalized_position_y_entry, center_x_self, center_y_self, center_x_entry, center_y_entry,
+    double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry, 
+           normalized_position_x_entry, normalized_position_y_entry, center_x_self, center_y_self, center_x_entry, center_y_entry, 
            normalized_dimension_w_entry, normalized_dimension_h_entry, max_w = container_attributes->border_left + container_attributes->border_right,
            max_h = container_attributes->border_top + container_attributes->border_bottom, current_w, current_h;
     int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
@@ -106,7 +107,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
             drawable_attributes_entry->angle = drawable_attributes_self->angle;
         if ((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_zoom) != e_drawable_kind_ui_no_attribute_zoom) {
             d_call(current_container->drawable, m_drawable_set_center, center_x_entry, center_y_entry);
-            drawable_attributes_entry->zoom = drawable_attributes_self->zoom;
+            drawable_attributes_entry->zoom = container_attributes->distributed_zoom;
         }
         if ((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_flip) != e_drawable_kind_ui_no_attribute_flip)
             drawable_attributes_entry->flip = drawable_attributes_self->flip;
@@ -134,9 +135,16 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
         }
     }
     d_call(self, m_drawable_set_dimension, max_w, max_h);
+    if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
+        d_call(self, m_drawable_draw_contour, environment);
     d_cast_return(result);
 }
 
+d_define_method_override(container, set_zoom)(struct s_object *self, double zoom) {
+    d_using(container);
+    container_attributes->distributed_zoom = zoom;
+    return self;
+}
 
 d_define_method(container, delete)(struct s_object *self, struct s_container_attributes *attributes) {
     struct s_container_drawable *current_container;
@@ -153,6 +161,7 @@ d_define_class(container) {
         d_hook_method(container, e_flag_public, del_drawable),
         d_hook_method_override(container, e_flag_public, eventable, event),
         d_hook_method_override(container, e_flag_public, drawable, draw),
+        d_hook_method_override(container, e_flag_public, drawable, set_zoom),
         d_hook_delete(container),
         d_hook_method_tail
 };
