@@ -97,7 +97,7 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
     struct timeval current, elapsed_update;
     double real_elapsed_update, local_position_x, local_position_y, position_x, position_y;
     gettimeofday(&current, NULL);
-    d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
+    d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
     if (animation_attributes->current_frame) {
         if ((animation_attributes->status == e_animation_direction_forward) || (animation_attributes->status == e_animation_direction_rewind)) {
             timersub(&current, &(animation_attributes->last_update), &elapsed_update);
@@ -150,8 +150,7 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
         drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
         position_x = local_position_x + animation_attributes->current_frame->offset_x;
         position_y = local_position_y + animation_attributes->current_frame->offset_y;
-        d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
-        d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double)position_y);
+        d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
         drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
         drawable_attributes_core->angle = drawable_attributes_self->angle;
         drawable_attributes_core->flip = drawable_attributes_self->flip;
