@@ -61,22 +61,20 @@ d_define_method_override(morpholable, event)(struct s_object *self, struct s_obj
                     morpholable_attributes->offset_z += (current_event->wheel.y * d_morpholable_z_factor);
                 break;
             case SDL_MOUSEBUTTONUP:
-                if (current_event->button.button == SDL_BUTTON_LEFT) {
-                    SDL_GetMouseState(&mouse_x, &mouse_y);
-                    mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/
-                        environment_attributes->current_w;
-                    mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/
-                        environment_attributes->current_h;
-                    if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y)))
-                        morpholable_attributes->grabbed = d_false;
-                }
+                if (current_event->button.button == SDL_BUTTON_LEFT)
+                    morpholable_attributes->grabbed = d_false;
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 if (current_event->button.button == SDL_BUTTON_LEFT) {
-                    morpholable_attributes->grabbed = d_true;
-                    morpholable_attributes->offset_x = NAN;
-                    morpholable_attributes->offset_y = NAN;
-                    morpholable_attributes->offset_z = NAN;
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
+                    mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
+                    if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
+                        morpholable_attributes->grabbed = d_true;
+                        morpholable_attributes->offset_x = NAN;
+                        morpholable_attributes->offset_y = NAN;
+                        morpholable_attributes->offset_z = NAN;
+                    }
                 }
         }
     } d_catch(exception) {
