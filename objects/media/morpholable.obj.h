@@ -1,0 +1,37 @@
+/*
+ * miranda
+ * Copyright (C) 2016 Andrea Nardinocchi (andrea@nardinan.it)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifndef miranda_media_morpholable_h
+#define miranda_media_morpholable_h
+#include "eventable.obj.h"
+#include "drawable.obj.h"
+#define d_morpholable_x_factor 1.0
+#define d_morpholable_y_factor 1.0
+#define d_morpholable_z_factor 0.01
+d_declare_class(morpholable) {
+    struct s_attributes head;
+    double offset_x, offset_y, offset_z;
+    t_boolean grabbed, freedom_x, freedom_y, freedom_z;
+} d_declare_class_tail(morpholable);
+struct s_morpholable_attributes *p_morpholable_alloc(struct s_object *self);
+extern struct s_object *f_morpholable_new(struct s_object *self);
+d_declare_method(morpholable, set_freedom_x)(struct s_object *self, t_boolean free);
+d_declare_method(morpholable, set_freedom_y)(struct s_object *self, t_boolean free);
+d_declare_method(morpholable, set_freedom_z)(struct s_object *self, t_boolean free);
+d_declare_method(morpholable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
+d_declare_method(morpholable, delete)(struct s_object *self, struct s_morpholable_attributes *attributes);
+#endif

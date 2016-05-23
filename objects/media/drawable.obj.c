@@ -164,6 +164,18 @@ d_define_method(drawable, set_position)(struct s_object *self, double x, double 
     return self;
 }
 
+d_define_method(drawable, set_position_x)(struct s_object *self, double x) {
+    d_using(drawable);
+    d_call(&(drawable_attributes->point_destination), m_point_set_x, x);
+    return self;
+}
+
+d_define_method(drawable, set_position_y)(struct s_object *self, double y) {
+    d_using(drawable);
+    d_call(&(drawable_attributes->point_destination), m_point_set_y, y);
+    return self;
+}
+
 d_define_method(drawable, get_position)(struct s_object *self, double *x, double *y) {
     d_using(drawable);
     d_call(&(drawable_attributes->point_destination), m_point_get, x, y);
@@ -269,6 +281,8 @@ d_define_class(drawable) {
         d_hook_method(drawable, e_flag_public, normalize_scale),
         d_hook_method(drawable, e_flag_public, keep_scale),
         d_hook_method(drawable, e_flag_public, set_position),
+        d_hook_method(drawable, e_flag_public, set_position_x),
+        d_hook_method(drawable, e_flag_public, set_position_y),
         d_hook_method(drawable, e_flag_public, get_position),
         d_hook_method(drawable, e_flag_public, get_scaled_position),
         d_hook_method(drawable, e_flag_public, get_scaled_center),

@@ -245,4 +245,3 @@ int f_huffman_decompression(unsigned char *block, size_t size, unsigned char **o
     return current_block_byte;
 }
 
-

@@ -66,6 +66,8 @@ d_declare_method(drawable, normalize_scale)(struct s_object *self, double refere
         double focus_x, double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(drawable, keep_scale)(struct s_object *self, double current_w, double current_h);
 d_declare_method(drawable, set_position)(struct s_object *self, double x, double y);
+d_declare_method(drawable, set_position_x)(struct s_object *self, double x);
+d_declare_method(drawable, set_position_y)(struct s_object *self, double y);
 d_declare_method(drawable, get_position)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, get_scaled_position)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, get_scaled_center)(struct s_object *self, double *x, double *y);

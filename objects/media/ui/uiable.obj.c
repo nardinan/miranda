@@ -44,9 +44,8 @@ const char *v_uiable_signals[e_uiable_signal_NULL] = {
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
     struct s_uiable_attributes *result = d_prepare(self, uiable);
     /* abstract (no memory inheritance) */
-    f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));	/* inherit */
-    f_eventable_new(self);									/* inherit */
-    f_emitter_new(self);									/* inherit */
+    f_morpholable_new(self);    /* inherit */
+    f_emitter_new(self);        /* inherit */
     return result;
 }
 
@@ -97,12 +96,46 @@ d_define_method(uiable, mode)(struct s_object *self, enum e_uiable_modes mode) {
     return self;
 }
 
+d_define_method_override(uiable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
+    d_using(uiable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    struct s_object *result = d_call_owner(self, morpholable, m_eventable_event, environment, current_event);
+    int mouse_x, mouse_y;
+    if (uiable_attributes->selected_mode != e_uiable_mode_idle) { /* is not off */
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
+            if (!uiable_attributes->is_selected) {
+                uiable_attributes->is_selected = d_true;
+                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
+            }
+            if (current_event->type == SDL_MOUSEBUTTONDOWN) {
+                if (current_event->button.button == SDL_BUTTON_LEFT) {
+                    d_call(self, m_uiable_mode, e_uiable_mode_selected);
+                    d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_left]);
+                } else if (current_event->button.button == SDL_BUTTON_RIGHT)
+                    d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_right]);
+            }
+        } else {
+            if (uiable_attributes->is_selected) {
+                uiable_attributes->is_selected = d_false;
+                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
+            }
+            if (current_event->type == SDL_MOUSEBUTTONDOWN)
+                if (current_event->button.button == SDL_BUTTON_LEFT)
+                    d_call(self, m_uiable_mode, e_uiable_mode_active);
+        }
+    } else
+        uiable_attributes->is_selected = d_false;
+    return result;
+}
+
 d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *environment) {
     d_using(uiable);
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_core;
     struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes_self->square_collision_box), square);
+    struct s_object *result = d_call_owner(self, morpholable, m_drawable_draw, environment);
     int index, background_x[] = {
         square_attributes->normalized_top_left_x,
         square_attributes->normalized_top_right_x,
@@ -221,39 +254,7 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
                 uiable_attributes->background_mask_G, uiable_attributes->background_mask_B, uiable_attributes->background_mask_A);
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(self, m_drawable_draw_contour, environment);
-    d_cast_return(d_drawable_return_last);
-}
-
-d_define_method_override(uiable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
-    d_using(uiable);
-    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-    int mouse_x, mouse_y;
-    if (uiable_attributes->selected_mode != e_uiable_mode_idle) { /* is not off */
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
-            if (!uiable_attributes->is_selected) {
-                uiable_attributes->is_selected = d_true;
-                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
-            }
-            if (current_event->type == SDL_MOUSEBUTTONDOWN) {
-                if (current_event->button.button == SDL_BUTTON_LEFT) {
-                    d_call(self, m_uiable_mode, e_uiable_mode_selected);
-                    d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_left]);
-                } else if (current_event->button.button == SDL_BUTTON_RIGHT)
-                    d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_right]);
-            }
-        } else {
-            if (uiable_attributes->is_selected) {
-                uiable_attributes->is_selected = d_false;
-                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
-            }
-            if (current_event->type == SDL_MOUSEBUTTONDOWN)
-                if (current_event->button.button == SDL_BUTTON_LEFT)
-                    d_call(self, m_uiable_mode, e_uiable_mode_active);
-        }
-    } else
-        uiable_attributes->is_selected = d_false;
-    return self;
+    return result;
 }
 
 d_define_method_override(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {

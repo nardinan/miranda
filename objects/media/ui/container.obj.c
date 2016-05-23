@@ -31,7 +31,10 @@ struct s_object *f_container_new(struct s_object *self, double border_top, doubl
     attributes->border_bottom = border_bottom;
     attributes->border_left = border_left;
     attributes->border_right = border_right;
-    attributes->floatable = floatable;
+    if ((attributes->floatable = floatable)) {
+        d_call(self, m_morpholable_set_freedom_x, d_true);
+        d_call(self, m_morpholable_set_freedom_y, d_true);
+    }
     return self;
 }
 
@@ -63,29 +66,14 @@ d_define_method(container, del_drawable)(struct s_object *self, struct s_object 
 
 d_define_method_override(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(container);
-    struct s_uiable_attributes *uiable_attributes_self = d_cast(self, uiable),
-                               *uiable_attributes_current;
+    struct s_uiable_attributes *uiable_attributes;
     struct s_container_drawable *current_container;
     struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
     struct s_exception *exception;
     d_try {
         d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
-            if ((uiable_attributes_current = d_cast(current_container->drawable, uiable)))
+            if ((uiable_attributes = d_cast(current_container->drawable, uiable)))
                 d_call(current_container->drawable, m_eventable_event, environment, current_event);
-        if (container_attributes->floatable)
-            switch (current_event->type) {
-                case SDL_MOUSEBUTTONUP:
-                    if (current_event->button.button == SDL_BUTTON_LEFT)
-                        container_attributes->grabbed = d_false;
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    if ((current_event->button.button == SDL_BUTTON_LEFT) &&
-                            (uiable_attributes_self->selected_mode == e_uiable_mode_selected)) {
-                        container_attributes->grabbed = d_true;
-                        container_attributes->offset_x = NAN;
-                        container_attributes->offset_y = NAN;
-                    }
-            }
     } d_catch(exception) {
         d_exception_dump(stderr, exception);
         d_raise;
@@ -100,10 +88,10 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_container_drawable *current_container;
     double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry,
-           normalized_position_x_entry, normalized_position_y_entry, position_x, position_y, center_x_self, center_y_self, center_x_entry, center_y_entry,
+           normalized_position_x_entry, normalized_position_y_entry, center_x_self, center_y_self, center_x_entry, center_y_entry,
            normalized_dimension_w_entry, normalized_dimension_h_entry, max_w = container_attributes->border_left + container_attributes->border_right,
            max_h = container_attributes->border_top + container_attributes->border_bottom, current_w, current_h;
-    int mouse_x, mouse_y, result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+    int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
     d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
     d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x_self, &center_y_self);
@@ -146,19 +134,6 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
         }
     }
     d_call(self, m_drawable_set_dimension, max_w, max_h);
-    if ((container_attributes->floatable) && (container_attributes->grabbed)) {
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
-        mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
-        if ((container_attributes->offset_x != container_attributes->offset_x) && (container_attributes->offset_y != container_attributes->offset_y)) {
-            container_attributes->offset_x = (mouse_x - position_x_self);
-            container_attributes->offset_y = (mouse_y - position_y_self);
-        } else {
-            position_x = (double)mouse_x - container_attributes->offset_x;
-            position_y = (double)mouse_y - container_attributes->offset_y;
-            d_call(self, m_drawable_set_position, position_x, position_y);
-        }
-    }
     d_cast_return(result);
 }
 
