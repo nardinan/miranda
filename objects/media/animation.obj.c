@@ -95,9 +95,11 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                                  *drawable_attributes_core;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct timeval current, elapsed_update;
-    double real_elapsed_update, local_position_x, local_position_y, position_x, position_y;
+    double real_elapsed_update, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y, center_x, center_y, 
+           dimension_w = 0.0, dimension_h = 0.0; 
     gettimeofday(&current, NULL);
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
+    d_call(&(drawable_attributes_self->point_center), m_point_get, &local_center_x, &local_center_y);
     if (animation_attributes->current_frame) {
         if ((animation_attributes->status == e_animation_direction_forward) || (animation_attributes->status == e_animation_direction_rewind)) {
             timersub(&current, &(animation_attributes->last_update), &elapsed_update);
@@ -148,9 +150,13 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
     }
     if (animation_attributes->current_frame) {
         drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
+        d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
+        center_x = local_center_x - animation_attributes->current_frame->offset_x;
+        center_y = local_center_y - animation_attributes->current_frame->offset_y;
         position_x = local_position_x + animation_attributes->current_frame->offset_x;
         position_y = local_position_y + animation_attributes->current_frame->offset_y;
         d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
+        d_call(animation_attributes->current_frame->drawable, m_drawable_set_center, center_x, center_y);
         drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
         drawable_attributes_core->angle = drawable_attributes_self->angle;
         drawable_attributes_core->flip = drawable_attributes_self->flip;
@@ -166,6 +172,9 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                         environment_attributes->zoom[environment_attributes->current_surface])))
             while (((int)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
+    d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);
+    if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
+        d_call(self, m_drawable_draw_contour, environment);
     d_cast_return(d_drawable_return_last);
 }
 
