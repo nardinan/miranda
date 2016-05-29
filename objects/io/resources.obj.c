@@ -90,11 +90,32 @@ struct s_object *f_resources_new(struct s_object *self, struct s_object *string_
 struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path,
         const char *extensions) {
     struct s_resources_attributes *attributes = p_resources_alloc(self);
-    attributes->extensions = extensions;
+    strncpy(attributes->extensions, extensions, PATH_MAX);
+    strncpy(attributes->path, d_string_cstring(string_directory_path), PATH_MAX);
     f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
     f_resources_scan(d_string_cstring(string_directory_path), extensions, attributes->nodes);
     if (string_template_path)
         attributes->default_template = f_resources_scan(d_string_cstring(string_template_path), extensions, NULL);
+    return self;
+}
+
+d_define_method(resources, reload)(struct s_object *self) {
+    d_using(resources);
+    struct s_resources_node *node;
+    struct s_hash_bucket *current_item, old_content;
+    t_hash_value elements = (resources_attributes->nodes->mask + 1), index;
+    for (index = 0; index < elements; ++index) {
+        current_item = &(resources_attributes->nodes->table[index]);
+        if (current_item->kind == e_hash_kind_fill) {
+            f_hash_delete(resources_attributes->nodes, current_item->key, &old_content);
+            if ((node = (struct s_resources_node *)old_content.value)) {
+                p_resources_scan_free(node);
+                d_free(node);
+            }
+            d_free(old_content.key);
+        }
+    }
+    f_resources_scan(resources_attributes->path, resources_attributes->extensions, resources_attributes->nodes);
     return self;
 }
 
@@ -175,7 +196,8 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
 }
 
 d_define_class(resources) {
-    d_hook_method(resources, e_flag_private, get),
+    d_hook_method(resources, e_flag_public, reload),
+        d_hook_method(resources, e_flag_private, get),
         d_hook_method(resources, e_flag_private, open_stream),
         d_hook_method(resources, e_flag_public, get_stream),
         d_hook_method(resources, e_flag_public, get_stream_strict),

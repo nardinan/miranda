@@ -37,7 +37,7 @@ typedef struct s_resources_node {
 } s_resources_node;
 d_declare_class(resources) {
     struct s_attributes head;
-    const char *extensions;
+    char extensions[PATH_MAX], path[PATH_MAX];
     struct s_hash_table *nodes;
     struct s_resources_node *default_template;
 } d_declare_class_tail(resources);
@@ -48,6 +48,7 @@ extern struct s_resources_node *f_resources_scan(const char *directory, const ch
 extern struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions);
 extern struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path,
         const char *extensions);
+d_declare_method(resources, reload)(struct s_object *self);
 d_declare_method(resources, get)(struct s_object *self, const char *key);
 d_declare_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type);
 d_declare_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type);
