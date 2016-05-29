@@ -30,24 +30,20 @@ struct s_object *f_animation_new(struct s_object *self, int cycles, double time_
     attributes->cycles = cycles;
     attributes->time_ratio = time_ratio;
     attributes->status = e_animation_direction_stop;
-    attributes->last_blend = e_drawable_blend_undefined;
-    attributes->last_mask_R = 255.0;
-    attributes->last_mask_G = 255.0;
-    attributes->last_mask_B = 255.0;
-    attributes->last_mask_A = 255.0;
     return self;
 }
 
 d_define_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time) {
     d_using(animation);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
     if ((current_frame = (struct s_animation_frame *) d_malloc(sizeof(struct s_animation_frame)))) {
         current_frame->drawable = d_retain(drawable);
-        if (animation_attributes->last_blend != e_drawable_blend_undefined)
-            d_call(current_frame->drawable, m_drawable_set_blend, animation_attributes->last_blend);
-        d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)animation_attributes->last_mask_R,
-                (unsigned int)animation_attributes->last_mask_G, (unsigned int)animation_attributes->last_mask_B);
-        d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)animation_attributes->last_mask_A);
+        if (drawable_attributes->last_blend != e_drawable_blend_undefined)
+            d_call(current_frame->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
+        d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G, 
+                (unsigned int)drawable_attributes->last_mask_B);
+        d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
         current_frame->offset_x = offset_x;
         current_frame->offset_y = offset_y;
         current_frame->zoom = zoom;
@@ -180,10 +176,11 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
 
 d_define_method_override(animation, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
     d_using(animation);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
-    animation_attributes->last_mask_R = red;
-    animation_attributes->last_mask_G = green;
-    animation_attributes->last_mask_B = blue;
+    drawable_attributes->last_mask_R = red;
+    drawable_attributes->last_mask_G = green;
+    drawable_attributes->last_mask_B = blue;
     d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
         d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)red, (unsigned int)green, (unsigned int)blue);
     return self;
@@ -191,8 +188,9 @@ d_define_method_override(animation, set_maskRGB)(struct s_object *self, unsigned
 
 d_define_method_override(animation, set_maskA)(struct s_object *self, unsigned int alpha) {
     d_using(animation);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
-    animation_attributes->last_mask_A = alpha;
+    drawable_attributes->last_mask_A = alpha;
     d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
         d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)alpha);
     return self;
@@ -200,8 +198,9 @@ d_define_method_override(animation, set_maskA)(struct s_object *self, unsigned i
 
 d_define_method_override(animation, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
     d_using(animation);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
-    animation_attributes->last_blend = blend;
+    drawable_attributes->last_blend = blend;
     d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
         d_call(current_frame->drawable, m_drawable_set_blend, blend);
     return self;

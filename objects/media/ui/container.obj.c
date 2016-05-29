@@ -121,11 +121,9 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
                         environment_attributes->current_w,
                         environment_attributes->current_h,
                         environment_attributes->zoom[environment_attributes->current_surface]))) {
-            d_call(&(drawable_attributes_entry->point_normalized_destination), m_point_get, &normalized_position_x_entry,
-                    &normalized_position_y_entry);
-            d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry,
-                    &normalized_dimension_h_entry);
-            if ((current_w = ((normalized_position_x_entry + normalized_dimension_w_entry) - normalized_position_x_self +
+            d_call(&(drawable_attributes_entry->point_normalized_destination), m_point_get, &normalized_position_x_entry, &normalized_position_y_entry);
+            d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry, &normalized_dimension_h_entry);
+            if ((current_w = ((normalized_position_x_entry + normalized_dimension_w_entry) - normalized_position_x_self + 
                             container_attributes->border_right)) > max_w)
                 max_w = current_w;
             if ((current_h = ((normalized_position_y_entry + normalized_dimension_h_entry) - normalized_position_y_self +

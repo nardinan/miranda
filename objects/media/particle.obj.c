@@ -18,8 +18,8 @@
 #include "particle.obj.h"
 struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
     struct s_particle_attributes *result = d_prepare(self, particle);
-    f_mutex_new(self);									/* inherit */
-    f_memory_new(self);									/* inherit */
+    f_mutex_new(self);									                                /* inherit */
+    f_memory_new(self);									                                /* inherit */
     f_drawable_new(self, (e_drawable_kind_multiple|e_drawable_kind_force_visibility));	/* inherit */
     return result;
 }
@@ -32,10 +32,6 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
     memset(&(attributes->particles), 0, (sizeof(struct s_particle_information) * d_particle_cores));
     d_call(attributes->drawable_core, m_drawable_set_blend, attributes->configuration.blend);
     attributes->initialized = d_false;
-    attributes->mask_R = 255.0;
-    attributes->mask_G = 255.0;
-    attributes->mask_B = 255.0;
-    attributes->mask_A = 255.0;
     return self;
 }
 
@@ -77,23 +73,17 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
             if (particle_attributes->particles[index].core.lifetime > real_elapsed_begin) {
                 timersub(&current, &(particle_attributes->particles[index].update), &elapsed_update);
                 real_elapsed_update = elapsed_update.tv_sec + ((double)(elapsed_update.tv_usec)/1000000.0);
-                particle_attributes->particles[index].core.mask_R +=
-                    (particle_attributes->particles[index].core.speed_R * real_elapsed_update);
-                particle_attributes->particles[index].core.mask_G +=
-                    (particle_attributes->particles[index].core.speed_G * real_elapsed_update);
-                particle_attributes->particles[index].core.mask_B +=
-                    (particle_attributes->particles[index].core.speed_B * real_elapsed_update);
-                particle_attributes->particles[index].core.mask_A +=
-                    (particle_attributes->particles[index].core.speed_A * real_elapsed_update);
+                particle_attributes->particles[index].core.mask_R += (particle_attributes->particles[index].core.speed_R * real_elapsed_update);
+                particle_attributes->particles[index].core.mask_G += (particle_attributes->particles[index].core.speed_G * real_elapsed_update);
+                particle_attributes->particles[index].core.mask_B += (particle_attributes->particles[index].core.speed_B * real_elapsed_update);
+                particle_attributes->particles[index].core.mask_A += (particle_attributes->particles[index].core.speed_A * real_elapsed_update);
                 d_particle_kill(particle_attributes->particles[index].core.mask_R, 0, 255);
                 d_particle_kill(particle_attributes->particles[index].core.mask_G, 0, 255);
                 d_particle_kill(particle_attributes->particles[index].core.mask_B, 0, 255);
                 d_particle_kill(particle_attributes->particles[index].core.mask_A, 0, 255);
-                particle_attributes->particles[index].core.zoom +=
-                    (particle_attributes->particles[index].core.speed_zoom * real_elapsed_update);
-                particle_attributes->particles[index].core.angle +=
-                    (particle_attributes->particles[index].core.speed_angle * real_elapsed_update);
-                particle_attributes->particles[index].core.direction_angle +=
+                particle_attributes->particles[index].core.zoom += (particle_attributes->particles[index].core.speed_zoom * real_elapsed_update);
+                particle_attributes->particles[index].core.angle += (particle_attributes->particles[index].core.speed_angle * real_elapsed_update);
+                particle_attributes->particles[index].core.direction_angle += 
                     (particle_attributes->particles[index].core.speed_direction_angle * real_elapsed_update);
                 radians = (particle_attributes->particles[index].core.direction_angle * d_math_pi)/180.0;
                 speed_x = particle_attributes->particles[index].core.speed_linear * cos(radians);
@@ -160,10 +150,10 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
     d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
     for (index = 0; index < particle_attributes->configuration.particles; ++index)
         if (particle_attributes->particles[index].alive) {
-            normalized_R = ((particle_attributes->particles[index].core.mask_R/255.0) * (particle_attributes->mask_R/255.0)) * 255.0;
-            normalized_G = ((particle_attributes->particles[index].core.mask_G/255.0) * (particle_attributes->mask_G/255.0)) * 255.0;
-            normalized_B = ((particle_attributes->particles[index].core.mask_B/255.0) * (particle_attributes->mask_B/255.0)) * 255.0;
-            normalized_A = ((particle_attributes->particles[index].core.mask_A/255.0) * (particle_attributes->mask_A/255.0)) * 255.0;
+            normalized_R = ((particle_attributes->particles[index].core.mask_R/255.0) * (drawable_attributes_self->last_mask_R/255.0)) * 255.0;
+            normalized_G = ((particle_attributes->particles[index].core.mask_G/255.0) * (drawable_attributes_self->last_mask_G/255.0)) * 255.0;
+            normalized_B = ((particle_attributes->particles[index].core.mask_B/255.0) * (drawable_attributes_self->last_mask_B/255.0)) * 255.0;
+            normalized_A = ((particle_attributes->particles[index].core.mask_A/255.0) * (drawable_attributes_self->last_mask_A/255.0)) * 255.0;
             d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB,
                     (unsigned int)normalized_R,
                     (unsigned int)normalized_G,
@@ -193,21 +183,23 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
 }
 
 d_define_method_override(particle, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
-    d_using(particle);
-    particle_attributes->mask_R = red;
-    particle_attributes->mask_G = green,
-        particle_attributes->mask_B = blue;
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_mask_R = red;
+    drawable_attributes->last_mask_G = green;
+    drawable_attributes->last_mask_B = blue;
     return self;
 }
 
 d_define_method_override(particle, set_maskA)(struct s_object *self, unsigned int alpha) {
-    d_using(particle);
-    particle_attributes->mask_A = alpha;
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_mask_A = alpha;
     return self;
 }
 
 d_define_method_override(particle, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
     d_using(particle);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_blend = blend;
     return d_call(particle_attributes->drawable_core, m_drawable_set_blend, blend);
 }
 

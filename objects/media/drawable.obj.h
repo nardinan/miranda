@@ -25,11 +25,11 @@
 #define d_drawable_return_last 		0
 #define d_drawable_default_contour_color 255.0, 0, 0, 255.0
 typedef enum e_drawable_kinds {
-    e_drawable_kind_single 			= 0x01,
-    e_drawable_kind_multiple 		= 0x02,
-    e_drawable_kind_hidden 			= 0x04,
-    e_drawable_kind_force_visibility 	= 0x08,
-    e_drawable_kind_contour			= 0x10,
+    e_drawable_kind_single 			        = 0x01,
+    e_drawable_kind_multiple 		        = 0x02,
+    e_drawable_kind_hidden 			        = 0x04,
+    e_drawable_kind_force_visibility 	    = 0x08,
+    e_drawable_kind_contour			        = 0x10,
     e_drawable_kind_ui_no_attribute_zoom 	= 0x20,
     e_drawable_kind_ui_no_attribute_angle	= 0x40,
     e_drawable_kind_ui_no_attribute_flip	= 0x80
@@ -54,6 +54,8 @@ d_declare_class(drawable) {
     double angle, zoom;
     enum e_drawable_flips flip;
     int flags;
+    enum e_drawable_blends last_blend;
+    double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
 } d_declare_class_tail(drawable);
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object *self, int flags);

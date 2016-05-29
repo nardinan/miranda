@@ -35,6 +35,11 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
     attributes->angle = 0;
     attributes->flip = e_drawable_flip_none;
     attributes->flags = flags;
+    attributes->last_blend = e_drawable_blend_alpha;
+    attributes->last_mask_R = 255.0;
+    attributes->last_mask_G = 255.0;
+    attributes->last_mask_B = 255.0;
+    attributes->last_mask_A = 255.0;
     return self;
 }
 

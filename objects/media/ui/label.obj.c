@@ -35,12 +35,12 @@ struct s_object *f_label_new_alignment(struct s_object *self, char *string_conte
     attributes->format = format;
     attributes->alignment_x = alignment_x;
     attributes->alignment_y = alignment_y;
-    attributes->last_blend = e_drawable_blend_undefined;
+    attributes->last_font = font;
+    attributes->last_blend = e_drawable_blend_alpha;
     attributes->last_mask_R = 255.0;
     attributes->last_mask_G = 255.0;
     attributes->last_mask_B = 255.0;
     attributes->last_mask_A = 255.0;
-    attributes->last_font = font;
     return p_label_set_content_char(self, string_content, font, environment);
 }
 
@@ -113,8 +113,8 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
                     d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
                     if (label_attributes->last_blend != e_drawable_blend_undefined)
                         d_call(self, m_drawable_set_blend, label_attributes->last_blend);
-                    d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R,
-                            (unsigned int)label_attributes->last_mask_G, (unsigned int)label_attributes->last_mask_B);
+                    d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R, (unsigned int)label_attributes->last_mask_G, 
+                            (unsigned int)label_attributes->last_mask_B);
                     d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
                 } else {
                     snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception",
@@ -225,9 +225,6 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
         center.y = (position_y + center_y) - destination.y;
         label_attributes->last_source = source;
         label_attributes->last_destination = destination;
-        SDL_SetTextureColorMod(label_attributes->image, label_attributes->last_mask_R, label_attributes->last_mask_G, label_attributes->last_mask_B);
-        SDL_SetTextureAlphaMod(label_attributes->image, label_attributes->last_mask_A);
-        SDL_SetTextureBlendMode(label_attributes->image, label_attributes->last_blend);
         SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
                 drawable_attributes->flip);
     }

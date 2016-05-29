@@ -57,10 +57,8 @@ d_declare_class(uiable) {
     struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
     unsigned int component_id;
     enum e_uiable_modes selected_mode;
-    enum e_drawable_blends last_blend;
     t_boolean is_selected;
-    double border_h, border_w, last_mask_R, last_mask_G, last_mask_B, last_mask_A, background_mask_R, background_mask_G, background_mask_B,
-           background_mask_A;
+    double border_h, border_w, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
 extern struct s_object *f_uiable_new(struct s_object *self);

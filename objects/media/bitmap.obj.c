@@ -95,18 +95,26 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
 
 d_define_method_override(bitmap, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
     d_using(bitmap);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_mask_R = (double)red;
+    drawable_attributes->last_mask_G = (double)green;
+    drawable_attributes->last_mask_B = (double)blue;
     SDL_SetTextureColorMod(bitmap_attributes->image, red, green, blue);
     return self;
 }
 
 d_define_method_override(bitmap, set_maskA)(struct s_object *self, unsigned int alpha) {
     d_using(bitmap);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_mask_A = alpha;
     SDL_SetTextureAlphaMod(bitmap_attributes->image, alpha);
     return self;
 }
 
 d_define_method_override(bitmap, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
     d_using(bitmap);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    drawable_attributes->last_blend = blend;
     SDL_SetTextureBlendMode(bitmap_attributes->image, blend);
     return self;
 }

@@ -52,11 +52,6 @@ struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
 struct s_object *f_uiable_new(struct s_object *self) {
     struct s_uiable_attributes *attributes = p_uiable_alloc(self);
     int index;
-    attributes->last_blend = e_drawable_blend_undefined;
-    attributes->last_mask_R = 255.0;
-    attributes->last_mask_G = 255.0;
-    attributes->last_mask_B = 255.0;
-    attributes->last_mask_A = 255.0;
     attributes->border_w = d_uiable_default_border;
     attributes->border_h = d_uiable_default_border;
     attributes->component_id = v_uiable_id++;
@@ -67,14 +62,15 @@ struct s_object *f_uiable_new(struct s_object *self) {
 
 d_define_method(uiable, set)(struct s_object *self, struct s_object *drawable, enum e_uiable_modes mode, enum e_uiable_components component) {
     d_using(uiable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     if (uiable_attributes->background[mode][component])
         d_delete(uiable_attributes->background[mode][component]);
     uiable_attributes->background[mode][component] = d_retain(drawable);
-    if (uiable_attributes->last_blend != e_drawable_blend_undefined)
-        d_call(uiable_attributes->background[mode][component], m_drawable_set_blend, uiable_attributes->last_blend);
-    d_call(uiable_attributes->background[mode][component], m_drawable_set_maskRGB, (unsigned int)uiable_attributes->last_mask_R,
-            (unsigned int)uiable_attributes->last_mask_G, (unsigned int)uiable_attributes->last_mask_B);
-    d_call(uiable_attributes->background[mode][component], m_drawable_set_maskA, (unsigned int)uiable_attributes->last_mask_A);
+    if (drawable_attributes->last_blend != e_drawable_blend_undefined)
+        d_call(uiable_attributes->background[mode][component], m_drawable_set_blend, drawable_attributes->last_blend);
+    d_call(uiable_attributes->background[mode][component], m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, 
+            (unsigned int)drawable_attributes->last_mask_G, (unsigned int)drawable_attributes->last_mask_B);
+    d_call(uiable_attributes->background[mode][component], m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
     return self;
 }
 
@@ -259,33 +255,35 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
 
 d_define_method_override(uiable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
     d_using(uiable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     int mode, index;
-    uiable_attributes->last_mask_R = red;
-    uiable_attributes->last_mask_G = green;
-    uiable_attributes->last_mask_B = blue;
+    drawable_attributes->last_mask_R = red;
+    drawable_attributes->last_mask_G = green;
+    drawable_attributes->last_mask_B = blue;
     for (mode = 0; mode < e_uiable_mode_NULL; ++mode)
         for (index = 0; index < e_uiable_component_NULL; ++index)
             if (uiable_attributes->background[mode][index])
-                d_call(uiable_attributes->background[mode][index], m_drawable_set_maskRGB, (unsigned int)red, (unsigned int)green,
-                        (unsigned int)blue);
+                d_call(uiable_attributes->background[mode][index], m_drawable_set_maskRGB, red, green, blue);
     return self;
 }
 
 d_define_method_override(uiable, set_maskA)(struct s_object *self, unsigned int alpha) {
     d_using(uiable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     int mode, index;
-    uiable_attributes->last_mask_A = alpha;
+    drawable_attributes->last_mask_A = alpha;
     for (mode = 0; mode < e_uiable_mode_NULL; ++mode)
         for (index = 0; index < e_uiable_component_NULL; ++index)
             if (uiable_attributes->background[mode][index])
-                d_call(uiable_attributes->background[mode][index], m_drawable_set_maskA, (unsigned int)alpha);
+                d_call(uiable_attributes->background[mode][index], m_drawable_set_maskA, alpha);
     return self;
 }
 
 d_define_method_override(uiable, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
     d_using(uiable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     int mode, index;
-    uiable_attributes->last_blend = blend;
+    drawable_attributes->last_blend = blend;
     for (mode = 0; mode < e_uiable_mode_NULL; ++mode)
         for (index = 0; index < e_uiable_component_NULL; ++index)
             if (uiable_attributes->background[mode][index])
