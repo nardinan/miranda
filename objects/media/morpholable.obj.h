@@ -21,7 +21,7 @@
 #include "drawable.obj.h"
 #define d_morpholable_x_factor 1.0
 #define d_morpholable_y_factor 1.0
-#define d_morpholable_z_factor 0.05
+#define d_morpholable_z_factor 0.1
 d_declare_class(morpholable) {
     struct s_attributes head;
     double offset_x, offset_y, offset_z;
