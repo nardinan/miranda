@@ -97,6 +97,7 @@ extern void f_json_analyzer(struct s_list *tokens, struct s_json_node_value *roo
 extern void p_json_write_value(struct s_json_node_value *node, int level, int output);
 extern struct s_object *f_json_new(struct s_object *self, struct s_object *string_name);
 extern struct s_object *f_json_new_stream(struct s_object *self, struct s_object *stream_file);
+extern struct s_object *f_json_new_empty(struct s_object *self);
 d_declare_method(json, write)(struct s_object *self, struct s_object *stream_file);
 d_declare_method(json, get_value_relative)(struct s_object *self, struct s_json_node_value *starting_point, const char *format, va_list parameters);
 d_declare_method(json, get_value)(struct s_object *self, const char *format, va_list parameters);

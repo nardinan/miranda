@@ -432,6 +432,17 @@ struct s_object *f_json_new_stream(struct s_object *self, struct s_object *strea
     return self;
 }
 
+struct s_object *f_json_new_empty(struct s_object *self) {
+    struct s_json_attributes *attributes = p_json_alloc(self);
+    f_list_init(&(attributes->tokens));
+    if ((attributes->root = (struct s_json_node_value *) d_malloc(sizeof(struct s_json_node_value)))) { 
+        attributes->root->type = e_json_node_type_object;
+        f_list_init(&(attributes->root->object_entry));
+    } else
+        d_die(d_error_malloc);
+    return self;
+}
+
 d_define_method(json, write)(struct s_object *self, struct s_object *stream_file) {
     d_using(json);
     int descriptor;
@@ -722,7 +733,7 @@ d_define_method(json, insert_value)(struct s_object *self, const char *key, cons
                     case e_json_node_type_null:
                         /* promotion of the NULL entry to a real object */
                         value->type = e_json_node_type_object;
-                        f_list_init(&(local_value->object_entry));
+                        f_list_init(&(value->object_entry));
                     case e_json_node_type_object:
                         f_list_append(value->object_entry, (struct s_list_node *)local_node, e_list_insert_tail);
                         break;
