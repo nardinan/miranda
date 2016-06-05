@@ -261,6 +261,12 @@ d_define_method(drawable, set_flags)(struct s_object *self, int flags) {
     return self;
 }
 
+d_define_method(drawable, add_flags)(struct s_object *self, int flags) {
+    d_using(drawable);
+    drawable_attributes->flags |= flags;
+    return self;
+}
+
 d_define_method(drawable, get_flags)(struct s_object *self) {
     d_using(drawable);
     d_cast_return(drawable_attributes->flags);
@@ -301,6 +307,7 @@ d_define_class(drawable) {
         d_hook_method(drawable, e_flag_public, set_zoom),
         d_hook_method(drawable, e_flag_public, flip),
         d_hook_method(drawable, e_flag_public, set_flags),
+        d_hook_method(drawable, e_flag_public, add_flags),
         d_hook_method(drawable, e_flag_public, get_flags),
         d_hook_delete(drawable),
         d_hook_method_tail

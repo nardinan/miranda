@@ -83,5 +83,6 @@ d_declare_method(drawable, set_angle)(struct s_object *self, double angle);
 d_declare_method(drawable, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(drawable, flip)(struct s_object *self, enum e_drawable_flips flip);
 d_declare_method(drawable, set_flags)(struct s_object *self, int flags);
+d_declare_method(drawable, add_flags)(struct s_object *self, int flags);
 d_declare_method(drawable, get_flags)(struct s_object *self);
 #endif
