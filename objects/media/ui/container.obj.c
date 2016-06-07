@@ -65,6 +65,15 @@ d_define_method(container, del_drawable)(struct s_object *self, struct s_object 
     return self;
 }
 
+d_define_method(container, get_drawable)(struct s_object *self, struct s_object *drawable) {
+    d_using(container);
+    struct s_container_drawable *result = NULL;
+    d_foreach(&(container_attributes->entries), result, struct s_container_drawable)
+        if (result->drawable == drawable)
+            break;
+    d_cast_return(result);
+}
+
 d_define_method_override(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(container);
     struct s_uiable_attributes *uiable_attributes;
@@ -159,6 +168,7 @@ d_define_method(container, delete)(struct s_object *self, struct s_container_att
 d_define_class(container) {
     d_hook_method(container, e_flag_public, add_drawable),
         d_hook_method(container, e_flag_public, del_drawable),
+        d_hook_method(container, e_flag_public, get_drawable),
         d_hook_method_override(container, e_flag_public, eventable, event),
         d_hook_method_override(container, e_flag_public, drawable, draw),
         d_hook_method_override(container, e_flag_public, drawable, set_zoom),

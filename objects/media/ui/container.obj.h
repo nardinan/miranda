@@ -34,6 +34,7 @@ extern struct s_object *f_container_new(struct s_object *self, double border_top
         t_boolean floatable);
 d_declare_method(container, add_drawable)(struct s_object *self, struct s_object *drawable, double position_x, double position_y);
 d_declare_method(container, del_drawable)(struct s_object *self, struct s_object *drawable);
+d_declare_method(container, get_drawable)(struct s_object *self, struct s_object *drawable);
 d_declare_method(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(container, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(container, set_zoom)(struct s_object *self, double zoom);
