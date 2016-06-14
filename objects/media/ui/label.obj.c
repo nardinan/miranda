@@ -55,7 +55,7 @@ d_define_method(label, set_content_char)(struct s_object *self, char *string_con
     if (string_length > 0) {
         if (label_attributes->string_content) {
             /* realloc only if really needed */
-            if (label_attributes->size < string_length) {
+            if (label_attributes->size < (string_length + 1)) {
                 if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, (string_length+1))))
                     label_attributes->size = (string_length+1);
                 else
