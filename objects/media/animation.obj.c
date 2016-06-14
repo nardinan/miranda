@@ -66,6 +66,9 @@ d_define_method(animation, set_status)(struct s_object *self, enum e_animation_d
             if ((previous_status != e_animation_direction_stop) ||
                     (animation_attributes->current_frame != (struct s_animation_frame *)animation_attributes->frames.head))
                 --animation_attributes->remaining_cycles;
+            break;
+        case e_animation_direction_stop:
+            animation_attributes->current_frame = NULL;
         default:
             break;
     }
