@@ -27,8 +27,9 @@ struct s_scroll_attributes *p_scroll_alloc(struct s_object *self) {
 struct s_object *f_scroll_new(struct s_object *self, struct s_object *image) {
     struct s_scroll_attributes *attributes = p_scroll_alloc(self);
     attributes->image = d_retain(image);
-    attributes->minimum = d_scroll_default_minimum;
     attributes->position = d_scroll_default_minimum;
+    attributes->modifier = 1;
+    attributes->minimum = d_scroll_default_minimum;
     attributes->maximum = d_scroll_default_maximum;
     return self;
 }
@@ -37,6 +38,12 @@ d_define_method(scroll, set_range)(struct s_object *self, int minimum, int maxim
     d_using(scroll);
     scroll_attributes->minimum = minimum;
     scroll_attributes->maximum = maximum;
+    return self;
+}
+
+d_define_method(scroll, set_modifier)(struct s_object *self, int modifier) {
+    d_using(scroll);
+    scroll_attributes->modifier = modifier;
     return self;
 }
 
@@ -65,11 +72,12 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
         SDL_GetMouseState(&mouse_x, &mouse_y);
         if (current_event->type == SDL_MOUSEWHEEL)
             if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
-                scroll_attributes->position += current_event->wheel.y;
+                scroll_attributes->position += (current_event->wheel.y * scroll_attributes->modifier);
                 if (scroll_attributes->position < scroll_attributes->minimum)
                     scroll_attributes->position = scroll_attributes->minimum;
                 else if (scroll_attributes->position > scroll_attributes->maximum)
                     scroll_attributes->position = scroll_attributes->maximum;
+                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
             }
     }
     return result;
@@ -147,6 +155,7 @@ d_define_method(scroll, delete)(struct s_object *self, struct s_scroll_attribute
 
 d_define_class(scroll) {
     d_hook_method(scroll, e_flag_public, set_range),
+        d_hook_method(scroll, e_flag_public, set_modifier),
         d_hook_method(scroll, e_flag_public, set_position),
         d_hook_method(scroll, e_flag_public, get_position),
         d_hook_method_override(scroll, e_flag_public, eventable, event),
