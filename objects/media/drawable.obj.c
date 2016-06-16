@@ -249,6 +249,12 @@ d_define_method(drawable, set_zoom)(struct s_object *self, double zoom) {
     return self;
 }
 
+d_define_method(drawable, get_zoom)(struct s_object *self, double *zoom) {
+    d_using(drawable);
+    *zoom = drawable_attributes->zoom;
+    return self;
+}
+
 d_define_method(drawable, flip)(struct s_object *self, enum e_drawable_flips flip) {
     d_using(drawable);
     drawable_attributes->flip = flip;
@@ -305,6 +311,7 @@ d_define_class(drawable) {
         d_hook_method(drawable, e_flag_public, set_center),
         d_hook_method(drawable, e_flag_public, set_angle),
         d_hook_method(drawable, e_flag_public, set_zoom),
+        d_hook_method(drawable, e_flag_public, get_zoom),
         d_hook_method(drawable, e_flag_public, flip),
         d_hook_method(drawable, e_flag_public, set_flags),
         d_hook_method(drawable, e_flag_public, add_flags),
