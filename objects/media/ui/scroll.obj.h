@@ -19,7 +19,7 @@
 #define miranda_media_scroll_h
 #include "uiable.obj.h"
 #define d_scroll_default_minimum 0
-#define d_scroll_default_maximum 100
+#define d_scroll_default_maximum 1000
 d_declare_class(scroll) {
     struct s_attributes head;
     struct s_object *image;
