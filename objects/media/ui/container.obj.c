@@ -33,8 +33,8 @@ struct s_object *f_container_new(struct s_object *self, double border_top, doubl
     attributes->border_right = border_right;
     attributes->distributed_zoom = 1;
     if ((attributes->floatable = floatable)) {
-        d_call(self, m_morpholable_set_freedom_x, d_true);
-        d_call(self, m_morpholable_set_freedom_y, d_true);
+        d_call(self, m_morphable_set_freedom_x, d_true);
+        d_call(self, m_morphable_set_freedom_y, d_true);
     }
     return self;
 }

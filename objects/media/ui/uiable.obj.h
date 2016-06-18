@@ -18,7 +18,7 @@
 #ifndef miranda_media_uiable_h
 #define miranda_media_uiable_h
 #include "../environment.obj.h"
-#include "../morpholable.obj.h"
+#include "../morphable.obj.h"
 #include "../../emitter.obj.h"
 #define d_uiable_default_border 2
 enum e_uiable_components {

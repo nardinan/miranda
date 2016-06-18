@@ -1,4 +1,4 @@
-objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morpholable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
+objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
 name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -23,8 +23,8 @@ drawable.obj.o: drawable.obj.c drawable.obj.h ../geometry/point.obj.h ../geometr
 eventable.obj.o: eventable.obj.c eventable.obj.h ../memory.obj.h ../mutex.obj.h
 	$(cc) $(cflags) eventable.obj.c
 
-morpholable.obj.o: morpholable.obj.c morpholable.obj.h eventable.obj.h drawable.obj.h
-	$(cc) $(cflags) morpholable.obj.c
+morphable.obj.o: morphable.obj.c morphable.obj.h eventable.obj.h drawable.obj.h
+	$(cc) $(cflags) morphable.obj.c
 
 bitmap.obj.o: bitmap.obj.c bitmap.obj.h environment.obj.h ../io/stream.obj.h
 	$(cc) $(cflags) bitmap.obj.c

@@ -15,23 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_media_morpholable_h
-#define miranda_media_morpholable_h
+#ifndef miranda_media_morphable_h
+#define miranda_media_morphable_h
 #include "eventable.obj.h"
 #include "drawable.obj.h"
-#define d_morpholable_x_factor 1.0
-#define d_morpholable_y_factor 1.0
-#define d_morpholable_z_factor 0.1
-d_declare_class(morpholable) {
+#define d_morphable_x_factor 1.0
+#define d_morphable_y_factor 1.0
+#define d_morphable_z_factor 0.1
+d_declare_class(morphable) {
     struct s_attributes head;
     double offset_x, offset_y, offset_z;
     t_boolean grabbed, freedom_x, freedom_y, freedom_z;
-} d_declare_class_tail(morpholable);
-struct s_morpholable_attributes *p_morpholable_alloc(struct s_object *self);
-extern struct s_object *f_morpholable_new(struct s_object *self);
-d_declare_method(morpholable, set_freedom_x)(struct s_object *self, t_boolean free);
-d_declare_method(morpholable, set_freedom_y)(struct s_object *self, t_boolean free);
-d_declare_method(morpholable, set_freedom_z)(struct s_object *self, t_boolean free);
-d_declare_method(morpholable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
-d_declare_method(morpholable, delete)(struct s_object *self, struct s_morpholable_attributes *attributes);
+} d_declare_class_tail(morphable);
+struct s_morphable_attributes *p_morphable_alloc(struct s_object *self);
+extern struct s_object *f_morphable_new(struct s_object *self);
+d_declare_method(morphable, set_freedom_x)(struct s_object *self, t_boolean free);
+d_declare_method(morphable, set_freedom_y)(struct s_object *self, t_boolean free);
+d_declare_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free);
+d_declare_method(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
+d_declare_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes);
 #endif
