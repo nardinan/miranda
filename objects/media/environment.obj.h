@@ -23,7 +23,7 @@
 #define d_environment_default_title "miranda"
 #define d_environment_default_systems (SDL_INIT_VIDEO|SDL_INIT_AUDIO)
 #define d_environment_default_codecs (MIX_INIT_OGG)
-#define d_environment_default_fps 60.0
+#define d_environment_default_fps 30.0
 #define d_environment_default_reference_w 1024
 #define d_environment_default_reference_h 768
 #define d_environment_default_monitor 0 /* primary */
