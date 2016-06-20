@@ -32,8 +32,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
             for (index = 0; singleton->virtual_table[index].symbol; ++index)
                 if (singleton->virtual_table[index].symbol == symbol) {
                     if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) {
-                        snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)",
-                                symbol, file, line);
+                        snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)", symbol, file, line);
                         d_throw(v_exception_private_method, buffer);
                     } else {
                         result = &(singleton->virtual_table[index]);

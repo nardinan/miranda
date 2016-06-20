@@ -87,8 +87,9 @@ d_define_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blen
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
         double focus_x, double focus_y, double current_w, double current_h, double zoom) {
     d_using(drawable);
-    double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y;
-    struct s_object square_collision_box;
+    struct s_square_attributes *square_attributes;
+    double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y,
+           max_x, max_y, min_x, min_y;
     struct s_object *result = self;
     d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
     d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
@@ -120,26 +121,44 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
     d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_y, new_h);
     d_call(&(drawable_attributes->point_normalized_center), m_point_set_x, new_center_x);
     d_call(&(drawable_attributes->point_normalized_center), m_point_set_y, new_center_y);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_x, new_x, d_false);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_y, new_y, d_false);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_x, (new_x+new_w));
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_y, (new_y+new_h));
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_angle, drawable_attributes->angle);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_center, new_center_x, new_center_y);
+    d_assert((square_attributes = d_cast(&(drawable_attributes->square_collision_box), square)));
+    square_attributes->top_left_x = new_x;
+    square_attributes->top_left_y = new_y;
+    square_attributes->bottom_right_x = (new_x + new_w);
+    square_attributes->bottom_right_y = (new_y + new_h);
+    square_attributes->angle = drawable_attributes->angle;
+    square_attributes->center_x = new_center_x;
+    square_attributes->center_y = new_center_y;
+    square_attributes->normalized = d_false;
     d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
     /* is the object still visible ? */
-    f_square_new(d_use(&(square_collision_box), square), 0, 0, current_w, current_h);
-    if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility)
-        if (((intptr_t)d_call(&(square_collision_box), m_square_collision, &(drawable_attributes->square_collision_box))) == d_false)
+    if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
+        max_x = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+                d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+        min_x = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+                d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+        max_y = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+                d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+        min_y = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+                d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+        if ((!d_drawable_point_inside(square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(0, 0, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(0, current_w, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(current_h, current_w, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(current_h, 0, min_x, min_y, max_x, max_y)))
             result = NULL;
-    d_delete(&(square_collision_box));
+    }
+
     return result;
 }
 
 d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, double current_h) {
     d_using(drawable);
-    double this_x, this_y, this_w, this_h, this_center_x, this_center_y;
-    struct s_object square_collision_box;
+    struct s_square_attributes *square_attributes;
+    double this_x, this_y, this_w, this_h, this_center_x, this_center_y, min_x, min_y, max_x, max_y;
     struct s_object *result = self;
     d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
     d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
@@ -147,18 +166,36 @@ d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, d
     d_call(&(drawable_attributes->point_normalized_destination), m_point_set_point, &(drawable_attributes->point_destination));
     d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_point, &(drawable_attributes->point_dimension));
     d_call(&(drawable_attributes->point_normalized_center), m_point_set_point, &(drawable_attributes->point_center));
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_x, this_x, d_false);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_top_left_y, this_y, d_false);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_x, (this_x+this_w));
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_bottom_right_y, (this_x+this_w));
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_angle, drawable_attributes->angle);
-    d_call(&(drawable_attributes->square_collision_box), m_square_set_center, this_center_x, this_center_y);
+    d_assert((square_attributes = d_cast(&(drawable_attributes->square_collision_box), square)));
+    square_attributes->top_left_x = this_x;
+    square_attributes->top_left_y = this_y;
+    square_attributes->bottom_right_x = (this_x + this_w);
+    square_attributes->bottom_right_y = (this_y + this_h);
+    square_attributes->angle = drawable_attributes->angle;
+    square_attributes->center_x = this_center_x;
+    square_attributes->center_y = this_center_y;
+    square_attributes->normalized = d_false;
+    d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
     /* is the object still visible ? */
-    f_square_new(d_use(&(square_collision_box), square), 0, 0, current_w, current_h);
-    if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility)
-        if (((intptr_t)d_call(&(square_collision_box), m_square_collision, &(drawable_attributes->square_collision_box))) == d_false)
+    if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
+        max_x = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+                d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+        min_x = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+                d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+        max_y = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+                d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+        min_y = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+                d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+        if ((!d_drawable_point_inside(square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y, 0, 0, current_w, current_h)) &&
+                (!d_drawable_point_inside(0, 0, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(0, current_w, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(current_h, current_w, min_x, min_y, max_x, max_y)) &&
+                (!d_drawable_point_inside(current_h, 0, min_x, min_y, max_x, max_y)))
             result = NULL;
-    d_delete(&(square_collision_box));
+    }
     return result;
 }
 

@@ -21,6 +21,7 @@
 #include "../geometry/point.obj.h"
 #include "../geometry/square.obj.h"
 #include "environment.obj.h"
+#define d_drawable_point_inside(x,y,xc,yc,wc,hc) (((x>=xc)&&(x<=(xc+wc)))&&((y>=yc)&&(y<=(yc+hc))))
 #define d_drawable_return_continue 	1
 #define d_drawable_return_last 		0
 #define d_drawable_default_contour_color 255.0, 0, 0, 255.0
