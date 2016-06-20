@@ -45,14 +45,14 @@ void *p_malloc(size_t dimension, const char *file, unsigned int line) {
         tail = (struct s_memory_tail *)(pointer + sizeof(struct s_memory_head) + dimension);
         pointer = (void *)(pointer + sizeof(struct s_memory_head));
         head->next = v_memory_root;
+        if (v_memory_root)
+            v_memory_root->back = head;
         v_memory_root = head;
         head->dimension = dimension;
         head->checksum = (unsigned int)d_memory_checksum;
         tail->checksum = (unsigned int)d_memory_checksum;
         tail->line = line;
         tail->file = file;
-        d_log(e_log_level_high, "pointer %p (%hu bytes) has been allocated (in %s::%d) [0x%x-0x%x]", pointer, head->dimension, tail->file,
-                tail->line, head->checksum, tail->checksum);
     } else
         d_die(d_error_malloc);
     return pointer;
@@ -75,26 +75,22 @@ void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int 
 }
 
 void p_free(void *pointer, const char *file, unsigned int line) {
+    struct s_memory_head *head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
     struct s_memory_tail *tail;
-    struct s_memory_head *head = v_memory_root, *previous = NULL;
-    void *other_pointer;
-    while (head) {
-        other_pointer = ((void *)head + sizeof(struct s_memory_head));
-        if (pointer == other_pointer) {
-            tail = (struct s_memory_tail *)(pointer + head->dimension);
-            if (tail->checksum == (unsigned int)d_memory_checksum) {
-                if (previous)
-                    previous->next = head->next;
-                else
-                    v_memory_root = head->next;
-                free(head);
-            } else
-                d_err(e_log_level_ever, "wrong checksum with %p (%s::%d)", pointer, file, line);
-            break;
-        }
-        previous = head;
-        head = head->next;
-    }
-    if (!head)
-        d_err(e_log_level_ever, "double free with %p (%s::%d)", pointer, file, line);
+    if (head->checksum == (unsigned int)d_memory_checksum) {
+        tail = (struct s_memory_tail *)(pointer + head->dimension);
+        if (tail->checksum == (unsigned int)d_memory_checksum) {
+            if (head->next)
+                head->next->back = head->back;
+            if (head->back)
+                head->back->next = head->next;
+            else
+                v_memory_root = head->next;
+            head->back = NULL;
+            head->next = NULL;
+            free(head);
+        } else
+            d_err(e_log_level_ever, "wrong tail checksum with %p (%s::%d)", pointer, file, line);
+    } else
+        d_err(e_log_level_ever, "wrong head checksum with %p (%s::%d)", pointer, file, line);
 }

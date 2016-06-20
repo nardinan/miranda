@@ -36,12 +36,14 @@
     }while(0)
 #endif
 #define d_memory_checksum 0xfacefeed
+#define d_explicit_result __attribute__ ((warn_unused_result))
+#define d_explicit_malloc d_explicit_result __attribute__ ((malloc))
 typedef struct s_memory_tail {
     unsigned int checksum, line;
     const char *file;
 } s_memory_tail;
 typedef struct s_memory_head {
-    struct s_memory_head *next;
+    struct s_memory_head *next, *back;
     size_t dimension;
     unsigned int checksum;
 } s_memory_head;
