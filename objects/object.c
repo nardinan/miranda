@@ -28,23 +28,23 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
     struct s_method_cache swap_cache;
     const struct s_method *result = NULL;
     int index;
-    if ((object->first.type == type) && (object->first.entry->symbol == symbol))
-        result = object->first.entry;
-    else if ((object->second.type == type) && (object->second.entry->symbol == symbol)) {
-        swap_cache = object->first;
-        object->first = object->second;
-        object->second = swap_cache;
-        result = object->first.entry;
+    if ((object->cache_calls.first.type == type) && (object->cache_calls.first.entry->symbol == symbol))
+        result = object->cache_calls.first.entry;
+    else if ((object->cache_calls.second.type == type) && (object->cache_calls.second.entry->symbol == symbol)) {
+        swap_cache = object->cache_calls.first;
+        object->cache_calls.first = object->cache_calls.second;
+        object->cache_calls.second = swap_cache;
+        result = object->cache_calls.first.entry;
     } else {
         d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
             if ((type == v_undefined_type) || (type == singleton->type))
                 for (index = 0; singleton->virtual_table[index].symbol; ++index)
                     if (singleton->virtual_table[index].symbol == symbol) {
                         /* promote the last method to first level cache */
-                        object->second = object->first;
-                        object->first.type = type;
-                        object->first.entry = &(singleton->virtual_table[index]);
-                        result = object->first.entry;
+                        object->cache_calls.second = object->cache_calls.first;
+                        object->cache_calls.first.type = type;
+                        object->cache_calls.first.entry = &(singleton->virtual_table[index]);
+                        result = object->cache_calls.first.entry;
                     }
             if (result)
                 break;
@@ -104,13 +104,18 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
 }
 
 struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {
-    struct s_attributes *result = NULL;
-    if ((object->last_attributes) && (object->last_attributes->type == type))
-        result = object->last_attributes;
-    else {
+    struct s_attributes *swap_cache, *result = NULL;
+    if ((object->cache_attributes.first) && (object->cache_attributes.first->type == type))
+        result = object->cache_attributes.first;
+    else if ((object->cache_attributes.second) && (object->cache_attributes.second->type == type)) {
+        swap_cache = object->cache_attributes.second;
+        object->cache_attributes.second = object->cache_attributes.first;
+        object->cache_attributes.first = swap_cache;
+        result = object->cache_attributes.first;
+    } else {
         d_reverse_foreach(&(object->attributes), result, struct s_attributes)
             if (result->type == type) {
-                object->last_attributes = result;
+                object->cache_attributes.first = result;
                 break;
             }
     }
@@ -132,7 +137,6 @@ void f_object_delete(struct s_object *object) {
         d_free(attributes);
         d_free(virtual_table);
     }
-    object->last_attributes = NULL;
     if ((object->flags&e_flag_allocated) == e_flag_allocated)
         d_free(object);
 }

@@ -52,11 +52,15 @@ typedef struct s_method_cache {
 typedef struct s_object { d_list_node_head;
     const char *type, *file;
     unsigned int line;
-    struct s_attributes *last_attributes;
     struct s_list virtual_tables, attributes;
     t_hash_value hash_value;
     int flags;
-    struct s_method_cache first, second;
+    struct {
+        struct s_method_cache first, second;
+    } cache_calls;
+    struct {
+        struct s_attributes *first, *second;
+    } cache_attributes;
 } s_object;
 extern const char v_undefined_type[];
 extern const char m_object_delete[];
