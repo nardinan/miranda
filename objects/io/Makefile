@@ -1,7 +1,7 @@
 objects = stream.obj.o json.obj.o resources.obj.o
 name = miranda_io
 debug = -Dd_miranda_debug=1
-cc = gcc -g $(debug)
+cc = clang -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 libs = -L.. -L../.. -lpthread -lmiranda_ground -lmiranda_objects

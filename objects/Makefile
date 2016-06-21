@@ -1,7 +1,7 @@
 objects = object.o memory.obj.o mutex.obj.o emitter.obj.o pool.obj.o string.obj.o array.obj.o
 name = miranda_objects
 debug = -Dd_miranda_debug=1
-cc = gcc -g $(debug)
+cc = clang -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 libs = -L.. -lpthread -lmiranda_ground

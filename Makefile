@@ -4,7 +4,7 @@ project = miranda
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o huffman.o
 name = miranda_ground
 debug = -Dd_miranda_debug=1
-cc = gcc -g $(debug)
+cc = clang -g $(debug)
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so

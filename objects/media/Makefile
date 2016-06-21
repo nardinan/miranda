@@ -1,7 +1,7 @@
 objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
 name = miranda_media
 debug = -Dd_miranda_debug=1
-cc = gcc -g $(debug)
+cc = clang -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
 libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lSDL2 -lSDL2_image \
