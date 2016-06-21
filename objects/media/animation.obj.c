@@ -89,7 +89,7 @@ d_define_method(animation, set_callback)(struct s_object *self, t_animation_rebo
 
 d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
     d_using(animation);
-    struct s_animation_frame *next_frame, *first_frame;
+    struct s_animation_frame *next_frame = NULL, *first_frame;
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_core;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);

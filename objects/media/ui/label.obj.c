@@ -226,7 +226,7 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
         label_attributes->last_source = source;
         label_attributes->last_destination = destination;
         SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                drawable_attributes->flip);
+                (SDL_RendererFlip)drawable_attributes->flip);
     }
     d_cast_return(result);
 }
@@ -253,7 +253,7 @@ d_define_method_override(label, set_blend)(struct s_object *self, enum e_drawabl
     d_using(label);
     label_attributes->last_blend = blend;
     if (label_attributes->image)
-        SDL_SetTextureBlendMode(label_attributes->image, blend);
+        SDL_SetTextureBlendMode(label_attributes->image, (SDL_BlendMode)blend);
     return self;
 }
 
