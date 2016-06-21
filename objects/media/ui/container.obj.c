@@ -101,7 +101,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry, 
            center_x_self, center_y_self, center_x_entry, center_y_entry, max_w = container_attributes->border_left + container_attributes->border_right,
            max_h = container_attributes->border_top + container_attributes->border_bottom, current_w, current_h;
-    int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+    int result;
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
     d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
     d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x_self, &center_y_self);
@@ -140,10 +140,12 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
             current_h -= normalized_position_y_self + container_attributes->border_bottom;
             max_w = d_math_max(max_w, current_w);
             max_h = d_math_max(max_h, current_h);
-            while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
         }
     }
     d_call(self, m_drawable_set_dimension, max_w, max_h);
+    result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
+        while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(self, m_drawable_draw_contour, environment);
     d_cast_return(result);

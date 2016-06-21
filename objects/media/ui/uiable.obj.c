@@ -44,7 +44,7 @@ const char *v_uiable_signals[e_uiable_signal_NULL] = {
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
     struct s_uiable_attributes *result = d_prepare(self, uiable);
     /* abstract (no memory inheritance) */
-    f_morphable_new(self);    /* inherit */
+    f_morphable_new(self);      /* inherit */
     f_emitter_new(self);        /* inherit */
     return result;
 }
