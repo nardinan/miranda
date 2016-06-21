@@ -25,25 +25,38 @@ d_exception_define(private_method, 2, "private method exception");
 const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type) {
     struct s_virtual_table *singleton;
     char buffer[d_string_buffer_size];
+    struct s_method_cache swap_cache;
     const struct s_method *result = NULL;
     int index;
-    d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
-        if ((type == v_undefined_type) || (type == singleton->type))
-            for (index = 0; singleton->virtual_table[index].symbol; ++index)
-                if (singleton->virtual_table[index].symbol == symbol) {
-                    if ((singleton->virtual_table[index].flag == e_flag_private) && (singleton->virtual_table[index].file != file)) {
-                        snprintf(buffer, d_string_buffer_size, "method '%s' is private and you're out of context (%s, %d)", symbol, file, line);
-                        d_throw(v_exception_private_method, buffer);
-                    } else {
-                        result = &(singleton->virtual_table[index]);
-                        break;
+    if ((object->first.type == type) && (object->first.entry->symbol == symbol))
+        result = object->first.entry;
+    else if ((object->second.type == type) && (object->second.entry->symbol == symbol)) {
+        swap_cache = object->first;
+        object->first = object->second;
+        object->second = swap_cache;
+        result = object->first.entry;
+    } else {
+        d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
+            if ((type == v_undefined_type) || (type == singleton->type))
+                for (index = 0; singleton->virtual_table[index].symbol; ++index)
+                    if (singleton->virtual_table[index].symbol == symbol) {
+                        /* promote the last method to first level cache */
+                        object->second = object->first;
+                        object->first.type = type;
+                        object->first.entry = &(singleton->virtual_table[index]);
+                        result = object->first.entry;
                     }
-                }
-        if (result)
-            break;
+            if (result)
+                break;
+        }
     }
-    if (!result) {
-        snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or is a member of another class (%s, %d)", symbol, file, line);
+    if (result) {
+        if ((result->flag == e_flag_private) && (result->file != file)) {
+            snprintf(buffer, d_string_buffer_size, "method '%s' is private and you are out of context (%s, %d)", symbol, file, line);
+            d_throw(v_exception_private_method, buffer);
+        }
+    } else {
+        snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or it is a member of another class (%s, %d)", symbol, file, line);
         d_throw(v_exception_undefined_method, buffer);
     }
     return result;

@@ -33,14 +33,6 @@ typedef enum e_flag {
 } e_flag;
 #define d_cast_return(v) return ((void *)(intptr_t)v)
 typedef void *(*t_class_method)();
-typedef struct s_object { d_list_node_head;
-    const char *type, *file;
-    unsigned int line;
-    struct s_attributes *last_attributes;
-    struct s_list virtual_tables, attributes;
-    t_hash_value hash_value;
-    int flags;
-} s_object;
 typedef struct s_method {
     const char *symbol, *file;
     enum e_flag flag;
@@ -53,6 +45,19 @@ typedef struct s_virtual_table { d_list_node_head;
 typedef struct s_attributes { d_list_node_head;
     const char *type;
 } s_attributes;
+typedef struct s_method_cache {
+    const char *type;
+    struct s_method *entry;
+} s_method_cache;
+typedef struct s_object { d_list_node_head;
+    const char *type, *file;
+    unsigned int line;
+    struct s_attributes *last_attributes;
+    struct s_list virtual_tables, attributes;
+    t_hash_value hash_value;
+    int flags;
+    struct s_method_cache first, second;
+} s_object;
 extern const char v_undefined_type[];
 extern const char m_object_delete[];
 extern const char m_object_hash[];
