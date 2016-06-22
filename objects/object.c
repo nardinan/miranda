@@ -40,7 +40,6 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
             if ((type == v_undefined_type) || (type == singleton->type))
                 for (index = 0; singleton->virtual_table[index].symbol; ++index)
                     if (singleton->virtual_table[index].symbol == symbol) {
-                        /* promote the last method to first level cache */
                         object->cache_calls.second = object->cache_calls.first;
                         object->cache_calls.first.type = type;
                         object->cache_calls.first.entry = &(singleton->virtual_table[index]);
@@ -115,6 +114,7 @@ struct s_attributes *p_object_cast(const char *file, int line, struct s_object *
     } else {
         d_reverse_foreach(&(object->attributes), result, struct s_attributes)
             if (result->type == type) {
+                object->cache_attributes.second = object->cache_attributes.first;
                 object->cache_attributes.first = result;
                 break;
             }

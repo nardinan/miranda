@@ -127,7 +127,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
     char buffer[d_string_buffer_size], *string_subcontent;
     int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
     double position_x, position_y, dimension_w, dimension_h, new_dimension_w = 0, center_x, center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
-           radians = (drawable_attributes->angle * d_math_pi)/180.0;
+           radians = (drawable_attributes->angle * d_math_pi)/180.0, sin_radians, cos_radians;
     size_t string_length = f_string_strlen(label_attributes->string_content);
     SDL_Surface *unoptimized_surface;
     SDL_Color white = {
@@ -162,8 +162,11 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
         top_y = label_attributes->last_destination.y + uiable_attributes->border_h;
         bottom_x = top_x;
         bottom_y = top_y + label_attributes->last_destination.h - (uiable_attributes->border_h * 2.0);
-        p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), radians, &top_x, &top_y);
-        p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), radians, &bottom_x, &bottom_y);
+        sin_radians = sin(radians);
+        cos_radians = cos(radians);
+        p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &top_x, &top_y);
+        p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &bottom_x, 
+                &bottom_y);
         if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x)/2.0),
                     top_y + ((bottom_y - top_y)/2.0))) {
             SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,

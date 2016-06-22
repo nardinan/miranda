@@ -85,12 +85,12 @@ d_define_method(square, set_center)(struct s_object *self, double center_x, doub
 }
 
 d_define_method(square, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
-        double radians, double *normalized_x, double *normalized_y) {
+        double sin_radians, double cos_radians, double *normalized_x, double *normalized_y) {
     double support_x, support_y;
     support_x = x - normalized_center_x;
     support_y = y - normalized_center_y;
-    *normalized_x = (support_x * cos(radians)) - (support_y * sin(radians));
-    *normalized_y = (support_x * sin(radians)) + (support_y * cos(radians));
+    *normalized_x = (support_x * cos_radians) - (support_y * sin_radians);
+    *normalized_y = (support_x * sin_radians) + (support_y * cos_radians);
     *normalized_x += normalized_center_x;
     *normalized_y += normalized_center_y;
     return self;
@@ -98,18 +98,21 @@ d_define_method(square, normalize_coordinate)(struct s_object *self, double x, d
 
 d_define_method(square, normalize)(struct s_object *self) {
     d_using(square);
-    double radians = (square_attributes->angle * d_math_pi)/180.0, normalized_center_x, normalized_center_y;
+    double radians = (square_attributes->angle * d_math_pi)/180.0, sin_radians, cos_radians, normalized_center_x, normalized_center_y;
     if (!square_attributes->normalized) {
+        sin_radians = sin(radians);
+        cos_radians = cos(radians);
         normalized_center_x = square_attributes->top_left_x + square_attributes->center_x;
         normalized_center_y = square_attributes->top_left_y + square_attributes->center_y;
         d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->top_left_y, normalized_center_x,
-                normalized_center_y, radians, &(square_attributes->normalized_top_left_x), &(square_attributes->normalized_top_left_y));
+                normalized_center_y, sin_radians, cos_radians, &(square_attributes->normalized_top_left_x), &(square_attributes->normalized_top_left_y));
         d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->top_left_y, normalized_center_x,
-                normalized_center_y, radians, &(square_attributes->normalized_top_right_x), &(square_attributes->normalized_top_right_y));
+                normalized_center_y, sin_radians, cos_radians, &(square_attributes->normalized_top_right_x), &(square_attributes->normalized_top_right_y));
         d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->bottom_right_y, normalized_center_x,
-                normalized_center_y, radians, &(square_attributes->normalized_bottom_left_x), &(square_attributes->normalized_bottom_left_y));
+                normalized_center_y, sin_radians, cos_radians, &(square_attributes->normalized_bottom_left_x), &(square_attributes->normalized_bottom_left_y));
         d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->bottom_right_y, normalized_center_x,
-                normalized_center_y, radians, &(square_attributes->normalized_bottom_right_x), &(square_attributes->normalized_bottom_right_y));
+                normalized_center_y, sin_radians, cos_radians, &(square_attributes->normalized_bottom_right_x), 
+                &(square_attributes->normalized_bottom_right_y));
         square_attributes->normalized = d_true;
     }
     return self;

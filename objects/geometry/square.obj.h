@@ -35,7 +35,7 @@ d_declare_method(square, set_bottom_right_y)(struct s_object *self, double botto
 d_declare_method(square, set_angle)(struct s_object *self, double angle);
 d_declare_method(square, set_center)(struct s_object *self, double center_x, double center_y);
 d_declare_method(square, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
-        double radians, double *normalized_x, double *normalized_y);
+        double sin_radians, double cos_radians, double *normalized_x, double *normalized_y);
 d_declare_method(square, normalize)(struct s_object *self);
 d_declare_method(square, inside)(struct s_object *self, struct s_object *point);
 d_declare_method(square, inside_coordinates)(struct s_object *self, double x, double y);
