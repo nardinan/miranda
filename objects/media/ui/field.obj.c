@@ -67,6 +67,8 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
             case SDL_TEXTINPUT:
                 string_length = f_string_strlen(label_attributes->string_content);
                 incoming_length = f_string_strlen(current_event->text.text);
+                if (field_attributes->pointer > string_length)
+                    field_attributes->pointer = string_length;
                 if (incoming_length > 0)
                     if ((field_attributes->max_size == 0) || ((string_length + incoming_length) < field_attributes->max_size)) {
                         if ((label_attributes->size == 0) || ((string_length + incoming_length) >= (label_attributes->size-1))) {
