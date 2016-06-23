@@ -26,9 +26,10 @@ size_t f_string_strlen(const char *string) {
 
 int f_string_strncmp(const char *left, const char *right, size_t size) {
     int result;
-    if ((left) && (right))
-        result = strncmp(left, right, size);
-    else
+    if ((left) && (right)) {
+        if ((result = left[0] - right[0]) == 0)
+            result = strncmp(left, right, size);
+    } else
         result = left-right;
     return result;
 }
@@ -36,10 +37,8 @@ int f_string_strncmp(const char *left, const char *right, size_t size) {
 int f_string_strcmp(const char *left, const char *right) {
     size_t right_size = f_string_strlen(left), left_size = f_string_strlen(right);
     int result;
-    if (left_size == right_size)
+    if ((result = left_size - right_size) == 0)
         result = f_string_strncmp(left, right, left_size);
-    else
-        result = left_size-right_size;
     return result;
 }
 

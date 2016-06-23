@@ -125,12 +125,15 @@ d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 
 d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
     d_using(square);
-    double radians = ((360.0 - square_attributes->angle) * d_math_pi)/180.0, normalized_center_x, normalized_center_y, normalized_x, normalized_y;
+    double radians = ((360.0 - square_attributes->angle) * d_math_pi)/180.0, sin_radians, cos_radians, normalized_center_x, normalized_center_y, normalized_x, 
+           normalized_y;
     t_boolean result = d_false;
+    sin_radians = sin(radians);
+    cos_radians = cos(radians);
     d_call(self, m_square_normalize, NULL);
     normalized_center_x = square_attributes->top_left_x + square_attributes->center_x;
     normalized_center_y = square_attributes->top_left_y + square_attributes->center_y;
-    d_call(self, m_square_normalize_coordinate, x, y, normalized_center_x, normalized_center_y, radians, &normalized_x, &normalized_y);
+    d_call(self, m_square_normalize_coordinate, x, y, normalized_center_x, normalized_center_y, sin_radians, cos_radians, &normalized_x, &normalized_y);
     if (((normalized_x >= square_attributes->top_left_x) && (normalized_x <= square_attributes->bottom_right_x)) &&
             ((normalized_y >= square_attributes->top_left_y) && (normalized_y <= square_attributes->bottom_right_y)))
         result = d_true;
