@@ -172,8 +172,8 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
     struct s_object *current_entry;
     struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
     const unsigned char *keystate = SDL_GetKeyboardState(NULL);
-    int pointer = 0, forwarded_entries = 0, starting_uiable;
-    t_boolean new_selection = d_false;
+    int pointer = 0, forwarded_entries = 0, starting_uiable = 0;
+    t_boolean new_selection = d_false, modified = d_false;
     d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
     if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
         d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
@@ -194,20 +194,30 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
             ++pointer;
         }
     if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
-        if (list_attributes->selection[0] != d_list_selected_NULL)
+        if (list_attributes->selection[0] != d_list_selected_NULL) {
             switch (current_event->key.keysym.sym) {
                 case SDLK_UP:
                     if (list_attributes->selection[0] > 0) {
                         --(list_attributes->selection[0]);
                         new_selection = d_true;
+                        modified = d_true;
                     }
                     break;
                 case SDLK_DOWN:
                     if (list_attributes->selection[0] < (list_attributes->uiable_entries - 1)) {
                         ++(list_attributes->selection[0]);
                         new_selection = d_true;
+                        modified = d_true;
                     }
+
             }
+            if (modified) {
+                if (list_attributes->selection[0] < starting_uiable)
+                    d_call(list_attributes->scroll, m_scroll_set_position, list_attributes->selection[0]);
+                else if (list_attributes->selection[0] > (starting_uiable + (list_attributes->visible_entries - 1)))
+                    d_call(list_attributes->scroll, m_scroll_set_position, (list_attributes->selection[0] - (list_attributes->visible_entries - 1)));
+            }
+        }
     if (new_selection)
         d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
     return result;
