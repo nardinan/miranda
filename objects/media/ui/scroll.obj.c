@@ -71,7 +71,8 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
         d_call(&(drawable_attributes->point_dimension), m_point_get, &dimension_w, &dimension_h);
         SDL_GetMouseState(&mouse_x, &mouse_y);
         if (current_event->type == SDL_MOUSEWHEEL)
-            if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
+            if ((scroll_attributes->force_event) || (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, 
+                                (double)mouse_x, (double)mouse_y)))) {
                 scroll_attributes->position += (current_event->wheel.y * scroll_attributes->modifier);
                 if (scroll_attributes->position < scroll_attributes->minimum)
                     scroll_attributes->position = scroll_attributes->minimum;
