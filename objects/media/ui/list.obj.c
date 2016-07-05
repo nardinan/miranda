@@ -70,6 +70,7 @@ d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable
         if (list_attributes->selection[index] > pointer)
             --list_attributes->selection[index];
     f_list_delete(&(list_attributes->uiables), (struct s_list_node *)uiable);
+    --(list_attributes->uiable_entries);
     d_delete(uiable);
     return uiable;
 }
