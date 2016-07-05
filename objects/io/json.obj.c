@@ -200,15 +200,18 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
     char last_character = '\0';
     t_boolean negative_value = d_false;
     while ((local_token = (struct s_json_token *)tokens->current)) {
-        if (!local_value)
+        /* special case: the local_token is the symbol ']' or '}' */
+        if ((local_token->type == e_json_token_type_symbol) && (strchr(d_json_separator_close, local_token->symbol_entry)) &&
+                (current_action == e_json_node_action_value))
+            current_action = e_json_node_action_close;
+        else if (!local_value)
             if (!(local_value = (struct s_json_node_value *) d_malloc(sizeof(struct s_json_node_value))))
                 d_die(d_error_malloc);
         switch (current_action) {
             case e_json_node_action_value:
                 /* special case: the local_token is the symbol '-' or '+' and the next token is a number */
                 if ((local_token->type == e_json_token_type_symbol) && (strchr(d_json_numeric_character, local_token->symbol_entry)) &&
-                        ((next_token = (struct s_json_token *)tokens->current->next)) &&
-                        (next_token->type == e_json_token_type_value)) {
+                        ((next_token = (struct s_json_token *)tokens->current->next)) && (next_token->type == e_json_token_type_value)) {
                     if (strchr(d_json_numeric_negative_character, local_token->symbol_entry))
                         negative_value = d_true;
                     tokens->current = tokens->current->next;
@@ -288,7 +291,7 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
                 } else
                     current_action = e_json_node_action_undefined;
                 if (current_action != e_json_node_action_undefined) {
-                    if (nodes)
+                    if ((nodes) && (local_value))
                         f_list_append(nodes, (struct s_list_node *)local_value, e_list_insert_tail);
                     local_value = NULL;
                 } else
@@ -460,10 +463,13 @@ d_define_method(json, get_value_relative)(struct s_object *self, struct s_json_n
     while ((*pointer) && (value)) {
         switch (value->type) {
             case e_json_node_type_array:
-                local_value = (struct s_json_node_value *)value->array_entry->head;
-                for (argument_long = va_arg(parameters, long); argument_long > 0; --argument_long)
-                    if (local_value)
-                        local_value = (struct s_json_node_value *)local_value->head.next;
+                if ((local_value = (struct s_json_node_value *)value->array_entry->head))
+                    for (argument_long = va_arg(parameters, long); argument_long > 0; --argument_long) {
+                        if (local_value)
+                            local_value = (struct s_json_node_value *)local_value->head.next;
+                        else
+                            break;
+                    }
                 value = local_value;
                 break;
             case e_json_node_type_object:
@@ -479,7 +485,7 @@ d_define_method(json, get_value_relative)(struct s_object *self, struct s_json_n
             default:
                 founded = d_true;
         }
-        if (founded)
+        if ((founded) || (!value))
             break;
         pointer++;
     }

@@ -30,6 +30,7 @@
 #define d_json_string_character "\"'"
 #define d_json_ignorable_characters " \n\r\t"
 #define d_json_separator_characters ":="
+#define d_json_separator_close "]}"
 d_exception_declare(malformed_key);
 d_exception_declare(malformed_value);
 d_exception_declare(wrong_type);
