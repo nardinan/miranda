@@ -95,6 +95,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     d_using(container);
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_entry;
+    struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
     struct s_square_attributes *square_attributes;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_container_drawable *current_container;
@@ -142,7 +143,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
             max_h = d_math_max(max_h, current_h);
         }
     }
-    d_call(self, m_drawable_set_dimension, max_w, max_h);
+    d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes->border_w), (max_h + uiable_attributes->border_h));
     result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
     d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
         while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
