@@ -53,6 +53,7 @@ d_declare_method(resources, get)(struct s_object *self, const char *key);
 d_declare_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type);
 d_declare_method(resources, get_stream)(struct s_object *self, const char *key, enum e_resources_types type);
 d_declare_method(resources, get_stream_strict)(struct s_object *self, const char *key, enum e_resources_types type);
+d_declare_method(resources, del_stream)(struct s_object *self, const char *key, t_boolean destroy);
 d_declare_method(resources, delete)(struct s_object *self, struct s_resources_attributes *attributes);
 #endif
 

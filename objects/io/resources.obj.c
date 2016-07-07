@@ -121,7 +121,7 @@ d_define_method(resources, reload)(struct s_object *self) {
 
 d_define_method(resources, get)(struct s_object *self, const char *key) {
     d_using(resources);
-    d_cast_return(f_hash_get(resources_attributes->nodes, (char *)key));
+    d_cast_return(f_hash_get(resources_attributes->nodes, (void *)key));
 }
 
 d_define_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type) {
@@ -172,6 +172,23 @@ d_define_method(resources, get_stream_strict)(struct s_object *self, const char 
     return result;
 }
 
+d_define_method(resources, del_stream)(struct s_object *self, const char *key, t_boolean destroy) {
+    d_using(resources);
+    struct s_resources_node *current_node;
+    struct s_hash_bucket old_content;
+    f_hash_delete(resources_attributes->nodes, (void *)key, &old_content);
+    if (old_content.kind == e_hash_kind_fill) {
+        if ((current_node = (struct s_resources_node *)old_content.value)) {
+            p_resources_scan_free(current_node);
+            if (destroy)
+                remove(current_node->path);
+            d_free(current_node);
+        }
+        d_free(old_content.key);
+    }
+    return self;
+}
+
 d_define_method(resources, delete)(struct s_object *self, struct s_resources_attributes *attributes) {
     struct s_resources_node *node;
     struct s_hash_bucket *current_item, old_content;
@@ -201,6 +218,7 @@ d_define_class(resources) {
         d_hook_method(resources, e_flag_private, open_stream),
         d_hook_method(resources, e_flag_public, get_stream),
         d_hook_method(resources, e_flag_public, get_stream_strict),
+        d_hook_method(resources, e_flag_public, del_stream),
         d_hook_delete(resources),
         d_hook_method_tail
 };
