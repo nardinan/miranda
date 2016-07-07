@@ -46,8 +46,8 @@ d_declare_class(environment) {
     double reference_w[e_environment_surface_NULL], reference_h[e_environment_surface_NULL], current_w, current_h,
            camera_origin_x[e_environment_surface_NULL], camera_origin_y[e_environment_surface_NULL], camera_focus_x[e_environment_surface_NULL],
            camera_focus_y[e_environment_surface_NULL], zoom[e_environment_surface_NULL], fps;
-           struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
-           t_boolean continue_loop;
+    struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
+    t_boolean continue_loop;
 } d_declare_class_tail(environment);
 struct s_environment_attributes *p_environment_alloc(struct s_object *self);
 extern struct s_object *f_environment_new(struct s_object *self, int width, int height);

@@ -223,6 +223,11 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             while (SDL_PollEvent(&local_event)) {
                 d_foreach(&(environment_attributes->eventable), eventable_object, struct s_object)
                     d_call(eventable_object, m_eventable_event, self, &local_event);
+                for (surface = 0; surface < e_environment_surface_NULL; ++surface)
+                    for (index = 0; index < d_environment_layers; ++index)
+                        d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
+                            if (d_cast(drawable_object, eventable))
+                                d_call(drawable_object, m_eventable_event, self, &local_event);
                 if (local_event.type == SDL_QUIT)
                     environment_attributes->continue_loop = d_false;
             }
