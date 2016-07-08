@@ -76,14 +76,20 @@ d_define_method(container, get_drawable)(struct s_object *self, struct s_object 
 
 d_define_method_override(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(container);
+    struct s_eventable_attributes *eventable_attributes;
     struct s_uiable_attributes *uiable_attributes;
     struct s_container_drawable *current_container;
     struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
     struct s_exception *exception;
     d_try {
-        d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
-            if ((uiable_attributes = d_cast(current_container->drawable, uiable)))
-                d_call(current_container->drawable, m_eventable_event, environment, current_event);
+        d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) {
+            if (((uiable_attributes = d_cast(current_container->drawable, uiable))) && 
+                    ((eventable_attributes = d_cast(current_container->drawable, eventable)))) {
+                d_call_owner(current_container->drawable, uiable, m_eventable_event, environment, current_event);
+                if ((uiable_attributes->is_selected) && (eventable_attributes->enable))
+                    d_call(current_container->drawable, m_eventable_event, environment, current_event);
+            }
+        }
     } d_catch(exception) {
         d_exception_dump(stderr, exception);
         d_raise;
@@ -114,7 +120,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
         center_y_entry = (position_y_self + center_y_self) - position_y_entry;
         d_call(current_container->drawable, m_drawable_set_position, position_x_entry, position_y_entry);
         if (((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_angle) != e_drawable_kind_ui_no_attribute_angle) &&
-            ((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_zoom) != e_drawable_kind_ui_no_attribute_zoom))
+                ((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_zoom) != e_drawable_kind_ui_no_attribute_zoom))
             d_call(current_container->drawable, m_drawable_set_center, center_x_entry, center_y_entry);
         if ((drawable_attributes_entry->flags&e_drawable_kind_ui_no_attribute_angle) != e_drawable_kind_ui_no_attribute_angle)
             drawable_attributes_entry->angle = drawable_attributes_self->angle;
@@ -145,8 +151,19 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     }
     d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes->border_w), (max_h + uiable_attributes->border_h));
     result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
-        while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) {
+        if (((intptr_t)d_call(current_container->drawable, m_drawable_normalize_scale,
+                        environment_attributes->reference_w[environment_attributes->current_surface],
+                        environment_attributes->reference_h[environment_attributes->current_surface],
+                        environment_attributes->camera_origin_x[environment_attributes->current_surface],
+                        environment_attributes->camera_origin_y[environment_attributes->current_surface],
+                        environment_attributes->camera_focus_x[environment_attributes->current_surface],
+                        environment_attributes->camera_focus_y[environment_attributes->current_surface],
+                        environment_attributes->current_w,
+                        environment_attributes->current_h,
+                        environment_attributes->zoom[environment_attributes->current_surface])))
+            while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+    }
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(self, m_drawable_draw_contour, environment);
     d_cast_return(result);

@@ -22,8 +22,10 @@
 #include "../mutex.obj.h"
 d_declare_class(eventable) {
     struct s_attributes head;
+    t_boolean enable;
 } d_declare_class_tail(eventable);
 struct s_eventable_attributes *p_eventable_alloc(struct s_object *self);
 extern struct s_object *f_eventable_new(struct s_object  *self);
+d_declare_method(eventable, set_enable)(struct s_object *self, t_boolean enable);
 d_declare_method(eventable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 #endif

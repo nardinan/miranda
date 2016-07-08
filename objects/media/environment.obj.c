@@ -188,7 +188,7 @@ d_define_method(environment, get_zoom)(struct s_object *self, double *zoom, enum
 
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
     d_using(environment);
-    f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable, e_list_insert_head);
+    f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable, e_list_insert_tail);
     return drawable;
 }
 
@@ -200,7 +200,7 @@ d_define_method(environment, del_drawable)(struct s_object *self, struct s_objec
 
 d_define_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable) {
     d_using(environment);
-    f_list_append(&(environment_attributes->eventable), (struct s_list_node *)eventable, e_list_insert_head);
+    f_list_append(&(environment_attributes->eventable), (struct s_list_node *)eventable, e_list_insert_tail);
     return eventable;
 }
 
@@ -213,6 +213,7 @@ d_define_method(environment, del_eventable)(struct s_object *self, struct s_obje
 d_define_method(environment, run_loop)(struct s_object *self) {
     d_using(environment);
     int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int)(1000.0f/environment_attributes->fps), surface, index, flags;
+    struct s_eventable_attributes *eventable_attributes;
     struct s_object *drawable_object;
     struct s_object *eventable_object;
     struct s_exception *exception;
@@ -222,12 +223,15 @@ d_define_method(environment, run_loop)(struct s_object *self) {
         d_try {
             while (SDL_PollEvent(&local_event)) {
                 d_foreach(&(environment_attributes->eventable), eventable_object, struct s_object)
-                    d_call(eventable_object, m_eventable_event, self, &local_event);
+                    if ((eventable_attributes = d_cast(eventable_object, eventable)))
+                        if (eventable_attributes->enable)
+                            d_call(eventable_object, m_eventable_event, self, &local_event);
                 for (surface = 0; surface < e_environment_surface_NULL; ++surface)
                     for (index = 0; index < d_environment_layers; ++index)
                         d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
-                            if (d_cast(drawable_object, eventable))
-                                d_call(drawable_object, m_eventable_event, self, &local_event);
+                            if ((eventable_attributes = d_cast(drawable_object, eventable)))
+                                if (eventable_attributes->enable)
+                                    d_call(drawable_object, m_eventable_event, self, &local_event);
                 if (local_event.type == SDL_QUIT)
                     environment_attributes->continue_loop = d_false;
             }

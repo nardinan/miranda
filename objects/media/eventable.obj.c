@@ -24,7 +24,13 @@ struct s_eventable_attributes *p_eventable_alloc(struct s_object *self) {
 
 struct s_object *f_eventable_new(struct s_object *self) {
     struct s_eventable_attributes *attributes = p_eventable_alloc(self);
-    attributes = attributes;
+    attributes->enable = d_true;
+    return self;
+}
+
+d_define_method(eventable, set_enable)(struct s_object *self, t_boolean enable) {
+    d_using(eventable);
+    eventable_attributes->enable = enable;
     return self;
 }
 
@@ -34,6 +40,7 @@ d_define_method(eventable, event)(struct s_object *self, struct s_object *enviro
 }
 
 d_define_class(eventable) {
-    d_hook_method(eventable, e_flag_public, event),
+    d_hook_method(eventable, e_flag_public, set_enable),
+        d_hook_method(eventable, e_flag_public, event),
         d_hook_method_tail
 };

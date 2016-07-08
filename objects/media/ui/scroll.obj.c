@@ -61,27 +61,23 @@ d_define_method(scroll, get_position)(struct s_object *self) {
 
 d_define_method_override(scroll, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(scroll);
-    struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-    struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
     double position_x, position_y, dimension_w, dimension_h;
     int mouse_x, mouse_y;
-    if (uiable_attributes->selected_mode != e_uiable_mode_idle) {
-        d_call(&(drawable_attributes->point_destination), m_point_get, &position_x, &position_y);
-        d_call(&(drawable_attributes->point_dimension), m_point_get, &dimension_w, &dimension_h);
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        if (current_event->type == SDL_MOUSEWHEEL)
-            if ((scroll_attributes->force_event) || (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, 
-                                (double)mouse_x, (double)mouse_y)))) {
-                scroll_attributes->position += (current_event->wheel.y * scroll_attributes->modifier);
-                if (scroll_attributes->position < scroll_attributes->minimum)
-                    scroll_attributes->position = scroll_attributes->minimum;
-                else if (scroll_attributes->position > scroll_attributes->maximum)
-                    scroll_attributes->position = scroll_attributes->maximum;
-                d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
-            }
-    }
-    return result;
+    d_call(&(drawable_attributes->point_destination), m_point_get, &position_x, &position_y);
+    d_call(&(drawable_attributes->point_dimension), m_point_get, &dimension_w, &dimension_h);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    if (current_event->type == SDL_MOUSEWHEEL)
+        if ((scroll_attributes->force_event) || (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, 
+                            (double)mouse_x, (double)mouse_y)))) {
+            scroll_attributes->position += (current_event->wheel.y * scroll_attributes->modifier);
+            if (scroll_attributes->position < scroll_attributes->minimum)
+                scroll_attributes->position = scroll_attributes->minimum;
+            else if (scroll_attributes->position > scroll_attributes->maximum)
+                scroll_attributes->position = scroll_attributes->maximum;
+            d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+        }
+    return self;
 }
 
 d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *environment) {

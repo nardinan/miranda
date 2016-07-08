@@ -58,66 +58,62 @@ d_define_method(field, set_size)(struct s_object *self, size_t max_size) {
 d_define_method_override(field, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(field);
     struct s_label_attributes *label_attributes = d_cast(self, label);
-    struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
     t_boolean update_required = d_false;
     size_t string_length, new_length, incoming_length;
-    struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
-    if (uiable_attributes->selected_mode == e_uiable_mode_selected) { /* and the SDL_TextInput event should be enabled */
-        switch (current_event->type) {
-            case SDL_TEXTINPUT:
-                string_length = f_string_strlen(label_attributes->string_content);
-                incoming_length = f_string_strlen(current_event->text.text);
-                if (field_attributes->pointer > string_length)
-                    field_attributes->pointer = string_length;
-                if (incoming_length > 0)
-                    if ((field_attributes->max_size == 0) || ((string_length + incoming_length) < field_attributes->max_size)) {
-                        if ((label_attributes->size == 0) || ((string_length + incoming_length) >= (label_attributes->size-1))) {
-                            new_length = string_length + d_field_bucket;
-                            while (new_length < (string_length + incoming_length + 1))
-                                new_length += d_field_bucket;
-                            if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, new_length)))
-                                label_attributes->size = new_length;
-                            else
-                                d_die(d_error_malloc);
-                        }
-                        if (field_attributes->pointer < string_length)
-                            memmove((label_attributes->string_content + (field_attributes->pointer + incoming_length)),
-                                    (label_attributes->string_content + field_attributes->pointer),
-                                    (label_attributes->size - field_attributes->pointer - incoming_length));
-                        memcpy((label_attributes->string_content + field_attributes->pointer), current_event->text.text,
-                                incoming_length);
-                        field_attributes->pointer += incoming_length;
+    switch (current_event->type) {
+        case SDL_TEXTINPUT:
+            string_length = f_string_strlen(label_attributes->string_content);
+            incoming_length = f_string_strlen(current_event->text.text);
+            if (field_attributes->pointer > string_length)
+                field_attributes->pointer = string_length;
+            if (incoming_length > 0)
+                if ((field_attributes->max_size == 0) || ((string_length + incoming_length) < field_attributes->max_size)) {
+                    if ((label_attributes->size == 0) || ((string_length + incoming_length) >= (label_attributes->size-1))) {
+                        new_length = string_length + d_field_bucket;
+                        while (new_length < (string_length + incoming_length + 1))
+                            new_length += d_field_bucket;
+                        if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, new_length)))
+                            label_attributes->size = new_length;
+                        else
+                            d_die(d_error_malloc);
+                    }
+                    if (field_attributes->pointer < string_length)
+                        memmove((label_attributes->string_content + (field_attributes->pointer + incoming_length)),
+                                (label_attributes->string_content + field_attributes->pointer),
+                                (label_attributes->size - field_attributes->pointer - incoming_length));
+                    memcpy((label_attributes->string_content + field_attributes->pointer), current_event->text.text,
+                            incoming_length);
+                    field_attributes->pointer += incoming_length;
+                    update_required = d_true;
+                }
+            break;
+        case SDL_KEYDOWN:
+            switch (current_event->key.keysym.sym) {
+                case SDLK_BACKSPACE:
+                    if (field_attributes->pointer > 0) {
+                        memmove((label_attributes->string_content+(field_attributes->pointer-1)),
+                                (label_attributes->string_content+field_attributes->pointer),
+                                (label_attributes->size-field_attributes->pointer));
+                        --field_attributes->pointer;
                         update_required = d_true;
                     }
-                break;
-            case SDL_KEYDOWN:
-                switch (current_event->key.keysym.sym) {
-                    case SDLK_BACKSPACE:
-                        if (field_attributes->pointer > 0) {
-                            memmove((label_attributes->string_content+(field_attributes->pointer-1)),
-                                    (label_attributes->string_content+field_attributes->pointer),
-                                    (label_attributes->size-field_attributes->pointer));
-                            --field_attributes->pointer;
-                            update_required = d_true;
-                        }
-                        break;
-                    case SDLK_RIGHT:
-                        if (field_attributes->pointer < f_string_strlen(label_attributes->string_content))
-                            ++field_attributes->pointer;
-                        break;
-                    case SDLK_LEFT:
-                        if (field_attributes->pointer > 0)
-                            --field_attributes->pointer;
-                    default:
-                        break;
-                }
-            default:
-                break;
-        }
-        if (update_required)
-            d_call(self, m_label_update_texture, NULL, environment);
+                    break;
+                case SDLK_RIGHT:
+                    if (field_attributes->pointer < f_string_strlen(label_attributes->string_content))
+                        ++field_attributes->pointer;
+                    break;
+                case SDLK_LEFT:
+                    if (field_attributes->pointer > 0)
+                        --field_attributes->pointer;
+                default:
+                    break;
+            }
+        default:
+            break;
     }
-    return result;
+    if (update_required)
+        d_call(self, m_label_update_texture, NULL, environment);
+    return self;
 }
 
 d_define_method_override(field, draw)(struct s_object *self, struct s_object *environment) {

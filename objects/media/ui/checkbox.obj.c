@@ -50,14 +50,12 @@ d_define_method(checkbox, get_checked)(struct s_object *self) {
 d_define_method_override(checkbox, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(checkbox);
     struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
-    struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
-    if (uiable_attributes->selected_mode != e_uiable_mode_idle)
-        if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
-            if (uiable_attributes->selected_mode == e_uiable_mode_selected)
-                checkbox_attributes->is_checked = !checkbox_attributes->is_checked;
-            d_call(self, m_uiable_mode, e_uiable_mode_active);
-        }
-    return result;
+    if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
+        if (uiable_attributes->selected_mode == e_uiable_mode_selected)
+            checkbox_attributes->is_checked = !checkbox_attributes->is_checked;
+        d_call(self, m_uiable_mode, e_uiable_mode_active);
+    }
+    return self;
 }
 
 d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object *environment) {

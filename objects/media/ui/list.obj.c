@@ -173,64 +173,61 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_scroll_attributes *scroll_attributes = d_cast(list_attributes->scroll, scroll);
     struct s_object *current_entry;
-    struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
     const unsigned char *keystate = SDL_GetKeyboardState(NULL);
     int mouse_x, mouse_y, pointer = 0, forwarded_entries = 0, starting_uiable = 0;
     t_boolean new_selection = d_false, modified = d_false;
-    if (uiable_attributes_self->selected_mode != e_uiable_mode_idle) {
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) { 
-            scroll_attributes->force_event = d_true; {
-                d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
-            } scroll_attributes->force_event = d_false;
-            if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
-                d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
-                    if (pointer >= starting_uiable) {
-                        d_call(current_entry, m_eventable_event, environment, current_event);
-                        if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
-                            uiable_attributes_entry = d_cast(current_entry, uiable);
-                            if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
-                                if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
-                                    new_selection |= (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
-                                else
-                                    new_selection |= (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
-                            }
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) { 
+        scroll_attributes->force_event = d_true; {
+            d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
+        } scroll_attributes->force_event = d_false;
+        if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
+            d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
+                if (pointer >= starting_uiable) {
+                    d_call(current_entry, m_eventable_event, environment, current_event);
+                    if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
+                        uiable_attributes_entry = d_cast(current_entry, uiable);
+                        if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
+                            if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
+                                new_selection |= (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
+                            else
+                                new_selection |= (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
                         }
-                        if ((++forwarded_entries) == list_attributes->visible_entries)
-                            break;
                     }
-                    ++pointer;
-                }
-        }
-        if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
-            if (list_attributes->selection[0] != d_list_selected_NULL) {
-                switch (current_event->key.keysym.sym) {
-                    case SDLK_UP:
-                        if (list_attributes->selection[0] > 0) {
-                            --(list_attributes->selection[0]);
-                            new_selection = d_true;
-                            modified = d_true;
-                        }
+                    if ((++forwarded_entries) == list_attributes->visible_entries)
                         break;
-                    case SDLK_DOWN:
-                        if (list_attributes->selection[0] < (list_attributes->uiable_entries - 1)) {
-                            ++(list_attributes->selection[0]);
-                            new_selection = d_true;
-                            modified = d_true;
-                        }
-
                 }
-                if (modified) {
-                    if (list_attributes->selection[0] < starting_uiable)
-                        d_call(list_attributes->scroll, m_scroll_set_position, list_attributes->selection[0]);
-                    else if (list_attributes->selection[0] > (starting_uiable + (list_attributes->visible_entries - 1)))
-                        d_call(list_attributes->scroll, m_scroll_set_position, (list_attributes->selection[0] - (list_attributes->visible_entries - 1)));
-                }
+                ++pointer;
             }
-        if (new_selection)
-            d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
     }
-    return result;
+    if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
+        if (list_attributes->selection[0] != d_list_selected_NULL) {
+            switch (current_event->key.keysym.sym) {
+                case SDLK_UP:
+                    if (list_attributes->selection[0] > 0) {
+                        --(list_attributes->selection[0]);
+                        new_selection = d_true;
+                        modified = d_true;
+                    }
+                    break;
+                case SDLK_DOWN:
+                    if (list_attributes->selection[0] < (list_attributes->uiable_entries - 1)) {
+                        ++(list_attributes->selection[0]);
+                        new_selection = d_true;
+                        modified = d_true;
+                    }
+
+            }
+            if (modified) {
+                if (list_attributes->selection[0] < starting_uiable)
+                    d_call(list_attributes->scroll, m_scroll_set_position, list_attributes->selection[0]);
+                else if (list_attributes->selection[0] > (starting_uiable + (list_attributes->visible_entries - 1)))
+                    d_call(list_attributes->scroll, m_scroll_set_position, (list_attributes->selection[0] - (list_attributes->visible_entries - 1)));
+            }
+        }
+    if (new_selection)
+        d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
+    return self;
 }
 
 d_define_method_override(list, draw)(struct s_object *self, struct s_object *environment) {

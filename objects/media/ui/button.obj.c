@@ -30,12 +30,9 @@ struct s_object *f_button_new(struct s_object *self, char *string_content, TTF_F
 }
 
 d_define_method_override(button, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
-    struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
-    struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
-    if (uiable_attributes->selected_mode != e_uiable_mode_idle)
-        if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT))
-            d_call(self, m_uiable_mode, e_uiable_mode_active);
-    return result;
+    if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT))
+        d_call(self, m_uiable_mode, e_uiable_mode_active);
+    return self;
 }
 
 d_define_method(button, delete)(struct s_object *self, struct s_button_attributes *attributes) {

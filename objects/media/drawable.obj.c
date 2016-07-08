@@ -151,7 +151,6 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
                 (!d_drawable_point_inside(current_h, 0, min_x, min_y, max_x, max_y)))
             result = NULL;
     }
-
     return result;
 }
 
