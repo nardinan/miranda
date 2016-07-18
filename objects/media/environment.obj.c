@@ -270,7 +270,6 @@ d_define_method(environment, run_loop)(struct s_object *self) {
         } d_catch(exception) {
             d_exception_dump(stderr, exception);
             d_raise;
-            environment_attributes->continue_loop = d_false;
         } d_endtry;
     }
     environment_attributes->quit_call(self);
