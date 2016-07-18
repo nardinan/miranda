@@ -40,7 +40,6 @@ void *p_malloc(size_t dimension, const char *file, unsigned int line) {
     size_t total_dimension = sizeof(struct s_memory_head) + dimension + sizeof(struct s_memory_tail);
     void *pointer;
     if ((pointer = (struct s_memory_head *) calloc(1, total_dimension))) {
-        memset(pointer, 0, total_dimension);
         head = (struct s_memory_head *)pointer;
         tail = (struct s_memory_tail *)(pointer + sizeof(struct s_memory_head) + dimension);
         pointer = (void *)(pointer + sizeof(struct s_memory_head));
