@@ -1,4 +1,5 @@
-objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphable.obj.o bitmap.obj.o particle.obj.o animation.obj.o track.obj.o
+objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphable.obj.o controllable.obj.o bitmap.obj.o particle.obj.o animation.obj.o \
+		  track.obj.o entity.obj.o
 name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = clang -g $(debug)
@@ -26,6 +27,9 @@ eventable.obj.o: eventable.obj.c eventable.obj.h ../memory.obj.h ../mutex.obj.h
 morphable.obj.o: morphable.obj.c morphable.obj.h eventable.obj.h drawable.obj.h
 	$(cc) $(cflags) morphable.obj.c
 
+controllable.obj.o: controllable.obj.c controllable.obj.h eventable.obj.h
+	$(cc) $(cflags) controllable.obj.c
+
 bitmap.obj.o: bitmap.obj.c bitmap.obj.h environment.obj.h ../io/stream.obj.h
 	$(cc) $(cflags) bitmap.obj.c
 
@@ -37,6 +41,9 @@ animation.obj.o: animation.obj.c animation.obj.h environment.obj.h
 
 track.obj.o: track.obj.c track.obj.h bitmap.obj.h
 	$(cc) $(cflags) track.obj.c
+
+entity.obj.o: entity.obj.c entity.obj.h drawable.obj.h
+	$(cc) $(cflags) entity.obj.c
 
 clean:
 	rm -f *.o
