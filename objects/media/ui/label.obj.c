@@ -61,7 +61,7 @@ d_define_method(label, set_content_char)(struct s_object *self, char *string_con
                 else
                     d_die(d_error_malloc);
             }
-        } else if ((label_attributes->string_content = (char *) d_malloc(string_length+1)))
+        } else if ((label_attributes->string_content = (char *)d_malloc(string_length+1)))
             label_attributes->size = (string_length+1);
         else
             d_die(d_error_malloc);
