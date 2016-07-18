@@ -54,7 +54,7 @@ d_define_method(emitter, embed_parameter)(struct s_object *self, const char *id,
     return (void *)signal;
 }
 
-d_define_method(emitter, embed_function)(struct s_object *self, const char *id, f_emitter_action action) {
+d_define_method(emitter, embed_function)(struct s_object *self, const char *id, t_emitter_action action) {
     struct s_signal *signal;
     if ((signal = d_call(self, m_emitter_get, id)))
         signal->action = action;

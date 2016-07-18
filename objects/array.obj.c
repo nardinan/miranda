@@ -20,7 +20,7 @@ d_exception_define(bound, 4, "out of bound exception");
 struct s_array_attributes *p_array_alloc(struct s_object *self) {
     struct s_array_attributes *result = d_prepare(self, array);
     f_memory_new(self); 	/* inherit */
-    f_mutex_new(self);	/* inherit */
+    f_mutex_new(self);	    /* inherit */
     return result;
 }
 

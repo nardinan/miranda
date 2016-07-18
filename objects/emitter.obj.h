@@ -19,12 +19,12 @@
 #define miranda_object_emitter_h
 #include "object.h"
 #define d_emitter_name_size 16
-typedef void *(*f_emitter_action)(struct s_object *, void **, size_t);
+typedef void *(*t_emitter_action)(struct s_object *, void **, size_t);
 typedef struct s_signal { d_list_node_head;
     char id[d_emitter_name_size];
     void **parameters;
     size_t parameters_size;
-    f_emitter_action action;
+    t_emitter_action action;
 } s_signal;
 d_declare_class(emitter) {
     struct s_attributes head;
@@ -34,7 +34,7 @@ extern struct s_object *f_emitter_new(struct s_object *self);
 d_declare_method(emitter, record)(struct s_object *self, const char *id);
 d_declare_method(emitter, get)(struct s_object *self, const char *id);
 d_declare_method(emitter, embed_parameter)(struct s_object *self, const char *id, void *parameter);
-d_declare_method(emitter, embed_function)(struct s_object *self, const char *id, f_emitter_action action);
+d_declare_method(emitter, embed_function)(struct s_object *self, const char *id, t_emitter_action action);
 d_declare_method(emitter, raise)(struct s_object *self, const char *id);
 d_declare_method(emitter, delete)(struct s_object *self, struct s_emitter_attributes *attributes);
 #endif
