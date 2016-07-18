@@ -32,6 +32,7 @@ extern struct s_object *f_morphable_new(struct s_object *self);
 d_declare_method(morphable, set_freedom_x)(struct s_object *self, t_boolean free);
 d_declare_method(morphable, set_freedom_y)(struct s_object *self, t_boolean free);
 d_declare_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free);
+d_declare_method(morphable, update)(struct s_object *self, struct s_object *environment);
 d_declare_method(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes);
 #endif

@@ -19,7 +19,6 @@
 struct s_morphable_attributes *p_morphable_alloc(struct s_object *self) {
     struct s_morphable_attributes *result = d_prepare(self, morphable);
     /* abstract (no memory inheritance) */
-    f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));    /* inherit */
     f_eventable_new(self);	                                                            /* inherit */
     return result;
 }
@@ -46,6 +45,36 @@ d_define_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free)
     d_using(morphable);
     morphable_attributes->freedom_z = free;
     return self;
+}
+
+d_define_method(morphable, update)(struct s_object *self, struct s_object *environment) {
+    d_using(morphable);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+    double position_x_self, position_y_self, position_x, position_y;
+    int mouse_x, mouse_y;
+    if (morphable_attributes->grabbed) {
+        d_call(&(drawable_attributes->point_destination), m_point_get, &position_x_self, &position_y_self);
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
+        mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
+        if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) && 
+                (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
+            morphable_attributes->offset_x = (mouse_x - position_x_self);
+            morphable_attributes->offset_y = (mouse_y - position_y_self);
+            morphable_attributes->offset_z = drawable_attributes->zoom;
+        } else {
+            position_x = (double)mouse_x - morphable_attributes->offset_x;
+            position_y = (double)mouse_y - morphable_attributes->offset_y;
+            if (morphable_attributes->freedom_x)
+                d_call(self, m_drawable_set_position_x, position_x);
+            if (morphable_attributes->freedom_y)
+                d_call(self, m_drawable_set_position_y, position_y);
+            if (morphable_attributes->freedom_z)
+                d_call(self, m_drawable_set_zoom, morphable_attributes->offset_z);
+        }
+    }
+    d_cast_return(d_drawable_return_last);
 }
 
 d_define_method_override(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
@@ -84,36 +113,6 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
     return self;
 }
 
-d_define_method_override(morphable, draw)(struct s_object *self, struct s_object *environment) {
-    d_using(morphable);
-    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-    struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-    double position_x_self, position_y_self, position_x, position_y;
-    int mouse_x, mouse_y;
-    if (morphable_attributes->grabbed) {
-        d_call(&(drawable_attributes->point_destination), m_point_get, &position_x_self, &position_y_self);
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
-        mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
-        if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) && 
-                (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
-            morphable_attributes->offset_x = (mouse_x - position_x_self);
-            morphable_attributes->offset_y = (mouse_y - position_y_self);
-            morphable_attributes->offset_z = drawable_attributes->zoom;
-        } else {
-            position_x = (double)mouse_x - morphable_attributes->offset_x;
-            position_y = (double)mouse_y - morphable_attributes->offset_y;
-            if (morphable_attributes->freedom_x)
-                d_call(self, m_drawable_set_position_x, position_x);
-            if (morphable_attributes->freedom_y)
-                d_call(self, m_drawable_set_position_y, position_y);
-            if (morphable_attributes->freedom_z)
-                d_call(self, m_drawable_set_zoom, morphable_attributes->offset_z);
-        }
-    }
-    d_cast_return(d_drawable_return_last);
-}
-
 d_define_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes) {
     return NULL;
 }
@@ -122,8 +121,8 @@ d_define_class(morphable) {
     d_hook_method(morphable, e_flag_public, set_freedom_x),
         d_hook_method(morphable, e_flag_public, set_freedom_y),
         d_hook_method(morphable, e_flag_public, set_freedom_z),
+        d_hook_method(morphable, e_flag_public, update),
         d_hook_method_override(morphable, e_flag_public, eventable, event),
-        d_hook_method_override(morphable, e_flag_public, drawable, draw),
         d_hook_delete(morphable),
         d_hook_method_tail
 };

@@ -44,8 +44,9 @@ const char *v_uiable_signals[e_uiable_signal_NULL] = {
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self) {
     struct s_uiable_attributes *result = d_prepare(self, uiable);
     /* abstract (no memory inheritance) */
-    f_morphable_new(self);      /* inherit */
-    f_emitter_new(self);        /* inherit */
+    f_morphable_new(self);                                                              /* inherit */
+    f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));    /* inherit */
+    f_emitter_new(self);                                                                /* inherit */
     return result;
 }
 
@@ -132,7 +133,7 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_core;
     struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes_self->square_collision_box), square);
-    struct s_object *result = d_call_owner(self, morphable, m_drawable_draw, environment);
+    struct s_object *result = d_call(self, m_morphable_update, environment);
     int index, background_x[] = {
         square_attributes->normalized_top_left_x,
         square_attributes->normalized_top_right_x,
