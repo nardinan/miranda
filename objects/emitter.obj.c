@@ -18,7 +18,7 @@
 #include "emitter.obj.h"
 struct s_object *f_emitter_new(struct s_object *self) {
     struct s_emitter_attributes *attributes = d_prepare(self, emitter);
-    f_list_init(&(attributes->signals));
+    attributes = attributes;
     return self;
 }
 
@@ -27,15 +27,16 @@ d_define_method(emitter, record)(struct s_object *self, const char *id) {
     struct s_signal *signal;
     if ((signal = (struct s_signal *) d_malloc(sizeof(struct s_signal)))) {
         strncpy(signal->id, id, (d_emitter_name_size-1));
-        f_list_append(emitter_attributes->signals, (struct s_list_node *)signal, e_list_insert_head);
-    }
+        f_list_append(&(emitter_attributes->signals), (struct s_list_node *)signal, e_list_insert_head);
+    } else
+        d_die(d_error_malloc);
     return (void *)signal;
 }
 
 d_define_method(emitter, get)(struct s_object *self, const char *id) {
     d_using(emitter);
     struct s_signal *signal = NULL;
-    d_foreach(emitter_attributes->signals, signal, struct s_signal)
+    d_foreach(&(emitter_attributes->signals), signal, struct s_signal)
         if (f_string_strcmp(signal->id, id) == 0)
             break;
     return (void *)signal;
@@ -46,7 +47,7 @@ d_define_method(emitter, embed_parameter)(struct s_object *self, const char *id,
     void **new_parameters;
     if ((signal = d_call(self, m_emitter_get, id))) {
         signal->parameters_size++;
-        if ((new_parameters = (void **) d_realloc(signal->parameters, signal->parameters_size*sizeof(void *)))) {
+        if ((new_parameters = (void **) d_realloc(signal->parameters, (signal->parameters_size*sizeof(void *))))) {
             signal->parameters = new_parameters;
             signal->parameters[signal->parameters_size-1] = parameter;
         }
@@ -74,13 +75,12 @@ d_define_method(emitter, raise)(struct s_object *self, const char *id) {
 
 d_define_method(emitter, delete)(struct s_object *self, struct s_emitter_attributes *attributes) {
     struct s_signal *signal;
-    while (attributes->signals->head)
-        if ((signal = (struct s_signal *)f_list_delete(attributes->signals, attributes->signals->head))) {
-            if (signal->parameters_size)
-                d_free(signal->parameters);
-            d_free(signal);
-        }
-    f_list_destroy(&(attributes->signals));
+    while ((signal = (struct s_signal *)attributes->signals.head)) {
+        f_list_delete(&(attributes->signals), (struct s_list_node *)signal);
+        if (signal->parameters_size)
+            d_free(signal->parameters);
+        d_free(signal);
+    }
     return NULL;
 }
 
