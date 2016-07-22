@@ -20,8 +20,11 @@
 #include "environment.obj.h"
 #include "drawable.obj.h"
 #include "eventable.obj.h"
+#include "morphable.obj.h"
+#include "controllable.obj.h"
 #include "bitmap.obj.h"
 #include "particle.obj.h"
 #include "animation.obj.h"
 #include "track.obj.h"
+#include "entity.obj.h"
 #endif
