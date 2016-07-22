@@ -29,6 +29,7 @@ typedef struct s_entity_component { d_list_node_head;
 } s_entity_component;
 d_declare_class(entity) {
     struct s_attributes head;
+    char label[d_string_buffer_size];
     struct s_list components;
     struct s_entity_component *current_component;
 } d_declare_class_tail(entity);

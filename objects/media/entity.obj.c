@@ -25,7 +25,7 @@ struct s_entity_attributes *p_entity_alloc(struct s_object *self) {
 
 struct s_object *f_entity_new(struct s_object *self, const char *key) {
     struct s_entity_attributes *attributes = p_entity_alloc(self);
-    attributes = attributes;
+    strncpy(attributes->label, key, d_entity_label_size);
     return self;
 }
 
