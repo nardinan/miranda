@@ -19,7 +19,7 @@
 struct s_morphable_attributes *p_morphable_alloc(struct s_object *self) {
     struct s_morphable_attributes *result = d_prepare(self, morphable);
     /* abstract (no memory inheritance) */
-    f_eventable_new(self);	                                                            /* inherit */
+    f_eventable_new(self);  /* inherit */
     return result;
 }
 

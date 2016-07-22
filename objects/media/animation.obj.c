@@ -18,8 +18,8 @@
 #include "animation.obj.h"
 struct s_animation_attributes *p_animation_alloc(struct s_object *self) {
     struct s_animation_attributes *result = d_prepare(self, animation);
-    f_mutex_new(self);									/* inherit */
-    f_memory_new(self);									/* inherit */
+    f_mutex_new(self);									                                /* inherit */
+    f_memory_new(self);									                                /* inherit */
     f_drawable_new(self, (e_drawable_kind_single|e_drawable_kind_force_visibility));	/* inherit */
     return result;
 }
