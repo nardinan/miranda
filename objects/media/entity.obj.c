@@ -23,9 +23,10 @@ struct s_entity_attributes *p_entity_alloc(struct s_object *self) {
     return result;
 }
 
-struct s_object *f_entity_new(struct s_object *self, const char *key) {
+struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator) {
     struct s_entity_attributes *attributes = p_entity_alloc(self);
     strncpy(attributes->label, key, d_entity_label_size);
+    attributes->validator = validator;
     return self;
 }
 
@@ -39,12 +40,15 @@ d_define_method(entity, get_component)(struct s_object *self, char *label) {
 }
 
 
-d_define_method(entity, add_component)(struct s_object *self, char *label) {
+d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z) {
     d_using(entity);
     struct s_entity_component *current_component = NULL;
     if (!(current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label))) {
         if ((current_component = (struct s_entity_component *)d_malloc(sizeof(struct s_entity_component)))) {
             strncpy(current_component->label, label, d_entity_label_size);
+            current_component->speed_x = speed_x;
+            current_component->speed_y = speed_y;
+            current_component->speed_z = speed_z;
             f_list_append(&(entity_attributes->components), (struct s_list_node *)current_component, e_list_insert_head);
         } else
             d_die(d_error_malloc)
@@ -70,8 +74,15 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
 d_define_method(entity, set_component)(struct s_object *self, char *label) {
     d_using(entity);
     struct s_entity_component *current_component = NULL;
+    struct timeval current_refresh;
     if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label)))
-        entity_attributes->current_component = current_component;
+        if (entity_attributes->current_component != current_component) {
+            entity_attributes->current_component = current_component;
+            gettimeofday(&current_refresh, NULL);
+            entity_attributes->last_refresh_x = current_refresh;
+            entity_attributes->last_refresh_y = current_refresh;
+            entity_attributes->last_refresh_zoom = current_refresh;
+        }
     return self;
 }
 
@@ -89,11 +100,39 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
                                  *drawable_attributes_core;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     double local_position_x, local_position_y, local_center_x, local_center_y, local_dimension_w, local_dimension_h, position_x, position_y, center_x, 
-           center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0;
+           center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0, difference_x_seconds, difference_y_seconds, 
+           difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z;
     struct s_entity_element *current_element;
     struct s_exception *exception;
+    struct timeval current_refresh, difference_x, difference_y, difference_zoom;
     if (entity_attributes->current_component) {
         d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
+        gettimeofday(&current_refresh, NULL);
+        timersub(&current_refresh, &(entity_attributes->last_refresh_x), &difference_x);
+        timersub(&current_refresh, &(entity_attributes->last_refresh_y), &difference_y);
+        timersub(&current_refresh, &(entity_attributes->last_refresh_zoom), &difference_zoom);
+        difference_x_seconds = ((double)difference_x.tv_sec + (difference_x.tv_usec/1000000.0));
+        difference_y_seconds = ((double)difference_y.tv_sec + (difference_y.tv_usec/1000000.0));
+        difference_zoom_seconds = ((double)difference_zoom.tv_sec + (difference_zoom.tv_usec/1000000.0));
+        new_x = local_position_x;
+        new_y = local_position_y;
+        new_z = drawable_attributes_self->zoom;
+        if ((movement_x = (difference_x_seconds * entity_attributes->current_component->speed_x) * drawable_attributes_self->zoom) != 0) {
+            entity_attributes->last_refresh_x = current_refresh;
+            new_x += movement_x;
+        }
+        if ((movement_y = (difference_y_seconds * entity_attributes->current_component->speed_y) * drawable_attributes_self->zoom) != 0) {
+            entity_attributes->last_refresh_y = current_refresh;
+            new_y += movement_y;
+        }
+        if ((movement_zoom = (difference_zoom_seconds * entity_attributes->current_component->speed_z)) != 0) {
+            entity_attributes->last_refresh_zoom = current_refresh;
+            new_z += movement_zoom;
+        }
+        if (entity_attributes->validator)
+            entity_attributes->validator(self, local_position_x, local_position_y, drawable_attributes_self->zoom, &new_x, &new_y, &new_z);
+        d_call(self, m_drawable_set_position, new_x, new_y);
+        d_call(self, m_drawable_set_zoom, new_z);
         d_try {
             d_foreach(&(entity_attributes->current_component->elements), current_element, struct s_entity_element)
                 if ((drawable_attributes_core = d_cast(current_element->drawable, drawable))) {
