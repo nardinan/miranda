@@ -29,7 +29,14 @@ struct s_object *f_controllable_new(struct s_object *self) {
     return self;
 }
 
-d_define_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released) {
+d_define_method(controllable, set)(struct s_object *self, t_boolean enable) {
+    d_using(controllable);
+    controllable_attributes->enable = enable;
+    return self;
+}
+
+d_define_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
+        t_boolean single_shot) {
     d_using(controllable);
     struct s_controllable_entry *current_entry;
     if (!(current_entry = (struct s_controllable_entry *)d_call(self, m_controllable_get_configuration, key))) {
@@ -42,6 +49,7 @@ d_define_method(controllable, add_configuration)(struct s_object *self, int key,
     current_entry->enabled = d_true;
     current_entry->action_pressed = action_pressed;
     current_entry->action_released = action_released;
+    current_entry->single_shot = single_shot;
     return self;
 }
 
@@ -72,11 +80,16 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
                     switch (current_event->type) {
                         case SDL_KEYDOWN:
                             if (current_event->key.keysym.sym == current_entry->key)
-                                current_entry->action_pressed(self, current_entry, d_true);
+                                if ((!current_entry->single_shot) || (!current_entry->is_pressed)) {
+                                    current_entry->action_pressed(self, current_entry, d_true);
+                                    current_entry->is_pressed = d_true;
+                                }
                             break;
                         case SDL_KEYUP:
-                            if (current_event->key.keysym.sym == current_entry->key)
+                            if (current_event->key.keysym.sym == current_entry->key) {
                                 current_entry->action_released(self, current_entry, d_false);
+                                current_entry->is_pressed = d_false;
+                            }
                     }
                 }
             }        
@@ -98,7 +111,8 @@ d_define_method(controllable, delete)(struct s_object *self, struct s_controllab
 }
 
 d_define_class(controllable) {
-    d_hook_method(controllable, e_flag_public, add_configuration),
+    d_hook_method(controllable, e_flag_public, set),
+        d_hook_method(controllable, e_flag_public, add_configuration),
         d_hook_method(controllable, e_flag_private, get_configuration),
         d_hook_method(controllable, e_flag_public, del_configuration),
         d_hook_method_override(controllable, e_flag_public, eventable, event),

@@ -22,7 +22,7 @@ struct s_controllable_entry;
 typedef void *(*t_controllable_action)(struct s_object *, struct s_controllable_entry *, t_boolean);
 typedef struct s_controllable_entry { d_list_node_head;
    int key;
-   t_boolean enabled;
+   t_boolean enabled, single_shot, is_pressed;
    t_controllable_action action_pressed, action_released;
 } s_controllable_entry;
 d_declare_class(controllable) {
@@ -32,7 +32,9 @@ d_declare_class(controllable) {
 } d_declare_class_tail(controllable);
 struct s_controllable_attributes *p_controllable_alloc(struct s_object *self);
 extern struct s_object *f_controllable_new(struct s_object *self);
-d_declare_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released);
+d_declare_method(controllable, set)(struct s_object *self, t_boolean enable);
+d_declare_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
+        t_boolean single_shot);
 d_declare_method(controllable, get_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, del_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
