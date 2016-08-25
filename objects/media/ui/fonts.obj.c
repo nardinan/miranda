@@ -49,6 +49,7 @@ d_define_method(fonts, add_font)(struct s_object *self, unsigned int id, struct 
                     d_string_cstring(stream_attributes->string_name));
             d_throw(v_exception_ttf, buffer);
         }
+        TTF_SetFontOutline(fonts_attributes->fonts[id].font, 2);
     } else {
         snprintf(buffer, d_string_buffer_size, "wrong type for file %s exception", d_string_cstring(stream_attributes->string_name));
         d_throw(v_exception_wrong_type, buffer);
@@ -71,6 +72,13 @@ d_define_method(fonts, get_height)(struct s_object *self, unsigned int id) {
     d_cast_return(height);
 }
 
+d_define_method(fonts, set_outline)(struct s_object *self, unsigned int id, int outline) {
+    d_using(fonts);
+    if (fonts_attributes->fonts[id].font)
+        TTF_SetFontOutline(fonts_attributes->fonts[id].font, outline);
+    return self;
+}
+
 d_define_method(fonts, delete)(struct s_object *self, struct s_fonts_attributes *attributes) {
     int index;
     for (index = 0; index < d_fonts_collection; ++index)
@@ -85,6 +93,7 @@ d_define_class(fonts) {
     d_hook_method(fonts, e_flag_public, add_font),
         d_hook_method(fonts, e_flag_public, get_font),
         d_hook_method(fonts, e_flag_public, get_height),
+        d_hook_method(fonts, e_flag_public, set_outline),
         d_hook_delete(fonts),
         d_hook_method_tail
 };
