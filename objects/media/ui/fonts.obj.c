@@ -49,7 +49,6 @@ d_define_method(fonts, add_font)(struct s_object *self, unsigned int id, struct 
                     d_string_cstring(stream_attributes->string_name));
             d_throw(v_exception_ttf, buffer);
         }
-        TTF_SetFontOutline(fonts_attributes->fonts[id].font, 2);
     } else {
         snprintf(buffer, d_string_buffer_size, "wrong type for file %s exception", d_string_cstring(stream_attributes->string_name));
         d_throw(v_exception_wrong_type, buffer);
