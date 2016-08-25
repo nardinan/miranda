@@ -64,10 +64,10 @@ d_define_method(fonts, get_font)(struct s_object *self, unsigned int id, int sty
 }
 
 d_define_method(fonts, get_height)(struct s_object *self, unsigned int id) {
+    d_using(fonts);
     int height = 0;
-    TTF_Font *current_font;
-    if ((current_font = d_call(self, m_fonts_get_font, id, TTF_STYLE_NORMAL)))
-        height = TTF_FontHeight(current_font);
+    if (fonts_attributes->fonts[id].font)
+        height = TTF_FontHeight(fonts_attributes->fonts[id].font);
     d_cast_return(height);
 }
 
