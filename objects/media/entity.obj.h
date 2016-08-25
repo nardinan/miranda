@@ -20,6 +20,8 @@
 #include "drawable.obj.h"
 #include <sys/time.h>
 #define d_entity_label_size 64
+#define d_entity_minimum_movement 0.1
+#define d_entity_minimum_zoom 0.01
 typedef t_boolean(*t_entity_validator)(struct s_object *self, double current_x, double current_y, double current_zoom, double *new_x, double *new_y,
         double *new_zoom);
 typedef struct s_entity_element { d_list_node_head;

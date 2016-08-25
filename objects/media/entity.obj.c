@@ -117,15 +117,17 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
         new_x = local_position_x;
         new_y = local_position_y;
         new_z = drawable_attributes_self->zoom;
-        if ((movement_x = (difference_x_seconds * entity_attributes->current_component->speed_x) * drawable_attributes_self->zoom) != 0) {
+        if (fabs(movement_x = (difference_x_seconds * entity_attributes->current_component->speed_x) * drawable_attributes_self->zoom) > 
+                d_entity_minimum_movement) {
             entity_attributes->last_refresh_x = current_refresh;
             new_x += movement_x;
         }
-        if ((movement_y = (difference_y_seconds * entity_attributes->current_component->speed_y) * drawable_attributes_self->zoom) != 0) {
+        if (fabs(movement_y = (difference_y_seconds * entity_attributes->current_component->speed_y) * drawable_attributes_self->zoom) >
+                d_entity_minimum_movement) {
             entity_attributes->last_refresh_y = current_refresh;
             new_y += movement_y;
         }
-        if ((movement_zoom = (difference_zoom_seconds * entity_attributes->current_component->speed_z)) != 0) {
+        if (fabs(movement_zoom = (difference_zoom_seconds * entity_attributes->current_component->speed_z)) > d_entity_minimum_zoom) {
             entity_attributes->last_refresh_zoom = current_refresh;
             new_z += movement_zoom;
         }
@@ -133,6 +135,8 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
             entity_attributes->validator(self, local_position_x, local_position_y, drawable_attributes_self->zoom, &new_x, &new_y, &new_z);
         d_call(self, m_drawable_set_position, new_x, new_y);
         d_call(self, m_drawable_set_zoom, new_z);
+        local_position_x = new_x;
+        local_position_y = new_y;
         d_try {
             d_foreach(&(entity_attributes->current_component->elements), current_element, struct s_entity_element)
                 if ((drawable_attributes_core = d_cast(current_element->drawable, drawable))) {
