@@ -59,7 +59,11 @@ struct s_object *f_point_new(struct s_object *self, double x, double y) {
     return self;
 }
 ```
-As soon as you want to declare methods, you need to use the *d_declare_method* function specifying the object type (*point* in this specific case) and the name of the method. Remember to use short names because, at the very end, the real name of the method is translated by Miranda to m_<object_type>_<method_name> (e.g. m_point_set_x).
+As soon as you want to declare methods, you need to use the *d_declare_method* function specifying the object type (*point* in this specific case) and the name of the method. Remember to use short names because, at the very end, the real name of the method is translated by Miranda to: 
+```
+m_<object_type>_<method_name>
+```
+(e.g. m_point_set_x).
 For each method, the first parameters, **has to be** a pointer to the object and is the only way to access to **attributes structure(s)**.
 ```c
 d_declare_method(point, set_point)(struct s_object *self, struct s_object *source); 
