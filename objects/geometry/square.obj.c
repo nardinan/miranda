@@ -20,6 +20,7 @@
 struct s_square_attributes *p_square_alloc(struct s_object *self) {
     struct s_square_attributes *result = d_prepare(self, square);
     f_memory_new(self);	/* inherit */
+    f_mutex_new(self);  /* inherit */
     return result;
 }
 

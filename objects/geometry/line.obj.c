@@ -19,6 +19,7 @@
 struct s_line_attributes *p_line_alloc(struct s_object *self) {
     struct s_line_attributes *result = d_prepare(self, line);
     f_memory_new(self);	/* inherit */
+    f_mutex_new(self);  /* inherit */
     return result;
 }
 
