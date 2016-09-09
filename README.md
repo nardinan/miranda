@@ -7,11 +7,11 @@ Note: Miranda is a 160 characters-per-row library!
 
 #Introduction
 Miranda is an experimental C library that I started in 2014 and that is still under development.
-The idea behind Miranda is to create an efficient yet dynamic object-oriented interface for C that allows users to declare easily their own classes, define private and public methods, inherit, override and much, much more.
+The idea behind Miranda is to create a dynamic object-oriented interface for the C programming language that allows users to easily declare their own classes, define private and public methods, inherit, override and much, much more.
 
 ## Objects
-In order to understand correctly how Miranda works, we should analyze first how the library handles objects.
-Each object is defined by a structure that contains some information (e.g. the *type* of object and where the object has been instantiated), some private fields (e.g. caches) and a list of **virtual tables** and **attributes**.
+In order to correctly understand how Miranda works, we should analyze first how the library handles objects.
+Each object is defined by a structure that contains some information (e.g. its *type* and where the object has been instantiated), some private fields (e.g. caches) and a list of **virtual tables** and **attributes**.
 If a class doesn't inherit from any other class (like *memory* or *mutex* classes), the two lists (virtual tables and attributes) will contain a single entry: methods and attributes of the defined class.
 As soon as you start to inherit from other classes, the virtual tables and the attributes lists of the inherited classes are pushed to these two lists.
 In this example you can understand how a class that defines a character entity in a game is handled by Miranda.
