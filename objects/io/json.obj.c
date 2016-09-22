@@ -64,7 +64,7 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
     size_t length;
     char *string_pointer, *head_pointer = NULL, string_definition_character = '\0', last_character = '\0';
     int index, decimal_digits = d_json_decimal_null, line_number = 0;
-    t_boolean submit_token, keep_index;
+    t_boolean submit_token, keep_index, negative_value = d_false;
     while ((current_string = d_call(stream_file, m_stream_read_string, string_readed, d_stream_block_size))) {
         string_readed = current_string;
         d_call(string_readed, m_string_length, &length);
@@ -84,16 +84,14 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
                                 head_pointer = &(string_pointer[index]);
                             break;
                         case e_json_token_type_word:
-                            if (!strchr(d_json_ignorable_characters, string_pointer[index])) {
-                                if (strchr(d_json_division_characters, string_pointer[index])) {
-                                    if (head_pointer)
-                                        p_json_tokenizer_string_append(local_token, head_pointer,
-                                                &(string_pointer[index]));
-                                    submit_token = d_true;
-                                    keep_index = d_true;
-                                } else if (!head_pointer)
-                                    head_pointer = &(string_pointer[index]);
-                            }
+                            if (strchr(d_json_division_characters, string_pointer[index])) {
+                                if (head_pointer)
+                                    p_json_tokenizer_string_append(local_token, head_pointer,
+                                            &(string_pointer[index]));
+                                submit_token = d_true;
+                                keep_index = d_true;
+                            } else if ((!head_pointer) && (!strchr(d_json_ignorable_characters, string_pointer[index])))
+                                head_pointer = &(string_pointer[index]);
                             break;
                         case e_json_token_type_value:
                             if (strchr(d_json_decimal_characters, string_pointer[index]))
@@ -105,7 +103,10 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
                             } else {
                                 for (; decimal_digits > 0; --decimal_digits)
                                     local_token->value_entry /= 10.0f;
+                                if (negative_value)
+                                    local_token->value_entry = -local_token->value_entry;
                                 decimal_digits = d_json_decimal_null;
+                                negative_value = d_false;
                                 submit_token = d_true;
                                 keep_index = d_true;
                             }
@@ -128,10 +129,18 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
                             local_token->type = e_json_token_type_string;
                             string_definition_character = string_pointer[index];
                         } else {
-                            /* it has to be a symbol */
-                            local_token->type = e_json_token_type_symbol;
-                            local_token->symbol_entry = string_pointer[index];
-                            submit_token = d_true;
+                            if ((!strchr(d_json_numeric_negative_character, string_pointer[index])) || ((index + 1) >= length) || 
+                                    (!isdigit(string_pointer[index + 1]))) {
+                                /* it has to be a symbol */
+                                local_token->type = e_json_token_type_symbol;
+                                local_token->symbol_entry = string_pointer[index];
+                                submit_token = d_true;
+                            } else {
+                                /* it has to be a number */
+                                local_token->type = e_json_token_type_value;
+                                local_token->value_entry = 0;
+                                negative_value = d_true;
+                            }
                         }
                     } else
                         d_die(d_error_malloc);
