@@ -1,4 +1,4 @@
-objects = stream.obj.o json.obj.o resources.obj.o
+objects = stream.obj.o json.obj.o resources.obj.o lisp.obj.o
 name = miranda_io
 debug = -Dd_miranda_debug=1
 cc = clang -g $(debug)
@@ -18,6 +18,9 @@ json.obj.o: json.obj.c json.obj.h stream.obj.h
 
 resources.obj.o: resources.obj.c resources.obj.h stream.obj.h
 	$(cc) $(cflags) resources.obj.c
+
+lisp.obj.o: lisp.obj.c lisp.obj.h json.obj.h
+	$(cc) $(cflags) lisp.obj.c
 
 clean:
 	rm -f *.o

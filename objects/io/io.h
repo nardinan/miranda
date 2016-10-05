@@ -20,4 +20,5 @@
 #include "stream.obj.h"
 #include "json.obj.h"
 #include "resources.obj.h"
+#include "lisp.obj.h"
 #endif
