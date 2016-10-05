@@ -132,8 +132,21 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
                             if ((!strchr(d_json_numeric_negative_character, string_pointer[index])) || ((index + 1) >= length) || 
                                     (!isdigit(string_pointer[index + 1]))) {
                                 /* it has to be a symbol */
-                                local_token->type = e_json_token_type_symbol;
-                                local_token->symbol_entry = string_pointer[index];
+                                if ((strchr(d_json_concatenated_symbols, string_pointer[index])) && ((index + 1) < length) && 
+                                        (strchr(d_json_concatenated_symbols, string_pointer[index + 1]))) {
+                                    /* special case, concatenated symbols */
+                                    local_token->type = e_json_token_type_word;
+                                    head_pointer = &(string_pointer[index]);
+                                    ++index;
+                                    while ((index < length) && (strchr(d_json_concatenated_symbols, string_pointer[index])))
+                                        ++index;
+                                    p_json_tokenizer_string_append(local_token, head_pointer, &(string_pointer[index]));
+                                    keep_index = d_true;
+                                } else {
+                                    /* standard symbol */
+                                    local_token->type = e_json_token_type_symbol;
+                                    local_token->symbol_entry = string_pointer[index];
+                                }
                                 submit_token = d_true;
                             } else {
                                 /* it has to be a number */
