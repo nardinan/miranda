@@ -51,12 +51,13 @@ d_declare_class(particle) {
     struct timeval last_generation;
     struct s_particle_configuration configuration;
     struct s_particle_information particles[d_particle_cores];
-    t_boolean initialized;
+    t_boolean initialized, single_shoot;
 } d_declare_class_tail(particle);
 struct s_particle_attributes *p_particle_alloc(struct s_object *self);
 extern struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment,
         struct s_particle_configuration *configuration);
 d_declare_method(particle, reset)(struct s_object *self);
+d_declare_method(particle, stop)(struct s_object *self);
 d_declare_method(particle, is_completed)(struct s_object *self);
 d_declare_method(particle, update)(struct s_object *self, unsigned int max_particles);
 d_declare_method(particle, draw)(struct s_object *self, struct s_object *environment);

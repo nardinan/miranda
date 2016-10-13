@@ -31,6 +31,7 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
     memcpy(&(attributes->configuration), configuration, sizeof(struct s_particle_configuration));
     memset(&(attributes->particles), 0, (sizeof(struct s_particle_information) * d_particle_cores));
     d_call(attributes->drawable_core, m_drawable_set_blend, attributes->configuration.blend);
+    attributes->single_shoot = attributes->configuration.single_shoot;
     attributes->initialized = d_false;
     return self;
 }
@@ -38,10 +39,17 @@ struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable
 d_define_method(particle, reset)(struct s_object *self) {
     d_using(particle);
     unsigned int index;
+    particle_attributes->single_shoot = particle_attributes->configuration.single_shoot;
     for (index = 0; index < particle_attributes->configuration.particles; ++index) {
         particle_attributes->particles[index].alive = d_false;
         particle_attributes->particles[index].was_alive = d_false;
     }
+    return self;
+}
+
+d_define_method(particle, stop)(struct s_object *self) {
+    d_using(particle);
+    particle_attributes->single_shoot = d_true;
     return self;
 }
 
@@ -96,7 +104,7 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
             } else
                 particle_attributes->particles[index].alive = d_false;
         } else if ((generated < max_particles) && ((particle_attributes->particles[index].was_alive == d_false) ||
-                    (particle_attributes->configuration.single_shoot == d_false))) {
+                    (particle_attributes->single_shoot == d_false))) {
             particle_attributes->particles[index].was_alive = d_true;
             memcpy(&(particle_attributes->particles[index].born), &current, sizeof(struct timeval));
             memcpy(&(particle_attributes->particles[index].update), &current, sizeof(struct timeval));
@@ -211,6 +219,7 @@ d_define_method(particle, delete)(struct s_object *self, struct s_particle_attri
 
 d_define_class(particle) {
     d_hook_method(particle, e_flag_public, reset),
+        d_hook_method(particle, e_flag_public, stop),
         d_hook_method(particle, e_flag_public, is_completed),
         d_hook_method(particle, e_flag_private, update),
         d_hook_method_override(particle, e_flag_public, drawable, draw),
