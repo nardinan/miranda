@@ -8,9 +8,19 @@ cc = clang -g $(debug)
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders = objects objects/io objects/geometry objects/media objects/media/ui
+folders_normal = objects objects/io objects/geometry
+folders_sdl = objects/media objects/media/ui
+folders = $(folders_normal) $(folders_sdl)
+
+# This piece of code checks if SDL is installed in our computer.
+# It prevents Miranda to compile SDL modules if not required
+sdl_libraries = $(shell sdl2-config --libs 2>/dev/null)
+ifeq ($(strip $(sdl_libraries)), )
+folders = $(folders_normal)
+endif
 
 all: $(objects)
+	echo $(folders)
 	$(cc) $(lflags) $(objects) -o $(executable) -shared
 	for current_dir in $(folders); do make -C $${current_dir}; done
 
