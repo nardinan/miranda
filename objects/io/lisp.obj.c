@@ -444,6 +444,54 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
     d_cast_return(result);
 }
 
+d_define_method(lisp, write)(struct s_object *self, struct s_lisp_object *current_object, int output) {
+    struct s_lisp_object *next_object;
+    if (current_object)
+        switch (current_object->type) {
+            case e_lisp_object_type_value:
+                dprintf(output, "%.02f", current_object->value_double);
+                break;
+            case e_lisp_object_type_string:
+                dprintf(output, "%s", current_object->value_string);
+                break;
+            case e_lisp_object_type_cons:
+                write(output, "(", sizeof(char));
+                while (d_true) {
+                    p_lisp_write(self, d_lisp_car(current_object), output);
+                    next_object = d_lisp_cdr(current_object);
+                    if (next_object) {
+                        if (next_object->type != e_lisp_object_type_cons) {
+                            write(output, " . ", (3 * sizeof(char)));
+                            p_lisp_write(self, next_object, output);
+                            write(output, ")", sizeof(char));
+                            break;
+                        }
+                    } else {
+                        write(output, ")", sizeof(char));
+                        break;
+                    }
+                    write(output, " ", sizeof(char));
+                    current_object = next_object;
+                }
+                break;
+            case e_lisp_object_type_symbol:
+                dprintf(output, "%s", current_object->value_symbol);
+                break;
+            case e_lisp_object_type_primitive:
+                dprintf(output, "#<PRIMOP>");
+                break;
+            case e_lisp_object_type_lambda:
+                dprintf(output, "[#<LAMBDA> ");
+                p_lisp_write(self, current_object->lambda.call, output);
+                p_lisp_write(self, current_object->lambda.args, output);
+                write(output, "]", sizeof(char));
+                break;
+            default:
+                break;
+        }
+    return self;
+}
+
 d_define_method(lisp, sweep_collector)(struct s_object *self, unsigned char excluded_marks) {
     d_using(lisp);
     struct s_lisp_object *current_entry = (struct s_lisp_object *)(lisp_attributes->collector.head), *next_entry;
@@ -508,6 +556,7 @@ d_define_class(lisp) {
         d_hook_method(lisp, e_flag_private, read_components),
         d_hook_method(lisp, e_flag_private, recursive_evaluation),
         d_hook_method(lisp, e_flag_private, evaluate),
+        d_hook_method(lisp, e_flag_public, write),
         d_hook_method(lisp, e_flag_private, sweep_collector),
         d_hook_method(lisp, e_flag_public, run),
         d_hook_delete(lisp),
