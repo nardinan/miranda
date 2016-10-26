@@ -26,6 +26,7 @@
 #define d_lisp_mark_symbols     0x02
 #define d_lisp_mark_language    0x04
 #define d_lisp_mark_internal    (d_lisp_mark_environment|d_lisp_mark_symbols|d_lisp_mark_language)
+#define d_lisp_true_token(t)    ((t)->value_symbol[0]=='t')
 typedef enum e_lisp_object_symbols {
     e_lisp_object_symbol_true = 0,
     e_lisp_object_symbol_nil,
@@ -70,13 +71,13 @@ d_declare_class(lisp) {
 } d_declare_class_tail(lisp);
 extern const char *v_lisp_object_types[];
 struct s_lisp_attributes *p_lisp_alloc(struct s_object *self);
-#define d_lisp_car(obj) (obj->cons.car)
-#define d_lisp_cdr(obj) (obj->cons.cdr)
-#define d_lisp_cadr(obj) ((obj->cons.cdr)?(obj->cons.cdr->cons.car):NULL)
-#define d_lisp_caddr(obj) (((obj->cons.cdr)&&(obj->cons.cdr->cons.cdr))?obj->cons.cdr->cons.cdr->cons.car:NULL)
-#define d_lisp_value(obj) ((obj->type==e_lisp_object_type_value)?obj->value_double:0.0)
-#define d_lisp_string(obj) ((obj->type==e_lisp_object_type_string)?obj->value_string:"")
-#define d_lisp_symbol(obj) ((obj->type==e_lisp_object_type_symbol)?obj->value_symbol:"")
+#define d_lisp_car(obj) ((obj)?obj->cons.car:NULL)
+#define d_lisp_cdr(obj) ((obj)?obj->cons.cdr:NULL)
+#define d_lisp_cadr(obj) (d_lisp_car(d_lisp_cdr(obj)))
+#define d_lisp_caddr(obj) (d_lisp_car(d_lisp_cdr(d_lisp_cdr(obj))))
+#define d_lisp_value(obj) (((obj)&&(obj->type==e_lisp_object_type_value))?obj->value_double:0.0)
+#define d_lisp_string(obj) (((obj)&&(obj->type==e_lisp_object_type_string))?obj->value_string:"")
+#define d_lisp_symbol(obj) (((obj)&&(obj->type==e_lisp_object_type_symbol))?obj->value_symbol:"")
 extern struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_types type, ...);
 extern struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_lisp_object *args);
