@@ -21,8 +21,9 @@
 #include <stdlib.h>
 #include <math.h>
 #define d_math_pi 3.14159265358979323846
-#define d_math_default_precision 0.001
+#define d_math_default_precision 0.0001
 #define d_math_frand (((double)(rand()%1000))/1000.0)
+#define d_math_square(a) ((a)*(a))
 #define d_math_min(a,b) (((a)<(b))?(a):(b))
 #define d_math_max(a,b) (((a)<(b))?(b):(a))
 extern float f_math_mean(float *values, size_t elements);
