@@ -145,7 +145,8 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
         square_attributes->normalized_bottom_right_y,
         square_attributes->normalized_bottom_left_y
     };
-    double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_uiable_component_NULL], component_h[e_uiable_component_NULL];
+    double local_x, local_y, local_w, local_h, center_x, center_y, component_w[e_uiable_component_NULL], component_h[e_uiable_component_NULL], 
+           left_side_w = 0.0, right_side_w = 0.0, top_side_h = 0.0, bottom_side_h = 0.0;
     d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &local_x, &local_y);
     d_call(&(drawable_attributes_self->point_normalized_dimension), m_point_get, &local_w, &local_h);
     d_call(&(drawable_attributes_self->point_normalized_center), m_point_get, &center_x, &center_y);
@@ -157,56 +158,64 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
             component_w[index] = 0;
             component_h[index] = 0;
         }
+    left_side_w = d_math_max(d_math_max(component_w[e_uiable_component_corner_top_left], component_w[e_uiable_component_left]),
+            component_w[e_uiable_component_corner_bottom_left]);
+    right_side_w = d_math_max(d_math_max(component_w[e_uiable_component_corner_top_right], component_w[e_uiable_component_right]),
+            component_w[e_uiable_component_corner_bottom_right]);
+    top_side_h = d_math_max(d_math_max(component_h[e_uiable_component_corner_top_left], component_h[e_uiable_component_top]), 
+            component_h[e_uiable_component_corner_top_right]);
+    bottom_side_h = d_math_max(d_math_max(component_h[e_uiable_component_corner_bottom_left], component_h[e_uiable_component_bottom]),
+            component_h[e_uiable_component_corner_bottom_right]);
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center], m_drawable_set_position,
-                (local_x+component_w[e_uiable_component_corner_top_left]-1),
-                (local_y+component_h[e_uiable_component_corner_top_left]-1));
+                (local_x+left_side_w-1),
+                (local_y+top_side_h-1));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center], m_drawable_set_dimension,
-                (local_w-component_w[e_uiable_component_corner_top_left]-component_w[e_uiable_component_corner_top_right]+2),
-                (local_h-component_h[e_uiable_component_corner_top_left]-component_h[e_uiable_component_corner_bottom_left]+2));
+                (local_w-left_side_w-right_side_w+2),
+                (local_h-top_side_h-bottom_side_h+2));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_center], m_drawable_set_center,
-                (center_x-component_w[e_uiable_component_corner_top_left]+1),
-                (center_y-component_h[e_uiable_component_corner_top_left]+1));
+                (center_x-left_side_w+1),
+                (center_y-top_side_h+1));
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top], m_drawable_set_position,
-                (local_x+component_w[e_uiable_component_corner_top_left]-1),
+                (local_x+left_side_w-1),
                 local_y);
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top], m_drawable_set_dimension_w,
-                (local_w-component_w[e_uiable_component_corner_top_left]-component_w[e_uiable_component_corner_top_right])+2);
+                (local_w-left_side_w-right_side_w+2));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_top], m_drawable_set_center,
-                (center_x-component_w[e_uiable_component_corner_top_left]+1),
+                (center_x-left_side_w+1),
                 center_y);
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_bottom]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_bottom], m_drawable_set_position,
-                (local_x+component_w[e_uiable_component_corner_bottom_left]-1),
-                (local_y+local_h-component_h[e_uiable_component_bottom]));
+                (local_x+left_side_w-1),
+                (local_y+local_h-bottom_side_h));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_bottom], m_drawable_set_dimension_w,
-                (local_w-component_w[e_uiable_component_corner_bottom_left]-component_w[e_uiable_component_corner_bottom_right]+2));
+                (local_w-left_side_w-right_side_w+2));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_bottom], m_drawable_set_center,
-                (center_x-component_w[e_uiable_component_corner_bottom_left]+1),
-                (center_y-local_h+component_h[e_uiable_component_bottom]));
+                (center_x-left_side_w+1),
+                (center_y-local_h+bottom_side_h));
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_left]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_left], m_drawable_set_position,
                 local_x,
-                (local_y+component_h[e_uiable_component_corner_top_left]-1));
+                (local_y+top_side_h-1));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_left], m_drawable_set_dimension_h,
-                (local_h-component_h[e_uiable_component_corner_top_left]-component_h[e_uiable_component_corner_bottom_left]+2));
+                (local_h-top_side_h-bottom_side_h+2));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_left], m_drawable_set_center,
                 center_x,
-                (center_y-component_h[e_uiable_component_corner_top_left]+1));
+                (center_y-top_side_h+1));
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right], m_drawable_set_position,
-                (local_x+local_w-component_w[e_uiable_component_right]),
-                (local_y+component_h[e_uiable_component_corner_top_right]-1));
+                (local_x+local_w-right_side_w),
+                (local_y+top_side_h-1));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right], m_drawable_set_dimension_h,
-                (local_h-component_h[e_uiable_component_corner_top_right]-component_h[e_uiable_component_corner_bottom_right]+2));
+                (local_h-top_side_h-bottom_side_h+2));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_right], m_drawable_set_center,
-                (center_x-local_w+component_w[e_uiable_component_right]),
-                (center_y-component_h[e_uiable_component_corner_top_right]+1));
+                (center_x-local_w+right_side_w),
+                (center_y-top_side_h+1));
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_left]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_left], m_drawable_set_position,
@@ -218,27 +227,27 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_right]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_right], m_drawable_set_position,
-                (local_x+local_w-component_w[e_uiable_component_corner_top_right]),
+                (local_x+local_w-right_side_w),
                 local_y);
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_top_right], m_drawable_set_center,
-                (center_x-local_w+component_w[e_uiable_component_corner_top_right]),
+                (center_x-local_w+right_side_w),
                 center_y);
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_left]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_left], m_drawable_set_position,
                 local_x,
-                (local_y+local_h-component_h[e_uiable_component_corner_bottom_left]));
+                (local_y+local_h-bottom_side_h));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_left], m_drawable_set_center,
                 center_x,
-                (center_y-local_h+component_h[e_uiable_component_corner_bottom_left]));
+                (center_y-local_h+bottom_side_h));
     }
     if (uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_right]) {
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_right], m_drawable_set_position,
-                (local_x+local_w-component_w[e_uiable_component_corner_bottom_right]),
-                (local_y+local_h-component_h[e_uiable_component_corner_bottom_right]));
+                (local_x+local_w-right_side_w),
+                (local_y+local_h-bottom_side_h));
         d_call(uiable_attributes->background[uiable_attributes->selected_mode][e_uiable_component_corner_bottom_right], m_drawable_set_center,
-                (center_x-local_w+component_w[e_uiable_component_corner_bottom_right]),
-                (center_y-local_h+component_h[e_uiable_component_corner_bottom_right]));
+                (center_x-local_w+right_side_w),
+                (center_y-local_h+bottom_side_h));
     }
     for (index = 0; index < e_uiable_component_NULL; ++index)
         if (uiable_attributes->background[uiable_attributes->selected_mode][index]) {
