@@ -25,13 +25,14 @@
 d_declare_class(morphable) {
     struct s_attributes head;
     double offset_x, offset_y, offset_z;
-    t_boolean grabbed, freedom_x, freedom_y, freedom_z;
+    t_boolean grabbed, freedom_x, freedom_y, freedom_z, visible;
 } d_declare_class_tail(morphable);
 struct s_morphable_attributes *p_morphable_alloc(struct s_object *self);
 extern struct s_object *f_morphable_new(struct s_object *self);
 d_declare_method(morphable, set_freedom_x)(struct s_object *self, t_boolean free);
 d_declare_method(morphable, set_freedom_y)(struct s_object *self, t_boolean free);
 d_declare_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free);
+d_declare_method(morphable, set_visibility)(struct s_object *self, t_boolean visiblity);
 d_declare_method(morphable, update)(struct s_object *self, struct s_object *environment);
 d_declare_method(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes);

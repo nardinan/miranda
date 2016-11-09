@@ -47,17 +47,25 @@ d_define_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free)
     return self;
 }
 
+d_define_method(morphable, set_visibility)(struct s_object *self, t_boolean visibility) {
+    d_using(morphable);
+    morphable_attributes->visible = visibility;
+    return self;
+}
+
 d_define_method(morphable, update)(struct s_object *self, struct s_object *environment) {
     d_using(morphable);
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-    double position_x_self, position_y_self, position_x, position_y;
+    double position_x_self, position_y_self, position_x, position_y, reference_w, reference_h;
     int mouse_x, mouse_y;
     if (morphable_attributes->grabbed) {
         d_call(&(drawable_attributes->point_destination), m_point_get, &position_x_self, &position_y_self);
         SDL_GetMouseState(&mouse_x, &mouse_y);
-        mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
-        mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
+        reference_w = environment_attributes->reference_w[environment_attributes->current_surface]/environment_attributes->current_w;
+        reference_h = environment_attributes->reference_h[environment_attributes->current_surface]/environment_attributes->current_h;
+        mouse_x = ((double)mouse_x * reference_w) - environment_attributes->camera_origin_x[environment_attributes->current_surface];
+        mouse_y = ((double)mouse_y * reference_w) - environment_attributes->camera_origin_y[environment_attributes->current_surface];
         if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) && 
                 (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
             morphable_attributes->offset_x = (mouse_x - position_x_self);
@@ -83,6 +91,17 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_exception *exception;
     int mouse_x, mouse_y;
+    t_boolean mouse_inside = d_false;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
+    mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
+    if (morphable_attributes->visible) {
+        drawable_attributes->flags &= ~e_drawable_kind_contour;
+        if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y)) {
+            mouse_inside = d_true;
+            drawable_attributes->flags |= e_drawable_kind_contour;
+        }
+    }
     d_try {
         switch (current_event->type) {
             case SDL_MOUSEWHEEL:
@@ -95,10 +114,8 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 if (current_event->button.button == SDL_BUTTON_LEFT) {
-                    SDL_GetMouseState(&mouse_x, &mouse_y);
-                    mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
-                    mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
-                    if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
+                    if ((mouse_inside) /* has been already calculated */|| 
+                            ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
                         morphable_attributes->grabbed = d_true;
                         morphable_attributes->offset_x = NAN;
                         morphable_attributes->offset_y = NAN;
@@ -121,6 +138,7 @@ d_define_class(morphable) {
     d_hook_method(morphable, e_flag_public, set_freedom_x),
         d_hook_method(morphable, e_flag_public, set_freedom_y),
         d_hook_method(morphable, e_flag_public, set_freedom_z),
+        d_hook_method(morphable, e_flag_public, set_visibility),
         d_hook_method(morphable, e_flag_public, update),
         d_hook_method_override(morphable, e_flag_public, eventable, event),
         d_hook_delete(morphable),
