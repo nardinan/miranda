@@ -21,6 +21,7 @@
 #include "../mutex.obj.h"
 #include "../../math.local.h"
 #define d_point_precision_default 5
+#define d_point_square_distance(x1,y1,x2,y2) ((((x1)-(x2))*((x1)-(x2)))+(((y1)-(y2))*((y1)-(y2))))
 d_declare_class(point) {
     struct s_attributes head;
     double x, y;
