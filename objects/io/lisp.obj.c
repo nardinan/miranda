@@ -136,7 +136,7 @@ struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_li
         }
     } else
         d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
-    return p_lisp_object(self, e_lisp_object_type_value, d_false, value);
+    return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 
 struct s_lisp_object *p_lisp_primitive_compare_gr(struct s_object *self, struct s_lisp_object *args) {
@@ -210,6 +210,11 @@ struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lis
     return lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
 }
 
+struct s_lisp_object *p_lisp_primitive_strlen(struct s_object *self, struct s_lisp_object *args) {
+    char *string_content = d_lisp_string(d_lisp_car(args));
+    return p_lisp_object(self, e_lisp_object_type_value, (double)f_string_strlen(string_content));
+}
+
 struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file, int output) {
     struct s_lisp_attributes *attributes = p_lisp_alloc(self);
     f_json_tokenizer(stream_file, &(attributes->tokens));
@@ -237,6 +242,7 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
     d_call(self, m_lisp_extend_environment, "car", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_car));
     d_call(self, m_lisp_extend_environment, "cdr", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_cdr));
     d_call(self, m_lisp_extend_environment, "print", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_print));
+    d_call(self, m_lisp_extend_environment, "strlen", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_strlen));
     attributes->output = output;
     return self;
 }
