@@ -38,12 +38,13 @@ d_define_method(animation, append_frame)(struct s_object *self, struct s_object 
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
     if ((current_frame = (struct s_animation_frame *) d_malloc(sizeof(struct s_animation_frame)))) {
-        current_frame->drawable = d_retain(drawable);
-        if (drawable_attributes->last_blend != e_drawable_blend_undefined)
-            d_call(current_frame->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
-        d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G, 
-                (unsigned int)drawable_attributes->last_mask_B);
-        d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
+        if ((current_frame->drawable = d_retain(drawable))) {
+            if (drawable_attributes->last_blend != e_drawable_blend_undefined)
+                d_call(current_frame->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
+            d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G, 
+                    (unsigned int)drawable_attributes->last_mask_B);
+            d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
+        }
         current_frame->offset_x = offset_x;
         current_frame->offset_y = offset_y;
         current_frame->zoom = zoom;
@@ -148,28 +149,30 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
         memcpy(&(animation_attributes->last_update), &current, sizeof(struct timeval));
     }
     if (animation_attributes->current_frame) {
-        drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
-        d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
-        center_x = local_center_x - animation_attributes->current_frame->offset_x;
-        center_y = local_center_y - animation_attributes->current_frame->offset_y;
-        position_x = local_position_x + animation_attributes->current_frame->offset_x;
-        position_y = local_position_y + animation_attributes->current_frame->offset_y;
-        d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
-        d_call(animation_attributes->current_frame->drawable, m_drawable_set_center, center_x, center_y);
-        drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
-        drawable_attributes_core->angle = drawable_attributes_self->angle;
-        drawable_attributes_core->flip = drawable_attributes_self->flip;
-        if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, 
-                        environment_attributes->reference_w[environment_attributes->current_surface],
-                        environment_attributes->reference_h[environment_attributes->current_surface],
-                        environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                        environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                        environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                        environment_attributes->camera_focus_y[environment_attributes->current_surface],
-                        environment_attributes->current_w,
-                        environment_attributes->current_h,
-                        environment_attributes->zoom[environment_attributes->current_surface])))
-            while (((int)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+        if (animation_attributes->current_frame->drawable) {
+            drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
+            d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
+            center_x = local_center_x - animation_attributes->current_frame->offset_x;
+            center_y = local_center_y - animation_attributes->current_frame->offset_y;
+            position_x = local_position_x + animation_attributes->current_frame->offset_x;
+            position_y = local_position_y + animation_attributes->current_frame->offset_y;
+            d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
+            d_call(animation_attributes->current_frame->drawable, m_drawable_set_center, center_x, center_y);
+            drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
+            drawable_attributes_core->angle = drawable_attributes_self->angle;
+            drawable_attributes_core->flip = drawable_attributes_self->flip;
+            if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, 
+                            environment_attributes->reference_w[environment_attributes->current_surface],
+                            environment_attributes->reference_h[environment_attributes->current_surface],
+                            environment_attributes->camera_origin_x[environment_attributes->current_surface],
+                            environment_attributes->camera_origin_y[environment_attributes->current_surface],
+                            environment_attributes->camera_focus_x[environment_attributes->current_surface],
+                            environment_attributes->camera_focus_y[environment_attributes->current_surface],
+                            environment_attributes->current_w,
+                            environment_attributes->current_h,
+                            environment_attributes->zoom[environment_attributes->current_surface])))
+                while (((int)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+        }
     }
     d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
@@ -260,7 +263,8 @@ d_define_method_override(animation, get_scaled_dimension)(struct s_object *self,
 d_define_method(animation, delete)(struct s_object *self, struct s_animation_attributes *attributes) {
     struct s_animation_frame *current_frame;
     while ((current_frame = (struct s_animation_frame *)attributes->frames.head)) {
-        d_delete(current_frame->drawable);
+        if (current_frame->drawable)
+            d_delete(current_frame->drawable);
         f_list_delete(&(attributes->frames), (struct s_list_node *)current_frame);
         d_free(current_frame);
     }
