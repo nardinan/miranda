@@ -25,8 +25,8 @@
 #define d_lisp_mark_environment 0x01
 #define d_lisp_mark_symbols     0x02
 #define d_lisp_mark_language    0x04
-#define d_lisp_mark_internal    (d_lisp_mark_environment|d_lisp_mark_symbols|d_lisp_mark_language)
-#define d_lisp_true_token(t)    ((t)->value_symbol[0]=='t')
+#define d_lisp_mark_internal (d_lisp_mark_environment|d_lisp_mark_symbols|d_lisp_mark_language)
+#define d_lisp_true_token(t) ((t)->value_symbol[0]=='t')
 typedef enum e_lisp_object_symbols {
     e_lisp_object_symbol_true = 0,
     e_lisp_object_symbol_nil,
@@ -70,6 +70,7 @@ d_declare_class(lisp) {
     int output;
 } d_declare_class_tail(lisp);
 extern const char *v_lisp_object_types[];
+#define d_lisp_object_type(o)   ((o)?v_lisp_object_types[(o)->type]:"nil")
 struct s_lisp_attributes *p_lisp_alloc(struct s_object *self);
 #define d_lisp_car(obj) ((obj)?obj->cons.car:NULL)
 #define d_lisp_cdr(obj) ((obj)?obj->cons.cdr:NULL)
@@ -91,8 +92,9 @@ extern struct s_lisp_object *p_lisp_primitive_compare_eq(struct s_object *self, 
 extern struct s_lisp_object *p_lisp_primitive_cons(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_car(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_cdr(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_list(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lisp_object *args);
-extern struct s_lisp_object *p_lisp_primitive_strlen(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_lisp_object *args);
 extern struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file, int output);
 d_declare_method(lisp, import_symbol)(struct s_object *self, const char *symbol);
 d_declare_method(lisp, retrieve_symbol)(struct s_object *self, struct s_lisp_object *symbol, struct s_lisp_object *environment);

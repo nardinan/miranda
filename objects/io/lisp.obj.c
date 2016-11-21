@@ -72,70 +72,82 @@ struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_ty
 struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_object *args) {
     double value = 0.0;
     struct s_lisp_object *pointer = args, *entry;
-    while (pointer) {
-        if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-            value += entry->value_double;
-            pointer = d_lisp_cdr(pointer);
-        } else {
-            d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
+    while (pointer)
+        if ((entry = d_lisp_car(pointer))) {
+            if (entry->type == e_lisp_object_type_value) {
+                value += entry->value_double;
+                pointer = d_lisp_cdr(pointer);
+            } else {
+                d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+                break;
+            }
+        } else
             break;
-        }
-    }
     return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 
 struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_lisp_object *args) {
     double value = 0.0;
     struct s_lisp_object *pointer = args, *entry;
-    if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-        value = entry->value_double;
-        pointer = d_lisp_cdr(pointer);
-        while (pointer) {
-            if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-                value -= entry->value_double;
-                pointer = d_lisp_cdr(pointer);
-            } else {
-                d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
-                break;
-            }
-        }
-    } else
-        d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
+    if ((entry = d_lisp_car(pointer))) {
+        if (entry->type == e_lisp_object_type_value) {
+            value = entry->value_double;
+            pointer = d_lisp_cdr(pointer);
+            while (pointer)
+                if ((entry = d_lisp_car(pointer))) {
+                    if (entry->type == e_lisp_object_type_value) {
+                        value -= entry->value_double;
+                        pointer = d_lisp_cdr(pointer);
+                    } else {
+                        d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+                        break;
+                    }
+                } else
+                    break;
+        } else
+            d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+    }
     return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 
 struct s_lisp_object *p_lisp_primitive_multiply(struct s_object *self, struct s_lisp_object *args) {
     double value = 1.0;
     struct s_lisp_object *pointer = args, *entry;
-    while (pointer) {
-        if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-            value *= entry->value_double;
-            pointer = d_lisp_cdr(pointer);
-        } else {
-            d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
+    while (pointer)
+        if ((entry = d_lisp_car(pointer))) {
+            if (entry->type == e_lisp_object_type_value) {
+                value *= entry->value_double;
+                pointer = d_lisp_cdr(pointer);
+            } else {
+                d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+                break;
+            }
+        } else
             break;
-        }
-    }
     return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 
 struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_lisp_object *args) {
     double value = 0.0;
     struct s_lisp_object *pointer = args, *entry;
-    if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-        value = entry->value_double;
-        pointer = d_lisp_cdr(pointer);
-        while (pointer) {
-            if ((entry = d_lisp_car(pointer)) && (entry->type == e_lisp_object_type_value)) {
-                value /= entry->value_double;
-                pointer = d_lisp_cdr(pointer);
-            } else {
-                d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
-                break;
-            }
-        }
-    } else
-        d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", v_lisp_object_types[entry->type]);
+    if ((entry = d_lisp_car(pointer))) {
+        if (entry->type == e_lisp_object_type_value) {
+            value = entry->value_double;
+            pointer = d_lisp_cdr(pointer);
+            while (pointer)
+                if ((entry = d_lisp_car(pointer))) {
+                    if (entry->type == e_lisp_object_type_value) {
+                        value /= entry->value_double;
+                        pointer = d_lisp_cdr(pointer);
+                    } else {
+                        d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+                        break;
+                    }
+                } else
+                    break;
+        } else
+            d_err(e_log_level_low, "'%s' object founded while 'value' object was expected", d_lisp_object_type(entry));
+    }
     return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 
@@ -197,6 +209,14 @@ struct s_lisp_object *p_lisp_primitive_cdr(struct s_object *self, struct s_lisp_
     return d_lisp_cdr(d_lisp_car(args));
 }
 
+struct s_lisp_object *p_lisp_primitive_list(struct s_object *self, struct s_lisp_object *args) {
+    struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
+    struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
+    if ((d_lisp_car(args)) && (d_lisp_car(args) != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
+        result = p_lisp_object(self, e_lisp_object_type_cons, d_lisp_car(args), p_lisp_primitive_list(self, d_lisp_cdr(args)));
+    return result;
+}
+
 struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lisp_object *args) {
     struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
     struct s_lisp_object *pointer = args, *car;
@@ -210,7 +230,7 @@ struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lis
     return lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
 }
 
-struct s_lisp_object *p_lisp_primitive_strlen(struct s_object *self, struct s_lisp_object *args) {
+struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_lisp_object *args) {
     char *string_content = d_lisp_string(d_lisp_car(args));
     return p_lisp_object(self, e_lisp_object_type_value, (double)f_string_strlen(string_content));
 }
@@ -234,6 +254,7 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
     d_call(self, m_lisp_extend_environment, "-", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_subtract));
     d_call(self, m_lisp_extend_environment, "*", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_multiply));
     d_call(self, m_lisp_extend_environment, "/", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_divide));
+    d_call(self, m_lisp_extend_environment, "=", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_eq));
     d_call(self, m_lisp_extend_environment, ">", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_gr));
     d_call(self, m_lisp_extend_environment, "<", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_lt));
     d_call(self, m_lisp_extend_environment, ">=", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_ge));
@@ -241,8 +262,9 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
     d_call(self, m_lisp_extend_environment, "cons", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_cons));
     d_call(self, m_lisp_extend_environment, "car", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_car));
     d_call(self, m_lisp_extend_environment, "cdr", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_cdr));
+    d_call(self, m_lisp_extend_environment, "list", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_list));
     d_call(self, m_lisp_extend_environment, "print", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_print));
-    d_call(self, m_lisp_extend_environment, "strlen", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_strlen));
+    d_call(self, m_lisp_extend_environment, "length", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_length));
     attributes->output = output;
     return self;
 }
@@ -395,9 +417,9 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                 result = current_object;
                 break;
             case e_lisp_object_type_symbol:
-                if ((result = d_call(self, m_lisp_retrieve_symbol, current_object, environment)))
+                if ((result = d_call(self, m_lisp_retrieve_symbol, current_object, environment))) {
                     result = d_lisp_cdr(result);
-                else
+                } else
                     d_err(e_log_level_low, "unbounded symbol '%s'", current_object->value_symbol);
                 break;
             case e_lisp_object_type_cons:
@@ -433,8 +455,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                         if (procedure_object->type == e_lisp_object_type_primitive)
                             result = procedure_object->primitive(self, arguments_object);
                         else if (procedure_object->type == e_lisp_object_type_lambda) {
-                            environment = d_call(self, m_lisp_extend_closure, procedure_object->lambda.args, arguments_object,
-                                    procedure_object->lambda.environment);
+                            environment = d_call(self, m_lisp_extend_closure, procedure_object->lambda.args, arguments_object, environment);
                             current_object = p_lisp_object(self, e_lisp_object_type_cons, lisp_attributes->base_symbols[e_lisp_object_symbol_begin],
                                     procedure_object->lambda.call);
                             result = d_call(self, m_lisp_evaluate, current_object, environment);
