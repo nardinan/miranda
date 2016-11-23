@@ -94,25 +94,27 @@ d_define_method(track, play)(struct s_object *self, t_boolean restart) {
 
 d_define_method(track, play_fade_in)(struct s_object *self, t_boolean restart, int delay) {
     d_using(track);
-    t_boolean start = d_false;
+    t_boolean start = d_true;
     int channel;
     if ((track_attributes->channel != d_track_auto_channel) && ((Mix_Playing(track_attributes->channel)) || (Mix_Paused(track_attributes->channel)))) {
-        if (restart) {
+        if (restart)
             Mix_HaltChannel(track_attributes->channel);
-            track_attributes->channel = d_track_auto_channel;
-            start = d_true;
-        } else if (Mix_Paused(track_attributes->channel))
-            Mix_Resume(track_attributes->channel);
-    } else
-        start = d_true;
+        else {
+            if (Mix_Paused(track_attributes->channel))
+                Mix_Resume(track_attributes->channel);
+            start = d_false;
+        }
+    }
     if (start) {
         if (track_attributes->auto_channel)
             channel = d_track_auto_channel;
         else
             channel = track_attributes->next_channel;
+        Mix_HaltChannel(channel); /* nothing */
         d_call(self, m_track_set_volume, track_attributes->volume);
-        if ((track_attributes->channel = Mix_FadeInChannel(channel, track_attributes->chunk, track_attributes->loops, delay)) >= 0)
-            d_call(self, m_track_set_position, track_attributes->angle, track_attributes->distance);
+        if ((track_attributes->channel = Mix_FadeInChannel(channel, track_attributes->chunk, track_attributes->loops, delay)) == -1)
+            track_attributes->channel = Mix_FadeInChannel(channel, track_attributes->chunk, track_attributes->loops, delay);
+        d_call(self, m_track_set_position, track_attributes->angle, track_attributes->distance);
     }
     return self;
 }
