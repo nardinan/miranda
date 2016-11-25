@@ -55,6 +55,7 @@ extern struct s_object *f_environment_new_fullscreen(struct s_object *self, int 
 extern struct s_object *f_environment_new_flags(struct s_object *self, int width, int height, int flags);
 d_declare_method(environment, set_methods)(struct s_object *self, t_environment_call init_call, t_environment_call mail_call, t_environment_call quit_call);
 d_declare_method(environment, set_title)(struct s_object *self, const char *title);
+d_declare_method(environment, set_channels)(struct s_object *self, int channels);
 d_declare_method(environment, set_size)(struct s_object *self, int width, int height);
 d_declare_method(environment, get_size)(struct s_object *self, int *width, int *height);
 d_declare_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y, enum e_environment_surfaces surface);

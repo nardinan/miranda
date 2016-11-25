@@ -107,6 +107,11 @@ d_define_method(environment, set_title)(struct s_object *self, const char *title
     return self;
 }
 
+d_define_method(environment, set_channels)(struct s_object *self, int channels) {
+    Mix_AllocateChannels(channels);
+    return self;
+}
+
 d_define_method(environment, set_size)(struct s_object *self, int width, int height) {
     d_using(environment);
     environment_attributes->current_w = width;
@@ -293,6 +298,7 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
 d_define_class(environment) {
     d_hook_method(environment, e_flag_public, set_methods),
         d_hook_method(environment, e_flag_public, set_title),
+        d_hook_method(environment, e_flag_public, set_channels),
         d_hook_method(environment, e_flag_public, set_size),
         d_hook_method(environment, e_flag_public, get_size),
         d_hook_method(environment, e_flag_public, set_camera),
