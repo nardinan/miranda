@@ -26,6 +26,7 @@ struct s_entity_attributes *p_entity_alloc(struct s_object *self) {
 struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator) {
     struct s_entity_attributes *attributes = p_entity_alloc(self);
     strncpy(attributes->label, key, d_entity_label_size);
+    attributes->factor_z = 1.0;
     attributes->validator = validator;
     return self;
 }
@@ -99,9 +100,9 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_core;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-    double local_position_x, local_position_y, local_center_x, local_center_y, local_dimension_w, local_dimension_h, position_x, position_y, center_x, 
-           center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0, difference_x_seconds, difference_y_seconds, 
-           difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z;
+    double local_position_x, local_position_y, local_position_z, local_center_x, local_center_y, local_dimension_w, local_dimension_h, position_x, position_y, 
+           center_x, center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0, difference_x_seconds, 
+           difference_y_seconds, difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z;
     struct s_entity_element *current_element;
     struct s_exception *exception;
     struct timeval current_refresh, difference_x, difference_y, difference_zoom;
@@ -114,9 +115,10 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
         difference_x_seconds = ((double)difference_x.tv_sec + (difference_x.tv_usec/1000000.0));
         difference_y_seconds = ((double)difference_y.tv_sec + (difference_y.tv_usec/1000000.0));
         difference_zoom_seconds = ((double)difference_zoom.tv_sec + (difference_zoom.tv_usec/1000000.0));
+        local_position_z = entity_attributes->factor_z;
         new_x = local_position_x;
         new_y = local_position_y;
-        new_z = drawable_attributes_self->zoom;
+        new_z = local_position_z;
         if (fabs(movement_x = (difference_x_seconds * entity_attributes->current_component->speed_x) * drawable_attributes_self->zoom) > 
                 d_entity_minimum_movement) {
             entity_attributes->last_refresh_x = current_refresh;
@@ -132,11 +134,11 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
             new_z += movement_zoom;
         }
         if (entity_attributes->validator)
-            entity_attributes->validator(self, local_position_x, local_position_y, drawable_attributes_self->zoom, &new_x, &new_y, &new_z);
+            entity_attributes->validator(self, local_position_x, local_position_y, entity_attributes->factor_z, &new_x, &new_y, &new_z);
         d_call(self, m_drawable_set_position, new_x, new_y);
-        d_call(self, m_drawable_set_zoom, new_z);
         local_position_x = new_x;
         local_position_y = new_y;
+        local_position_z = new_z;
         d_try {
             d_foreach(&(entity_attributes->current_component->elements), current_element, struct s_entity_element)
                 if ((drawable_attributes_core = d_cast(current_element->drawable, drawable))) {
@@ -158,7 +160,7 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
                     center_y = local_center_y - current_element->offset_y;
                     d_call(current_element->drawable, m_drawable_set_position, position_x, position_y);
                     d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
-                    drawable_attributes_core->zoom = drawable_attributes_self->zoom;
+                    drawable_attributes_core->zoom = (drawable_attributes_self->zoom * local_position_z);
                     drawable_attributes_core->angle = drawable_attributes_self->angle;
                     if ((d_call(current_element->drawable, m_drawable_normalize_scale, 
                                     environment_attributes->reference_w[environment_attributes->current_surface],

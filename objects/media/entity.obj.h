@@ -39,6 +39,7 @@ d_declare_class(entity) {
     struct s_list components;
     struct s_entity_component *current_component;
     struct timeval last_refresh_x, last_refresh_y, last_refresh_zoom;
+    double factor_z;
     t_entity_validator validator;
 } d_declare_class_tail(entity);
 struct s_entity_attributes *p_entity_alloc(struct s_object *self);
