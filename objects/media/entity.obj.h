@@ -30,7 +30,7 @@ typedef struct s_entity_element { d_list_node_head;
 } s_entity_element;
 typedef struct s_entity_component { d_list_node_head;
     char label[d_string_buffer_size];
-    double speed_x, speed_y, speed_z;
+    double speed_x, speed_y, speed_z, offset_point_x, offset_point_y;
     struct s_list elements;
 } s_entity_component;
 d_declare_class(entity) {
@@ -44,11 +44,13 @@ d_declare_class(entity) {
 } d_declare_class_tail(entity);
 struct s_entity_attributes *p_entity_alloc(struct s_object *self);
 extern struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator);
-d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z);
+d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x, 
+        double offset_point_y);
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
 d_declare_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);
 d_declare_method(entity, collision)(struct s_object *self, struct s_object *entity);
+d_declare_method(entity, interact)(struct s_object *self, struct s_object *entity);
 d_declare_method(entity, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(entity, delete)(struct s_object *self, struct s_entity_attributes *attributes);
 #endif

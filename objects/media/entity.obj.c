@@ -41,7 +41,8 @@ d_define_method(entity, get_component)(struct s_object *self, char *label) {
 }
 
 
-d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z) {
+d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
+        double offset_point_y) {
     d_using(entity);
     struct s_entity_component *current_component = NULL;
     if (!(current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label))) {
@@ -50,6 +51,8 @@ d_define_method(entity, add_component)(struct s_object *self, char *label, doubl
             current_component->speed_x = speed_x;
             current_component->speed_y = speed_y;
             current_component->speed_z = speed_z;
+            current_component->offset_point_x = offset_point_x;
+            current_component->offset_point_y = offset_point_y;
             f_list_append(&(entity_attributes->components), (struct s_list_node *)current_component, e_list_insert_head);
         } else
             d_die(d_error_malloc)
@@ -92,6 +95,22 @@ d_define_method(entity, collision)(struct s_object *self, struct s_object *entit
                                  *drawable_attributes_core = d_cast(entity, drawable);
     t_boolean collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, 
             &(drawable_attributes_core->square_collision_box));
+    d_cast_return(collision);
+}
+
+d_define_method(entity, interact)(struct s_object *self, struct s_object *entity) {
+    d_using(entity);
+    struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
+                                 *drawable_attributes_core = d_cast(entity, drawable);
+    struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes_self->square_collision_box), square);
+    double position_x, position_y, offset_x = 0.0, offset_y = 0.0;
+    if (entity_attributes->current_component) {
+        offset_x = entity_attributes->current_component->offset_point_x;
+        offset_y = entity_attributes->current_component->offset_point_y;
+    }
+    position_x = (square_attributes->top_left_x + ((square_attributes->bottom_right_x - square_attributes->top_left_x) / 2.0)) + offset_x;
+    position_y = (square_attributes->top_left_y + ((square_attributes->bottom_right_y - square_attributes->top_left_y) / 2.0)) + offset_y;
+    t_boolean collision = (intptr_t)d_call(&(drawable_attributes_core->square_collision_box), m_square_inside_coordinates, position_x, position_y);
     d_cast_return(collision);
 }
 
@@ -204,6 +223,8 @@ d_define_class(entity) {
         d_hook_method(entity, e_flag_private, get_component),
         d_hook_method(entity, e_flag_public, add_element),
         d_hook_method(entity, e_flag_public, set_component),
+        d_hook_method(entity, e_flag_public, collision),
+        d_hook_method(entity, e_flag_public, interact),
         d_hook_method_override(entity, e_flag_public, drawable, draw),
         d_hook_delete(entity),
         d_hook_method_tail
