@@ -196,6 +196,14 @@ struct s_lisp_object *p_lisp_primitive_compare_eq(struct s_object *self, struct 
     return result;
 }
 
+struct s_lisp_object *p_lisp_primitive_compare_not(struct s_object *self, struct s_lisp_object *args) {
+    struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
+    struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
+    if ((!d_lisp_car(args)) || (d_lisp_car(args) == lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
+        result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+    return result;
+}
+
 struct s_lisp_object *p_lisp_primitive_cons(struct s_object *self, struct s_lisp_object *args) {
     struct s_lisp_object *car = d_lisp_car(args), *cdr = d_lisp_cadr(args);
     return p_lisp_object(self, e_lisp_object_type_cons, car, cdr);
@@ -259,6 +267,7 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
     d_call(self, m_lisp_extend_environment, "<", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_lt));
     d_call(self, m_lisp_extend_environment, ">=", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_ge));
     d_call(self, m_lisp_extend_environment, "<=", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_le));
+    d_call(self, m_lisp_extend_environment, "not", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_not));
     d_call(self, m_lisp_extend_environment, "cons", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_cons));
     d_call(self, m_lisp_extend_environment, "car", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_car));
     d_call(self, m_lisp_extend_environment, "cdr", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_cdr));

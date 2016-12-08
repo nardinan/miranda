@@ -89,6 +89,7 @@ extern struct s_lisp_object *p_lisp_primitive_compare_ge(struct s_object *self, 
 extern struct s_lisp_object *p_lisp_primitive_compare_lt(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_compare_le(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_compare_eq(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_compare_not(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_cons(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_car(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_cdr(struct s_object *self, struct s_lisp_object *args);
