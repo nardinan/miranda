@@ -96,6 +96,7 @@ extern struct s_lisp_object *p_lisp_primitive_cdr(struct s_object *self, struct 
 extern struct s_lisp_object *p_lisp_primitive_list(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_compare(struct s_object *self, struct s_lisp_object *args);
 extern struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file, int output);
 d_declare_method(lisp, import_symbol)(struct s_object *self, const char *symbol);
 d_declare_method(lisp, retrieve_symbol)(struct s_object *self, struct s_lisp_object *symbol, struct s_lisp_object *environment);

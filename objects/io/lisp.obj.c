@@ -35,6 +35,8 @@ struct s_lisp_attributes *p_lisp_alloc(struct s_object *self) {
 struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_types type, ...) {
     struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
     struct s_lisp_object *result;
+    char *string_buffer;
+    size_t string_length;
     va_list parameters;
     va_start(parameters, type);
     if ((result = (struct s_lisp_object *)d_malloc(sizeof(struct s_lisp_object)))) {
@@ -44,7 +46,13 @@ struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_ty
                 result->value_double = (double)va_arg(parameters, double);
                 break;
             case e_lisp_object_type_string:
-                result->value_string = (char *)va_arg(parameters, void *);
+                if ((string_buffer = (char *)va_arg(parameters, void *)))
+                    if ((string_length = f_string_strlen(string_buffer)) > 0) {
+                        if ((result->value_string = (char *) d_malloc(string_length + 1)))
+                            strcpy(result->value_string, string_buffer);
+                        else
+                            d_die(d_error_malloc);
+                    }
                 break;
             case e_lisp_object_type_symbol:
                 strncpy(result->value_symbol, (char *)va_arg(parameters, void *), d_lisp_symbol_size);
@@ -243,6 +251,14 @@ struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_li
     return p_lisp_object(self, e_lisp_object_type_value, (double)f_string_strlen(string_content));
 }
 
+struct s_lisp_object *p_lisp_primitive_compare(struct s_object *self, struct s_lisp_object *args) {
+    struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
+    char *string_content_left = d_lisp_string(d_lisp_car(args)), *string_content_right = d_lisp_string(d_lisp_cadr(args));
+    if (f_string_strcmp(string_content_left, string_content_right) == 0)
+        return lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+    return lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
+}
+
 struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file, int output) {
     struct s_lisp_attributes *attributes = p_lisp_alloc(self);
     f_json_tokenizer(stream_file, &(attributes->tokens));
@@ -274,6 +290,7 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
     d_call(self, m_lisp_extend_environment, "list", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_list));
     d_call(self, m_lisp_extend_environment, "print", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_print));
     d_call(self, m_lisp_extend_environment, "length", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_length));
+    d_call(self, m_lisp_extend_environment, "compare", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare));
     attributes->output = output;
     return self;
 }
@@ -488,7 +505,7 @@ d_define_method(lisp, write)(struct s_object *self, struct s_lisp_object *curren
                 dprintf(output, "%.02f", current_object->value_double);
                 break;
             case e_lisp_object_type_string:
-                dprintf(output, "%s", current_object->value_string);
+                dprintf(output, "'%s'", current_object->value_string);
                 break;
             case e_lisp_object_type_cons:
                 write(output, "(", sizeof(char));
@@ -535,6 +552,8 @@ d_define_method(lisp, sweep_collector)(struct s_object *self, unsigned char excl
         next_entry = (struct s_lisp_object *)(((struct s_list_node *)current_entry)->next);
         if ((current_entry->mark & excluded_marks) == 0) {
             f_list_delete(&(lisp_attributes->collector), (struct s_list_node *)current_entry);
+            if ((current_entry->type == e_lisp_object_type_string) && (current_entry->value_string))
+                d_free(current_entry->value_string);
             d_free(current_entry);
         }
         current_entry = next_entry;
