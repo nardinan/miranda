@@ -210,7 +210,8 @@ d_define_method(entity, delete)(struct s_object *self, struct s_entity_attribute
         f_list_delete(&(attributes->components), (struct s_list_node *)current_component);
         while ((current_element = (struct s_entity_element *)current_component->elements.head)) {
             f_list_delete(&(current_component->elements), (struct s_list_node *)current_element);
-            d_delete(current_element->drawable);
+            if (current_element->drawable)
+                d_delete(current_element->drawable);
             d_free(current_element);
         }
         d_free(current_component);
