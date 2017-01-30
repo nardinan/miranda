@@ -219,7 +219,7 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
     struct s_json_token *local_token, *next_token;
     struct s_json_node_value *local_value = provided_value;
     enum e_json_node_actions current_action = e_json_node_action_value;
-    char last_character = '\0';
+    char buffer[d_string_buffer_size], last_character = '\0';
     t_boolean negative_value = d_false;
     while ((local_token = (struct s_json_token *)tokens->current)) {
         /* special case: the local_token is the symbol ']' or '}' */
@@ -289,8 +289,10 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
                 }
                 if (local_value->type != e_json_node_type_undefined)
                     current_action = e_json_node_action_close;
-                else
-                    d_throw(v_exception_malformed_value, "unexpected undefined token as value exception");
+                else {
+                    snprintf(buffer, d_string_buffer_size, "unexpected undefined token as value exception (line %d)", local_token->line_number);
+                    d_throw(v_exception_malformed_value, buffer);
+                }
                 break;
             case e_json_node_action_close:
                 if (local_token->type == e_json_token_type_symbol) {
@@ -316,8 +318,10 @@ char p_json_analyzer_value(struct s_list *tokens, struct s_json_node_value *prov
                     if ((nodes) && (local_value))
                         f_list_append(nodes, (struct s_list_node *)local_value, e_list_insert_tail);
                     local_value = NULL;
-                } else
-                    d_throw(v_exception_malformed_value, "unexpected undefined token as closing character exception");
+                } else {
+                    snprintf(buffer, d_string_buffer_size, "unexpected undefined token as closing character exception (line %d)", local_token->line_number);
+                    d_throw(v_exception_malformed_value, buffer);
+                }
             default:
                 break;
         }
@@ -343,14 +347,17 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
                 if ((local_token->type == e_json_token_type_string) || (local_token->type == e_json_token_type_word)) {
                     local_node->key = local_token->string_entry;
                     current_action = e_json_node_action_symbol;
-                } else
-                    d_throw(v_exception_malformed_key, "unexpected non-string token as key exception");
+                } else {
+                    snprintf(buffer, d_string_buffer_size, "unexpected non-string token as key exception (line %d)", local_token->line_number);
+                    d_throw(v_exception_malformed_key, buffer);
+                }
                 break;
             case e_json_node_action_symbol:
                 if ((local_token->type == e_json_token_type_symbol) && (strchr(d_json_separator_characters, local_token->symbol_entry)))
                     current_action = e_json_node_action_value;
                 else {
-                    snprintf(buffer, d_string_buffer_size, "unexpected non-symbol token after key '%s' exception", local_node->key);
+                    snprintf(buffer, d_string_buffer_size, "unexpected non-symbol token after key '%s' exception (line %d)", local_node->key, 
+                            local_token->line_number);
                     d_throw(v_exception_malformed_key, buffer);
                 }
                 break;
