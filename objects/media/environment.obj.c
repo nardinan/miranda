@@ -28,7 +28,8 @@ struct s_object *f_environment_new(struct s_object *self, int width, int height)
 }
 
 struct s_object *f_environment_new_fullscreen(struct s_object *self, int width, int height, t_boolean fullscreen) {
-    return f_environment_new_flags(self, width, height, (fullscreen)?SDL_WINDOW_FULLSCREEN:0);
+    return f_environment_new_flags(self, width, height, (fullscreen)?
+            (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_SHOWN|SDL_WINDOW_INPUT_GRABBED):0);
 }
 
 struct s_object *f_environment_new_flags(struct s_object *self, int width, int height, int flags) {

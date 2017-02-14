@@ -57,15 +57,13 @@ d_define_method(morphable, update)(struct s_object *self, struct s_object *envir
     d_using(morphable);
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-    double position_x_self, position_y_self, position_x, position_y, reference_w, reference_h;
+    double position_x_self, position_y_self, position_x, position_y;
     int mouse_x, mouse_y;
     if (morphable_attributes->grabbed) {
         d_call(&(drawable_attributes->point_destination), m_point_get, &position_x_self, &position_y_self);
         SDL_GetMouseState(&mouse_x, &mouse_y);
-        reference_w = environment_attributes->reference_w[environment_attributes->current_surface]/environment_attributes->current_w;
-        reference_h = environment_attributes->reference_h[environment_attributes->current_surface]/environment_attributes->current_h;
-        mouse_x = ((double)mouse_x * reference_w) - environment_attributes->camera_origin_x[environment_attributes->current_surface];
-        mouse_y = ((double)mouse_y * reference_w) - environment_attributes->camera_origin_y[environment_attributes->current_surface];
+        mouse_x = (double)mouse_x - environment_attributes->camera_origin_x[environment_attributes->current_surface];
+        mouse_y = (double)mouse_y - environment_attributes->camera_origin_y[environment_attributes->current_surface];
         if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) && 
                 (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
             morphable_attributes->offset_x = (mouse_x - position_x_self);
@@ -88,13 +86,10 @@ d_define_method(morphable, update)(struct s_object *self, struct s_object *envir
 d_define_method_override(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
     d_using(morphable);
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-    struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_exception *exception;
     int mouse_x, mouse_y;
     t_boolean mouse_inside = d_false;
     SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = ((double)mouse_x * environment_attributes->reference_w[environment_attributes->current_surface])/environment_attributes->current_w;
-    mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface])/environment_attributes->current_h;
     if (morphable_attributes->visible) {
         drawable_attributes->flags &= ~e_drawable_kind_contour;
         if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y)) {
