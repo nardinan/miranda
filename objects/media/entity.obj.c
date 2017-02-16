@@ -104,13 +104,14 @@ d_define_method(entity, interact)(struct s_object *self, struct s_object *entity
                                  *drawable_attributes_core = d_cast(entity, drawable);
     struct s_square_attributes *square_attributes = d_cast(&(drawable_attributes_self->square_collision_box), square);
     double position_x, position_y, offset_x = 0.0, offset_y = 0.0;
+    t_boolean collision;
     if (entity_attributes->current_component) {
         offset_x = entity_attributes->current_component->offset_point_x;
         offset_y = entity_attributes->current_component->offset_point_y;
     }
     position_x = (square_attributes->top_left_x + ((square_attributes->bottom_right_x - square_attributes->top_left_x) / 2.0)) + offset_x;
     position_y = (square_attributes->top_left_y + ((square_attributes->bottom_right_y - square_attributes->top_left_y) / 2.0)) + offset_y;
-    t_boolean collision = (intptr_t)d_call(&(drawable_attributes_core->square_collision_box), m_square_inside_coordinates, position_x, position_y);
+    collision = (intptr_t)d_call(&(drawable_attributes_core->square_collision_box), m_square_inside_coordinates, position_x, position_y);
     d_cast_return(collision);
 }
 

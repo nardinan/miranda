@@ -36,7 +36,7 @@ d_define_method(controllable, set)(struct s_object *self, t_boolean enable) {
 }
 
 d_define_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
-        t_boolean single_shot) {
+        t_controllable_action action_double, t_boolean single_shot) {
     d_using(controllable);
     struct s_controllable_entry *current_entry;
     if (!(current_entry = (struct s_controllable_entry *)d_call(self, m_controllable_get_configuration, key))) {
@@ -49,6 +49,7 @@ d_define_method(controllable, add_configuration)(struct s_object *self, int key,
     current_entry->enabled = d_true;
     current_entry->action_pressed = action_pressed;
     current_entry->action_released = action_released;
+    current_entry->action_double = action_double;
     current_entry->single_shot = single_shot;
     return self;
 }
@@ -73,22 +74,36 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
     d_using(controllable);
     struct s_controllable_entry *current_entry;
     struct s_exception *exception;
+    struct timeval last_pressed;
+    t_boolean double_active = d_false;
     if (controllable_attributes->enable) {
         d_try {
             d_foreach(&(controllable_attributes->configurations), current_entry, struct s_controllable_entry) {
                 if (current_entry->enabled) {
                     switch (current_event->type) {
                         case SDL_KEYDOWN:
-                            if (current_event->key.keysym.sym == current_entry->key)
+                            if (current_event->key.keysym.sym == current_entry->key) {
+                                if (current_event->key.keysym.sym == controllable_attributes->last_key) {
+                                    gettimeofday(&last_pressed, NULL);
+                                    if (((last_pressed.tv_sec - controllable_attributes->last_released.tv_sec) * 1000000.0 + 
+                                                (last_pressed.tv_usec - controllable_attributes->last_released.tv_usec) / 1000.0) < d_controllable_delay)
+                                        double_active = d_true;
+                                }
                                 if ((!current_entry->single_shot) || (!current_entry->is_pressed)) {
-                                    current_entry->action_pressed(self, current_entry, d_true);
+                                    if (double_active)
+                                        current_entry->action_double(self, current_entry, d_true);
+                                    else
+                                        current_entry->action_pressed(self, current_entry, d_true);
                                     current_entry->is_pressed = d_true;
                                 }
+                            }
                             break;
                         case SDL_KEYUP:
                             if (current_event->key.keysym.sym == current_entry->key) {
                                 current_entry->action_released(self, current_entry, d_false);
                                 current_entry->is_pressed = d_false;
+                                controllable_attributes->last_key = current_event->key.keysym.sym;
+                                gettimeofday(&(controllable_attributes->last_released), NULL);
                             }
                     }
                 }
