@@ -19,7 +19,7 @@
 struct s_controllable_attributes *p_controllable_alloc(struct s_object *self) {
     struct s_controllable_attributes *result = d_prepare(self, controllable);
     /* abstract (no memory inheritance) */
-    f_eventable_new(self);  /* inherit */
+    f_morphable_new(self);  /* inherit */
     return result;
 }
 
@@ -75,6 +75,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
     struct s_controllable_entry *current_entry;
     struct s_exception *exception;
     struct timeval last_pressed;
+    struct s_object *result = d_call_owner(self, morphable, m_eventable_event, environment, current_event);
     t_boolean double_active = d_false;
     if (controllable_attributes->enable) {
         d_try {
@@ -113,7 +114,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
             d_raise;
         } d_endtry;
     }
-    return self;
+    return result;
 }
 
 d_define_method(controllable, delete)(struct s_object *self, struct s_controllable_attributes *attributes) {

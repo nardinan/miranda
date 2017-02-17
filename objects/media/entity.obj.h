@@ -52,5 +52,8 @@ d_declare_method(entity, set_component)(struct s_object *self, char *label);
 d_declare_method(entity, collision)(struct s_object *self, struct s_object *entity);
 d_declare_method(entity, interact)(struct s_object *self, struct s_object *entity);
 d_declare_method(entity, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(entity, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
+d_declare_method(entity, set_maskA)(struct s_object *self, unsigned int alpha);
+d_declare_method(entity, set_blend)(struct s_object *self, enum e_drawable_blends blend);
 d_declare_method(entity, delete)(struct s_object *self, struct s_entity_attributes *attributes);
 #endif

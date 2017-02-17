@@ -40,7 +40,6 @@ d_define_method(entity, get_component)(struct s_object *self, char *label) {
     d_cast_return(current_component);
 }
 
-
 d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
         double offset_point_y) {
     d_using(entity);
@@ -61,6 +60,7 @@ d_define_method(entity, add_component)(struct s_object *self, char *label, doubl
 }
 
 d_define_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable) {
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_entity_component *current_component = NULL;
     struct s_entity_element *current_element = NULL;
     if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label))) {
@@ -69,6 +69,11 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
             current_element->offset_y = offset_y;
             current_element->drawable = d_retain(drawable);
             f_list_append(&(current_component->elements), (struct s_list_node *)current_element, e_list_insert_head);
+            if (drawable_attributes->last_blend != e_drawable_blend_undefined)
+                d_call(current_element->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
+            d_call(current_element->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G, 
+                    (unsigned int)drawable_attributes->last_mask_B);
+            d_call(current_element->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
         } else
             d_die(d_error_malloc);
     }
@@ -204,6 +209,44 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
     d_cast_return(d_drawable_return_last);
 }
 
+d_define_method_override(entity, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+    d_using(entity);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    struct s_entity_component *current_component;
+    struct s_entity_element *current_element;
+    drawable_attributes->last_mask_R = red;
+    drawable_attributes->last_mask_G = green;
+    drawable_attributes->last_mask_B = blue;
+    d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+        d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+        d_call(current_element->drawable, m_drawable_set_maskRGB, red, green, blue);
+    return self;
+}
+
+d_define_method_override(entity, set_maskA)(struct s_object *self, unsigned int alpha) {
+    d_using(entity);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    struct s_entity_component *current_component;
+    struct s_entity_element *current_element;
+    drawable_attributes->last_mask_A = alpha;
+    d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+        d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+        d_call(current_element->drawable, m_drawable_set_maskA, alpha);
+    return self;
+}
+
+d_define_method_override(entity, set_blend)(struct s_object *self, enum e_drawable_blends blend) {
+    d_using(entity);
+    struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+    struct s_entity_component *current_component;
+    struct s_entity_element *current_element;
+    drawable_attributes->last_blend = blend;
+    d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+        d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+        d_call(current_element->drawable, m_drawable_set_blend, blend);
+    return self;
+}
+
 d_define_method(entity, delete)(struct s_object *self, struct s_entity_attributes *attributes) {
     struct s_entity_component *current_component;
     struct s_entity_element *current_element;
@@ -228,6 +271,9 @@ d_define_class(entity) {
         d_hook_method(entity, e_flag_public, collision),
         d_hook_method(entity, e_flag_public, interact),
         d_hook_method_override(entity, e_flag_public, drawable, draw),
+        d_hook_method_override(entity, e_flag_public, drawable, set_maskRGB),
+        d_hook_method_override(entity, e_flag_public, drawable, set_maskA),
+        d_hook_method_override(entity, e_flag_public, drawable, set_blend),
         d_hook_delete(entity),
         d_hook_method_tail
 };
