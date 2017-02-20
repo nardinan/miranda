@@ -132,8 +132,9 @@ d_define_method(track, stop)(struct s_object *self) {
 d_define_method(track, stop_fade_out)(struct s_object *self, int delay) {
     d_using(track);
     if ((track_attributes->channel != d_track_auto_channel) && ((Mix_Playing(track_attributes->channel)) || (Mix_Paused(track_attributes->channel))))
-        if (!Mix_FadeOutChannel(track_attributes->channel, delay))
-            Mix_HaltChannel(track_attributes->channel);
+        if (Mix_FadingChannel(track_attributes->channel) != MIX_FADING_OUT)
+            if (!Mix_FadeOutChannel(track_attributes->channel, delay))
+                Mix_HaltChannel(track_attributes->channel);
     return self;
 }
 
