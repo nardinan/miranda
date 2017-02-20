@@ -3,10 +3,10 @@ objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphabl
 name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = clang -g $(debug)
-cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
+cflags = -Wall -I. `sdl2-config --cflags` -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
-libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lSDL2 -lSDL2_image \
-	   -lSDL2_ttf -lSDL2_mixer
+libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry \
+	   `sdl-config --libs` -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 executable = lib$(name).so
 
 all: $(objects)

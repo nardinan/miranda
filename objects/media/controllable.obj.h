@@ -19,7 +19,7 @@
 #define miranda_media_controllable_h
 #include <sys/time.h>
 #include "morphable.obj.h"
-#define d_controllable_delay 100
+#define d_controllable_delay 200
 struct s_controllable_entry;
 typedef void *(*t_controllable_action)(struct s_object *, struct s_controllable_entry *, t_boolean);
 typedef struct s_controllable_entry { d_list_node_head;

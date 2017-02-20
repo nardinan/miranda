@@ -17,7 +17,7 @@
  */
 #ifndef miranda_media_eventable_h
 #define miranda_media_eventable_h
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 #include "../memory.obj.h"
 #include "../mutex.obj.h"
 d_declare_class(eventable) {

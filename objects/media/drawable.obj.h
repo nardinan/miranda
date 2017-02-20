@@ -17,7 +17,7 @@
  */
 #ifndef miranda_media_drawable_h
 #define miranda_media_drawable_h
-#include <SDL2/SDL_render.h>
+#include <SDL_render.h>
 #include "../geometry/point.obj.h"
 #include "../geometry/square.obj.h"
 #include "environment.obj.h"

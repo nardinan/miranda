@@ -17,10 +17,10 @@
  */
 #ifndef miranda_media_primitives_h
 #define miranda_media_primitives_h
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #define d_primitives_minimum_polygon_points 2
 extern void p_primitive_fill_triangle_bottom_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C,
         int red, int green, int blue, int alpha);
