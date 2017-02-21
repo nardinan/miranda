@@ -21,6 +21,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#ifdef __APPLE__
+#include <sys/syslimits.h>
+#endif
 #include "stream.obj.h"
 #define d_resources_key_size 64
 #define d_resources_file_default_permission 0766

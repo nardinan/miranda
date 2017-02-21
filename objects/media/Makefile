@@ -6,7 +6,7 @@ cc = clang -g $(debug)
 cflags = -Wall -I. `sdl2-config --cflags` -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
 libs = -L.. -L../geometry -L../io -L../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry \
-	   `sdl-config --libs` -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+	   `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 executable = lib$(name).so
 
 all: $(objects)

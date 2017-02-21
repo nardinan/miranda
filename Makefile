@@ -16,7 +16,7 @@ folders = $(folders_normal) $(folders_sdl)
 # It prevents Miranda to compile SDL modules if not required
 sdl_libraries = $(shell sdl2-config --libs 2>/dev/null)
 ifeq ($(strip $(sdl_libraries)), )
-folders = $(folders_normal)
+	folders = $(folders_normal)
 endif
 
 all: $(objects)

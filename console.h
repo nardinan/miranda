@@ -20,6 +20,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <limits.h>
+#ifdef __APPLE__
+#include <sys/syslimits.h>
+#endif
 #include "string.local.h"
 #include "memory.h"
 #define d_console_parameter_size 8
