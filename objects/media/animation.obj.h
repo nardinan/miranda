@@ -28,6 +28,7 @@ typedef enum e_animation_directions {
 typedef struct s_animation_frame { d_list_node_head;
     struct s_object *drawable;
     double offset_x, offset_y, zoom, time;
+    t_boolean key;
 } s_animation_frame;
 typedef void (*t_animation_reboot)(struct s_object *);
 d_declare_class(animation) {
@@ -44,8 +45,11 @@ d_declare_class(animation) {
 struct s_animation_attributes *p_animation_alloc(struct s_object *self);
 extern struct s_object *f_animation_new(struct s_object *self, int cycles, double time_ratio);
 d_declare_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time);
+d_declare_method(animation, append_key_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time, 
+        t_boolean key);
 d_declare_method(animation, set_status)(struct s_object *self, enum e_animation_directions status);
 d_declare_method(animation, get_status)(struct s_object *self);
+d_declare_method(animation, get_master_frame)(struct s_object *self, t_boolean key_frame);
 d_declare_method(animation, set_callback)(struct s_object *self, t_animation_reboot callback, struct s_object *raw_data);
 d_declare_method(animation, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(animation, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);

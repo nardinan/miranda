@@ -34,6 +34,11 @@ struct s_object *f_animation_new(struct s_object *self, int cycles, double time_
 }
 
 d_define_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time) {
+    return d_call(self, m_animation_append_key_frame, drawable, offset_x, offset_y, zoom, time, d_false);
+}
+
+d_define_method(animation, append_key_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time,
+        t_boolean key) {
     d_using(animation);
     struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
     struct s_animation_frame *current_frame;
@@ -49,11 +54,13 @@ d_define_method(animation, append_frame)(struct s_object *self, struct s_object 
         current_frame->offset_y = offset_y;
         current_frame->zoom = zoom;
         current_frame->time = time;
+        current_frame->key = key;
         f_list_append(&(animation_attributes->frames), (struct s_list_node *)current_frame, e_list_insert_tail);
     } else
         d_die(d_error_malloc);
     return self;
 }
+
 
 d_define_method(animation, set_status)(struct s_object *self, enum e_animation_directions status) {
     d_using(animation);
@@ -81,6 +88,26 @@ d_define_method(animation, get_status)(struct s_object *self) {
     d_cast_return(animation_attributes->status);
 }
 
+d_define_method(animation, get_master_frame)(struct s_object *self, t_boolean key_frame) {
+    d_using(animation);
+    struct s_animation_frame *master_frame = NULL, *current_frame;
+    if (key_frame)
+        d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
+            if (current_frame->key) {
+                master_frame = current_frame;
+                break;
+            }
+    if (!key_frame)
+        switch(animation_attributes->status) {
+            case e_animation_direction_rewind:
+                master_frame = (struct s_animation_frame *)animation_attributes->frames.tail;
+                break;
+            default:
+                master_frame = (struct s_animation_frame *)animation_attributes->frames.head;
+        }
+    d_cast_return(master_frame);
+}
+
 d_define_method(animation, set_callback)(struct s_object *self, t_animation_reboot callback, struct s_object *raw_data) {
     d_using(animation);
     animation_attributes->callback = callback;
@@ -90,7 +117,7 @@ d_define_method(animation, set_callback)(struct s_object *self, t_animation_rebo
 
 d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
     d_using(animation);
-    struct s_animation_frame *next_frame = NULL, *first_frame;
+    struct s_animation_frame *next_frame = NULL;
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_core;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
@@ -108,11 +135,9 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                 switch (animation_attributes->status) {
                     case e_animation_direction_forward:
                         next_frame = (struct s_animation_frame *)((struct s_list_node *)animation_attributes->current_frame)->next;
-                        first_frame = (struct s_animation_frame *)animation_attributes->frames.head;
                         break;
                     case e_animation_direction_rewind:
                         next_frame = (struct s_animation_frame *)((struct s_list_node *)animation_attributes->current_frame)->back;
-                        first_frame = (struct s_animation_frame *)animation_attributes->frames.tail;
                     default:
                         break;
                 }
@@ -120,12 +145,9 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                     if (animation_attributes->remaining_cycles != 0) {
                         if (animation_attributes->remaining_cycles > 0)
                             --(animation_attributes->remaining_cycles);
-                        if (animation_attributes->current_frame != first_frame)
-                            /* we need at least two frame to call the animation callback
-                             * (remember that this is only when the object is visible) */
-                            if (animation_attributes->callback)
-                                animation_attributes->callback(animation_attributes->raw_data);
-                        animation_attributes->current_frame = first_frame;
+                        if (animation_attributes->callback)
+                            animation_attributes->callback(animation_attributes->raw_data);
+                        animation_attributes->current_frame = (struct s_animation_frame *)d_call(self, m_animation_get_master_frame, d_true);
                     } else
                         animation_attributes->status = e_animation_direction_stop;
                 } else
@@ -135,17 +157,7 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
         }
     }
     if (!animation_attributes->current_frame) {
-        switch (animation_attributes->status) {
-            case e_animation_direction_forward:
-            case e_animation_direction_stop:
-                first_frame = (struct s_animation_frame *)animation_attributes->frames.head;
-                break;
-            case e_animation_direction_rewind:
-                first_frame = (struct s_animation_frame *)animation_attributes->frames.tail;
-            default:
-                break;
-        }
-        animation_attributes->current_frame = first_frame;
+        animation_attributes->current_frame = (struct s_animation_frame *)d_call(self, m_animation_get_master_frame, d_false);
         memcpy(&(animation_attributes->last_update), &current, sizeof(struct timeval));
     }
     if (animation_attributes->current_frame) {
@@ -273,8 +285,10 @@ d_define_method(animation, delete)(struct s_object *self, struct s_animation_att
 
 d_define_class(animation) {
     d_hook_method(animation, e_flag_public, append_frame),
+        d_hook_method(animation, e_flag_public, append_key_frame),
         d_hook_method(animation, e_flag_public, set_status),
         d_hook_method(animation, e_flag_public, get_status),
+        d_hook_method(animation, e_flag_public, get_master_frame),
         d_hook_method(animation, e_flag_public, set_callback),
         d_hook_method_override(animation, e_flag_public, drawable, draw),
         d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
