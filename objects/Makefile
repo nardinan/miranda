@@ -1,4 +1,4 @@
-objects = object.o memory.obj.o mutex.obj.o emitter.obj.o pool.obj.o string.obj.o array.obj.o
+objects = object.o memory.obj.o mutex.obj.o runnable.obj.o emitter.obj.o pool.obj.o string.obj.o array.obj.o
 name = miranda_objects
 debug = -Dd_miranda_debug=1
 cc = clang -g $(debug)
@@ -18,6 +18,9 @@ memory.obj.o: memory.obj.c memory.obj.h object.h
 
 mutex.obj.o: mutex.obj.c mutex.obj.h object.h
 	$(cc) $(cflags) mutex.obj.c
+
+runnable.obj.o: runnable.obj.c object.h
+	$(cc) $(cflags) runnable.obj.c
 
 emitter.obj.o: emitter.obj.c emitter.obj.h object.h
 	$(cc) $(cflags) emitter.obj.c
