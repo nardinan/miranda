@@ -1,5 +1,5 @@
-library_path = /usr/lib
-include_path = /usr/include
+library_path = /usr/local/lib
+include_path = /usr/local/include
 project = miranda
 objects = endian.local.o exception.o hash.o list.o log.o memory.o string.local.o math.local.o types.o rs232.o console.o telnet.o huffman.o
 name = miranda_ground
@@ -32,7 +32,6 @@ install:
 	for current_dir in $(folders); \
 		do mkdir -p $(include_path)/$(project)/$${current_dir} && cp -f $${current_dir}/*.h $(include_path)/$(project)/$${current_dir}; done
 	cp -f *.h $(include_path)/$(project)
-	ldconfig
 
 endian.local.o: endian.local.c endian.local.h types.h
 	$(cc) $(cflags) endian.local.c
