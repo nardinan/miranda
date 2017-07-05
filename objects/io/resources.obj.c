@@ -138,15 +138,13 @@ d_define_method(resources, open_stream)(struct s_object *self, struct s_resource
     switch (type) {
         case e_resources_type_common:
             stat(current_node->path, &informations);
-            if ((current_node->stream_file) && 
-                    ((current_node->last_timestamp.tv_sec != informations.st_mtim.tv_sec) ||
-                    (current_node->last_timestamp.tv_nsec != informations.st_mtim.tv_nsec))) {
+            if ((current_node->stream_file) && (current_node->last_timestamp != informations.st_mtime)) {
                 d_delete(current_node->stream_file);
                 current_node->stream_file = NULL;
                 f_list_delete(&(resources_attributes->open_streams), (struct s_list_node *)current_node);
             }
             if (!current_node->stream_file) {
-                current_node->last_timestamp = informations.st_mtim;
+                current_node->last_timestamp = informations.st_mtime;
                 current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
                 if (resources_attributes->open_streams.fill > d_resources_stream_size)
                     if ((last_node = (struct s_resources_node *)resources_attributes->open_streams.head)) {

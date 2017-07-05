@@ -37,7 +37,7 @@ typedef enum e_resources_types {
 typedef struct s_resources_node { d_list_node_head;
     char key[d_resources_key_size], path[PATH_MAX];
     struct s_object *stream_file; /* read mode */
-    struct timespec last_timestamp;
+    time_t last_timestamp;
 } s_resources_node;
 d_declare_class(resources) {
     struct s_attributes head;
