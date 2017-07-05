@@ -33,12 +33,15 @@ t_hash_value p_resources_calculate(char *key) {
     return result;
 }
 
-void p_resources_scan_free(struct s_resources_node *node) {
-    if (node->stream_file)
+void p_resources_scan_free(struct s_list *open_streams, struct s_resources_node *node) {
+    if (node->stream_file) {
+        f_list_delete(open_streams, (struct s_list_node *)node);
         d_delete(node->stream_file);
+        node->stream_file = NULL;
+    }
 }
 
-struct s_resources_node *f_resources_scan(const char *directory, const char *extensions, struct s_hash_table *nodes) {
+struct s_resources_node *f_resources_scan(struct s_list *open_streams, const char *directory, const char *extensions, struct s_hash_table *nodes) {
     DIR *descriptor;
     struct dirent *directory_entry;
     char local_path[PATH_MAX], *current_key, *current_extension, *pointer_begin, *pointer_end;
@@ -49,7 +52,7 @@ struct s_resources_node *f_resources_scan(const char *directory, const char *ext
         while ((directory_entry = readdir(descriptor)))
             if (directory_entry->d_name[0] != '.') {
                 snprintf(local_path, PATH_MAX, "%s%c%s", directory, d_resources_folder_separator, directory_entry->d_name);
-                f_resources_scan(local_path, extensions, nodes);
+                f_resources_scan(open_streams, local_path, extensions, nodes);
             }
         closedir(descriptor);
     } else if ((current_extension = strrchr(directory, '.')) && (strstr(extensions, current_extension))) {
@@ -69,7 +72,7 @@ struct s_resources_node *f_resources_scan(const char *directory, const char *ext
                         strncpy(current_key, pointer_begin, length);
                         if ((f_hash_insert(nodes, current_key, current_node, d_true, &old_value)))
                             if (old_value.kind == e_hash_kind_fill) {
-                                p_resources_scan_free((struct s_resources_node *)old_value.value);
+                                p_resources_scan_free(open_streams, (struct s_resources_node *)old_value.value);
                                 d_free(old_value.value);
                                 d_free(current_key);
                             }
@@ -93,9 +96,10 @@ struct s_object *f_resources_new_template(struct s_object *self, struct s_object
     strncpy(attributes->extensions, extensions, PATH_MAX);
     strncpy(attributes->path, d_string_cstring(string_directory_path), PATH_MAX);
     f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
-    f_resources_scan(d_string_cstring(string_directory_path), extensions, attributes->nodes);
+    memset(&(attributes->open_streams), 0, sizeof(struct s_list));
+    f_resources_scan(&(attributes->open_streams), d_string_cstring(string_directory_path), extensions, attributes->nodes);
     if (string_template_path)
-        attributes->default_template = f_resources_scan(d_string_cstring(string_template_path), extensions, NULL);
+        attributes->default_template = f_resources_scan(&(attributes->open_streams), d_string_cstring(string_template_path), extensions, NULL);
     return self;
 }
 
@@ -109,13 +113,13 @@ d_define_method(resources, reload)(struct s_object *self) {
         if (current_item->kind == e_hash_kind_fill) {
             f_hash_delete(resources_attributes->nodes, current_item->key, &old_content);
             if ((node = (struct s_resources_node *)old_content.value)) {
-                p_resources_scan_free(node);
+                p_resources_scan_free(&(resources_attributes->open_streams), node);
                 d_free(node);
             }
             d_free(old_content.key);
         }
     }
-    f_resources_scan(resources_attributes->path, resources_attributes->extensions, resources_attributes->nodes);
+    f_resources_scan(&(resources_attributes->open_streams), resources_attributes->path, resources_attributes->extensions, resources_attributes->nodes);
     return self;
 }
 
@@ -125,20 +129,34 @@ d_define_method(resources, get)(struct s_object *self, const char *key) {
 }
 
 d_define_method(resources, open_stream)(struct s_object *self, struct s_resources_node *current_node, enum e_resources_types type) {
+    d_using(resources);
     struct s_object *stream_file = NULL;
     struct s_object *string_path = NULL;
     struct stat informations;
+    struct s_resources_node *last_node;
     string_path = f_string_new_constant(d_new(string), current_node->path);
     switch (type) {
         case e_resources_type_common:
             stat(current_node->path, &informations);
-            if ((current_node->stream_file) && (current_node->last_timestamp < informations.st_mtime)) {
+            if ((current_node->stream_file) && 
+                    ((current_node->last_timestamp.tv_sec != informations.st_mtim.tv_sec) ||
+                    (current_node->last_timestamp.tv_nsec != informations.st_mtim.tv_nsec))) {
                 d_delete(current_node->stream_file);
                 current_node->stream_file = NULL;
+                f_list_delete(&(resources_attributes->open_streams), (struct s_list_node *)current_node);
             }
             if (!current_node->stream_file) {
-                current_node->last_timestamp = informations.st_mtime;
+                current_node->last_timestamp = informations.st_mtim;
                 current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "r", d_resources_file_default_permission);
+                if (resources_attributes->open_streams.fill > d_resources_stream_size)
+                    if ((last_node = (struct s_resources_node *)resources_attributes->open_streams.head)) {
+                        if (last_node->stream_file) {
+                            d_delete(last_node->stream_file);
+                            last_node->stream_file = NULL;
+                        }
+                        f_list_delete(&(resources_attributes->open_streams), (struct s_list_node *)last_node);
+                    }
+                f_list_append(&(resources_attributes->open_streams), (struct s_list_node *)current_node, e_list_insert_tail);
             } else
                 d_call(current_node->stream_file, m_stream_seek, 0, e_stream_seek_begin, NULL);
             stream_file = current_node->stream_file;
@@ -179,7 +197,7 @@ d_define_method(resources, del_stream)(struct s_object *self, const char *key, t
     f_hash_delete(resources_attributes->nodes, (void *)key, &old_content);
     if (old_content.kind == e_hash_kind_fill) {
         if ((current_node = (struct s_resources_node *)old_content.value)) {
-            p_resources_scan_free(current_node);
+            p_resources_scan_free(&(resources_attributes->open_streams), current_node);
             if (destroy)
                 remove(current_node->path);
             d_free(current_node);
@@ -198,7 +216,7 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
         if (current_item->kind == e_hash_kind_fill) {
             f_hash_delete(attributes->nodes, current_item->key, &old_content);
             if ((node = (struct s_resources_node *)old_content.value)) {
-                p_resources_scan_free(node);
+                p_resources_scan_free(&(attributes->open_streams), node);
                 d_free(node);
             }
             d_free(old_content.key);
@@ -206,7 +224,7 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
     }
     f_hash_destroy(&(attributes->nodes));
     if (attributes->default_template) {
-        p_resources_scan_free(attributes->default_template);
+        p_resources_scan_free(&(attributes->open_streams), attributes->default_template);
         d_free(attributes->default_template);
     }
     return NULL;

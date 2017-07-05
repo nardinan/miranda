@@ -28,7 +28,7 @@ d_declare_method(memory, retain)(struct s_object *self);
 #define d_delete(mem) \
     do{\
         if(!d_call((mem),m_memory_release,NULL))\
-        f_object_delete(mem);\
+            f_object_delete(mem);\
     }while(0)
 d_declare_method(memory, release)(struct s_object *self);
 #endif
