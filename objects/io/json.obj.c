@@ -546,7 +546,9 @@ d_define_method(json, get_string_relative)(struct s_object *self, struct s_json_
     if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value_relative, starting_point, format, parameters))) {
         if (value->type == e_json_node_type_string)
             *string_supply = value->string_entry;
-        else {
+        else if (value->type == e_json_node_type_null) {
+            *string_supply = NULL;
+        } else {
             snprintf(buffer, d_string_buffer_size, "string has been required but '%s' has been returned exception",
                     v_json_node_types[value->type]);
             d_throw(v_exception_wrong_type, buffer);
@@ -600,6 +602,8 @@ d_define_method(json, get_string)(struct s_object *self, char **string_supply, c
     if ((value = (struct s_json_node_value *)d_call(self, m_json_get_value, format, parameters))) {
         if (value->type == e_json_node_type_string)
             *string_supply = value->string_entry;
+        else if (value->type == e_json_node_type_null)
+            *string_supply = NULL;
         else {
             snprintf(buffer, d_string_buffer_size, "string has been required but '%s' has been returned exception",
                     v_json_node_types[value->type]);
