@@ -8,7 +8,7 @@ cc = clang -g $(debug)
 cflags = -fPIC -Wall -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 executable = lib$(name).so
-folders_normal = objects objects/io objects/geometry
+folders_normal = objects objects/io objects/geometry objects/network
 folders_sdl = objects/media objects/media/ui
 folders = $(folders_normal) $(folders_sdl)
 
