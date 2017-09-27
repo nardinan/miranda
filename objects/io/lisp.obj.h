@@ -66,6 +66,7 @@ d_declare_class(lisp) {
     struct s_attributes head;
     struct s_list tokens, collector;
     struct s_json_token *current_token;
+    struct s_object *string_name;
     struct s_lisp_object *environment, *symbols, *base_symbols[e_lisp_object_symbol_NULL];
     int output;
 } d_declare_class_tail(lisp);
