@@ -86,6 +86,8 @@ struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_
             if (entry->type == e_lisp_object_type_value) {
                 value += entry->value_double;
                 pointer = d_lisp_cdr(pointer);
+            } else if (entry == lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
+                pointer = d_lisp_cdr(pointer);
             } else {
                 d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
                         ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0), d_lisp_object_type(entry));
@@ -108,6 +110,8 @@ struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_
                 if ((entry = d_lisp_car(pointer))) {
                     if (entry->type == e_lisp_object_type_value) {
                         value -= entry->value_double;
+                        pointer = d_lisp_cdr(pointer);
+                    } else if (entry == lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
                         pointer = d_lisp_cdr(pointer);
                     } else {
                         d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", 
@@ -133,6 +137,9 @@ struct s_lisp_object *p_lisp_primitive_multiply(struct s_object *self, struct s_
             if (entry->type == e_lisp_object_type_value) {
                 value *= entry->value_double;
                 pointer = d_lisp_cdr(pointer);
+            } else if (entry == lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
+                value = 0.0;
+                pointer = d_lisp_cdr(pointer);
             } else {
                 d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
                         ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0), d_lisp_object_type(entry));
@@ -155,6 +162,8 @@ struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_li
                 if ((entry = d_lisp_car(pointer))) {
                     if (entry->type == e_lisp_object_type_value) {
                         value /= entry->value_double;
+                        pointer = d_lisp_cdr(pointer);
+                    } else if (entry == lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
                         pointer = d_lisp_cdr(pointer);
                     } else {
                         d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", 
@@ -479,7 +488,6 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                         symbol_string = symbol_object->value_symbol;
                         struct s_lisp_object *evaluate = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
                         result = d_call(self, m_lisp_extend_environment, symbol_string, evaluate);
-
                     } else
                         d_err(e_log_level_low, "(source %s:%d) malformed symbol, unreadable token", d_string_cstring(lisp_attributes->string_name),
                                 ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0));

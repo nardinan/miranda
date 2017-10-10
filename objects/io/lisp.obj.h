@@ -19,7 +19,7 @@
 #define miranda_object_lisp_h
 #include <stdarg.h>
 #include "json.obj.h"
-#define d_lisp_symbol_size 32
+#define d_lisp_symbol_size 64
 #define d_lisp_symbols 1024
 #define d_lisp_mark_none        0x00
 #define d_lisp_mark_environment 0x01
