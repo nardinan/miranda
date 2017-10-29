@@ -194,25 +194,31 @@ d_define_method(environment, get_zoom)(struct s_object *self, double *zoom, enum
 
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
     d_using(environment);
-    f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable, e_list_insert_tail);
+    f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)(d_retain(drawable)), e_list_insert_tail);
     return drawable;
 }
 
 d_define_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
     d_using(environment);
-    f_list_delete(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable);
+    if (d_list_node_in(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable)) {
+        f_list_delete(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable);
+        d_delete(drawable);
+    }
     return drawable;
 }
 
 d_define_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable) {
     d_using(environment);
-    f_list_append(&(environment_attributes->eventable), (struct s_list_node *)eventable, e_list_insert_tail);
+    f_list_append(&(environment_attributes->eventable), (struct s_list_node *)(d_retain(eventable)), e_list_insert_tail);
     return eventable;
 }
 
 d_define_method(environment, del_eventable)(struct s_object *self, struct s_object *eventable) {
     d_using(environment);
-    f_list_delete(&(environment_attributes->eventable), (struct s_list_node *)eventable);
+    if (d_list_node_in(&(environment_attributes->eventable), (struct s_list_node *)eventable)) {
+        f_list_delete(&(environment_attributes->eventable), (struct s_list_node *)eventable);
+        d_delete(eventable);
+    }
     return eventable;
 }
 
@@ -282,11 +288,17 @@ d_define_method(environment, run_loop)(struct s_object *self) {
 }
 
 d_define_method(environment, delete)(struct s_object *self, struct s_environment_attributes *attributes) {
+    struct s_object *drawable;
     int surface, index;
     for (surface = 0; surface < e_environment_surface_NULL; ++surface)
         for (index = 0; index < d_environment_layers; ++index)
-            while (attributes->drawable[surface][index].head)
+            while ((drawable = (struct s_object *)attributes->drawable[surface][index].head)) {
+                struct s_drawable_attributes *draw_attributes = d_cast((struct s_object *)attributes->drawable[surface][index].head, drawable);
+                struct s_point_attributes *point_attributes = d_cast(&(draw_attributes->point_normalized_dimension), point);
+                printf("zoom is %.02f angle is %.02f destination %.02f %.02f\n", draw_attributes->zoom, draw_attributes->angle, point_attributes->x, point_attributes->y);
                 f_list_delete(&(attributes->drawable[surface][index]), attributes->drawable[surface][index].head);
+                d_delete(drawable);
+            }
     SDL_DestroyRenderer(attributes->renderer);
     SDL_DestroyWindow(attributes->window);
     Mix_CloseAudio();
