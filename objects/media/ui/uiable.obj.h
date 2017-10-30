@@ -21,7 +21,7 @@
 #include "../morphable.obj.h"
 #include "../../emitter.obj.h"
 #define d_uiable_default_border 2
-enum e_uiable_components {
+typedef enum e_uiable_components {
     e_uiable_component_corner_top_left = 0,
     e_uiable_component_corner_top_right,
     e_uiable_component_corner_bottom_left,
@@ -33,13 +33,13 @@ enum e_uiable_components {
     e_uiable_component_center,
     e_uiable_component_NULL
 } e_uiable_components;
-enum e_uiable_modes {
+typedef enum e_uiable_modes {
     e_uiable_mode_active = 0,
     e_uiable_mode_selected,
     e_uiable_mode_idle,
     e_uiable_mode_NULL
 } e_uiable_modes;
-enum e_uiable_signals {
+typedef enum e_uiable_signals {
     e_uiable_signal_selected = 0,
     e_uiable_signal_unselected,
     e_uiable_signal_clicked_left,
