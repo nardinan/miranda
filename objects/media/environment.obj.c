@@ -283,24 +283,21 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             d_raise;
         } d_endtry;
     }
+    for (surface = 0; surface < e_environment_surface_NULL; ++surface)
+        for (index = 0; index < d_environment_layers; ++index)
+            while ((drawable_object = (struct s_object *)environment_attributes->drawable[surface][index].head)) {
+                f_list_delete(&(environment_attributes->drawable[surface][index]), environment_attributes->drawable[surface][index].head);
+                d_delete(drawable_object);
+            }
+    while ((eventable_object = (struct s_object *)environment_attributes->eventable.head)) {
+        f_list_delete(&(environment_attributes->eventable), environment_attributes->eventable.head);
+        d_delete(eventable_object);
+    }
     environment_attributes->quit_call(self);
     return self;
 }
 
 d_define_method(environment, delete)(struct s_object *self, struct s_environment_attributes *attributes) {
-    struct s_object *drawable;
-    struct s_object *eventable;
-    int surface, index;
-    for (surface = 0; surface < e_environment_surface_NULL; ++surface)
-        for (index = 0; index < d_environment_layers; ++index)
-            while ((drawable = (struct s_object *)attributes->drawable[surface][index].head)) {
-                f_list_delete(&(attributes->drawable[surface][index]), attributes->drawable[surface][index].head);
-                d_delete(drawable);
-            }
-    while ((eventable = (struct s_object *)attributes->eventable.head)) {
-        f_list_delete(&(attributes->eventable), attributes->eventable.head);
-        d_delete(eventable);
-    }
     SDL_DestroyRenderer(attributes->renderer);
     SDL_DestroyWindow(attributes->window);
     Mix_CloseAudio();
