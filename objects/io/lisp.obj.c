@@ -486,10 +486,21 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                 else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
                     if ((symbol_object = d_lisp_cadr(current_object)) && (symbol_object->type == e_lisp_object_type_symbol)) {
                         symbol_string = symbol_object->value_symbol;
-                        struct s_lisp_object *evaluate = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
-                        result = d_call(self, m_lisp_extend_environment, symbol_string, evaluate);
+                        if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
+                            result = d_call(self, m_lisp_extend_environment, symbol_string, evaluated_object);
+                        } else
+                            d_err(e_log_level_low, "(source %s:%d) malformed evaluation construct", d_string_cstring(lisp_attributes->string_name),
+                                    ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0));
                     } else
                         d_err(e_log_level_low, "(source %s:%d) malformed symbol, unreadable token", d_string_cstring(lisp_attributes->string_name),
+                                ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0));
+                } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_set]) {
+                    if ((symbol_object = d_call(self, m_lisp_retrieve_symbol, d_lisp_cadr(current_object), environment)) &&
+                            (result = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
+                        symbol_object->cons.cdr = result;
+                    } else
+                        d_err(e_log_level_low, "(source %s:%d) undefined symbol / malformed evaluation construct", 
+                                d_string_cstring(lisp_attributes->string_name), 
                                 ((lisp_attributes->current_token)?lisp_attributes->current_token->line_number:0));
                 } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_begin]) {
                     if ((current_object = d_lisp_cdr(current_object))) {
