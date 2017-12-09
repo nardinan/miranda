@@ -25,6 +25,7 @@
 #include "bitmap.obj.h"
 #include "particle.obj.h"
 #include "animation.obj.h"
+#include "transition.obj.h"
 #include "track.obj.h"
 #include "entity.obj.h"
 #endif

@@ -31,8 +31,7 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
     f_point_new(d_use(&(attributes->point_center), point), 0, 0);
     f_point_new(d_use(&(attributes->point_normalized_center), point), 0, 0);
     f_square_new(d_use(&(attributes->square_collision_box), square), 0, 0, 0, 0);
-    attributes->zoom = 1;
-    attributes->angle = 0;
+    attributes->zoom = 1.0;
     attributes->flip = e_drawable_flip_none;
     attributes->flags = flags;
     attributes->last_blend = e_drawable_blend_alpha;

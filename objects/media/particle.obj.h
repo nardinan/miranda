@@ -24,9 +24,9 @@
 #define d_particle_randomizeI(obj,key) ((obj)->configuration.minimum.key+(rand()%((obj)->configuration.maximum.key-(obj)->configuration.minimum.key)))
 #define d_particle_kill(v,min,max) do{\
     if((v)>(max))\
-    (v)=(max);\
+        (v)=(max);\
     if((v)<(min))\
-    (v)=(min);\
+        (v)=(min);\
 }while(0)
 typedef struct s_particle_configuration_core {
     double position_x, position_y, zoom, angle, gravity_x, gravity_y, direction_angle, speed_linear, speed_direction_angle, speed_zoom,
