@@ -26,8 +26,14 @@ struct s_transition_attributes *p_transition_alloc(struct s_object *self) {
 
 struct s_object *f_transition_new(struct s_object *self, struct s_object *drawable, double time_ratio) {
     struct s_transition_attributes *attributes = p_transition_alloc(self);
+    struct s_drawable_attributes *drawable_attributes_core;
+    double dimension_w = 0.0, dimension_h = 0.0;
     memset(&(attributes->keys), 0, sizeof(struct s_list));
-    attributes->drawable = d_retain(drawable);
+    if ((attributes->drawable = d_retain(drawable))) {
+        drawable_attributes_core = d_cast(attributes->drawable, drawable);
+        d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
+        d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);
+    }
     attributes->time_ratio = time_ratio;
     attributes->status = e_transition_direction_stop;
     return self;
@@ -140,8 +146,8 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
             }
             d_call(transition_attributes->drawable, m_drawable_set_position, position_x, position_y);
             d_call(transition_attributes->drawable, m_drawable_set_center, center_x, center_y);
-            d_call(transition_attributes->drawable, m_drawable_set_maskRGB, mask_R, mask_G, mask_B);
-            d_call(transition_attributes->drawable, m_drawable_set_maskA, mask_A);
+            d_call(transition_attributes->drawable, m_drawable_set_maskRGB, (unsigned int)mask_R, (unsigned int)mask_G, (unsigned int)mask_B);
+            d_call(transition_attributes->drawable, m_drawable_set_maskA, (unsigned int)mask_A);
             drawable_attributes_core->zoom = zoom;
             drawable_attributes_core->angle = angle;
             drawable_attributes_core->flip = drawable_attributes_self->flip;
