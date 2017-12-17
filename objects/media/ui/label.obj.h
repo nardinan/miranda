@@ -49,6 +49,7 @@ extern struct s_object *f_label_new_alignment(struct s_object *self, char *strin
 d_declare_method(label, set_content_string)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, set_content_char)(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, get_content_char)(struct s_object *self);
+d_declare_method(label, set_alignment)(struct s_object *self, enum e_label_alignments alignment_x, enum e_label_alignments alignment_y);
 d_declare_method(label, update_texture)(struct s_object *self, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, set_dimension)(struct s_object *self, double w, double h);
 d_declare_method(label, set_dimension_w)(struct s_object *self, double w);

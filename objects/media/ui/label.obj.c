@@ -78,6 +78,13 @@ d_define_method(label, get_content_char)(struct s_object *self) {
     d_cast_return(label_attributes->string_content);
 }
 
+d_define_method(label, set_alignment)(struct s_object *self, enum e_label_alignments alignment_x, enum e_label_alignments alignment_y) {
+    d_using(label);
+    label_attributes->alignment_x = alignment_x;
+    label_attributes->alignment_y = alignment_y;
+    return self;
+}
+
 d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, struct s_object *environment) {
     d_using(label);
     char buffer[d_string_buffer_size];
@@ -269,6 +276,7 @@ d_define_class(label) {
     d_hook_method(label, e_flag_public, set_content_string),
         d_hook_method(label, e_flag_public, set_content_char),
         d_hook_method(label, e_flag_public, get_content_char),
+        d_hook_method(label, e_flag_public, set_alignment),
         d_hook_method(label, e_flag_public, update_texture),
         d_hook_method_override(label, e_flag_public, drawable, set_dimension),
         d_hook_method_override(label, e_flag_public, drawable, set_dimension_w),
