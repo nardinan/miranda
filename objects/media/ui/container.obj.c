@@ -145,6 +145,11 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
                     d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
             current_w -= normalized_position_x_self + container_attributes->border_right;
             current_h -= normalized_position_y_self + container_attributes->border_bottom;
+            /* normalization */
+            current_w = (current_w * environment_attributes->reference_w[environment_attributes->current_surface])/
+                environment_attributes->current_w;
+            current_h = (current_h * environment_attributes->reference_h[environment_attributes->current_surface])/
+                environment_attributes->current_h;
             max_w = d_math_max(max_w, current_w);
             max_h = d_math_max(max_h, current_h);
         }
