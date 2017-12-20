@@ -135,8 +135,8 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
     d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
     /* is the object still visible ? (distance between the center of the object and the center of the screen > (size of object + half of the width)) */
     if ((drawable_attributes->flags&e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
-        distance_object = (d_math_square((new_x + (new_w / 2.0)) - (reference_w / 2.0)) + d_math_square((new_y + (new_h / 2.0)) - (reference_h / 2.0)));
-        if (distance_object > d_math_square((reference_w / 2.0) + new_w)) 
+        distance_object = (d_math_square((new_x + (new_w / 2.0)) - (current_w / 2.0)) + d_math_square((new_y + (new_h / 2.0)) - (current_h / 2.0)));
+        if (distance_object > d_math_square(current_w + new_w))
             result = NULL;
     }
     return result;

@@ -29,7 +29,7 @@ struct s_object *f_environment_new(struct s_object *self, int width, int height)
 
 struct s_object *f_environment_new_fullscreen(struct s_object *self, int width, int height, t_boolean fullscreen) {
     return f_environment_new_flags(self, width, height, (fullscreen)?
-            (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_SHOWN|SDL_WINDOW_INPUT_GRABBED):0);
+            (SDL_WINDOW_FULLSCREEN_DESKTOP|SDL_WINDOW_INPUT_GRABBED):0);
 }
 
 struct s_object *f_environment_new_flags(struct s_object *self, int width, int height, int flags) {
@@ -77,6 +77,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
                         (flags|SDL_WINDOW_OPENGL)))) {
             attributes->renderer = SDL_CreateRenderer(attributes->window, -1, (SDL_RENDERER_ACCELERATED));
             SDL_SetRenderDrawBlendMode(attributes->renderer, SDL_BLENDMODE_BLEND);
+            SDL_GetWindowSize(attributes->window, &width, &height);
         }
     }
     attributes->fps = d_environment_default_fps;
