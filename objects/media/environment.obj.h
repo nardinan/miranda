@@ -58,6 +58,7 @@ d_declare_method(environment, set_title)(struct s_object *self, const char *titl
 d_declare_method(environment, set_channels)(struct s_object *self, int channels);
 d_declare_method(environment, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(environment, set_maskA)(struct s_object *self, unsigned int alpha);
+d_declare_method(environment, set_fullscreen)(struct s_object *self, t_boolean fullscreen);
 d_declare_method(environment, set_size)(struct s_object *self, int width, int height);
 d_declare_method(environment, get_size)(struct s_object *self, int *width, int *height);
 d_declare_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y, enum e_environment_surfaces surface);

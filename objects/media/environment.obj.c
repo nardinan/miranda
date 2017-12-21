@@ -129,11 +129,22 @@ d_define_method(environment, set_maskA)(struct s_object *self, unsigned int alph
     return self;
 }
 
-d_define_method(environment, set_size)(struct s_object *self, int width, int height) {
+d_define_method(environment, set_fullscreen)(struct s_object *self, t_boolean fullscreen) {
     d_using(environment);
+    int width, height;
+    SDL_SetWindowFullscreen(environment_attributes->window, ((fullscreen)?SDL_WINDOW_FULLSCREEN_DESKTOP:0));
+    SDL_GetWindowSize(environment_attributes->window, &width, &height);
     environment_attributes->current_w = width;
     environment_attributes->current_h = height;
+    return self;
+}
+
+d_define_method(environment, set_size)(struct s_object *self, int width, int height) {
+    d_using(environment);
     SDL_SetWindowSize(environment_attributes->window, width, height);
+    SDL_GetWindowSize(environment_attributes->window, &width, &height);
+    environment_attributes->current_w = width;
+    environment_attributes->current_h = height;
     return self;
 }
 
@@ -331,6 +342,7 @@ d_define_class(environment) {
         d_hook_method(environment, e_flag_public, set_channels),
         d_hook_method(environment, e_flag_public, set_maskRGB),
         d_hook_method(environment, e_flag_public, set_maskA),
+        d_hook_method(environment, e_flag_public, set_fullscreen),
         d_hook_method(environment, e_flag_public, set_size),
         d_hook_method(environment, e_flag_public, get_size),
         d_hook_method(environment, e_flag_public, set_camera),
