@@ -37,6 +37,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
     int surface, index, initialized_systems;
     t_boolean initialized = d_true;
     SDL_DisplayMode current_display;
+    attributes->mask_A = 255.0;
     for (surface = 0; surface < e_environment_surface_NULL; ++surface)
         for (index = 0; index < d_environment_layers; ++index)
             memset(&(attributes->drawable[surface][index]), 0, sizeof(struct s_list));
@@ -111,6 +112,20 @@ d_define_method(environment, set_title)(struct s_object *self, const char *title
 
 d_define_method(environment, set_channels)(struct s_object *self, int channels) {
     Mix_AllocateChannels(channels);
+    return self;
+}
+
+d_define_method(environment, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+    d_using(environment);
+    environment_attributes->mask_R = red;
+    environment_attributes->mask_G = green;
+    environment_attributes->mask_B = blue;
+    return self;
+}
+
+d_define_method(environment, set_maskA)(struct s_object *self, unsigned int alpha) {
+    d_using(environment);
+    environment_attributes->mask_A = alpha;
     return self;
 }
 
@@ -245,9 +260,11 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                             if ((eventable_attributes = d_cast(drawable_object, eventable)))
                                 if (eventable_attributes->enable)
                                     d_call(drawable_object, m_eventable_event, self, &local_event);
-                if (local_event.type == SDL_QUIT)
+                if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
                     environment_attributes->continue_loop = d_false;
             }
+            SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G, environment_attributes->mask_B, 
+                    environment_attributes->mask_A);
             SDL_RenderClear(environment_attributes->renderer);
             if (environment_attributes->main_call(self)) {
                 for (surface = 0; surface < e_environment_surface_NULL; ++surface) {
@@ -312,6 +329,8 @@ d_define_class(environment) {
     d_hook_method(environment, e_flag_public, set_methods),
         d_hook_method(environment, e_flag_public, set_title),
         d_hook_method(environment, e_flag_public, set_channels),
+        d_hook_method(environment, e_flag_public, set_maskRGB),
+        d_hook_method(environment, e_flag_public, set_maskA),
         d_hook_method(environment, e_flag_public, set_size),
         d_hook_method(environment, e_flag_public, get_size),
         d_hook_method(environment, e_flag_public, set_camera),
