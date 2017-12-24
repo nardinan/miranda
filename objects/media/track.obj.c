@@ -68,9 +68,10 @@ d_define_method(track, set_channel)(struct s_object *self, int channel) {
     d_using(track);
     if ((track_attributes->next_channel = channel) == d_track_auto_channel)
         track_attributes->auto_channel = d_true;
-    else
+    else {
         Mix_HaltChannel(channel); /* nothing */
         track_attributes->auto_channel = d_false;
+    }
     return self;
 }
 

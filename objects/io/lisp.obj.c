@@ -601,7 +601,7 @@ d_define_method(lisp, sweep_collector)(struct s_object *self, unsigned char excl
 d_define_method(lisp, run)(struct s_object *self) {
     d_using(lisp);
     int line_comment = -1;
-    struct s_lisp_object *current_object, *current_evaluation;
+    struct s_lisp_object *current_object;
     lisp_attributes->current_token = (struct s_json_token *)(lisp_attributes->tokens.head);
     while (lisp_attributes->current_token) {
         if (line_comment != lisp_attributes->current_token->line_number) {
@@ -617,7 +617,7 @@ d_define_method(lisp, run)(struct s_object *self) {
     }
     while (lisp_attributes->current_token) {
         current_object = d_call(self, m_lisp_read_object, NULL);
-        current_evaluation = d_call(self, m_lisp_evaluate, current_object, lisp_attributes->environment);
+        d_call(self, m_lisp_evaluate, current_object, lisp_attributes->environment);
         d_call(self, m_lisp_mark_environment, NULL);
         d_call(self, m_lisp_sweep_collector, d_lisp_mark_internal);
         d_call(self, m_lisp_next_token, NULL);

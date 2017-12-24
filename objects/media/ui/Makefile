@@ -1,7 +1,7 @@
 objects = fonts.obj.o uiable.obj.o label.obj.o field.obj.o button.obj.o checkbox.obj.o scroll.obj.o list.obj.o container.obj.o
 name = miranda_ui
 debug = -Dd_miranda_debug=1
-cc = clang -g $(debug)
+cc = gcc -g $(debug)
 cflags = -Wall -I. `sdl2-config --cflags` -fPIC -Wno-variadic-macros -Wno-pointer-arith -Wno-pointer-to-int-cast -c
 lflags = -Wall
 libs = -L.. -L../.. -L../../io -L../../geometry -L../../.. -lpthread -lmiranda_ground -lmiranda_objects -lmiranda_io -lmiranda_geometry -lmiranda_media \

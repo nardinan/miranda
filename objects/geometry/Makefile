@@ -1,7 +1,7 @@
 objects = point.obj.o line.obj.o square.obj.o
 name = miranda_geometry
 debug = -Dd_miranda_debug=1
-cc = clang -g $(debug)
+cc = gcc -g $(debug)
 cflags = -Wall -I. -fPIC -Wno-variadic-macros -Wno-pointer-arith -c
 lflags = -Wall
 libs = -L.. -L../.. -lm -lpthread -lmiranda_ground -lmiranda_objects
