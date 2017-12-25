@@ -16,10 +16,79 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "runnable.obj.h"
+#ifdef __APPLE__
+int sem_init_miranda(semaphore_t *semaphore, unsigned int value){
+    int result = 0;
+    if ((*semaphore = semget(IPC_PRIVATE, 1, (IPC_CREAT | 0600))) != -1)
+        result = semctl(*semaphore, 0, SETVAL, value);
+    return result;
+}
+
+int sem_destroy_miranda(semaphore_t *semaphore) {
+    return semctl(*semaphore, 0, IPC_RMID);
+}
+
+int sem_wait_miranda(semaphore_t *semaphore) {
+   struct sembuf semaphore_options;
+   semaphore_options.sem_num = 0;
+   semaphore_options.sem_op = -1;
+   semaphore_options.sem_flg = 0;
+   return semop(*semaphore, &semaphore_options, 1);
+}
+
+int sem_trywait_miranda(semaphore_t *semaphore) {
+    struct sembuf semaphore_options;
+    semaphore_options.sem_num = 0;
+    semaphore_options.sem_op = -1;
+    semaphore_options.sem_flg = IPC_NOWAIT;
+    return semop(*semaphore, &semaphore_options, 1);
+}
+
+int sem_post_miranda(semaphore_t *semaphore) {
+    struct sembuf semaphore_options;
+    semaphore_options.sem_num = 0;
+    semaphore_options.sem_op = 1;
+    semaphore_options.sem_flg = IPC_NOWAIT;
+    return semop(*semaphore, &semaphore_options, 1);
+}
+
+int sem_getvalue_miranda(semaphore_t *semaphore) {
+    return semctl(*semaphore, 0, GETVAL, 0);
+}
+#else
+int sem_init_miranda(semaphore_t *semaphore, unsigned int value){
+    return sem_init(semaphore, 0, value);
+}
+
+int sem_destroy_miranda(semaphore_t *semaphore) {
+    return sem_destroy(semaphore);
+}
+
+int sem_wait_miranda(semaphore_t *semaphore) {
+    return sem_wait(semaphore);
+}
+
+int sem_trywait_miranda(semaphore_t *semaphore) {
+    return sem_trywait(semaphore);
+}
+
+int sem_post_miranda(semaphore_t *semaphore) {
+    return sem_post(semaphore);
+}
+
+int sem_getvalue_miranda(semaphore_t *semaphore) {
+    int value;
+    if (sem_getvalue(semaphore, &value) != 0) {
+        value = -1;
+    }
+    return value;
+}
+#endif
+
 struct s_object *f_runnable_new(struct s_object *self) {
     struct s_runnable_attributes *attributes = d_prepare(self, runnable);
-    sem_init(&(attributes->kill_required), 0, 0);
-    sem_init(&(attributes->running_slots), 0, 1);
+    sem_init_miranda(&(attributes->kill_required), 0);
+    sem_init_miranda(&(attributes->running_slots), 1);
     return self;
 }
 
@@ -30,9 +99,9 @@ d_define_method(runnable, job)(struct s_object *self) {
 
 d_define_method(runnable, run_interface)(struct s_object *self) {
     d_using(runnable);
-    if (sem_wait(&(runnable_attributes->running_slots)) == 0) {
+    if (sem_wait_miranda(&(runnable_attributes->running_slots)) == 0) {
         d_call(self, m_runnable_job, NULL);
-        sem_post(&(runnable_attributes->running_slots));
+        sem_post_miranda(&(runnable_attributes->running_slots));
     }
     return self;
 }
@@ -41,11 +110,11 @@ d_define_method(runnable, run)(struct s_object *self) {
     d_using(runnable);
     struct s_object *result = NULL;
     int value;
-    if (sem_getvalue(&(runnable_attributes->running_slots), &value) == 0)
+    if ((value = sem_getvalue_miranda(&(runnable_attributes->running_slots))) != -1)
         if (value > 0) {
-            if (sem_getvalue(&(runnable_attributes->kill_required), &value) == 0)
+            if ((value = sem_getvalue_miranda(&(runnable_attributes->kill_required))) != -1)
                 if (value > 0)
-                    while (sem_trywait(&(runnable_attributes->kill_required)) == 0);
+                    while (sem_trywait_miranda(&(runnable_attributes->kill_required)) == 0);
             if (pthread_create(&(runnable_attributes->descriptor), NULL, (t_thread_routine)&p_runnable_run_interface, self) == 0)
                 result = self;
         }
@@ -54,7 +123,7 @@ d_define_method(runnable, run)(struct s_object *self) {
 
 d_define_method(runnable, kill)(struct s_object *self) {
     d_using(runnable);
-    sem_post(&(runnable_attributes->kill_required));
+    sem_post_miranda(&(runnable_attributes->kill_required));
     return self;
 }
 
@@ -62,7 +131,7 @@ d_define_method(runnable, kill_required)(struct s_object *self) {
     d_using(runnable);
     struct s_object *result = NULL;
     int value;
-    if (sem_getvalue(&(runnable_attributes->kill_required), &value) == 0)
+    if ((value = sem_getvalue_miranda(&(runnable_attributes->kill_required))) != -1)
         if (value > 0)
             result = self;
     return result;
@@ -72,7 +141,7 @@ d_define_method(runnable, running)(struct s_object *self) {
     d_using(runnable);
     struct s_object *result = self;
     int value;
-    if (sem_getvalue(&(runnable_attributes->running_slots), &value) == 0)
+    if ((value = sem_getvalue_miranda(&(runnable_attributes->running_slots))) != -1)
         if (value > 0)
             result = NULL;
     return result;
@@ -82,7 +151,7 @@ d_define_method(runnable, join)(struct s_object *self) {
     d_using(runnable);
     struct s_object *result = NULL;
     int value;
-    if (sem_getvalue(&(runnable_attributes->running_slots), &value) == 0)
+    if ((value = sem_getvalue_miranda(&(runnable_attributes->running_slots))) != -1)
         if (value == 0) {
             pthread_join(runnable_attributes->descriptor, NULL);
             result = self;
@@ -92,13 +161,13 @@ d_define_method(runnable, join)(struct s_object *self) {
 
 d_define_method(runnable, delete)(struct s_object *self, struct s_runnable_attributes *attributes) {
     int value;
-    if (sem_getvalue(&(attributes->running_slots), &value) == 0)
+    if ((value = sem_getvalue_miranda(&(attributes->running_slots))) != -1)
         if (value == 0) {
-            sem_post(&(attributes->kill_required));
+            sem_post_miranda(&(attributes->kill_required));
             pthread_join(attributes->descriptor, NULL);
         }
-    sem_destroy(&(attributes->kill_required));
-    sem_destroy(&(attributes->running_slots));
+    sem_destroy_miranda(&(attributes->kill_required));
+    sem_destroy_miranda(&(attributes->running_slots));
     return NULL;
 }
 

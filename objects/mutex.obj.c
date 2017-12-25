@@ -33,7 +33,6 @@ d_define_method(mutex, lock)(struct s_object *self, const char *file, const char
     if ((result = pthread_mutex_lock(&(mutex_attributes->mutex))) != 0)
         p_log_write(stderr, e_log_level_ever, "\x1B[31merr\x1B[0m", file, function, line, 
                 "failure attempting to lock the mutex (operation returned the following code: %d)", result);
-        
     return self;
 }
 
