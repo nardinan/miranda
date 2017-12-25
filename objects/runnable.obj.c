@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "runnable.obj.h"
-#ifdef __APPLE__
 int sem_init_miranda(semaphore_t *semaphore, unsigned int value){
     int result = 0;
     if ((*semaphore = semget(IPC_PRIVATE, 1, (IPC_CREAT | 0600))) != -1)
@@ -55,35 +54,6 @@ int sem_post_miranda(semaphore_t *semaphore) {
 int sem_getvalue_miranda(semaphore_t *semaphore) {
     return semctl(*semaphore, 0, GETVAL, 0);
 }
-#else
-int sem_init_miranda(semaphore_t *semaphore, unsigned int value){
-    return sem_init(semaphore, 0, value);
-}
-
-int sem_destroy_miranda(semaphore_t *semaphore) {
-    return sem_destroy(semaphore);
-}
-
-int sem_wait_miranda(semaphore_t *semaphore) {
-    return sem_wait(semaphore);
-}
-
-int sem_trywait_miranda(semaphore_t *semaphore) {
-    return sem_trywait(semaphore);
-}
-
-int sem_post_miranda(semaphore_t *semaphore) {
-    return sem_post(semaphore);
-}
-
-int sem_getvalue_miranda(semaphore_t *semaphore) {
-    int value;
-    if (sem_getvalue(semaphore, &value) != 0) {
-        value = -1;
-    }
-    return value;
-}
-#endif
 
 struct s_object *f_runnable_new(struct s_object *self) {
     struct s_runnable_attributes *attributes = d_prepare(self, runnable);

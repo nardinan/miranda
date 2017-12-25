@@ -18,18 +18,11 @@
 #ifndef miranda_object_runnable_h
 #define miranda_object_runnable_h
 #include "object.h"
-#ifdef __APPLE__
+#include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/sem.h>
-#else
-#include <pthread.h>
-#include <semaphore.h>
-#endif
 typedef void *(*t_thread_routine)(void *);
-#ifdef __APPLE__
 typedef int semaphore_t;
-#else
-typedef sem_t semaphore_t;
-#endif
 extern int sem_init_miranda(semaphore_t *semaphore, unsigned int value);
 extern int sem_destroy_miranda(semaphore_t *semaphore);
 extern int sem_wait_miranda(semaphore_t *semaphore);
