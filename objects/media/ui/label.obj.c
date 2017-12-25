@@ -108,7 +108,9 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
         label_attributes->last_font = current_font;
         if (f_string_strlen(label_attributes->string_content) > 0) {
             if ((unoptimized_surface = TTF_RenderText_Blended(current_font, label_attributes->string_content, white))) {
-                label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
+                d_call(environment, m_mutex_lock, NULL); {
+                    label_attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
+                } d_call(environment, m_mutex_unlock, NULL);
                 if (SDL_QueryTexture(label_attributes->image, NULL, NULL, &width, &height) == 0) {
                     label_attributes->string_width = width;
                     label_attributes->string_height = height;
@@ -232,8 +234,10 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
         center.y = (position_y + center_y) - destination.y;
         label_attributes->last_source = source;
         label_attributes->last_destination = destination;
-        SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                (SDL_RendererFlip)drawable_attributes->flip);
+        d_call(environment, m_mutex_lock, NULL); {
+            SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
+                    (SDL_RendererFlip)drawable_attributes->flip);
+        } d_call(environment, m_mutex_unlock, NULL);
     }
     d_cast_return(result);
 }

@@ -167,9 +167,11 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
                 &bottom_y);
         if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x)/2.0),
                     top_y + ((bottom_y - top_y)/2.0))) {
-            SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
-                    field_attributes->last_cursor_R, field_attributes->last_cursor_A);
-            SDL_RenderDrawLine(environment_attributes->renderer, top_x, top_y, bottom_x, bottom_y);
+            d_call(environment, m_mutex_lock, NULL); {
+                SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
+                        field_attributes->last_cursor_R, field_attributes->last_cursor_A);
+                SDL_RenderDrawLine(environment_attributes->renderer, top_x, top_y, bottom_x, bottom_y);
+            } d_call(environment, m_mutex_unlock, NULL);
         }
     }
     d_cast_return(result);
