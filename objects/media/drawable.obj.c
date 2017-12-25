@@ -54,7 +54,7 @@ d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *
     double center_x, center_y;
     d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
     d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
-    d_call(environment, m_mutex_lock, NULL); {
+    d_miranda_lock(environment) {
         SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);
         SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
                 square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
@@ -66,7 +66,7 @@ d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *
                 square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
         SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
                 square_attributes->top_left_x + center_x, square_attributes->top_left_y + center_y);
-    } d_call(environment, m_mutex_unlock, NULL);
+    } d_miranda_unlock(environment);
     return self;
 }
 

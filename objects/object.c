@@ -28,27 +28,29 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
     struct s_method_cache swap_cache;
     const struct s_method *result = NULL;
     int index;
-    if ((object->cache_calls.first.type == type) && (object->cache_calls.first.entry->symbol == symbol))
-        result = object->cache_calls.first.entry;
-    else if ((object->cache_calls.second.type == type) && (object->cache_calls.second.entry->symbol == symbol)) {
-        swap_cache = object->cache_calls.first;
-        object->cache_calls.first = object->cache_calls.second;
-        object->cache_calls.second = swap_cache;
-        result = object->cache_calls.first.entry;
-    } else {
-        d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
-            if ((type == v_undefined_type) || (type == singleton->type))
-                for (index = 0; singleton->virtual_table[index].symbol; ++index)
-                    if (singleton->virtual_table[index].symbol == symbol) {
-                        object->cache_calls.second = object->cache_calls.first;
-                        object->cache_calls.first.type = type;
-                        object->cache_calls.first.entry = &(singleton->virtual_table[index]);
-                        result = object->cache_calls.first.entry;
-                    }
-            if (result)
-                break;
+    pthread_mutex_lock(&(object->lock)); {
+        if ((object->cache_calls.first.type == type) && (object->cache_calls.first.entry->symbol == symbol))
+            result = object->cache_calls.first.entry;
+        else if ((object->cache_calls.second.type == type) && (object->cache_calls.second.entry->symbol == symbol)) {
+            swap_cache = object->cache_calls.first;
+            object->cache_calls.first = object->cache_calls.second;
+            object->cache_calls.second = swap_cache;
+            result = object->cache_calls.first.entry;
+        } else {
+            d_reverse_foreach(&(object->virtual_tables), singleton, struct s_virtual_table) {
+                if ((type == v_undefined_type) || (type == singleton->type))
+                    for (index = 0; singleton->virtual_table[index].symbol; ++index)
+                        if (singleton->virtual_table[index].symbol == symbol) {
+                            object->cache_calls.second = object->cache_calls.first;
+                            object->cache_calls.first.type = type;
+                            object->cache_calls.first.entry = &(singleton->virtual_table[index]);
+                            result = object->cache_calls.first.entry;
+                        }
+                if (result)
+                    break;
+            }
         }
-    }
+    } pthread_mutex_unlock(&(object->lock));
     if (result) {
         if ((result->flag == e_flag_private) && (result->file != file)) {
             snprintf(buffer, d_string_buffer_size, "method '%s' is private and you are out of context (%s, %d)", symbol, file, line);
@@ -68,6 +70,7 @@ struct s_object *p_object_prepare(struct s_object *provided, const char *file, i
     provided->line = line;
     memset(&(provided->virtual_tables), 0, sizeof(struct s_list));
     memset(&(provided->attributes), 0, sizeof(struct s_list));
+    pthread_mutex_init(&(provided->lock), NULL);
     provided->flags = flags;
     return provided;
 }
@@ -104,21 +107,23 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
 
 struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {
     struct s_attributes *swap_cache, *result = NULL;
-    if ((object->cache_attributes.first) && (object->cache_attributes.first->type == type))
-        result = object->cache_attributes.first;
-    else if ((object->cache_attributes.second) && (object->cache_attributes.second->type == type)) {
-        swap_cache = object->cache_attributes.second;
-        object->cache_attributes.second = object->cache_attributes.first;
-        object->cache_attributes.first = swap_cache;
-        result = object->cache_attributes.first;
-    } else {
-        d_reverse_foreach(&(object->attributes), result, struct s_attributes)
-            if (result->type == type) {
-                object->cache_attributes.second = object->cache_attributes.first;
-                object->cache_attributes.first = result;
-                break;
-            }
-    }
+    pthread_mutex_lock(&(object->lock)); {
+        if ((object->cache_attributes.first) && (object->cache_attributes.first->type == type))
+            result = object->cache_attributes.first;
+        else if ((object->cache_attributes.second) && (object->cache_attributes.second->type == type)) {
+            swap_cache = object->cache_attributes.second;
+            object->cache_attributes.second = object->cache_attributes.first;
+            object->cache_attributes.first = swap_cache;
+            result = object->cache_attributes.first;
+        } else {
+            d_reverse_foreach(&(object->attributes), result, struct s_attributes)
+                if (result->type == type) {
+                    object->cache_attributes.second = object->cache_attributes.first;
+                    object->cache_attributes.first = result;
+                    break;
+                }
+        }
+    } pthread_mutex_unlock(&(object->lock));
     return result;
 }
 
@@ -137,6 +142,7 @@ void f_object_delete(struct s_object *object) {
         d_free(attributes);
         d_free(virtual_table);
     }
+    pthread_mutex_destroy(&(object->lock));
     if ((object->flags&e_flag_allocated) == e_flag_allocated)
         d_free(object);
 }
@@ -145,19 +151,21 @@ t_hash_value f_object_hash(struct s_object *object) {
     struct s_virtual_table *virtual_table;
     int index;
     t_hash_value result = 0, current;
-    if ((object->flags&e_flag_hashed) != e_flag_hashed) {
-        d_reverse_foreach(&(object->virtual_tables), virtual_table, struct s_virtual_table) {
-            for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
-                if (virtual_table->virtual_table[index].symbol == m_object_hash) {
-                    virtual_table->virtual_table[index].method(object, &current);
-                    result += current;
-                    break;
-                }
-        }
-        object->hash_value = result;
-        object->flags |= e_flag_hashed;
-    } else
-        result = object->hash_value;
+    pthread_mutex_lock(&(object->lock)); {
+        if ((object->flags&e_flag_hashed) != e_flag_hashed) {
+            d_reverse_foreach(&(object->virtual_tables), virtual_table, struct s_virtual_table) {
+                for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
+                    if (virtual_table->virtual_table[index].symbol == m_object_hash) {
+                        virtual_table->virtual_table[index].method(object, &current);
+                        result += current;
+                        break;
+                    }
+            }
+            object->hash_value = result;
+            object->flags |= e_flag_hashed;
+        } else
+            result = object->hash_value;
+    } pthread_mutex_unlock(&(object->lock));
     return result;
 }
 

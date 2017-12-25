@@ -27,15 +27,17 @@ d_define_method(mutex, trylock)(struct s_object *self) {
     return (pthread_mutex_trylock(&(mutex_attributes->mutex)) == 0)?self:NULL;
 }
 
-d_define_method(mutex, lock)(struct s_object *self) {
+d_define_method(mutex, lock)(struct s_object *self, const char *file, const char *function, unsigned int line) {
     d_using(mutex);
-    pthread_mutex_lock(&(mutex_attributes->mutex));
+    int result;
+    result = pthread_mutex_lock(&(mutex_attributes->mutex));
     return self;
 }
 
-d_define_method(mutex, unlock)(struct s_object *self) {
+d_define_method(mutex, unlock)(struct s_object *self, const char *file, const char *function, unsigned int line) {
     d_using(mutex);
-    pthread_mutex_unlock(&(mutex_attributes->mutex));
+    int result;
+    result = pthread_mutex_unlock(&(mutex_attributes->mutex));
     return self;
 }
 

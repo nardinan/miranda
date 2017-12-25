@@ -260,10 +260,10 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
                     d_drawable_return_continue);
         }
     if (uiable_attributes->background_mask_A) { /* only if visible */
-        d_call(environment, m_mutex_lock, NULL); {
+        d_miranda_lock(environment) {
             f_primitive_fill_polygon(environment_attributes->renderer, background_x, background_y, 4, uiable_attributes->background_mask_R,
                     uiable_attributes->background_mask_G, uiable_attributes->background_mask_B, uiable_attributes->background_mask_A);
-        } d_call(environment, m_mutex_unlock, NULL);
+        } d_miranda_unlock(environment);
     }
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(self, m_drawable_draw_contour, environment);

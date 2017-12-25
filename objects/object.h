@@ -18,6 +18,7 @@
 #ifndef miranda_object_h
 #define miranda_object_h
 #include <stdint.h>
+#include <pthread.h>
 #include "../list.h"
 #include "../hash.h"
 #include "../exception.h"
@@ -54,6 +55,7 @@ typedef struct s_object { d_list_node_head;
     unsigned int line;
     struct s_list virtual_tables, attributes;
     t_hash_value hash_value;
+    pthread_mutex_t lock;
     int flags;
     struct {
         struct s_method_cache first, second;

@@ -40,9 +40,9 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
     if ((memblock = mmap(NULL, file_stats.st_size, PROT_READ, MAP_SHARED, stream_attributes->descriptor, 0)) != MAP_FAILED) {
         surfaced_block = SDL_RWFromMem(memblock, file_stats.st_size);
         if ((unoptimized_surface = IMG_Load_RW(surfaced_block, d_true))) {
-            d_call(environment, m_mutex_lock, NULL); {
+            d_miranda_lock(environment) {
                 attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
-            } d_call(environment, m_mutex_unlock, NULL);
+            } d_miranda_unlock(environment);
             if (SDL_QueryTexture(attributes->image, NULL, NULL, &width, &height) == 0) {
                 d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
                 d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
@@ -88,10 +88,10 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
     destination.h = dimension_h;
     center.x = center_x;
     center.y = center_y;
-    d_call(environment, m_mutex_lock, NULL); {
+    d_miranda_lock(environment) {
         SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
                 (SDL_RendererFlip)drawable_attributes->flip);
-    } d_call(environment, m_mutex_unlock, NULL);
+    } d_miranda_unlock(environment);
     if ((drawable_attributes->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(self, m_drawable_draw_contour, environment);
     d_cast_return(d_drawable_return_last);

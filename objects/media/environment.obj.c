@@ -274,11 +274,11 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                 if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
                     environment_attributes->continue_loop = d_false;
             }
-            d_call(self, m_mutex_lock, NULL); {
+            d_miranda_lock(self) {
                 SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G, 
                         environment_attributes->mask_B, environment_attributes->mask_A);
                 SDL_RenderClear(environment_attributes->renderer);
-            } d_call(self, m_mutex_unlock, NULL);
+            } d_miranda_unlock(self);
             if (environment_attributes->main_call(self)) {
                 for (surface = 0; surface < e_environment_surface_NULL; ++surface) {
                     environment_attributes->current_surface = surface;
@@ -306,9 +306,9 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                     d_war(e_log_level_medium, "loop time has a delay of %d mS", (waiting_time * -1));
                 starting_time = current_time;
                 /* align the FPS time delay and then refresh the image */
-                d_call(self, m_mutex_lock, NULL); {
+                d_miranda_lock(self) {
                     SDL_RenderPresent(environment_attributes->renderer);
-                } d_call(self, m_mutex_unlock, NULL);
+                } d_miranda_unlock(self);
             } else
                 environment_attributes->continue_loop = d_false;
         } d_catch(exception) {
