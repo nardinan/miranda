@@ -30,14 +30,19 @@ d_define_method(mutex, trylock)(struct s_object *self) {
 d_define_method(mutex, lock)(struct s_object *self, const char *file, const char *function, unsigned int line) {
     d_using(mutex);
     int result;
-    result = pthread_mutex_lock(&(mutex_attributes->mutex));
+    if ((result = pthread_mutex_lock(&(mutex_attributes->mutex))) != 0)
+        p_log_write(stderr, e_log_level_ever, "\x1B[31merr\x1B[0m", file, function, line, 
+                "failure attempting to lock the mutex (operation returned the following code: %d)", result);
+        
     return self;
 }
 
 d_define_method(mutex, unlock)(struct s_object *self, const char *file, const char *function, unsigned int line) {
     d_using(mutex);
     int result;
-    result = pthread_mutex_unlock(&(mutex_attributes->mutex));
+    if ((result = pthread_mutex_unlock(&(mutex_attributes->mutex))) != 0)
+        p_log_write(stderr, e_log_level_ever, "\x1B[31merr\x1B[0m", file, function, line,
+                "failure attempting to unlock the mutex (operation returned the following code: %d)", result);
     return self;
 }
 
