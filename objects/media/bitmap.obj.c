@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "bitmap.obj.h"
-d_exception_define(wrong_type,	12, "wrong file type exception");
 d_exception_define(texture,	13, "ungenerable texture excepton");
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self) {
     struct s_bitmap_attributes *result = d_prepare(self, bitmap);

@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include "environment.obj.h"
 #include "../io/stream.obj.h"
-d_exception_declare(wrong_type);
+#include "../io/json.obj.h"
 d_exception_declare(texture);
 d_declare_class(bitmap) {
     struct s_attributes head;
