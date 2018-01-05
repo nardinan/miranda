@@ -120,9 +120,8 @@ d_define_method_override(uiable, event)(struct s_object *self, struct s_object *
             uiable_attributes->is_selected = d_false;
             d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
         }
-        if (current_event->type == SDL_MOUSEBUTTONDOWN)
-            if (current_event->button.button == SDL_BUTTON_LEFT)
-                d_call(self, m_uiable_mode, e_uiable_mode_active);
+        if (current_event->button.button == SDL_BUTTON_LEFT)
+            d_call(self, m_uiable_mode, e_uiable_mode_active);
     }
     return result;
 }
