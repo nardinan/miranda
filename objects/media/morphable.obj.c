@@ -66,6 +66,8 @@ d_define_method(morphable, update)(struct s_object *self, struct s_object *envir
         mouse_y = ((double)mouse_y * environment_attributes->reference_h[environment_attributes->current_surface]) / environment_attributes->current_h;
         mouse_x = (double)mouse_x - environment_attributes->camera_origin_x[environment_attributes->current_surface];
         mouse_y = (double)mouse_y - environment_attributes->camera_origin_y[environment_attributes->current_surface];
+        mouse_x = (mouse_x / environment_attributes->zoom[environment_attributes->current_surface]);
+        mouse_y = (mouse_y / environment_attributes->zoom[environment_attributes->current_surface]);
         if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) && 
                 (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
             morphable_attributes->offset_x = (mouse_x - position_x_self);

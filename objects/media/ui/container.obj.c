@@ -101,14 +101,15 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     d_using(container);
     struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable),
                                  *drawable_attributes_entry;
-    struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
+    struct s_uiable_attributes *uiable_attributes_self = d_cast(self, uiable),
+                               *uiable_attributes_entry;
     struct s_square_attributes *square_attributes;
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_container_drawable *current_container;
     double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry, 
            center_x_self, center_y_self, center_x_entry, center_y_entry, max_w = container_attributes->border_left + container_attributes->border_right,
            max_h = container_attributes->border_top + container_attributes->border_bottom, current_w, current_h;
-    int result;
+    int result = d_drawable_return_last;
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x_self, &position_y_self);
     d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &normalized_position_x_self, &normalized_position_y_self);
     d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x_self, &center_y_self);
@@ -140,24 +141,25 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
                         environment_attributes->zoom[environment_attributes->current_surface]))) {
             square_attributes = d_cast(&(drawable_attributes_entry->square_collision_box), square);
             current_w = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-                    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+                    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x)) - normalized_position_x_self;
             current_h = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-                    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
-            current_w -= normalized_position_x_self + container_attributes->border_right;
-            current_h -= normalized_position_y_self + container_attributes->border_bottom;
-            /* normalization */
-            current_w = (current_w * environment_attributes->reference_w[environment_attributes->current_surface])/
-                environment_attributes->current_w;
-            current_h = (current_h * environment_attributes->reference_h[environment_attributes->current_surface])/
-                environment_attributes->current_h;
+                    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y)) - normalized_position_y_self;
+            if ((uiable_attributes_entry = d_cast(current_container->drawable, uiable))) {
+                /* we need to take in consideration the border of the object that is not considered in the collision square */
+                current_w += uiable_attributes_entry->border_w;
+                current_h += uiable_attributes_entry->border_h;
+            }
+            /* normalization for ratio and environmental zoom */
+            current_w = ((current_w * environment_attributes->reference_w[environment_attributes->current_surface])/
+                environment_attributes->current_w) / environment_attributes->zoom[environment_attributes->current_surface];
+            current_h = ((current_h * environment_attributes->reference_h[environment_attributes->current_surface])/
+                environment_attributes->current_h) / environment_attributes->zoom[environment_attributes->current_surface];
             max_w = d_math_max(max_w, current_w);
             max_h = d_math_max(max_h, current_h);
         }
     }
-    d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes->border_w), (max_h + uiable_attributes->border_h));
-    result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) {
-        if (((intptr_t)d_call(current_container->drawable, m_drawable_normalize_scale,
+    d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
+    if (((intptr_t)d_call(self, m_drawable_normalize_scale,
                         environment_attributes->reference_w[environment_attributes->current_surface],
                         environment_attributes->reference_h[environment_attributes->current_surface],
                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
@@ -166,7 +168,9 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
                         environment_attributes->camera_focus_y[environment_attributes->current_surface],
                         environment_attributes->current_w,
                         environment_attributes->current_h,
-                        environment_attributes->zoom[environment_attributes->current_surface])))
+                        environment_attributes->zoom[environment_attributes->current_surface]))) {
+        result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+        d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
             while(((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
     if ((drawable_attributes_self->flags&e_drawable_kind_contour) == e_drawable_kind_contour)
