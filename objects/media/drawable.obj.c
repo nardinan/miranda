@@ -125,6 +125,7 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
     d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_y, new_h);
     d_call(&(drawable_attributes->point_normalized_center), m_point_set_x, new_center_x);
     d_call(&(drawable_attributes->point_normalized_center), m_point_set_y, new_center_y);
+    /* update the collision box */
     d_assert((square_attributes = d_cast(&(drawable_attributes->square_collision_box), square)));
     square_attributes->top_left_x = new_x;
     square_attributes->top_left_y = new_y;

@@ -337,10 +337,8 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
         d_call(&(drawable_attributes_scroll->point_normalized_destination), m_point_set_y, position_y);
         d_call(&(drawable_attributes_scroll->point_normalized_center), m_point_set_x, center_x);
         d_call(&(drawable_attributes_scroll->point_normalized_center), m_point_set_y, center_y);
-        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_top_left_x, position_x, d_false);
-        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_top_left_y, position_y, d_false);
-        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right_x, (position_x + normalized_dimension_w_scroll));
-        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right_y, (position_y + normalized_dimension_h_scroll));
+        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_top_left, position_x, position_y);
+        d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right, (position_x + normalized_dimension_w_scroll), (position_y + normalized_dimension_h_scroll));
         d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_center, center_x, center_y);
         while (((int)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
     }

@@ -38,33 +38,17 @@ struct s_object *f_square_new_points(struct s_object *self, struct s_object *poi
     return f_square_new(self, top_left_attributes->x, top_left_attributes->y, bottom_right_attributes->x, bottom_right_attributes->y);
 }
 
-d_define_method(square, set_top_left_x)(struct s_object *self, double top_left_x, t_boolean keep_ratio) {
+d_define_method(square, set_top_left)(struct s_object *self, double top_left_x, double top_left_y) {
     d_using(square);
-    if (keep_ratio)
-        square_attributes->bottom_right_x = top_left_x + (square_attributes->bottom_right_x-square_attributes->top_left_x);
     square_attributes->top_left_x = top_left_x;
-    square_attributes->normalized = d_false;
-    return self;
-}
-
-d_define_method(square, set_top_left_y)(struct s_object *self, double top_left_y, t_boolean keep_ratio) {
-    d_using(square);
-    if (keep_ratio)
-        square_attributes->bottom_right_y = top_left_y + (square_attributes->bottom_right_y-square_attributes->top_left_y);
     square_attributes->top_left_y = top_left_y;
     square_attributes->normalized = d_false;
     return self;
 }
 
-d_define_method(square, set_bottom_right_x)(struct s_object *self, double bottom_right_x) {
+d_define_method(square, set_bottom_right)(struct s_object *self, double bottom_right_x, double bottom_right_y) {
     d_using(square);
     square_attributes->bottom_right_x = bottom_right_x;
-    square_attributes->normalized = d_false;
-    return self;
-}
-
-d_define_method(square, set_bottom_right_y)(struct s_object *self, double bottom_right_y) {
-    d_using(square);
     square_attributes->bottom_right_y = bottom_right_y;
     square_attributes->normalized = d_false;
     return self;
@@ -99,7 +83,7 @@ d_define_method(square, normalize_coordinate)(struct s_object *self, double x, d
 
 d_define_method(square, normalize)(struct s_object *self) {
     d_using(square);
-    double radians = (square_attributes->angle * d_math_pi)/180.0, sin_radians, cos_radians, normalized_center_x, normalized_center_y;
+    double radians = (square_attributes->angle * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y;
     if (!square_attributes->normalized) {
         sin_radians = sin(radians);
         cos_radians = cos(radians);
@@ -126,8 +110,8 @@ d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 
 d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
     d_using(square);
-    double radians = ((360.0 - square_attributes->angle) * d_math_pi)/180.0, sin_radians, cos_radians, normalized_center_x, normalized_center_y, normalized_x, 
-           normalized_y;
+    double radians = ((360.0 - square_attributes->angle) * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y, 
+           normalized_x, normalized_y;
     t_boolean result = d_false;
     sin_radians = sin(radians);
     cos_radians = cos(radians);
@@ -191,10 +175,8 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
 }
 
 d_define_class(square) {
-    d_hook_method(square, e_flag_public, set_top_left_x),
-        d_hook_method(square, e_flag_public, set_top_left_y),
-        d_hook_method(square, e_flag_public, set_bottom_right_x),
-        d_hook_method(square, e_flag_public, set_bottom_right_y),
+    d_hook_method(square, e_flag_public, set_top_left),
+        d_hook_method(square, e_flag_public, set_bottom_right),
         d_hook_method(square, e_flag_public, set_angle),
         d_hook_method(square, e_flag_public, set_center),
         d_hook_method(square, e_flag_private, normalize_coordinate),

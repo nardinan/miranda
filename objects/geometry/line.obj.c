@@ -37,31 +37,35 @@ struct s_object *f_line_new_points(struct s_object *self, struct s_object *point
     return f_line_new(self, point_attributes_starting->x, point_attributes_starting->y, point_attributes_ending->x, point_attributes_ending->y);
 }
 
-d_define_method(line, set_starting_x)(struct s_object *self, double starting_x, t_boolean keep_ratio) {
+d_define_method(line, set_starting)(struct s_object *self, double starting_x, double starting_y) {
     d_using(line);
-    if (keep_ratio)
-        line_attributes->ending_x = starting_x + (line_attributes->ending_x-line_attributes->starting_x);
     line_attributes->starting_x = starting_x;
-    return self;
-}
-
-d_define_method(line, set_starting_y)(struct s_object *self, double starting_y, t_boolean keep_ratio) {
-    d_using(line);
-    if (keep_ratio)
-        line_attributes->ending_y = starting_y + (line_attributes->ending_y-line_attributes->starting_y);
     line_attributes->starting_y = starting_y;
     return self;
 }
 
-d_define_method(line, set_ending_x)(struct s_object *self, double ending_x) {
+d_define_method(line, set_ending)(struct s_object *self, double ending_x, double ending_y) {
     d_using(line);
     line_attributes->ending_x = ending_x;
+    line_attributes->ending_y = ending_y;
     return self;
 }
 
-d_define_method(line, set_ending_y)(struct s_object *self, double ending_y) {
+d_define_method(line, add)(struct s_object *self, double x, double y) {
     d_using(line);
-    line_attributes->ending_y = ending_y;
+    line_attributes->starting_x += x;
+    line_attributes->starting_y += y;
+    line_attributes->ending_x += x;
+    line_attributes->ending_y += y;
+    return self;
+}
+
+d_define_method(line, subtract)(struct s_object *self, double x, double y) {
+    d_using(line);
+    line_attributes->starting_x -= x;
+    line_attributes->starting_y -= y;
+    line_attributes->ending_x -= x;
+    line_attributes->ending_y -= y;
     return self;
 }
 
@@ -102,10 +106,10 @@ d_define_method(line, intersect_coordinates)(struct s_object *self, double start
 }
 
 d_define_class(line) {
-    d_hook_method(line, e_flag_public, set_starting_x),
-    d_hook_method(line, e_flag_public, set_starting_y),
-    d_hook_method(line, e_flag_public, set_ending_x),
-    d_hook_method(line, e_flag_public, set_ending_y),
+    d_hook_method(line, e_flag_public, set_starting),
+    d_hook_method(line, e_flag_public, set_ending),
+    d_hook_method(line, e_flag_public, add),
+    d_hook_method(line, e_flag_public, subtract),
     d_hook_method(line, e_flag_public, get),
     d_hook_method(line, e_flag_public, intersect),
     d_hook_method(line, e_flag_public, intersect_coordinates),

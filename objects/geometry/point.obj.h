@@ -35,5 +35,8 @@ d_declare_method(point, get)(struct s_object *self, double *x, double *y);
 d_declare_method(point, add)(struct s_object *self, double x, double y);
 d_declare_method(point, subtract)(struct s_object *self, double x, double y);
 d_declare_method(point, distance)(struct s_object *self, struct s_object *other, double *distance, double *distance_square);
+d_declare_method(point, angle)(struct s_object *self, struct s_object *other, double *tilt_angle);
+d_declare_method(point, rotate)(struct s_object *self, double angle);
+d_declare_method(point, rotate_pivot)(struct s_object *self, double angle, struct s_object *pivot);
 #endif
 
