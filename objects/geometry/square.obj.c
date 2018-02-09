@@ -110,7 +110,7 @@ d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 
 d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
     d_using(square);
-    double radians = ((360.0 - square_attributes->angle) * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y, 
+    double radians = -(square_attributes->angle * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y, 
            normalized_x, normalized_y;
     t_boolean result = d_false;
     sin_radians = sin(radians);
