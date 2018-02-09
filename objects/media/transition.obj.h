@@ -18,7 +18,7 @@
 #ifndef miranda_media_transition_h
 #define miranda_media_transition_h
 #include <sys/time.h>
-#include "environment.obj.h"
+#include "drawable.obj.h"
 #define d_transition_factor_value(start,end,f) (start+((end-start)*f))
 typedef enum e_transition_directions {
     e_transition_direction_forward,

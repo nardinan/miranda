@@ -18,7 +18,6 @@
 #ifndef miranda_media_environment_h
 #define miranda_media_environment_h
 #include "primitives.h"
-#include "drawable.obj.h"
 #include "eventable.obj.h"
 #define d_environment_default_title "miranda"
 #define d_environment_default_systems (SDL_INIT_VIDEO|SDL_INIT_AUDIO)

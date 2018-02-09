@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "drawable.obj.h"
+#include "environment.obj.h"
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self) {
     struct s_drawable_attributes *result = d_prepare(self, drawable);
     /* abstract (no memory inheritance) */

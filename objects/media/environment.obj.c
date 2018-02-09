@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "environment.obj.h"
+#include "drawable.obj.h"
 struct s_environment_attributes *p_environment_alloc(struct s_object *self) {
     struct s_environment_attributes *result = d_prepare(self, environment);
     f_memory_new(self);	/* inherit */

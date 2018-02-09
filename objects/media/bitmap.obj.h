@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include "environment.obj.h"
+#include "drawable.obj.h"
 #include "../io/stream.obj.h"
 #include "../io/json.obj.h"
 d_exception_declare(texture);

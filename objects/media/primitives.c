@@ -124,3 +124,4 @@ void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t ent
             }
         }
 }
+
