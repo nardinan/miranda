@@ -1,5 +1,5 @@
 objects = primitives.o environment.obj.o drawable.obj.o eventable.obj.o morphable.obj.o controllable.obj.o bitmap.obj.o particle.obj.o animation.obj.o \
-		  transition.obj.o track.obj.o entity.obj.o
+		  transition.obj.o track.obj.o entity.obj.o lights.obj.o
 name = miranda_media
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -47,6 +47,9 @@ track.obj.o: track.obj.c track.obj.h bitmap.obj.h
 
 entity.obj.o: entity.obj.c entity.obj.h drawable.obj.h
 	$(cc) $(cflags) entity.obj.c
+
+lights.obj.o: lights.obj.c lights.obj.h drawable.obj.h
+	$(cc) $(cflags) lights.obj.c
 
 clean:
 	rm -f *.o

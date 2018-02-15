@@ -47,6 +47,13 @@ typedef enum e_drawable_blends {
     e_drawable_blend_none 		= SDL_BLENDMODE_NONE,
     e_drawable_blend_undefined
 } e_drawable_blends;
+typedef enum e_drawable_alignments {
+    e_drawable_alignment_centered,
+    e_drawable_alignment_top_left,
+    e_drawable_alignment_top_right,
+    e_drawable_alignment_bottom_left,
+    e_drawable_alignment_bottom_right
+} e_drawable_alignments;
 d_declare_class(drawable) {
     struct s_attributes head;
     struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
@@ -59,6 +66,7 @@ d_declare_class(drawable) {
 } d_declare_class_tail(drawable);
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object *self, int flags);
+d_declare_method(drawable, copy_geometry)(struct s_object *self, struct s_object *drawable, enum e_drawable_alignments alignment);
 d_declare_method(drawable, draw)(struct s_object *self, struct s_object *environment); /* abstract */
 d_declare_method(drawable, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(drawable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue); /* abstract */
@@ -81,7 +89,9 @@ d_declare_method(drawable, get_scaled_dimension)(struct s_object *self, double *
 d_declare_method(drawable, get_principal_point)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, get_scaled_principal_point)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_center)(struct s_object *self, double x, double y);
+d_declare_method(drawable, get_center)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_angle)(struct s_object *self, double angle);
+d_declare_method(drawable, get_angle)(struct s_object *self, double *angle);
 d_declare_method(drawable, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(drawable, get_zoom)(struct s_object *self, double *zoom);
 d_declare_method(drawable, flip)(struct s_object *self, enum e_drawable_flips flip);

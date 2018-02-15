@@ -28,5 +28,5 @@
 #include "transition.obj.h"
 #include "track.obj.h"
 #include "entity.obj.h"
-#include "light.obj.h"
+#include "lights.obj.h"
 #endif

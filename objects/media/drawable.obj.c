@@ -43,6 +43,38 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
     return self;
 }
 
+d_define_method(drawable, copy_geometry)(struct s_object *self, struct s_object *drawable, enum e_drawable_alignments alignment) {
+    d_using(drawable);
+    struct s_drawable_attributes *drawable_attributes_other = d_cast(drawable, drawable);
+    double position_x, position_y, dimension_x, dimension_y, final_position_x, final_position_y;
+    d_call(&(drawable_attributes_other->point_destination), m_point_get, &position_x, &position_y);
+    d_call(&(drawable_attributes_other->point_dimension), m_point_get, &dimension_x, &dimension_y);
+    final_position_x = position_x;
+    final_position_y = position_y;
+    switch (alignment) {
+        case e_drawable_alignment_centered:
+            final_position_x = (position_x + (dimension_x / 2.0));
+            final_position_y = (position_y + (dimension_y / 2.0));
+            break;
+        case e_drawable_alignment_top_right:
+            final_position_x = position_x + dimension_x;
+            break;
+        case e_drawable_alignment_bottom_left:
+            final_position_y = position_y + dimension_y;
+            break;
+        case e_drawable_alignment_bottom_right:
+            final_position_x = position_x + dimension_x;
+            final_position_y = position_y + dimension_y;
+        default:
+            break;
+    }
+    d_call(&(drawable_attributes->point_destination), m_point_set_x, final_position_x);
+    d_call(&(drawable_attributes->point_destination), m_point_set_y, final_position_y);
+    drawable_attributes->angle = drawable_attributes_other->angle;
+    drawable_attributes->flip = drawable_attributes_other->flip;
+    return self;
+}
+
 d_define_method(drawable, draw)(struct s_object *self, struct s_object *environment) {
     d_war(e_log_level_ever, "'draw' method has not been implemented yet");
     return self;
@@ -285,9 +317,21 @@ d_define_method(drawable, set_center)(struct s_object *self, double x, double y)
     return self;
 }
 
+d_define_method(drawable, get_center)(struct s_object *self, double *x, double *y) {
+    d_using(drawable);
+    d_call(&(drawable_attributes->point_center), m_point_get, x, y);
+    return self;
+}
+
 d_define_method(drawable, set_angle)(struct s_object *self, double angle) {
     d_using(drawable);
     drawable_attributes->angle = fmod(angle, 360.0);
+    return self;
+}
+
+d_define_method(drawable, get_angle)(struct s_object *self, double *angle) {
+    d_using(drawable);
+    *angle = drawable_attributes->angle;
     return self;
 }
 
@@ -338,7 +382,8 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
 }
 
 d_define_class(drawable) {
-    d_hook_method(drawable, e_flag_public, draw),
+    d_hook_method(drawable, e_flag_public, copy_geometry),
+        d_hook_method(drawable, e_flag_public, draw),
         d_hook_method(drawable, e_flag_public, draw_contour),
         d_hook_method(drawable, e_flag_public, set_maskRGB),
         d_hook_method(drawable, e_flag_public, set_maskA),
@@ -359,7 +404,9 @@ d_define_class(drawable) {
         d_hook_method(drawable, e_flag_public, get_principal_point),
         d_hook_method(drawable, e_flag_public, get_scaled_principal_point),
         d_hook_method(drawable, e_flag_public, set_center),
+        d_hook_method(drawable, e_flag_public, get_center),
         d_hook_method(drawable, e_flag_public, set_angle),
+        d_hook_method(drawable, e_flag_public, get_angle),
         d_hook_method(drawable, e_flag_public, set_zoom),
         d_hook_method(drawable, e_flag_public, get_zoom),
         d_hook_method(drawable, e_flag_public, flip),
