@@ -29,4 +29,5 @@
 #include "track.obj.h"
 #include "entity.obj.h"
 #include "lights.obj.h"
+#include "media_factory.obj.h"
 #endif
