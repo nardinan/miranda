@@ -1,4 +1,4 @@
-objects = fonts.obj.o uiable.obj.o label.obj.o field.obj.o button.obj.o checkbox.obj.o scroll.obj.o list.obj.o container.obj.o
+objects = fonts.obj.o uiable.obj.o label.obj.o field.obj.o button.obj.o checkbox.obj.o scroll.obj.o list.obj.o container.obj.o ui_factory.obj.o
 name = miranda_ui
 debug = -Dd_miranda_debug=1
 cc = gcc -g $(debug)
@@ -37,6 +37,10 @@ list.obj.o: list.obj.c list.obj.h scroll.obj.h label.obj.h
 
 container.obj.o: container.obj.c container.obj.h uiable.obj.h
 	$(cc) $(cflags) container.obj.c
+
+ui_factory.obj.o: ui_factory.obj.c ui_factory.obj.h ../media_factory.obj.h label.obj.h field.obj.h button.obj.h checkbox.obj.h scroll.obj.h list.obj.h \
+	container.obj.h
+	$(cc) $(cflags) ui_factory.obj.c
 
 clean:
 	rm -f *.o

@@ -26,4 +26,5 @@
 #include "scroll.obj.h"
 #include "list.obj.h"
 #include "container.obj.h"
+#include "ui_factory.obj.h"
 #endif
