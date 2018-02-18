@@ -23,22 +23,15 @@ struct s_media_factory_attributes *p_media_factory_alloc(struct s_object *self) 
     return result;
 }
 
-struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_ttf, struct s_object *resources_json,
-        struct s_object *resources_ogg, struct s_object *resources_lisp, struct s_object *environment) {
+struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json, struct s_object *resources_ogg, 
+        struct s_object *resources_lisp, struct s_object *environment) {
     struct s_media_factory_attributes *attributes = p_media_factory_alloc(self);
-    struct s_exception *exception;
-    d_try {
-        attributes->resources_png = d_retain(resources_png);
-        attributes->resources_ttf = d_retain(resources_ttf);
-        attributes->resources_json = d_retain(resources_json);
-        attributes->resources_ogg = d_retain(resources_ogg);
-        attributes->resources_lisp = d_retain(resources_lisp);
-        attributes->environment = d_retain(environment);
-        attributes->current_channel = d_media_factory_min_channels;
-    } d_catch(exception) {
-        d_exception_dump(stderr, exception);
-        d_raise;
-    } d_endtry;
+    attributes->resources_png = d_retain(resources_png);
+    attributes->resources_json = d_retain(resources_json);
+    attributes->resources_ogg = d_retain(resources_ogg);
+    attributes->resources_lisp = d_retain(resources_lisp);
+    attributes->environment = d_retain(environment);
+    attributes->current_channel = d_media_factory_min_channels;
     return self;
 }
 
@@ -376,13 +369,10 @@ d_define_method(media_factory, get_track)(struct s_object *self, const char *lab
 
 d_define_method(media_factory, delete)(struct s_object *self, struct s_media_factory_attributes *attributes) {
     d_delete(attributes->resources_png);
-    d_delete(attributes->resources_ttf);
     d_delete(attributes->resources_json);
     d_delete(attributes->resources_ogg);
     d_delete(attributes->resources_lisp);
     d_delete(attributes->environment);
-    if (attributes->json_configuration)
-        d_delete(attributes->json_configuration);
     return NULL;
 }
 

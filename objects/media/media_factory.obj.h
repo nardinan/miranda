@@ -26,12 +26,10 @@
 #include "transition.obj.h"
 #include "track.obj.h"
 #define d_media_factory_animation_frame_time 100.0
-#define d_media_factory_configuration "miranda_config"
 #define d_media_factory_default_font_size 30.0
 #define d_media_factory_default_font_outline 0.0
 #define d_media_factory_max_channels 127
 #define d_media_factory_min_channels 1
-d_exception_declare(configuration_file);
 typedef enum e_media_factory_media_types {
     e_media_factory_media_type_bitmap = 0,
     e_media_factory_media_type_animation,
@@ -43,14 +41,12 @@ typedef enum e_media_factory_media_types {
 d_declare_class(media_factory) {
     struct s_attributes head;
     struct s_object *environment;
-    struct s_object *font_system;
-    struct s_object *resources_png, *resources_ttf, *resources_json, *resources_ogg, *resources_lisp;
-    struct s_object *json_configuration;
+    struct s_object *resources_png, *resources_json, *resources_ogg, *resources_lisp;
     int current_channel;
 } d_declare_class_tail(media_factory);
 struct s_media_factory_attributes *p_media_factory_alloc(struct s_object *self);
-extern struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_ttf, 
-        struct s_object *resources_json, struct s_object *resources_ogg, struct s_object *resources_lisp, struct s_object *environment);
+extern struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json, 
+        struct s_object *resources_ogg, struct s_object *resources_lisp, struct s_object *environment);
 d_declare_method(media_factory, get_bitmap)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_animation)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_transition)(struct s_object *self, const char *label);
