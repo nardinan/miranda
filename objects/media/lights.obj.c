@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "lights.obj.h"
+void p_lights_modulator_flickering(struct s_lights_emitter *emitter) {
+    clock_t current_clock = clock();
+    double default_factor = 0.1, new_intensity = ((sin(((double)current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
+    emitter->current_intensity = new_intensity;
+}
+
 struct s_lights_attributes *p_lights_alloc(struct s_object *self) {
     struct s_lights_attributes *result = d_prepare(self, lights);
     f_mutex_new(self);				                /* inherit */
@@ -51,13 +57,16 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
     return self;
 }
 
-d_define_method(lights, add_light)(struct s_object *self, unsigned char intensity, t_lights_intensity_modulator modulator, struct s_object *mask, 
-        struct s_object *reference, enum e_drawable_alignments alignment) {
+d_define_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B, 
+        double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment) {
     d_using(lights);
     struct s_lights_emitter *current_emitter;
     if ((current_emitter = (struct s_lights_emitter *)d_malloc(sizeof(struct s_lights_emitter)))) {
-        current_emitter->intensity = intensity;
-        current_emitter->current_intensity = intensity;
+        current_emitter->current_intensity = current_emitter->original_intensity = intensity;
+        current_emitter->current_mask_R = current_emitter->original_mask_R = mask_R;
+        current_emitter->current_mask_G = current_emitter->original_mask_G = mask_G;
+        current_emitter->current_mask_B = current_emitter->original_mask_B = mask_B;
+        current_emitter->current_radius = current_emitter->original_radius = radius;
         current_emitter->modulator = modulator;
         current_emitter->alignment = alignment;
         current_emitter->reference = d_retain(reference);
@@ -87,6 +96,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
     struct s_lights_emitter *current_emitter;
     size_t size;
+    double intensity_modificator;
     SDL_Rect source, destination;
     SDL_Point center;
     if ((environment_attributes->current_w != lights_attributes->current_w) || 
@@ -118,10 +128,13 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     } d_miranda_unlock(environment);
     d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
         if (current_emitter->modulator)
-            current_emitter->current_intensity = current_emitter->modulator(current_emitter);
+            current_emitter->modulator(current_emitter);
+        intensity_modificator = (current_emitter->current_intensity / 255.0);
         d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
-        d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)current_emitter->current_intensity, 
-                (unsigned int)current_emitter->current_intensity, (unsigned int)current_emitter->current_intensity);
+        d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
+        d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modificator),
+                (unsigned int)(current_emitter->current_mask_G * intensity_modificator), 
+                (unsigned int)(current_emitter->current_mask_B * intensity_modificator));
         if ((d_call(current_emitter->mask, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
                         environment_attributes->reference_h[environment_attributes->current_surface],
                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
