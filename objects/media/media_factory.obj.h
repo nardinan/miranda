@@ -26,8 +26,6 @@
 #include "transition.obj.h"
 #include "track.obj.h"
 #define d_media_factory_animation_frame_time 100.0
-#define d_media_factory_default_font_size 30.0
-#define d_media_factory_default_font_outline 0.0
 #define d_media_factory_max_channels 127
 #define d_media_factory_min_channels 1
 typedef enum e_media_factory_media_types {
