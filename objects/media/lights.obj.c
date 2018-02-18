@@ -165,6 +165,7 @@ d_define_method(lights, delete)(struct s_object *self, struct s_lights_attribute
     while ((current_emitter = (struct s_lights_emitter *)attributes->emitters.head)) {
         d_delete(current_emitter->mask);
         d_delete(current_emitter->reference);
+        d_free(current_emitter);
         f_list_delete(&(attributes->emitters), (struct s_list_node *)attributes->emitters.head);
     }
     if (attributes->memblock)
