@@ -38,7 +38,7 @@ list.obj.o: list.obj.c list.obj.h scroll.obj.h label.obj.h
 container.obj.o: container.obj.c container.obj.h uiable.obj.h
 	$(cc) $(cflags) container.obj.c
 
-ui_factory.obj.o: ui_factory.obj.c ui_factory.obj.h ../media_factory.obj.h label.obj.h field.obj.h button.obj.h checkbox.obj.h scroll.obj.h list.obj.h \
+ui_factory.obj.o: ui_factory.obj.c ui_factory.obj.h ../../io/resources.obj.h label.obj.h field.obj.h button.obj.h checkbox.obj.h scroll.obj.h list.obj.h \
 	container.obj.h
 	$(cc) $(cflags) ui_factory.obj.c
 

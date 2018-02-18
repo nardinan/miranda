@@ -17,7 +17,7 @@
  */
 #ifndef miranda_ui_factory_h
 #define miranda_ui_factory_h
-#include "../media_factory.obj.h"
+#include "../../io/resources.obj.h"
 #include "label.obj.h"
 #include "field.obj.h"
 #include "button.obj.h"
@@ -57,7 +57,6 @@ d_declare_method(ui_factory, load_uiable)(struct s_object *self, struct s_object
 d_declare_method(ui_factory, new_container)(struct s_object *self, t_boolean floatable);
 d_declare_method(ui_factory, new_list)(struct s_object *self);
 d_declare_method(ui_factory, new_scroll)(struct s_object *self);
-d_declare_method(ui_factory, new_image)(struct s_object *self);
 d_declare_method(ui_factory, new_label)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
 d_declare_method(ui_factory, new_checkbox)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
 d_declare_method(ui_factory, new_button)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
