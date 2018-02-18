@@ -127,15 +127,8 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
         SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
     } d_miranda_unlock(environment);
     d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
-        if (current_emitter->modulator)
-            current_emitter->modulator(current_emitter);
-        intensity_modificator = (current_emitter->current_intensity / 255.0);
-        d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
-        d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
-        d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modificator),
-                (unsigned int)(current_emitter->current_mask_G * intensity_modificator), 
-                (unsigned int)(current_emitter->current_mask_B * intensity_modificator));
-        if ((d_call(current_emitter->mask, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
+       d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+       if ((d_call(current_emitter->mask, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
                         environment_attributes->reference_h[environment_attributes->current_surface],
                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
                         environment_attributes->camera_origin_y[environment_attributes->current_surface],
@@ -144,8 +137,15 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
                         environment_attributes->current_w,
                         environment_attributes->current_h,
                         environment_attributes->zoom[environment_attributes->current_surface]))) {
-            while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
-        }
+           if (current_emitter->modulator)
+               current_emitter->modulator(current_emitter);
+           intensity_modificator = (current_emitter->current_intensity / 255.0);
+           d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
+           d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modificator),
+                   (unsigned int)(current_emitter->current_mask_G * intensity_modificator), 
+                   (unsigned int)(current_emitter->current_mask_B * intensity_modificator));
+           while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
+       }
     }
     d_miranda_lock(environment) {
         SDL_SetRenderTarget(environment_attributes->renderer, NULL);
@@ -175,10 +175,10 @@ d_define_method(lights, delete)(struct s_object *self, struct s_lights_attribute
 
 d_define_class(lights) {
     d_hook_method(lights, e_flag_public, add_light),
-        d_hook_method(lights, e_flag_public, set_intensity),
-        d_hook_method(lights, e_flag_public, get_intensity),
-        d_hook_method_override(lights, e_flag_public, drawable, draw),
-        d_hook_method_override(lights, e_flag_public, drawable, normalize_scale),
-        d_hook_delete(lights),
-        d_hook_method_tail
+    d_hook_method(lights, e_flag_public, set_intensity),
+    d_hook_method(lights, e_flag_public, get_intensity),
+    d_hook_method_override(lights, e_flag_public, drawable, draw),
+    d_hook_method_override(lights, e_flag_public, drawable, normalize_scale),
+    d_hook_delete(lights),
+    d_hook_method_tail
 };
