@@ -23,10 +23,10 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #define d_primitives_minimum_polygon_points 2
-extern void p_primitive_fill_triangle_bottom_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C,
-        int red, int green, int blue, int alpha);
-extern void p_primitive_fill_triangle_top_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C,
-        int red, int green, int blue, int alpha);
+extern void
+p_primitive_fill_triangle_bottom_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C, int red, int green, int blue, int alpha);
+extern void
+p_primitive_fill_triangle_top_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C, int red, int green, int blue, int alpha);
 extern void f_primitive_fill_triangle(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C, int red, int green, int blue, int alpha);
 extern void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t entries, int red, int green, int blue, int alpha);
 #endif

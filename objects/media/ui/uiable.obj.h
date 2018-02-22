@@ -22,43 +22,43 @@
 #include "../../emitter.obj.h"
 #define d_uiable_default_border 2
 typedef enum e_uiable_components {
-    e_uiable_component_corner_top_left = 0,
-    e_uiable_component_corner_top_right,
-    e_uiable_component_corner_bottom_left,
-    e_uiable_component_corner_bottom_right,
-    e_uiable_component_top,
-    e_uiable_component_bottom,
-    e_uiable_component_left,
-    e_uiable_component_right,
-    e_uiable_component_center,
-    e_uiable_component_NULL
+  e_uiable_component_corner_top_left = 0,
+  e_uiable_component_corner_top_right,
+  e_uiable_component_corner_bottom_left,
+  e_uiable_component_corner_bottom_right,
+  e_uiable_component_top,
+  e_uiable_component_bottom,
+  e_uiable_component_left,
+  e_uiable_component_right,
+  e_uiable_component_center,
+  e_uiable_component_NULL
 } e_uiable_components;
 typedef enum e_uiable_modes {
-    e_uiable_mode_active = 0,
-    e_uiable_mode_selected,
-    e_uiable_mode_idle,
-    e_uiable_mode_NULL
+  e_uiable_mode_active = 0,
+  e_uiable_mode_selected,
+  e_uiable_mode_idle,
+  e_uiable_mode_NULL
 } e_uiable_modes;
 typedef enum e_uiable_signals {
-    e_uiable_signal_selected = 0,
-    e_uiable_signal_unselected,
-    e_uiable_signal_clicked_left,
-    e_uiable_signal_clicked_right,
-    e_uiable_signal_changed,
-    e_uiable_signal_content_changed,
-    e_uiable_signal_NULL
+  e_uiable_signal_selected = 0,
+  e_uiable_signal_unselected,
+  e_uiable_signal_clicked_left,
+  e_uiable_signal_clicked_right,
+  e_uiable_signal_changed,
+  e_uiable_signal_content_changed,
+  e_uiable_signal_NULL
 } e_uiable_signals;
 extern unsigned int v_uiable_id;
 extern const char *v_uiable_components[e_uiable_component_NULL];
 extern const char *v_uiable_modes[e_uiable_mode_NULL];
 extern const char *v_uiable_signals[e_uiable_signal_NULL];
 d_declare_class(uiable) {
-    struct s_attributes head;
-    struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
-    unsigned int component_id;
-    enum e_uiable_modes selected_mode;
-    t_boolean is_selected;
-    double border_h, border_w, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
+  struct s_attributes head;
+  struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
+  unsigned int component_id;
+  enum e_uiable_modes selected_mode;
+  t_boolean is_selected;
+  double border_h, border_w, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);
 extern struct s_object *f_uiable_new(struct s_object *self);

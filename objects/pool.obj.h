@@ -20,8 +20,8 @@
 #include "memory.obj.h"
 #include "mutex.obj.h"
 d_declare_class(pool) {
-    struct s_attributes head;
-    struct s_list *pool;
+  struct s_attributes head;
+  struct s_list *pool;
 } d_declare_class_tail(pool);
 extern struct s_object *v_default_pool;
 #define d_pool_init v_default_pool=f_pool_new(d_new(pool))

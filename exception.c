@@ -19,11 +19,11 @@
 jmp_buf *v_exception_hook = NULL;
 struct s_exception v_exception_raised;
 void p_exception_fill(struct s_exception exception, const char *message, const char *file, const char *function, unsigned int line) {
-    memcpy(&v_exception_raised, &exception, sizeof(struct s_exception));
-    strncpy(v_exception_raised.description, message, (d_exception_description_size-1));
-    strncpy(v_exception_raised.file, file, (d_exception_file_size-1));
-    strncpy(v_exception_raised.function, function, (d_exception_function_size-1));
-    v_exception_raised.line = line;
-    v_exception_raised.level = 0;
+  memcpy(&v_exception_raised, &exception, sizeof(struct s_exception));
+  strncpy(v_exception_raised.description, message, (d_exception_description_size - 1));
+  strncpy(v_exception_raised.file, file, (d_exception_file_size - 1));
+  strncpy(v_exception_raised.function, function, (d_exception_function_size - 1));
+  v_exception_raised.line = line;
+  v_exception_raised.level = 0;
 }
 

@@ -21,10 +21,10 @@
 #define d_scroll_default_minimum 0
 #define d_scroll_default_maximum 1000
 d_declare_class(scroll) {
-    struct s_attributes head;
-    struct s_object *image;
-    int minimum, maximum, position, modifier;
-    t_boolean is_selected, force_event;
+  struct s_attributes head;
+  struct s_object *image;
+  int minimum, maximum, position, modifier;
+  t_boolean is_selected, force_event;
 } d_declare_class_tail(scroll);
 struct s_scroll_attributes *p_scroll_alloc(struct s_object *self);
 extern struct s_object *f_scroll_new(struct s_object *self, struct s_object *image);

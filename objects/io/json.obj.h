@@ -36,56 +36,59 @@ d_exception_declare(malformed_key);
 d_exception_declare(malformed_value);
 d_exception_declare(wrong_type);
 typedef enum e_json_token_types {
-    e_json_token_type_symbol,
-    e_json_token_type_word,
-    e_json_token_type_string,
-    e_json_token_type_value
+  e_json_token_type_symbol,
+  e_json_token_type_word,
+  e_json_token_type_string,
+  e_json_token_type_value
 } e_json_token_types;
-typedef struct s_json_token { d_list_node_head;
-    unsigned int line_number;
-    enum e_json_token_types type;
-    union {
-        char symbol_entry, *string_entry;
-        double value_entry;
-    };
+typedef struct s_json_token {
+  d_list_node_head;
+  unsigned int line_number;
+  enum e_json_token_types type;
+  union {
+    char symbol_entry, *string_entry;
+    double value_entry;
+  };
 } s_json_token;
 typedef enum e_json_node_actions {
-    e_json_node_action_key,
-    e_json_node_action_symbol,
-    e_json_node_action_value,
-    e_json_node_action_close,
-    e_json_node_action_end,
-    e_json_node_action_undefined
+  e_json_node_action_key,
+  e_json_node_action_symbol,
+  e_json_node_action_value,
+  e_json_node_action_close,
+  e_json_node_action_end,
+  e_json_node_action_undefined
 } e_json_node_actions;
 typedef enum e_json_node_types {
-    e_json_node_type_string = 0,
-    e_json_node_type_value,
-    e_json_node_type_boolean,
-    e_json_node_type_array,
-    e_json_node_type_object,
-    e_json_node_type_null,
-    e_json_node_type_undefined
+  e_json_node_type_string = 0,
+  e_json_node_type_value,
+  e_json_node_type_boolean,
+  e_json_node_type_array,
+  e_json_node_type_object,
+  e_json_node_type_null,
+  e_json_node_type_undefined
 } e_json_node_types;
-typedef struct s_json_node_value { d_list_node_head;
-    t_boolean allocated;
-    enum e_json_node_types type;
-    union {
-        char *string_entry;
-        double value_entry;
-        t_boolean boolean_entry;
-        struct s_list *array_entry, *object_entry;
-    };
+typedef struct s_json_node_value {
+  d_list_node_head;
+  t_boolean allocated;
+  enum e_json_node_types type;
+  union {
+    char *string_entry;
+    double value_entry;
+    t_boolean boolean_entry;
+    struct s_list *array_entry, *object_entry;
+  };
 } s_json_node_value;
 typedef struct s_json_node_value t_json_starting_point;
-typedef struct s_json_node { d_list_node_head;
-    t_boolean allocated;
-    char *key;
-    struct s_json_node_value value;
+typedef struct s_json_node {
+  d_list_node_head;
+  t_boolean allocated;
+  char *key;
+  struct s_json_node_value value;
 } s_json_node;
 d_declare_class(json) {
-    struct s_attributes head;
-    struct s_list *tokens;
-    struct s_json_node_value *root;
+  struct s_attributes head;
+  struct s_list *tokens;
+  struct s_json_node_value *root;
 } d_declare_class_tail(json);
 extern const char *v_json_token_types[], *v_json_node_types[];
 struct s_json_attributes *p_json_alloc(struct s_object *self);
@@ -106,7 +109,8 @@ d_declare_method(json, get_value)(struct s_object *self, const char *format, va_
 d_declare_method(json, get_relative)(struct s_object *self, struct s_json_node_value *starting_point, const char *format, ...);
 d_declare_method(json, get_string_relative)(struct s_object *self, struct s_json_node_value *starting_point, char **string_supply, const char *format, ...);
 d_declare_method(json, get_double_relative)(struct s_object *self, struct s_json_node_value *starting_point, double *value_supply, const char *format, ...);
-d_declare_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format, ...);
+d_declare_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format,
+                                             ...);
 d_declare_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...);
 d_declare_method(json, get_double)(struct s_object *self, double *value_supply, const char *format, ...);
 d_declare_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...);

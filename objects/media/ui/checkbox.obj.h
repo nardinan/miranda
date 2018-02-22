@@ -21,9 +21,9 @@
 #define d_checkbox_alignment e_label_alignment_left
 #define d_checkbox_background e_label_background_format_adaptable
 d_declare_class(checkbox) {
-    struct s_attributes head;
-    struct s_object *checked, *unchecked;
-    t_boolean is_checked;
+  struct s_attributes head;
+  struct s_object *checked, *unchecked;
+  t_boolean is_checked;
 } d_declare_class_tail(checkbox);
 struct s_checkbox_attributes *p_checkbox_alloc(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 extern struct s_object *f_checkbox_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);

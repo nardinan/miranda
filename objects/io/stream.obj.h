@@ -31,19 +31,19 @@ d_exception_declare(unreachable);
 d_exception_declare(unsupported);
 d_exception_declare(closed);
 typedef enum e_stream_flags {
-    e_stream_flag_supplied = 	0x01,
-    e_stream_flag_opened =		0x02,
-    e_stream_flag_temporary =	0x04
+  e_stream_flag_supplied = 0x01,
+  e_stream_flag_opened = 0x02,
+  e_stream_flag_temporary = 0x04
 } e_stream_flags;
 typedef enum e_stream_seek {
-    e_stream_seek_begin,
-    e_stream_seek_current,
-    e_stream_seek_end
+  e_stream_seek_begin,
+  e_stream_seek_current,
+  e_stream_seek_end
 } e_stream_seek;
 d_declare_class(stream) {
-    struct s_attributes head;
-    struct s_object *string_name;
-    int descriptor, parameters, flags;
+  struct s_attributes head;
+  struct s_object *string_name;
+  int descriptor, parameters, flags;
 } d_declare_class_tail(stream);
 struct s_stream_attributes *p_stream_alloc(struct s_object *self);
 int p_stream_open_lock(const char *name);

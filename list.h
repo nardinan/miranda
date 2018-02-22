@@ -19,23 +19,23 @@
 #define miranda_list_h
 #include "memory.h"
 #include "string.local.h"
-#define d_foreach(l,n,k) for((n)=(k *)(l)->head;(n);(n)=(k *)((struct s_list_node *)(n))->next)
-#define d_reverse_foreach(l,n,k) for((n)=(k *)(l)->tail;(n);(n)=(k *)((struct s_list_node *)(n))->back)
-#define d_list_rewind(n,k) (n)=(k *)((struct s_list_node *)(n))->back
-#define d_list_node_in(l,n) (((n)->next!=NULL)||((n)->back!=NULL)||((l)->head==(n)))
+#define d_foreach(l, n, k) for((n)=(k *)(l)->head;(n);(n)=(k *)((struct s_list_node *)(n))->next)
+#define d_reverse_foreach(l, n, k) for((n)=(k *)(l)->tail;(n);(n)=(k *)((struct s_list_node *)(n))->back)
+#define d_list_rewind(n, k) (n)=(k *)((struct s_list_node *)(n))->back
+#define d_list_node_in(l, n) (((n)->next!=NULL)||((n)->back!=NULL)||((l)->head==(n)))
 #define d_list_node_head struct s_list_node head
 #define d_list_node_constant {NULL, NULL}
 typedef size_t t_list_value;
 typedef enum e_list_insert_kind {
-    e_list_insert_head,
-    e_list_insert_tail
+  e_list_insert_head,
+  e_list_insert_tail
 } e_list_insert_kind;
 typedef struct s_list_node {
-    struct s_list_node *next, *back;
+  struct s_list_node *next, *back;
 } s_list_node;
 typedef struct s_list {
-    struct s_list_node *head, *tail, *current;
-    t_list_value fill;
+  struct s_list_node *head, *tail, *current;
+  t_list_value fill;
 } s_list;
 extern void f_list_init(struct s_list **list);
 extern void f_list_destroy(struct s_list **list);

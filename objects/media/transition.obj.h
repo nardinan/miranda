@@ -19,23 +19,24 @@
 #define miranda_media_transition_h
 #include <sys/time.h>
 #include "drawable.obj.h"
-#define d_transition_factor_value(start,end,f) (start+((end-start)*f))
+#define d_transition_factor_value(start, end, f) (start+((end-start)*f))
 typedef enum e_transition_directions {
-    e_transition_direction_forward,
-    e_transition_direction_rewind,
-    e_transition_direction_stop
+  e_transition_direction_forward,
+  e_transition_direction_rewind,
+  e_transition_direction_stop
 } e_transition_directions;
-typedef struct s_transition_key { d_list_node_head;
-    double position_x, position_y, zoom, angle, mask_R, mask_G, mask_B, mask_A, time;
+typedef struct s_transition_key {
+  d_list_node_head;
+  double position_x, position_y, zoom, angle, mask_R, mask_G, mask_B, mask_A, time;
 } s_transition_key;
 d_declare_class(transition) {
-    struct s_attributes head;
-    struct s_object *drawable;
-    struct s_list keys;
-    struct s_transition_key *current_key, *next_key;
-    struct timeval last_update;
-    enum e_transition_directions status;
-    double time_ratio;
+  struct s_attributes head;
+  struct s_object *drawable;
+  struct s_list keys;
+  struct s_transition_key *current_key, *next_key;
+  struct timeval last_update;
+  enum e_transition_directions status;
+  double time_ratio;
 } d_declare_class_tail(transition);
 struct s_transition_attributes *p_transition_alloc(struct s_object *self);
 extern struct s_object *f_transition_new(struct s_object *self, struct s_object *drawable, double time_ratio);

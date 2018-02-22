@@ -30,9 +30,9 @@ extern int sem_tryway_miranda(semaphore_t *semaphore);
 extern int sem_post_miranda(semaphore_t *semaphore);
 extern int sem_getvalue_miranda(semaphore_t *semaphore);
 d_declare_class(runnable) {
-    struct s_attributes head;
-    pthread_t descriptor;
-    semaphore_t kill_required, running_slots;
+  struct s_attributes head;
+  pthread_t descriptor;
+  semaphore_t kill_required, running_slots;
 } d_declare_class_tail(runnable);
 extern struct s_object *f_runnable_new(struct s_object *self);
 d_declare_method(runnable, job)(struct s_object *self);

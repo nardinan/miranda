@@ -20,49 +20,49 @@
 #include "../geometry/point.obj.h"
 #include "../geometry/square.obj.h"
 #include "environment.obj.h"
-#define d_drawable_point_inside(x,y,xc,yc,wc,hc) (((x>=xc)&&(x<=(xc+wc)))&&((y>=yc)&&(y<=(yc+hc))))
-#define d_drawable_return_continue 	1
-#define d_drawable_return_last 		0
+#define d_drawable_point_inside(x, y, xc, yc, wc, hc) (((x>=xc)&&(x<=(xc+wc)))&&((y>=yc)&&(y<=(yc+hc))))
+#define d_drawable_return_continue  1
+#define d_drawable_return_last    0
 #define d_drawable_default_contour_color 255.0, 0, 0, 255.0
 typedef enum e_drawable_kinds {
-    e_drawable_kind_single 			        = 0x01,
-    e_drawable_kind_multiple 		        = 0x02,
-    e_drawable_kind_hidden 			        = 0x04,
-    e_drawable_kind_force_visibility 	    = 0x08,
-    e_drawable_kind_contour			        = 0x10,
-    e_drawable_kind_ui_no_attribute_zoom 	= 0x20,
-    e_drawable_kind_ui_no_attribute_angle	= 0x40,
-    e_drawable_kind_ui_no_attribute_flip	= 0x80
+  e_drawable_kind_single = 0x001,
+  e_drawable_kind_multiple = 0x002,
+  e_drawable_kind_hidden = 0x004,
+  e_drawable_kind_force_visibility = 0x008,
+  e_drawable_kind_contour = 0x010,
+  e_drawable_kind_ui_no_attribute_zoom = 0x020,
+  e_drawable_kind_ui_no_attribute_angle = 0x040,
+  e_drawable_kind_ui_no_attribute_flip = 0x080,
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
-    e_drawable_flip_horizontal 	= SDL_FLIP_HORIZONTAL,
-    e_drawable_flip_vertical 	= SDL_FLIP_VERTICAL,
-    e_drawable_flip_both	 	= (SDL_FLIP_HORIZONTAL|SDL_FLIP_VERTICAL),
-    e_drawable_flip_none 		= SDL_FLIP_NONE
+  e_drawable_flip_horizontal = SDL_FLIP_HORIZONTAL,
+  e_drawable_flip_vertical = SDL_FLIP_VERTICAL,
+  e_drawable_flip_both = (SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL),
+  e_drawable_flip_none = SDL_FLIP_NONE
 } e_drawable_flips;
 typedef enum e_drawable_blends {
-    e_drawable_blend_alpha 		= SDL_BLENDMODE_BLEND,
-    e_drawable_blend_add 		= SDL_BLENDMODE_ADD,
-    e_drawable_blend_mod 		= SDL_BLENDMODE_MOD,
-    e_drawable_blend_none 		= SDL_BLENDMODE_NONE,
-    e_drawable_blend_undefined
+  e_drawable_blend_alpha = SDL_BLENDMODE_BLEND,
+  e_drawable_blend_add = SDL_BLENDMODE_ADD,
+  e_drawable_blend_mod = SDL_BLENDMODE_MOD,
+  e_drawable_blend_none = SDL_BLENDMODE_NONE,
+  e_drawable_blend_undefined
 } e_drawable_blends;
 typedef enum e_drawable_alignments {
-    e_drawable_alignment_centered,
-    e_drawable_alignment_top_left,
-    e_drawable_alignment_top_right,
-    e_drawable_alignment_bottom_left,
-    e_drawable_alignment_bottom_right
+  e_drawable_alignment_centered,
+  e_drawable_alignment_top_left,
+  e_drawable_alignment_top_right,
+  e_drawable_alignment_bottom_left,
+  e_drawable_alignment_bottom_right
 } e_drawable_alignments;
 d_declare_class(drawable) {
-    struct s_attributes head;
-    struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
-    struct s_object square_collision_box;
-    double angle, zoom;
-    enum e_drawable_flips flip;
-    int flags;
-    enum e_drawable_blends last_blend;
-    double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
+  struct s_attributes head;
+  struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
+  struct s_object square_collision_box;
+  double angle, zoom;
+  enum e_drawable_flips flip;
+  int flags;
+  enum e_drawable_blends last_blend;
+  double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
 } d_declare_class_tail(drawable);
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object *self, int flags);
@@ -72,8 +72,8 @@ d_declare_method(drawable, draw_contour)(struct s_object *self, struct s_object 
 d_declare_method(drawable, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue); /* abstract */
 d_declare_method(drawable, set_maskA)(struct s_object *self, unsigned int alpha); /* abstract */
 d_declare_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blends blend); /* abstract */
-d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-        double focus_x, double focus_y, double current_w, double current_h, double zoom);
+d_declare_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
+                                            double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(drawable, keep_scale)(struct s_object *self, double current_w, double current_h);
 d_declare_method(drawable, set_position)(struct s_object *self, double x, double y);
 d_declare_method(drawable, set_position_x)(struct s_object *self, double x);

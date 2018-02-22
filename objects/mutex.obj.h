@@ -20,8 +20,8 @@
 #include <pthread.h>
 #include "object.h"
 d_declare_class(mutex) {
-    struct s_attributes head;
-    pthread_mutex_t mutex;
+  struct s_attributes head;
+  pthread_mutex_t mutex;
 } d_declare_class_tail(mutex);
 extern struct s_object *f_mutex_new(struct s_object *self);
 d_declare_method(mutex, trylock)(struct s_object *self);

@@ -24,16 +24,16 @@
 #define d_payload_chunk 128
 #pragma pack(push, 1)
 typedef struct s_payload_header {
-    uint16_t signature_face;
-    uint32_t payload_size;
-    unsigned char payload_type, payload_version;
-    uint16_t signature_dead;
+  uint16_t signature_face;
+  uint32_t payload_size;
+  unsigned char payload_type, payload_version;
+  uint16_t signature_dead;
 } s_payload_header;
 #pragma pack(pop)
 d_declare_class(payload) {
-    struct s_attributes head;
-    unsigned char *buffer, *payload, type;
-    size_t buffer_size, buffer_shift, payload_size;
+  struct s_attributes head;
+  unsigned char *buffer, *payload, type;
+  size_t buffer_size, buffer_shift, payload_size;
 } d_declare_class_tail(payload);
 extern struct s_object *f_payload_new(struct s_object *self);
 d_declare_method(payload, scan)(struct s_object *self);

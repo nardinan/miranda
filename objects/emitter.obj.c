@@ -17,79 +17,69 @@
  */
 #include "emitter.obj.h"
 struct s_object *f_emitter_new(struct s_object *self) {
-    struct s_emitter_attributes *attributes = d_prepare(self, emitter);
-    attributes = attributes;
-    return self;
+  struct s_emitter_attributes *attributes = d_prepare(self, emitter);
+  attributes = attributes;
+  return self;
 }
-
 d_define_method(emitter, record)(struct s_object *self, const char *id) {
-    d_using(emitter);
-    struct s_signal *signal;
-    if ((signal = (struct s_signal *) d_malloc(sizeof(struct s_signal)))) {
-        strncpy(signal->id, id, (d_emitter_name_size-1));
-        f_list_append(&(emitter_attributes->signals), (struct s_list_node *)signal, e_list_insert_head);
-    } else
-        d_die(d_error_malloc);
-    return (void *)signal;
+  d_using(emitter);
+  struct s_signal *signal;
+  if ((signal = (struct s_signal *) d_malloc(sizeof(struct s_signal)))) {
+    strncpy(signal->id, id, (d_emitter_name_size - 1));
+    f_list_append(&(emitter_attributes->signals), (struct s_list_node *) signal, e_list_insert_head);
+  } else
+    d_die(d_error_malloc);
+  return (void *) signal;
 }
-
 d_define_method(emitter, get)(struct s_object *self, const char *id) {
-    d_using(emitter);
-    struct s_signal *signal = NULL;
-    d_foreach(&(emitter_attributes->signals), signal, struct s_signal)
-        if (f_string_strcmp(signal->id, id) == 0)
-            break;
-    return (void *)signal;
+  d_using(emitter);
+  struct s_signal *signal = NULL;
+  d_foreach(&(emitter_attributes->signals), signal, struct s_signal)if (f_string_strcmp(signal->id, id) == 0)
+      break;
+  return (void *) signal;
 }
-
 d_define_method(emitter, embed_parameter)(struct s_object *self, const char *id, void *parameter) {
-    struct s_signal *signal;
-    void **new_parameters;
-    if ((signal = d_call(self, m_emitter_get, id))) {
-        signal->parameters_size++;
-        if ((new_parameters = (void **) d_realloc(signal->parameters, (signal->parameters_size*sizeof(void *))))) {
-            signal->parameters = new_parameters;
-            signal->parameters[signal->parameters_size-1] = parameter;
-        }
+  struct s_signal *signal;
+  void **new_parameters;
+  if ((signal = d_call(self, m_emitter_get, id))) {
+    signal->parameters_size++;
+    if ((new_parameters = (void **) d_realloc(signal->parameters, (signal->parameters_size * sizeof(void *))))) {
+      signal->parameters = new_parameters;
+      signal->parameters[signal->parameters_size - 1] = parameter;
     }
-    return (void *)signal;
+  }
+  return (void *) signal;
 }
-
 d_define_method(emitter, embed_function)(struct s_object *self, const char *id, t_emitter_action action) {
-    struct s_signal *signal;
-    if ((signal = d_call(self, m_emitter_get, id)))
-        signal->action = action;
-    return (void *)signal;
+  struct s_signal *signal;
+  if ((signal = d_call(self, m_emitter_get, id)))
+    signal->action = action;
+  return (void *) signal;
 }
-
 d_define_method(emitter, raise)(struct s_object *self, const char *id) {
-    struct s_signal *signal;
-    void *result = NULL;
-    if ((signal = d_call(self, m_emitter_get, id))) {
-        d_log(e_log_level_high, "signal '%s' has been raised from %s (%s::%d)", id, self->type, self->file, self->line);
-        if (signal->action)
-            result = signal->action(self, signal->parameters, signal->parameters_size);
-    }
-    return result;
+  struct s_signal *signal;
+  void *result = NULL;
+  if ((signal = d_call(self, m_emitter_get, id))) {
+    d_log(e_log_level_high, "signal '%s' has been raised from %s (%s::%d)", id, self->type, self->file, self->line);
+    if (signal->action)
+      result = signal->action(self, signal->parameters, signal->parameters_size);
+  }
+  return result;
 }
-
 d_define_method(emitter, delete)(struct s_object *self, struct s_emitter_attributes *attributes) {
-    struct s_signal *signal;
-    while ((signal = (struct s_signal *)attributes->signals.head)) {
-        f_list_delete(&(attributes->signals), (struct s_list_node *)signal);
-        if (signal->parameters_size)
-            d_free(signal->parameters);
-        d_free(signal);
-    }
-    return NULL;
+  struct s_signal *signal;
+  while ((signal = (struct s_signal *) attributes->signals.head)) {
+    f_list_delete(&(attributes->signals), (struct s_list_node *) signal);
+    if (signal->parameters_size)
+      d_free(signal->parameters);
+    d_free(signal);
+  }
+  return NULL;
 }
-
-d_define_class(emitter) {
-    d_hook_method(emitter, e_flag_public, record),
-        d_hook_method(emitter, e_flag_private, get),
-        d_hook_method(emitter, e_flag_public, embed_parameter),
-        d_hook_method(emitter, e_flag_public, embed_function),
-        d_hook_method(emitter, e_flag_public, raise),
-        d_hook_delete(emitter),
-        d_hook_method_tail
-};
+d_define_class(emitter) {d_hook_method(emitter, e_flag_public, record),
+                         d_hook_method(emitter, e_flag_private, get),
+                         d_hook_method(emitter, e_flag_public, embed_parameter),
+                         d_hook_method(emitter, e_flag_public, embed_function),
+                         d_hook_method(emitter, e_flag_public, raise),
+                         d_hook_delete(emitter),
+                         d_hook_method_tail};

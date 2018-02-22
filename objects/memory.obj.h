@@ -19,8 +19,8 @@
 #define miranda_object_memory_h
 #include "object.h"
 d_declare_class(memory) {
-    struct s_attributes head;
-    int references;
+  struct s_attributes head;
+  int references;
 } d_declare_class_tail(memory);
 extern struct s_object *f_memory_new(struct s_object *self);
 #define d_retain(mem) ((mem)?d_call((mem),m_memory_retain,NULL):NULL)

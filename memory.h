@@ -27,7 +27,7 @@
 #define d_free(ptr) p_free((ptr),__FILE__,__LINE__)
 #else
 #define d_malloc(siz) calloc(1,(siz))
-#define d_malloc_explicit(siz,f,l) calloc(1,(siz))
+#define d_malloc_explicit(siz, f, l) calloc(1,(siz))
 #define d_realloc realloc
 #define d_free(ptr)\
     do{\
@@ -39,13 +39,13 @@
 #define d_explicit_result __attribute__ ((warn_unused_result))
 #define d_explicit_malloc d_explicit_result __attribute__ ((malloc))
 typedef struct s_memory_tail {
-    unsigned int checksum, line;
-    const char *file;
+  unsigned int checksum, line;
+  const char *file;
 } s_memory_tail;
 typedef struct s_memory_head {
-    struct s_memory_head *next, *back;
-    size_t dimension;
-    unsigned int checksum;
+  struct s_memory_head *next, *back;
+  size_t dimension;
+  unsigned int checksum;
 } s_memory_head;
 extern struct s_memory_head *v_memory_root;
 extern void f_memory_destroy(void);

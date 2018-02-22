@@ -20,8 +20,8 @@
 #include <math.h>
 #include "point.obj.h"
 d_declare_class(line) {
-    struct s_attributes head;
-    double starting_x, starting_y, ending_x, ending_y;
+  struct s_attributes head;
+  double starting_x, starting_y, ending_x, ending_y;
 } d_declare_class_tail(line);
 struct s_line_attributes *p_line_alloc(struct s_object *self);
 extern struct s_object *f_line_new(struct s_object *self, double starting_x, double starting_y, double ending_x, double ending_y);
@@ -33,7 +33,7 @@ d_declare_method(line, subtract)(struct s_object *self, double x, double y);
 d_declare_method(line, get)(struct s_object *self, double *starting_x, double *starting_y, double *ending_x, double *ending_y);
 d_declare_method(line, intersect)(struct s_object *self, struct s_object *other);
 d_declare_method(line, intersect_point)(struct s_object *self, struct s_object *other);
-d_declare_method(line, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B, 
-        double *collision_x, double *collision_y);
+d_declare_method(line, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
+                                              double *collision_x, double *collision_y);
 #endif
 

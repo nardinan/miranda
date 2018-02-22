@@ -23,9 +23,9 @@
 #define d_morphable_y_factor 1.0
 #define d_morphable_z_factor 0.1
 d_declare_class(morphable) {
-    struct s_attributes head;
-    double offset_x, offset_y, offset_z;
-    t_boolean grabbed, freedom_x, freedom_y, freedom_z, visible;
+  struct s_attributes head;
+  double offset_x, offset_y, offset_z;
+  t_boolean grabbed, freedom_x, freedom_y, freedom_z, visible;
 } d_declare_class_tail(morphable);
 struct s_morphable_attributes *p_morphable_alloc(struct s_object *self);
 extern struct s_object *f_morphable_new(struct s_object *self);

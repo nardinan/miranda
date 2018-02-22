@@ -16,261 +16,242 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stream.obj.h"
-d_exception_define(malformed, 	5, "malformed action exception");
+d_exception_define(malformed, 5, "malformed action exception");
 d_exception_define(unreachable, 6, "unreachable resource exception");
 d_exception_define(unsupported, 7, "unsupported action exception");
-d_exception_define(closed, 	8, "closed resource exception");
+d_exception_define(closed, 8, "closed resource exception");
 struct s_stream_attributes *p_stream_alloc(struct s_object *self) {
-    struct s_stream_attributes *result = d_prepare(self, stream);
-    f_memory_new(self); 	/* inherit */
-    f_mutex_new(self);  	/* inherit */
-    return result;
+  struct s_stream_attributes *result = d_prepare(self, stream);
+  f_memory_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  return result;
 }
-
 int p_stream_open_lock(const char *name) {
-    int result = -1, descriptor;
-    if ((descriptor = open(name, O_CREAT|O_RDWR, 0666)) >= 0) {
-        if (flock(descriptor, LOCK_EX|LOCK_NB) >= 0)
-            result = descriptor;
-        else
-            close(descriptor);
-    }
-    return result;
-}
-
-void p_stream_close_unlock(int *descriptor) {
-    flock(*descriptor, LOCK_UN);
-    close(*descriptor);
-    *descriptor = -1;
-}
-
-struct s_object *f_stream_new(struct s_object *self, struct s_object *string_name, int descriptor) {
-    struct s_stream_attributes *attributes = p_stream_alloc(self);
-    attributes->string_name = d_retain(string_name);
-    attributes->descriptor = descriptor;
-    attributes->parameters = fcntl(attributes->descriptor, F_GETFL);
-    attributes->flags = (e_stream_flag_supplied|e_stream_flag_opened);
-    return self;
-}
-
-struct s_object *f_stream_new_file(struct s_object *self, struct s_object *string_name, const char *action, int permission) {
-    struct s_stream_attributes *attributes = p_stream_alloc(self);
-    char buffer[d_string_buffer_size];
-    attributes->string_name = d_retain(string_name);
-    attributes->parameters = -1;
-    switch(action[0]) {
-        case 'r':
-        case 'R':
-            attributes->parameters = d_stream_flag_read;
-            if ((action[1] == 'w') || (action[1] == 'W'))
-                attributes->parameters = d_stream_flag_write_read;
-            break;
-        case 'w':
-        case 'W':
-            attributes->parameters = d_stream_flag_truncate;
-            if ((action[1] == 'a') || (action[1] == 'A'))
-                attributes->parameters = d_stream_flag_append;
-    }
-    if (attributes->parameters != -1) {
-        if ((attributes->descriptor = open(d_string_cstring(attributes->string_name), attributes->parameters, permission)) > -1)
-            attributes->flags = e_stream_flag_opened;
-        else {
-            snprintf(buffer, d_string_buffer_size, "unreachable file %s exception", d_string_cstring(attributes->string_name));
-            d_throw(v_exception_unreachable, buffer);
-        }
-    } else
-        d_throw(v_exception_malformed, "malformed action format");
-    return self;
-}
-
-struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *string_name) {
-    struct s_stream_attributes *attributes = p_stream_alloc(self);
-    char file_name[] = "magrathea_XXXXXX.tmp";
-    attributes->string_name = d_retain(string_name);
-    attributes->parameters = d_stream_flag_write_read;
-    /* (from man): [...] the last six characters of template must be "XXXXXX" and these are replaced with a string that makes the filename unique.
-     * Since it will be modified, template must not be a string constant, but should be declared as a character array.
-     */
-    if ((attributes->descriptor = mkstemp(file_name)) >= 0)
-        attributes->flags = (e_stream_flag_temporary|e_stream_flag_opened);
+  int result = -1, descriptor;
+  if ((descriptor = open(name, O_CREAT | O_RDWR, 0666)) >= 0) {
+    if (flock(descriptor, LOCK_EX | LOCK_NB) >= 0)
+      result = descriptor;
     else
-        d_throw(v_exception_unreachable, "unreachable temporary file exception");
-    return self;
+      close(descriptor);
+  }
+  return result;
 }
-
-d_define_method(stream, write)(struct s_object *self, unsigned char *raw, size_t size, size_t *written) {
-    d_using(stream);
-    size_t written_local;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_WRONLY) == O_WRONLY)) {
-            written_local = write(stream_attributes->descriptor, raw, size);
-            if (written)
-                *written = written_local;
-        } else
-            d_throw(v_exception_unsupported, "write in a read-only stream exception");
-    } else
-        d_throw(v_exception_closed, "write in a closed stream exception");
-    return self;
+void p_stream_close_unlock(int *descriptor) {
+  flock(*descriptor, LOCK_UN);
+  close(*descriptor);
+  *descriptor = -1;
 }
-
-d_define_method(stream, write_string)(struct s_object *self, struct s_object *string, size_t *written) {
-    size_t dimension;
-    d_call(string, m_string_length, &dimension);
-    return d_call(self, m_stream_write, (unsigned char *)d_string_cstring(string), dimension, written);
+struct s_object *f_stream_new(struct s_object *self, struct s_object *string_name, int descriptor) {
+  struct s_stream_attributes *attributes = p_stream_alloc(self);
+  attributes->string_name = d_retain(string_name);
+  attributes->descriptor = descriptor;
+  attributes->parameters = fcntl(attributes->descriptor, F_GETFL);
+  attributes->flags = (e_stream_flag_supplied | e_stream_flag_opened);
+  return self;
 }
-
-d_define_method(stream, write_stream)(struct s_object *self, struct s_object *stream, size_t *written) {
-    unsigned char block[d_stream_block_size];
-    size_t readed, written_local = 0;
-    d_call(stream, m_stream_seek, 0, e_stream_seek_begin, NULL);
-    while ((d_call(stream, m_stream_read, block, d_stream_block_size, &readed)) && (readed > 0)) {
-        d_call(self, m_stream_write, block, readed, &written_local);
-        if (*written)
-            *written += written_local;
+struct s_object *f_stream_new_file(struct s_object *self, struct s_object *string_name, const char *action, int permission) {
+  struct s_stream_attributes *attributes = p_stream_alloc(self);
+  char buffer[d_string_buffer_size];
+  attributes->string_name = d_retain(string_name);
+  attributes->parameters = -1;
+  switch (action[0]) {
+    case 'r':
+    case 'R':
+      attributes->parameters = d_stream_flag_read;
+      if ((action[1] == 'w') || (action[1] == 'W'))
+        attributes->parameters = d_stream_flag_write_read;
+      break;
+    case 'w':
+    case 'W':
+      attributes->parameters = d_stream_flag_truncate;
+      if ((action[1] == 'a') || (action[1] == 'A'))
+        attributes->parameters = d_stream_flag_append;
+  }
+  if (attributes->parameters != -1) {
+    if ((attributes->descriptor = open(d_string_cstring(attributes->string_name), attributes->parameters, permission)) > -1)
+      attributes->flags = e_stream_flag_opened;
+    else {
+      snprintf(buffer, d_string_buffer_size, "unreachable file %s exception", d_string_cstring(attributes->string_name));
+      d_throw(v_exception_unreachable, buffer);
     }
-    return self;
+  } else
+    d_throw(v_exception_malformed, "malformed action format");
+  return self;
 }
-
+struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *string_name) {
+  struct s_stream_attributes *attributes = p_stream_alloc(self);
+  char file_name[] = "magrathea_XXXXXX.tmp";
+  attributes->string_name = d_retain(string_name);
+  attributes->parameters = d_stream_flag_write_read;
+  /* (from man): [...] the last six characters of template must be "XXXXXX" and these are replaced with a string that makes the filename unique.
+   * Since it will be modified, template must not be a string constant, but should be declared as a character array.
+   */
+  if ((attributes->descriptor = mkstemp(file_name)) >= 0)
+    attributes->flags = (e_stream_flag_temporary | e_stream_flag_opened);
+  else
+    d_throw(v_exception_unreachable, "unreachable temporary file exception");
+  return self;
+}
+d_define_method(stream, write)(struct s_object *self, unsigned char *raw, size_t size, size_t *written) {
+  d_using(stream);
+  size_t written_local;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    if (((stream_attributes->parameters & O_RDWR) == O_RDWR) || ((stream_attributes->parameters & O_WRONLY) == O_WRONLY)) {
+      written_local = write(stream_attributes->descriptor, raw, size);
+      if (written)
+        *written = written_local;
+    } else
+      d_throw(v_exception_unsupported, "write in a read-only stream exception");
+  } else
+    d_throw(v_exception_closed, "write in a closed stream exception");
+  return self;
+}
+d_define_method(stream, write_string)(struct s_object *self, struct s_object *string, size_t *written) {
+  size_t dimension;
+  d_call(string, m_string_length, &dimension);
+  return d_call(self, m_stream_write, (unsigned char *) d_string_cstring(string), dimension, written);
+}
+d_define_method(stream, write_stream)(struct s_object *self, struct s_object *stream, size_t *written) {
+  unsigned char block[d_stream_block_size];
+  size_t readed, written_local = 0;
+  d_call(stream, m_stream_seek, 0, e_stream_seek_begin, NULL);
+  while ((d_call(stream, m_stream_read, block, d_stream_block_size, &readed)) && (readed > 0)) {
+    d_call(self, m_stream_write, block, readed, &written_local);
+    if (*written)
+      *written += written_local;
+  }
+  return self;
+}
 d_define_method(stream, read)(struct s_object *self, unsigned char *buffer, size_t size, size_t *readed) {
-    d_using(stream);
-    size_t readed_local;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
-            readed_local = read(stream_attributes->descriptor, buffer, size);
-            if (readed)
-                *readed = readed_local;
-        } else
-            d_throw(v_exception_unsupported, "read in a write-only stream exception");
+  d_using(stream);
+  size_t readed_local;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    if (((stream_attributes->parameters & O_RDWR) == O_RDWR) || ((stream_attributes->parameters & O_RDONLY) == O_RDONLY)) {
+      readed_local = read(stream_attributes->descriptor, buffer, size);
+      if (readed)
+        *readed = readed_local;
     } else
-        d_throw(v_exception_closed, "read in a closed stream exception");
-    return self;
+      d_throw(v_exception_unsupported, "read in a write-only stream exception");
+  } else
+    d_throw(v_exception_closed, "read in a closed stream exception");
+  return self;
 }
-
 d_define_method(stream, read_string)(struct s_object *self, struct s_object *string_supplied, size_t size) {
-    d_using(stream);
-    struct s_string_attributes *string_attributes = NULL;
-    char character, buffer[d_stream_block_size];
-    size_t readed_local = 0;
-    int tail = d_true;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
-            while ((readed_local < size) && (read(stream_attributes->descriptor, &character, 1) > 0)) {
-                tail = d_false;
-                if ((character != '\n') && (character != '\0'))
-                    buffer[readed_local++] = character;
-                else
-                    break;
-            }
-            if (!tail) {
-                buffer[readed_local] = '\0';
-                if (!string_supplied) {
-                    string_supplied = f_string_new_size(d_new(string), buffer, (readed_local + 1));
-                } else {
-                    string_attributes = d_cast(string_supplied, string);
-                    if (string_attributes->size < (readed_local + 1)) {
-                        string_attributes->content = d_realloc(string_attributes->content, (readed_local + 1));
-                        string_attributes->length = (readed_local + 1);
-                    }
-                    strncpy(string_attributes->content, buffer, readed_local);
-                    string_attributes->content[readed_local] = '\0';
-                    string_attributes->length = readed_local;
-                }
-            } else
-                string_supplied = NULL;
-        } else
-            d_throw(v_exception_unsupported, "read in a write-only stream exception");
-    } else
-        d_throw(v_exception_closed, "read in a closed stream exception");
-    return string_supplied;
-}
-
-d_define_method(stream, size)(struct s_object *self, size_t *size) {
-    d_using(stream);
-    off_t offset, current_offset;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        if (((stream_attributes->parameters&O_RDWR) == O_RDWR) || ((stream_attributes->parameters&O_RDONLY) == O_RDONLY)) {
-            d_call(self, m_stream_seek, 0, e_stream_seek_current, &current_offset);
-            d_call(self, m_stream_seek, 0, e_stream_seek_begin, NULL);
-            d_call(self, m_stream_seek, 0, e_stream_seek_end, &offset);
-            if (size)
-                *size = (size_t)offset;
-            d_call(self, m_stream_seek, current_offset, e_stream_seek_begin);
-        } else
-            d_throw(v_exception_unsupported, "read in a write-only stream exception");
-    } else
-        d_throw(v_exception_closed, "read in a closed stream exception");
-    return self;
-}
-
-d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream_seek whence, off_t *moved) {
-    d_using(stream);
-    int whence_local = SEEK_SET;
-    off_t moved_local;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        switch (whence) {
-            case e_stream_seek_begin:
-                whence_local = SEEK_SET;
-                break;
-            case e_stream_seek_current:
-                whence_local = SEEK_CUR;
-                break;
-            case e_stream_seek_end:
-                whence_local = SEEK_END;
-                break;
-            default:
-                d_throw(v_exception_malformed, "malformed whence format exception");
-        }
-        moved_local = lseek(stream_attributes->descriptor, offset, whence_local);
-        if (moved)
-            *moved = moved_local;
-    } else
-        d_throw(v_exception_closed, "read in a closed stream exception");
-    return self;
-}
-
-d_define_method(stream, lock)(struct s_object *self, int lock) {
-    d_using(stream);
-    int flags;
-    if ((stream_attributes->flags&e_stream_flag_opened) == e_stream_flag_opened) {
-        flags = fcntl(stream_attributes->descriptor, F_GETFL);
-        if (lock)
-            flags &= ~O_NONBLOCK;
+  d_using(stream);
+  struct s_string_attributes *string_attributes = NULL;
+  char character, buffer[d_stream_block_size];
+  size_t readed_local = 0;
+  int tail = d_true;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    if (((stream_attributes->parameters & O_RDWR) == O_RDWR) || ((stream_attributes->parameters & O_RDONLY) == O_RDONLY)) {
+      while ((readed_local < size) && (read(stream_attributes->descriptor, &character, 1) > 0)) {
+        tail = d_false;
+        if ((character != '\n') && (character != '\0'))
+          buffer[readed_local++] = character;
         else
-            flags |= O_NONBLOCK;
-        if (stream_attributes->parameters != flags)
-            if (fcntl(stream_attributes->descriptor, F_SETFL, flags) != -1)
-                stream_attributes->parameters = flags;
+          break;
+      }
+      if (!tail) {
+        buffer[readed_local] = '\0';
+        if (!string_supplied) {
+          string_supplied = f_string_new_size(d_new(string), buffer, (readed_local + 1));
+        } else {
+          string_attributes = d_cast(string_supplied, string);
+          if (string_attributes->size < (readed_local + 1)) {
+            string_attributes->content = d_realloc(string_attributes->content, (readed_local + 1));
+            string_attributes->length = (readed_local + 1);
+          }
+          strncpy(string_attributes->content, buffer, readed_local);
+          string_attributes->content[readed_local] = '\0';
+          string_attributes->length = readed_local;
+        }
+      } else
+        string_supplied = NULL;
     } else
-        d_throw(v_exception_closed, "read in a closed stream exception");
-    return self;
+      d_throw(v_exception_unsupported, "read in a write-only stream exception");
+  } else
+    d_throw(v_exception_closed, "read in a closed stream exception");
+  return string_supplied;
 }
-
+d_define_method(stream, size)(struct s_object *self, size_t *size) {
+  d_using(stream);
+  off_t offset, current_offset;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    if (((stream_attributes->parameters & O_RDWR) == O_RDWR) || ((stream_attributes->parameters & O_RDONLY) == O_RDONLY)) {
+      d_call(self, m_stream_seek, 0, e_stream_seek_current, &current_offset);
+      d_call(self, m_stream_seek, 0, e_stream_seek_begin, NULL);
+      d_call(self, m_stream_seek, 0, e_stream_seek_end, &offset);
+      if (size)
+        *size = (size_t) offset;
+      d_call(self, m_stream_seek, current_offset, e_stream_seek_begin);
+    } else
+      d_throw(v_exception_unsupported, "read in a write-only stream exception");
+  } else
+    d_throw(v_exception_closed, "read in a closed stream exception");
+  return self;
+}
+d_define_method(stream, seek)(struct s_object *self, off_t offset, enum e_stream_seek whence, off_t *moved) {
+  d_using(stream);
+  int whence_local = SEEK_SET;
+  off_t moved_local;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    switch (whence) {
+      case e_stream_seek_begin:
+        whence_local = SEEK_SET;
+        break;
+      case e_stream_seek_current:
+        whence_local = SEEK_CUR;
+        break;
+      case e_stream_seek_end:
+        whence_local = SEEK_END;
+        break;
+      default:
+        d_throw(v_exception_malformed, "malformed whence format exception");
+    }
+    moved_local = lseek(stream_attributes->descriptor, offset, whence_local);
+    if (moved)
+      *moved = moved_local;
+  } else
+    d_throw(v_exception_closed, "read in a closed stream exception");
+  return self;
+}
+d_define_method(stream, lock)(struct s_object *self, int lock) {
+  d_using(stream);
+  int flags;
+  if ((stream_attributes->flags & e_stream_flag_opened) == e_stream_flag_opened) {
+    flags = fcntl(stream_attributes->descriptor, F_GETFL);
+    if (lock)
+      flags &= ~O_NONBLOCK;
+    else
+      flags |= O_NONBLOCK;
+    if (stream_attributes->parameters != flags)
+      if (fcntl(stream_attributes->descriptor, F_SETFL, flags) != -1)
+        stream_attributes->parameters = flags;
+  } else
+    d_throw(v_exception_closed, "read in a closed stream exception");
+  return self;
+}
 d_define_method(stream, get_descriptor)(struct s_object *self, int *descriptor) {
-    d_using(stream);
-    *descriptor = stream_attributes->descriptor;
-    return self;
+  d_using(stream);
+  *descriptor = stream_attributes->descriptor;
+  return self;
 }
-
 d_define_method(stream, delete)(struct s_object *self, struct s_stream_attributes *attributes) {
-    if (((attributes->flags&e_stream_flag_supplied) != e_stream_flag_supplied) &&
-            ((attributes->flags&e_stream_flag_opened) == e_stream_flag_opened))
-        close(attributes->descriptor);
-    if (attributes->string_name)
-        d_delete(attributes->string_name);
-    return NULL;
+  if (((attributes->flags & e_stream_flag_supplied) != e_stream_flag_supplied) && ((attributes->flags & e_stream_flag_opened) == e_stream_flag_opened))
+    close(attributes->descriptor);
+  if (attributes->string_name)
+    d_delete(attributes->string_name);
+  return NULL;
 }
-
-d_define_class(stream) {
-    d_hook_method(stream, e_flag_public, write),
-        d_hook_method(stream, e_flag_public, write_string),
-        d_hook_method(stream, e_flag_public, write_stream),
-        d_hook_method(stream, e_flag_public, read),
-        d_hook_method(stream, e_flag_public, read_string),
-        d_hook_method(stream, e_flag_public, size),
-        d_hook_method(stream, e_flag_public, seek),
-        d_hook_method(stream, e_flag_public, lock),
-        d_hook_method(stream, e_flag_public, get_descriptor),
-        d_hook_delete(stream),
-        d_hook_method_tail
-};
+d_define_class(stream) {d_hook_method(stream, e_flag_public, write),
+                        d_hook_method(stream, e_flag_public, write_string),
+                        d_hook_method(stream, e_flag_public, write_stream),
+                        d_hook_method(stream, e_flag_public, read),
+                        d_hook_method(stream, e_flag_public, read_string),
+                        d_hook_method(stream, e_flag_public, size),
+                        d_hook_method(stream, e_flag_public, seek),
+                        d_hook_method(stream, e_flag_public, lock),
+                        d_hook_method(stream, e_flag_public, get_descriptor),
+                        d_hook_delete(stream),
+                        d_hook_method_tail};
 

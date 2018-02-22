@@ -1,33 +1,57 @@
 {
-    "name": "Andrea",
-    "surname": "Nardinocchi",
-    "age": 28,
-    "sex": "Male",
-    "interests": [ "Reading", "Programming", "Complaining" ],
-    "description": "Dumbest \"person\" ever",
-    "favorites": {
-        "color": "blue",
-        "sport": "tennis",
-        "food": "pizza",
-        "drink": "cyder"
-    },
-    "skills": [
+  "name": "Andrea",
+  "surname": "Nardinocchi",
+  "age": 28,
+  "sex": "Male",
+  "interests": [
+    "Reading",
+    "Programming",
+    "Complaining"
+  ],
+  "description": "Dumbest \"person\" ever",
+  "favorites": {
+    "color": "blue",
+    "sport": "tennis",
+    "food": "pizza",
+    "drink": "cyder"
+  },
+  "skills": [
+    {
+      "category": "programming languages",
+      "values": [
         {
-            "category": "programming languages",
-            "values": [
-                {"name": "C", "score":  100},
-                {"name": "C++", "score": 80}
-            ]
+          "name": "C",
+          "score": 100
         },
         {
-            "category": "cooking",
-            "values": [
-                {"name": "pizza", "scores": 75.5},
-                {"name": "pasta con tonno", "scores": 45},
-                {"name": "buffalo bill", "scores": 85}
-            ]
+          "name": "C++",
+          "score": 80
         }
-    ],
-    "employee": true,
-    "nicknames": [ "madpsycho", "realmadpsycho", "joshuafolken", "nardinan"]
+      ]
+    },
+    {
+      "category": "cooking",
+      "values": [
+        {
+          "name": "pizza",
+          "scores": 75.5
+        },
+        {
+          "name": "pasta con tonno",
+          "scores": 45
+        },
+        {
+          "name": "buffalo bill",
+          "scores": 85
+        }
+      ]
+    }
+  ],
+  "employee": true,
+  "nicknames": [
+    "madpsycho",
+    "realmadpsycho",
+    "joshuafolken",
+    "nardinan"
+  ]
 }

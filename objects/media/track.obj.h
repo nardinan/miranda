@@ -24,12 +24,12 @@
 #define d_track_default_fade_delay 500
 d_exception_declare(chunk);
 d_declare_class(track) {
-    struct s_attributes head;
-    Mix_Chunk *chunk;
-    int channel, next_channel, volume, loops;
-    short angle;
-    unsigned char distance;
-    t_boolean auto_channel;
+  struct s_attributes head;
+  Mix_Chunk *chunk;
+  int channel, next_channel, volume, loops;
+  short angle;
+  unsigned char distance;
+  t_boolean auto_channel;
 } d_declare_class_tail(track);
 struct s_track_attributes *p_track_alloc(struct s_object *self);
 extern struct s_object *f_track_new(struct s_object *self, struct s_object *stream);

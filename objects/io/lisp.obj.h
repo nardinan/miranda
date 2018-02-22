@@ -28,47 +28,48 @@
 #define d_lisp_mark_internal (d_lisp_mark_environment|d_lisp_mark_symbols|d_lisp_mark_language)
 #define d_lisp_true_token(t) ((t)->value_symbol[0]=='t')
 typedef enum e_lisp_object_symbols {
-    e_lisp_object_symbol_true = 0,
-    e_lisp_object_symbol_nil,
-    e_lisp_object_symbol_quote,
-    e_lisp_object_symbol_if,
-    e_lisp_object_symbol_lambda,
-    e_lisp_object_symbol_define,
-    e_lisp_object_symbol_set,
-    e_lisp_object_symbol_begin,
-    e_lisp_object_symbol_NULL
+  e_lisp_object_symbol_true = 0,
+  e_lisp_object_symbol_nil,
+  e_lisp_object_symbol_quote,
+  e_lisp_object_symbol_if,
+  e_lisp_object_symbol_lambda,
+  e_lisp_object_symbol_define,
+  e_lisp_object_symbol_set,
+  e_lisp_object_symbol_begin,
+  e_lisp_object_symbol_NULL
 } e_lisp_object_symbols;
 typedef enum e_lisp_object_types {
-    e_lisp_object_type_cons = 0,
-    e_lisp_object_type_value,
-    e_lisp_object_type_string,
-    e_lisp_object_type_symbol,
-    e_lisp_object_type_primitive,
-    e_lisp_object_type_lambda
+  e_lisp_object_type_cons = 0,
+  e_lisp_object_type_value,
+  e_lisp_object_type_string,
+  e_lisp_object_type_symbol,
+  e_lisp_object_type_primitive,
+  e_lisp_object_type_lambda
 } e_lisp_object_types;
 typedef struct s_lisp_object *(*t_lisp_primitive)(struct s_object *, struct s_lisp_object *);
-typedef struct s_lisp_object { d_list_node_head;
-    enum e_lisp_object_types type;
-    unsigned char mark;
-    union {
-        struct {
-            struct s_lisp_object *car, *cdr;
-        } cons;
-        struct {
-            struct s_lisp_object *args, *call, *environment;
-        } lambda;
-        double value_double;
-        char *value_string, value_symbol[d_lisp_symbol_size];
-        t_lisp_primitive primitive;
-    };
+typedef struct s_lisp_object {
+  d_list_node_head;
+  enum e_lisp_object_types type;
+  unsigned char mark;
+  union {
+    struct {
+      struct s_lisp_object *car, *cdr;
+    } cons;
+    struct {
+      struct s_lisp_object *args, *call, *environment;
+    } lambda;
+    double value_double;
+    char *value_string, value_symbol[d_lisp_symbol_size];
+    t_lisp_primitive primitive;
+  };
 } s_lisp_object;
 d_declare_class(lisp) {
-    struct s_attributes head;
-    struct s_list tokens, collector;
-    struct s_json_token *current_token;
-    struct s_object *string_name;
-    struct s_lisp_object *environment, *symbols, *base_symbols[e_lisp_object_symbol_NULL];
-    int output;
+  struct s_attributes head;
+  struct s_list tokens, collector;
+  struct s_json_token *current_token;
+  struct s_object *string_name;
+  struct s_lisp_object *environment, *symbols, *base_symbols[e_lisp_object_symbol_NULL];
+  int output;
 } d_declare_class_tail(lisp);
 extern const char *v_lisp_object_types[];
 #define d_lisp_object_type(o)   ((o)?v_lisp_object_types[(o)->type]:"nil")

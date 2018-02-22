@@ -17,31 +17,26 @@
  */
 #include "memory.obj.h"
 struct s_object *f_memory_new(struct s_object *self) {
-    struct s_memory_attributes *attributes = d_prepare(self, memory);
-    attributes->references = 1; /* first reference */
-    return self;
+  struct s_memory_attributes *attributes = d_prepare(self, memory);
+  attributes->references = 1; /* first reference */
+  return self;
 }
-
 d_define_method(memory, retain)(struct s_object *self) {
-    d_using(memory);
-    ++(memory_attributes->references);
-    return self;
+  d_using(memory);
+  ++(memory_attributes->references);
+  return self;
 }
-
 d_define_method(memory, release)(struct s_object *self) {
-    struct s_memory_attributes *memory_attributes;
-    struct s_object *result = NULL;
-    if ((memory_attributes = d_cast(self, memory)))
-        if (memory_attributes->references > 0) {
-            memory_attributes->references--;
-            if (memory_attributes->references > 0)
-                result = self;
-        }
-    return result;
+  struct s_memory_attributes *memory_attributes;
+  struct s_object *result = NULL;
+  if ((memory_attributes = d_cast(self, memory)))
+    if (memory_attributes->references > 0) {
+      memory_attributes->references--;
+      if (memory_attributes->references > 0)
+        result = self;
+    }
+  return result;
 }
-
-d_define_class(memory) {
-    d_hook_method(memory, e_flag_public, retain),
-        d_hook_method(memory, e_flag_public, release),
-        d_hook_method_tail
-};
+d_define_class(memory) {d_hook_method(memory, e_flag_public, retain),
+                        d_hook_method(memory, e_flag_public, release),
+                        d_hook_method_tail};

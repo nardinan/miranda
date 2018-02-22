@@ -22,9 +22,9 @@
 #define d_array_bucket 8
 d_exception_declare(bound);
 d_declare_class(array) {
-    struct s_attributes head;
-    size_t elements, size, bucket, pointer;
-    struct s_object **content;
+  struct s_attributes head;
+  size_t elements, size, bucket, pointer;
+  struct s_object **content;
 } d_declare_class_tail(array);
 struct s_array_attributes *p_array_alloc(struct s_object *self);
 extern struct s_object *f_array_new(struct s_object *self, size_t size);
@@ -38,7 +38,7 @@ d_declare_method(array, pop)(struct s_object *self);
 d_declare_method(array, get)(struct s_object *self, size_t position);
 d_declare_method(array, reset)(struct s_object *self);
 d_declare_method(array, next)(struct s_object *self);
-#define d_array_foreach(o,v) for(d_call((o),m_array_reset,NULL),(v)=d_call((o),m_array_next,NULL);(v);(v)=d_call((o),m_array_next,NULL))
+#define d_array_foreach(o, v) for(d_call((o),m_array_reset,NULL),(v)=d_call((o),m_array_next,NULL);(v);(v)=d_call((o),m_array_next,NULL))
 d_declare_method(array, size)(struct s_object *self, size_t *size);
 d_declare_method(array, delete)(struct s_object *self, struct s_array_attributes *attributes);
 d_declare_method(array, hash)(struct s_object *self, t_hash_value *value);

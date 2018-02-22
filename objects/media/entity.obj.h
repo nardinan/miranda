@@ -22,30 +22,32 @@
 #define d_entity_label_size 64
 #define d_entity_minimum_movement 0.1
 #define d_entity_minimum_zoom 0.01
-typedef t_boolean(*t_entity_validator)(struct s_object *self, double current_x, double current_y, double current_zoom, double *new_x, double *new_y,
-        double *new_zoom);
-typedef struct s_entity_element { d_list_node_head;
-    double offset_x, offset_y;
-    struct s_object *drawable;
+typedef t_boolean
+(*t_entity_validator)(struct s_object *self, double current_x, double current_y, double current_zoom, double *new_x, double *new_y, double *new_zoom);
+typedef struct s_entity_element {
+  d_list_node_head;
+  double offset_x, offset_y;
+  struct s_object *drawable;
 } s_entity_element;
-typedef struct s_entity_component { d_list_node_head;
-    char label[d_string_buffer_size];
-    double speed_x, speed_y, speed_z, offset_point_x, offset_point_y;
-    struct s_list elements;
+typedef struct s_entity_component {
+  d_list_node_head;
+  char label[d_string_buffer_size];
+  double speed_x, speed_y, speed_z, offset_point_x, offset_point_y;
+  struct s_list elements;
 } s_entity_component;
 d_declare_class(entity) {
-    struct s_attributes head;
-    char label[d_string_buffer_size];
-    struct s_list components;
-    struct s_entity_component *current_component;
-    struct timeval last_refresh_x, last_refresh_y, last_refresh_zoom;
-    double factor_z;
-    t_entity_validator validator;
+  struct s_attributes head;
+  char label[d_string_buffer_size];
+  struct s_list components;
+  struct s_entity_component *current_component;
+  struct timeval last_refresh_x, last_refresh_y, last_refresh_zoom;
+  double factor_z;
+  t_entity_validator validator;
 } d_declare_class_tail(entity);
 struct s_entity_attributes *p_entity_alloc(struct s_object *self);
 extern struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator);
-d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x, 
-        double offset_point_y);
+d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
+                                        double offset_point_y);
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
 d_declare_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);
