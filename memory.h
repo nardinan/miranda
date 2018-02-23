@@ -28,7 +28,7 @@
 #else
 #define d_malloc(siz) calloc(1,(siz))
 #define d_malloc_explicit(siz, f, l) calloc(1,(siz))
-#define d_realloc realloc
+#define d_realloc(p,siz) ((p)?realloc((p),(siz)):calloc(1,(siz)))
 #define d_free(ptr)\
     do{\
         if(ptr)\
