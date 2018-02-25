@@ -19,7 +19,7 @@
 #define miranda_media_animation_h
 #include <sys/time.h>
 #include "drawable.obj.h"
-#define d_animation_infinite_loop -1
+#define d_animation_infinite_loop (-1)
 typedef enum e_animation_directions {
   e_animation_direction_forward,
   e_animation_direction_rewind,

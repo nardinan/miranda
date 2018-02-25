@@ -34,7 +34,7 @@ struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
   attributes->last_mask_A = 255.0;
   attributes->multi_selection = d_true;
   for (index = 0; index < d_list_max_selected; ++index)
-    attributes->selection[index] = d_list_selected_NULL;
+    attributes->selection[index] = d_list_selected_null;
   return self;
 }
 d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable) {
@@ -61,7 +61,7 @@ d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable
       break;
   for (; index < (d_list_max_selected - 1); ++index)
     list_attributes->selection[index] = list_attributes->selection[index + 1];
-  list_attributes->selection[index] = d_list_selected_NULL;
+  list_attributes->selection[index] = d_list_selected_null;
   /* clean all the pointers to the next elements */
   for (index = 0; index < d_list_max_selected; ++index)
     if (list_attributes->selection[index] > pointer)
@@ -96,7 +96,7 @@ d_define_method(list, set_selected_uiable)(struct s_object *self, struct s_objec
   if ((list_attributes->selection[0] != pointer) && (new_selection = d_true))
     list_attributes->selection[0] = pointer;
   for (index = 1; index < d_list_max_selected; ++index)
-    list_attributes->selection[index] = d_list_selected_NULL;
+    list_attributes->selection[index] = d_list_selected_null;
   d_cast_return(new_selection);
 }
 d_define_method(list, add_selected_uiable)(struct s_object *self, struct s_object *uiable) {
@@ -109,7 +109,7 @@ d_define_method(list, add_selected_uiable)(struct s_object *self, struct s_objec
     ++pointer;
   }
   for (index = 0; index < d_list_max_selected; ++index)
-    if ((list_attributes->selection[index] == pointer) || ((list_attributes->selection[index] == d_list_selected_NULL) && (new_selection = d_true))) {
+    if ((list_attributes->selection[index] == pointer) || ((list_attributes->selection[index] == d_list_selected_null) && (new_selection = d_true))) {
       list_attributes->selection[index] = pointer;
       break;
     }
@@ -187,7 +187,7 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
       }
   }
   if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
-    if (list_attributes->selection[0] != d_list_selected_NULL) {
+    if (list_attributes->selection[0] != d_list_selected_null) {
       switch (current_event->key.keysym.sym) {
         case SDLK_UP:
           if (list_attributes->selection[0] > 0) {

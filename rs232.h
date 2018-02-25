@@ -25,7 +25,7 @@
 #include <sys/time.h>
 #include "string.local.h"
 #define d_rs232_usecs(tv) (((tv).tv_sec*1000000)+(tv).tv_usec)
-#define d_rs232_null -1
+#define d_rs232_null (-1)
 #define d_rs232_vtime 1
 #define d_rs232_vmin 60
 #define d_rs232_byte_timeout 1000

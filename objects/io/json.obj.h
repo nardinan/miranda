@@ -22,7 +22,7 @@
 #define d_json_value_size 20
 #define d_json_value_maximum_decimals 6
 #define d_json_file_default_permission 0744
-#define d_json_decimal_null -1
+#define d_json_decimal_null (-1)
 #define d_json_decimal_characters "."
 #define d_json_numeric_character "+-"
 #define d_json_numeric_negative_character "-"

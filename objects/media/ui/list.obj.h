@@ -19,7 +19,7 @@
 #define miranda_media_list_h
 #include "label.obj.h"
 #include "scroll.obj.h"
-#define d_list_selected_NULL -1
+#define d_list_selected_null (-1)
 #define d_list_max_selected 32
 d_declare_class(list) {
   struct s_attributes head;

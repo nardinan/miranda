@@ -31,8 +31,8 @@
 #define d_console_output_size PATH_MAX
 #define d_console_history_size 256
 #define d_console_special_size 3
-#define d_console_descriptor_null -1
-#define d_console_parameter_null -1
+#define d_console_descriptor_null (-1)
+#define d_console_parameter_null (-1)
 #define d_console_suggestion_columns 10
 struct s_console;
 struct s_console_command;

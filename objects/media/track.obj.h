@@ -18,8 +18,8 @@
 #ifndef miranda_media_track_h
 #define miranda_media_track_h
 #include "bitmap.obj.h"
-#define d_track_auto_channel -1
-#define d_track_infinite_loop -1
+#define d_track_auto_channel (-1)
+#define d_track_infinite_loop (-1)
 #define d_track_default_volume 32
 #define d_track_default_fade_delay 500
 d_exception_declare(chunk);
