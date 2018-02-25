@@ -65,13 +65,17 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
   return result;
 }
 struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags) {
+  pthread_mutexattr_t attributes_mutex;
   memset(provided, 0, sizeof(struct s_object));
   provided->type = type;
   provided->file = file;
   provided->line = line;
   memset(&(provided->virtual_tables), 0, sizeof(struct s_list));
   memset(&(provided->attributes), 0, sizeof(struct s_list));
-  pthread_mutex_init(&(provided->lock), NULL);
+  pthread_mutexattr_init(&attributes_mutex);
+  pthread_mutexattr_settype(&attributes_mutex, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&(provided->lock), &attributes_mutex);
+  pthread_mutexattr_destroy(&attributes_mutex);
   provided->flags = flags;
   return provided;
 }
@@ -152,12 +156,13 @@ t_hash_value f_object_hash(struct s_object *object) {
   {
     if ((object->flags & e_flag_hashed) != e_flag_hashed) {
       d_reverse_foreach(&(object->virtual_tables), virtual_table, struct s_virtual_table) {
-        for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
+        for (index = 0; virtual_table->virtual_table[index].symbol; ++index) {
           if (virtual_table->virtual_table[index].symbol == m_object_hash) {
             virtual_table->virtual_table[index].method(object, &current);
             result += current;
             break;
           }
+        }
       }
       object->hash_value = result;
       object->flags |= e_flag_hashed;
