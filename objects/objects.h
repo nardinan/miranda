@@ -25,4 +25,5 @@
 #include "pool.obj.h"
 #include "string.obj.h"
 #include "array.obj.h"
+#include "map.obj.h"
 #endif
