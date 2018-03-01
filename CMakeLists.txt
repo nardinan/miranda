@@ -60,7 +60,9 @@ add_library(miranda_objects SHARED
         objects/string.obj.c
         objects/string.obj.h
         objects/map.obj.c
-        objects/map.obj.h)
+        objects/map.obj.h
+        objects/timer.obj.c
+        objects/timer.obj.h)
 
 set_target_properties(miranda_objects PROPERTIES PUBLIC_HEADER "objects/array.obj.h;objects/emitter.obj.h;\
 objects/memory.obj.h;objects/mutex.obj.h;objects/object.h;objects/objects.h;objects/pool.obj.h;objects/runnable.obj.h;\
