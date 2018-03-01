@@ -26,7 +26,7 @@ typedef int semaphore_t;
 extern int sem_init_miranda(semaphore_t *semaphore, unsigned int value);
 extern int sem_destroy_miranda(semaphore_t *semaphore);
 extern int sem_wait_miranda(semaphore_t *semaphore);
-extern int sem_tryway_miranda(semaphore_t *semaphore);
+extern int sem_trywait_miranda(semaphore_t *semaphore);
 extern int sem_post_miranda(semaphore_t *semaphore);
 extern int sem_getvalue_miranda(semaphore_t *semaphore);
 d_declare_class(runnable) {
