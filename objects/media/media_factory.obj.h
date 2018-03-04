@@ -43,9 +43,8 @@ d_declare_class(media_factory) {
   int current_channel;
 } d_declare_class_tail(media_factory);
 struct s_media_factory_attributes *p_media_factory_alloc(struct s_object *self);
-extern struct s_object *
-f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json, struct s_object *resources_ogg,
-                    struct s_object *resources_lisp, struct s_object *environment);
+extern struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json,
+                                            struct s_object *resources_ogg, struct s_object *resources_lisp, struct s_object *environment);
 d_declare_method(media_factory, get_bitmap)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_animation)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_transition)(struct s_object *self, const char *label);
