@@ -26,4 +26,5 @@
 #include "string.obj.h"
 #include "array.obj.h"
 #include "map.obj.h"
+#include "transformations.obj.h"
 #endif

@@ -62,11 +62,13 @@ add_library(miranda_objects SHARED
         objects/map.obj.c
         objects/map.obj.h
         objects/timer.obj.c
-        objects/timer.obj.h)
+        objects/timer.obj.h
+        objects/transformations.obj.c
+        objects/transformations.obj.h)
 
 set_target_properties(miranda_objects PROPERTIES PUBLIC_HEADER "objects/array.obj.h;objects/emitter.obj.h;\
 objects/memory.obj.h;objects/mutex.obj.h;objects/object.h;objects/objects.h;objects/pool.obj.h;objects/runnable.obj.h;\
-objects/string.obj.h;objects/map.obj.h")
+objects/string.obj.h;objects/map.obj.h;objects/transformations.obj.h")
 INSTALL(TARGETS miranda_objects
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects
