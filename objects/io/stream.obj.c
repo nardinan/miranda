@@ -80,7 +80,7 @@ struct s_object *f_stream_new_file(struct s_object *self, struct s_object *strin
 }
 struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *string_name) {
   struct s_stream_attributes *attributes = p_stream_alloc(self);
-  char file_name[] = "magrathea_XXXXXX.tmp";
+  char file_name[] = "miranda.XXXXXX";
   attributes->string_name = d_retain(string_name);
   attributes->parameters = d_stream_flag_write_read;
   /* (from man): [...] the last six characters of template must be "XXXXXX" and these are replaced with a string that makes the filename unique.
