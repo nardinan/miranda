@@ -22,12 +22,7 @@
 #define d_particle_cores 2048
 #define d_particle_randomizeF(obj, key) ((obj)->configuration.minimum.key+(d_math_frand*((obj)->configuration.maximum.key-(obj)->configuration.minimum.key)))
 #define d_particle_randomizeI(obj, key) ((obj)->configuration.minimum.key+(rand()%((obj)->configuration.maximum.key-(obj)->configuration.minimum.key)))
-#define d_particle_kill(v, min, max) do{\
-    if((v)>(max))\
-        (v)=(max);\
-    if((v)<(min))\
-        (v)=(min);\
-}while(0)
+#define d_particle_apply_limits(v, min, max) (v)=(((v)>(max))?(max):(((v)<(min))?(min):(v)))
 typedef struct s_particle_configuration_core {
   double position_x, position_y, zoom, angle, gravity_x, gravity_y, direction_angle, speed_linear, speed_direction_angle, speed_zoom, speed_angle, mask_R,
     mask_G, mask_B, mask_A, speed_R, speed_G, speed_B, speed_A, lifetime;
@@ -54,8 +49,8 @@ d_declare_class(particle) {
   t_boolean initialized, single_shoot;
 } d_declare_class_tail(particle);
 struct s_particle_attributes *p_particle_alloc(struct s_object *self);
-extern struct s_object *
-f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment, struct s_particle_configuration *configuration);
+extern struct s_object * f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment,
+                                        struct s_particle_configuration *configuration);
 d_declare_method(particle, reset)(struct s_object *self);
 d_declare_method(particle, stop)(struct s_object *self);
 d_declare_method(particle, is_completed)(struct s_object *self);

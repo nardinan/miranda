@@ -23,8 +23,8 @@ struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
   f_drawable_new(self, (e_drawable_kind_multiple | e_drawable_kind_force_visibility));  /* inherit */
   return result;
 }
-struct s_object *
-f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment, struct s_particle_configuration *configuration) {
+struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment,
+                                struct s_particle_configuration *configuration) {
   struct s_particle_attributes *attributes = p_particle_alloc(self);
   attributes->drawable_core = d_retain(drawable_particle);
   memcpy(&(attributes->configuration), configuration, sizeof(struct s_particle_configuration));
@@ -68,22 +68,22 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
   double local_position_x, local_position_y, real_elapsed_begin, real_elapsed_update, radians, speed_x, speed_y;
   unsigned int generated = 0;
   gettimeofday(&current, NULL);
-  d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *) &local_position_x, (double *) &local_position_y);
+  d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
   for (index = 0; index < particle_attributes->configuration.particles; ++index) {
     if (particle_attributes->particles[index].alive) {
       timersub(&current, &(particle_attributes->particles[index].born), &elapsed_begin);
-      real_elapsed_begin = elapsed_begin.tv_sec + ((double) (elapsed_begin.tv_usec) / 1000000.0);
+      real_elapsed_begin = elapsed_begin.tv_sec + ((double)(elapsed_begin.tv_usec) / 1000000.0);
       if (particle_attributes->particles[index].core.lifetime > real_elapsed_begin) {
         timersub(&current, &(particle_attributes->particles[index].update), &elapsed_update);
-        real_elapsed_update = elapsed_update.tv_sec + ((double) (elapsed_update.tv_usec) / 1000000.0);
+        real_elapsed_update = elapsed_update.tv_sec + ((double)(elapsed_update.tv_usec) / 1000000.0);
         particle_attributes->particles[index].core.mask_R += (particle_attributes->particles[index].core.speed_R * real_elapsed_update);
         particle_attributes->particles[index].core.mask_G += (particle_attributes->particles[index].core.speed_G * real_elapsed_update);
         particle_attributes->particles[index].core.mask_B += (particle_attributes->particles[index].core.speed_B * real_elapsed_update);
         particle_attributes->particles[index].core.mask_A += (particle_attributes->particles[index].core.speed_A * real_elapsed_update);
-        d_particle_kill(particle_attributes->particles[index].core.mask_R, 0, 255);
-        d_particle_kill(particle_attributes->particles[index].core.mask_G, 0, 255);
-        d_particle_kill(particle_attributes->particles[index].core.mask_B, 0, 255);
-        d_particle_kill(particle_attributes->particles[index].core.mask_A, 0, 255);
+        d_particle_apply_limits(particle_attributes->particles[index].core.mask_R, 0, 255);
+        d_particle_apply_limits(particle_attributes->particles[index].core.mask_G, 0, 255);
+        d_particle_apply_limits(particle_attributes->particles[index].core.mask_B, 0, 255);
+        d_particle_apply_limits(particle_attributes->particles[index].core.mask_A, 0, 255);
         particle_attributes->particles[index].core.zoom += (particle_attributes->particles[index].core.speed_zoom * real_elapsed_update);
         particle_attributes->particles[index].core.angle += (particle_attributes->particles[index].core.speed_angle * real_elapsed_update);
         particle_attributes->particles[index].core.direction_angle += (particle_attributes->particles[index].core.speed_direction_angle * real_elapsed_update);
@@ -144,23 +144,23 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
     particle_attributes->initialized = d_true;
   }
   timersub(&current, &(particle_attributes->last_generation), &elapsed_update);
-  real_elapsed_update = elapsed_update.tv_sec + ((double) (elapsed_update.tv_usec) / 1000000.0);
-  if ((new_particles = (unsigned int) (particle_attributes->configuration.emission_rate * real_elapsed_update)) > 0)
+  real_elapsed_update = elapsed_update.tv_sec + ((double)(elapsed_update.tv_usec) / 1000000.0);
+  if ((new_particles = (unsigned int)(particle_attributes->configuration.emission_rate * real_elapsed_update)) > 0)
     memcpy(&(particle_attributes->last_generation), &current, sizeof(struct timeval));
   d_call(self, m_particle_update, new_particles);
-  d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *) &local_position_x, (double *) &local_position_y);
+  d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
   for (index = 0; index < particle_attributes->configuration.particles; ++index)
     if (particle_attributes->particles[index].alive) {
       normalized_R = ((particle_attributes->particles[index].core.mask_R / 255.0) * (drawable_attributes_self->last_mask_R / 255.0)) * 255.0;
       normalized_G = ((particle_attributes->particles[index].core.mask_G / 255.0) * (drawable_attributes_self->last_mask_G / 255.0)) * 255.0;
       normalized_B = ((particle_attributes->particles[index].core.mask_B / 255.0) * (drawable_attributes_self->last_mask_B / 255.0)) * 255.0;
       normalized_A = ((particle_attributes->particles[index].core.mask_A / 255.0) * (drawable_attributes_self->last_mask_A / 255.0)) * 255.0;
-      d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB, (unsigned int) normalized_R, (unsigned int) normalized_G, (unsigned int) normalized_B);
-      d_call(particle_attributes->drawable_core, m_drawable_set_maskA, (unsigned int) normalized_A);
+      d_call(particle_attributes->drawable_core, m_drawable_set_maskRGB, (unsigned int)normalized_R, (unsigned int)normalized_G, (unsigned int)normalized_B);
+      d_call(particle_attributes->drawable_core, m_drawable_set_maskA, (unsigned int)normalized_A);
       position_x = particle_attributes->particles[index].core.position_x;
       position_y = particle_attributes->particles[index].core.position_y;
-      d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double) position_x);
-      d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double) position_y);
+      d_call(&(drawable_attributes_core->point_destination), m_point_set_x, (double)position_x);
+      d_call(&(drawable_attributes_core->point_destination), m_point_set_y, (double)position_y);
       drawable_attributes_core->zoom = (particle_attributes->particles[index].core.zoom * drawable_attributes_self->zoom);
       drawable_attributes_core->angle = (particle_attributes->particles[index].core.angle + drawable_attributes_self->angle);
       drawable_attributes_core->flip = drawable_attributes_self->flip;
@@ -171,7 +171,7 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
                   environment_attributes->camera_focus_x[environment_attributes->current_surface],
                   environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
                   environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
-        while (((int) d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
+        while (((int)d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
       if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(particle_attributes->drawable_core, m_drawable_draw_contour, environment);
     }

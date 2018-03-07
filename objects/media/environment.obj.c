@@ -50,14 +50,12 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
     /* TTF initialization */
     if (TTF_WasInit() == 0)
       if (TTF_Init() < 0) {
-        initialized = d_false;
         d_err(e_log_level_ever, "SDL font system returns an error during the initialization");
       }
     /* MIX initialization */
     initialized_systems = Mix_Init(d_environment_default_codecs);
     if (((initialized_systems & d_environment_default_codecs) != d_environment_default_codecs) ||
         (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, d_environment_channels, d_environment_audio_chunk) < 0)) {
-      initialized = d_false;
       d_err(e_log_level_ever, "SDL audio systems returns an error during the initialization (%s)", Mix_GetError());
     }
     if ((!width) && (!height)) {
@@ -201,33 +199,33 @@ d_define_method(environment, get_zoom)(struct s_object *self, double *zoom, enum
 }
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
   d_using(environment);
-  f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *) (d_retain(drawable)), e_list_insert_tail);
+  f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)(d_retain(drawable)), e_list_insert_tail);
   return drawable;
 }
 d_define_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
   d_using(environment);
-  if (d_list_node_in(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *) drawable)) {
-    f_list_delete(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *) drawable);
+  if (d_list_node_in(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable)) {
+    f_list_delete(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable);
     d_delete(drawable);
   }
   return drawable;
 }
 d_define_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable) {
   d_using(environment);
-  f_list_append(&(environment_attributes->eventable), (struct s_list_node *) (d_retain(eventable)), e_list_insert_tail);
+  f_list_append(&(environment_attributes->eventable), (struct s_list_node *)(d_retain(eventable)), e_list_insert_tail);
   return eventable;
 }
 d_define_method(environment, del_eventable)(struct s_object *self, struct s_object *eventable) {
   d_using(environment);
-  if (d_list_node_in(&(environment_attributes->eventable), (struct s_list_node *) eventable)) {
-    f_list_delete(&(environment_attributes->eventable), (struct s_list_node *) eventable);
+  if (d_list_node_in(&(environment_attributes->eventable), (struct s_list_node *)eventable)) {
+    f_list_delete(&(environment_attributes->eventable), (struct s_list_node *)eventable);
     d_delete(eventable);
   }
   return eventable;
 }
 d_define_method(environment, run_loop)(struct s_object *self) {
   d_using(environment);
-  int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int) (1000.0f / environment_attributes->fps), surface, index, flags;
+  int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int)(1000.0f / environment_attributes->fps), surface, index, flags;
   struct s_eventable_attributes *eventable_attributes;
   struct s_object *drawable_object;
   struct s_object *eventable_object;
@@ -261,20 +259,20 @@ d_define_method(environment, run_loop)(struct s_object *self) {
               environment_attributes->current_surface = surface;
               for (index = 0; index < d_environment_layers; ++index)
                 d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
-                  flags = (int) d_call(drawable_object, m_drawable_get_flags, NULL);
+                  flags = (int)d_call(drawable_object, m_drawable_get_flags, NULL);
                   if ((flags & e_drawable_kind_hidden) != e_drawable_kind_hidden)
                     if ((d_call(drawable_object, m_drawable_normalize_scale, environment_attributes->reference_w[surface],
                                 environment_attributes->reference_h[surface], environment_attributes->camera_origin_x[surface],
                                 environment_attributes->camera_origin_y[surface], environment_attributes->camera_focus_x[surface],
                                 environment_attributes->camera_focus_y[surface], environment_attributes->current_w, environment_attributes->current_h,
                                 environment_attributes->zoom[surface])))
-                      while (((int) d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
+                      while (((int)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
                 }
             }
             current_time = SDL_GetTicks();
             if ((waiting_time = required_time - (current_time - starting_time)) > 0)
               SDL_Delay(waiting_time);
-            else if ((waiting_time * -1) > d_environment_tolerance)
+            else if (fabs(waiting_time) > d_environment_tolerance)
               d_war(e_log_level_medium, "loop time has a delay of %d mS", (waiting_time * -1));
             starting_time = current_time;
             /* align the FPS time delay and then refresh the image */
@@ -288,15 +286,16 @@ d_define_method(environment, run_loop)(struct s_object *self) {
         {
           d_exception_dump(stderr, exception);
           d_raise;
-        }d_endtry;
+        }
+    d_endtry;
   }
   for (surface = 0; surface < e_environment_surface_NULL; ++surface)
     for (index = 0; index < d_environment_layers; ++index)
-      while ((drawable_object = (struct s_object *) environment_attributes->drawable[surface][index].head)) {
+      while ((drawable_object = (struct s_object *)environment_attributes->drawable[surface][index].head)) {
         f_list_delete(&(environment_attributes->drawable[surface][index]), environment_attributes->drawable[surface][index].head);
         d_delete(drawable_object);
       }
-  while ((eventable_object = (struct s_object *) environment_attributes->eventable.head)) {
+  while ((eventable_object = (struct s_object *)environment_attributes->eventable.head)) {
     f_list_delete(&(environment_attributes->eventable), environment_attributes->eventable.head);
     d_delete(eventable_object);
   }
