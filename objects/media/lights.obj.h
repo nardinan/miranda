@@ -42,6 +42,7 @@ extern struct s_object *f_lights_new(struct s_object *self, unsigned char intens
 d_declare_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B,
                                     double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference,
                                     enum e_drawable_alignments alignment);
+d_declare_method(lights, get_light)(struct s_object *self, struct s_object *reference);
 d_declare_method(lights, set_intensity)(struct s_object *self, unsigned char intensity);
 d_declare_method(lights, get_intensity)(struct s_object *self);
 d_declare_method(lights, draw)(struct s_object *self, struct s_object *environment);

@@ -44,8 +44,8 @@ d_define_method(drawable, copy_geometry)(struct s_object *self, struct s_object 
   d_using(drawable);
   struct s_drawable_attributes *drawable_attributes_other = d_cast(drawable, drawable);
   double position_x, position_y, dimension_x, dimension_y, final_position_x, final_position_y;
-  d_call(&(drawable_attributes_other->point_destination), m_point_get, &position_x, &position_y);
-  d_call(&(drawable_attributes_other->point_dimension), m_point_get, &dimension_x, &dimension_y);
+  d_call(&(drawable_attributes_other->point_normalized_destination), m_point_get, &position_x, &position_y);
+  d_call(&(drawable_attributes_other->point_normalized_dimension), m_point_get, &dimension_x, &dimension_y);
   final_position_x = position_x;
   final_position_y = position_y;
   switch (alignment) {
@@ -118,30 +118,45 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
   d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
   d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
   d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);
-  /* global zoom */
-  new_x = focus_x - ((focus_x - this_x) * zoom);
-  new_y = focus_y - ((focus_y - this_y) * zoom);
-  new_center_x = this_center_x * zoom;
-  new_center_y = this_center_y * zoom;
-  new_w = this_w * zoom;
-  new_h = this_h * zoom;
-  /* local zoom */
-  new_x = (new_x + new_center_x) - (new_center_x * drawable_attributes->zoom);
-  new_y = (new_y + new_center_y) - (new_center_y * drawable_attributes->zoom);
-  new_center_x = new_center_x * drawable_attributes->zoom;
-  new_center_y = new_center_y * drawable_attributes->zoom;
-  new_w = new_w * drawable_attributes->zoom;
-  new_h = new_h * drawable_attributes->zoom;
-  /* screen scale */
-  new_center_x = (new_center_x * current_w) / reference_w;
-  new_center_y = (new_center_y * current_h) / reference_h;
-  new_x = (new_x * current_w) / reference_w;
-  new_y = (new_y * current_h) / reference_h;
-  new_w = (new_w * current_w) / reference_w;
-  new_h = (new_h * current_h) / reference_h;
-  /* camera offset */
-  new_x = new_x - offset_x;
-  new_y = new_y - offset_y;
+  if ((drawable_attributes->flags & e_drawable_kind_do_not_normalize_environment_zoom) != e_drawable_kind_do_not_normalize_environment_zoom) {
+    /* global zoom */
+    new_x = focus_x - ((focus_x - this_x) * zoom);
+    new_y = focus_y - ((focus_y - this_y) * zoom);
+    new_center_x = this_center_x * zoom;
+    new_center_y = this_center_y * zoom;
+    new_w = this_w * zoom;
+    new_h = this_h * zoom;
+  } else {
+    new_x = this_x;
+    new_y = this_y;
+    new_center_x = this_center_x;
+    new_center_y = this_center_y;
+    new_w = this_w;
+    new_h = this_h;
+  }
+  if ((drawable_attributes->flags & e_drawable_kind_do_not_normalize_local_zoom) != e_drawable_kind_do_not_normalize_local_zoom) {
+    /* local zoom */
+    new_x = (new_x + new_center_x) - (new_center_x * drawable_attributes->zoom);
+    new_y = (new_y + new_center_y) - (new_center_y * drawable_attributes->zoom);
+    new_center_x = new_center_x * drawable_attributes->zoom;
+    new_center_y = new_center_y * drawable_attributes->zoom;
+    new_w = new_w * drawable_attributes->zoom;
+    new_h = new_h * drawable_attributes->zoom;
+  }
+  if ((drawable_attributes->flags & e_drawable_kind_do_not_normalize_reference_ratio) != e_drawable_kind_do_not_normalize_reference_ratio) {
+    /* screen scale, in respect of the applied reference */
+    new_center_x = (new_center_x * current_w) / reference_w;
+    new_center_y = (new_center_y * current_h) / reference_h;
+    new_x = (new_x * current_w) / reference_w;
+    new_y = (new_y * current_h) / reference_h;
+    new_w = (new_w * current_w) / reference_w;
+    new_h = (new_h * current_h) / reference_h;
+  }
+  if ((drawable_attributes->flags & e_drawable_kind_do_not_normalize_camera) != e_drawable_kind_do_not_normalize_camera) {
+    /* camera offset */
+    new_x = new_x - offset_x;
+    new_y = new_y - offset_y;
+  }
   d_call(&(drawable_attributes->point_normalized_destination), m_point_set_x, new_x);
   d_call(&(drawable_attributes->point_normalized_destination), m_point_set_y, new_y);
   d_call(&(drawable_attributes->point_normalized_dimension), m_point_set_x, new_w);
@@ -289,6 +304,29 @@ d_define_method(drawable, set_center)(struct s_object *self, double x, double y)
   d_call(&(drawable_attributes->point_center), m_point_set_y, y);
   return self;
 }
+d_define_method(drawable, set_center_alignment)(struct s_object *self, enum e_drawable_alignments alignment) {
+  d_using(drawable);
+  double new_center_x = 0, new_center_y = 0, current_w, current_h;
+  d_call(&(drawable_attributes->point_dimension), m_point_get, &current_w, &current_h);
+  switch (alignment) {
+    case e_drawable_alignment_centered:
+      new_center_x = (current_w / 2.0);
+      new_center_y = (current_h / 2.0);
+      break;
+    case e_drawable_alignment_bottom_right:
+      new_center_y = current_h;
+    case e_drawable_alignment_top_right:
+      new_center_x = current_w;
+      break;
+    case e_drawable_alignment_bottom_left:
+      new_center_y = current_h;
+    default:
+      break;
+  }
+  d_call(&(drawable_attributes->point_center), m_point_set_x, new_center_x);
+  d_call(&(drawable_attributes->point_center), m_point_set_y, new_center_y);
+  return self;
+}
 d_define_method(drawable, get_center)(struct s_object *self, double *x, double *y) {
   d_using(drawable);
   d_call(&(drawable_attributes->point_center), m_point_get, x, y);
@@ -365,6 +403,7 @@ d_define_class(drawable) {d_hook_method(drawable, e_flag_public, copy_geometry),
                           d_hook_method(drawable, e_flag_public, get_principal_point),
                           d_hook_method(drawable, e_flag_public, get_scaled_principal_point),
                           d_hook_method(drawable, e_flag_public, set_center),
+                          d_hook_method(drawable, e_flag_public, set_center_alignment),
                           d_hook_method(drawable, e_flag_public, get_center),
                           d_hook_method(drawable, e_flag_public, set_angle),
                           d_hook_method(drawable, e_flag_public, get_angle),

@@ -33,6 +33,10 @@ typedef enum e_drawable_kinds {
   e_drawable_kind_ui_no_attribute_zoom = 0x020,
   e_drawable_kind_ui_no_attribute_angle = 0x040,
   e_drawable_kind_ui_no_attribute_flip = 0x080,
+  e_drawable_kind_do_not_normalize_environment_zoom = 0x100,
+  e_drawable_kind_do_not_normalize_local_zoom = 0x200,
+  e_drawable_kind_do_not_normalize_reference_ratio = 0x400,
+  e_drawable_kind_do_not_normalize_camera = 0x800
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
   e_drawable_flip_horizontal = SDL_FLIP_HORIZONTAL,
@@ -89,6 +93,7 @@ d_declare_method(drawable, get_scaled_dimension)(struct s_object *self, double *
 d_declare_method(drawable, get_principal_point)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, get_scaled_principal_point)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_center)(struct s_object *self, double x, double y);
+d_declare_method(drawable, set_center_alignment)(struct s_object *self, enum e_drawable_alignments alignment);
 d_declare_method(drawable, get_center)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_angle)(struct s_object *self, double angle);
 d_declare_method(drawable, get_angle)(struct s_object *self, double *angle);

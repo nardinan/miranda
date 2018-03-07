@@ -187,7 +187,6 @@ set_target_properties(miranda_ui PROPERTIES PUBLIC_HEADER "objects/media/ui/butt
 objects/media/ui/checkbox.obj.h;objects/media/ui/container.obj.h;objects/media/ui/field.obj.h;\
 objects/media/ui/fonts.obj.h;objects/media/ui/label.obj.h;objects/media/ui/list.obj.h;objects/media/ui/scroll.obj.h;\
 objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h")
-
 INSTALL(TARGETS miranda_ui
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/ui
