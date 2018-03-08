@@ -104,7 +104,8 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_lights_emitter *current_emitter;
   size_t size;
-  double intensity_modificator;
+  double intensity_modifier;
+  SDL_Texture *previous_target;
   SDL_Rect source, destination;
   SDL_Point center;
   if ((environment_attributes->current_w != lights_attributes->current_w) || (environment_attributes->current_h != lights_attributes->current_h)) {
@@ -131,6 +132,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   SDL_UpdateTexture(lights_attributes->background, NULL, lights_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
   SDL_SetTextureAlphaMod(lights_attributes->background, 255);
   d_miranda_lock(environment) {
+    previous_target = SDL_GetRenderTarget(environment_attributes->renderer);
     SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
   } d_miranda_unlock(environment);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
@@ -147,15 +149,15 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
                 environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
-      intensity_modificator = (current_emitter->current_intensity / 255.0);
-      d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int) (current_emitter->current_mask_R * intensity_modificator),
-             (unsigned int) (current_emitter->current_mask_G * intensity_modificator),
-             (unsigned int) (current_emitter->current_mask_B * intensity_modificator));
+      intensity_modifier = (current_emitter->current_intensity / 255.0);
+      d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int) (current_emitter->current_mask_R * intensity_modifier),
+             (unsigned int) (current_emitter->current_mask_G * intensity_modifier),
+             (unsigned int) (current_emitter->current_mask_B * intensity_modifier));
       while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
     }
   }
   d_miranda_lock(environment) {
-    SDL_SetRenderTarget(environment_attributes->renderer, NULL);
+    SDL_SetRenderTarget(environment_attributes->renderer, previous_target);
     SDL_RenderCopyEx(environment_attributes->renderer, lights_attributes->background, &source, &destination, 0.0, &center, SDL_FLIP_NONE);
   } d_miranda_unlock(environment);
   d_cast_return(d_drawable_return_last);
