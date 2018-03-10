@@ -145,7 +145,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
       }
       /* normalization for ratio and environmental zoom */
       current_w = ((current_w * camera_attributes->scene_reference_w) / camera_attributes->screen_w) / camera_attributes->scene_zoom;
-      current_h = ((current_w * camera_attributes->scene_reference_h) / camera_attributes->screen_h) / camera_attributes->scene_zoom;
+      current_h = ((current_h * camera_attributes->scene_reference_h) / camera_attributes->screen_h) / camera_attributes->scene_zoom;
       max_w = d_math_max(max_w, current_w);
       max_h = d_math_max(max_h, current_h);
     }
