@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "animation.obj.h"
+#include "camera.obj.h"
 struct s_animation_attributes *p_animation_alloc(struct s_object *self) {
   struct s_animation_attributes *result = d_prepare(self, animation);
   f_mutex_new(self);                                                  /* inherit */
@@ -111,6 +112,7 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
   struct s_animation_frame *next_frame = NULL;
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct timeval current, elapsed_update;
   double real_elapsed_update, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y, center_x, center_y, dimension_w = 0.0,
     dimension_h = 0.0;
@@ -164,13 +166,15 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
       drawable_attributes_core->angle = drawable_attributes_self->angle;
       drawable_attributes_core->flip = drawable_attributes_self->flip;
       if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale,
-                  environment_attributes->reference_w[environment_attributes->current_surface],
-                  environment_attributes->reference_h[environment_attributes->current_surface],
-                  environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                  environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                  environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                  environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                  environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
+                  camera_attributes->scene_reference_w,
+                  camera_attributes->scene_reference_h,
+                  camera_attributes->scene_offset_x,
+                  camera_attributes->scene_offset_y,
+                  camera_attributes->scene_center_x,
+                  camera_attributes->scene_center_y,
+                  camera_attributes->screen_w,
+                  camera_attributes->screen_h,
+                  camera_attributes->scene_zoom)))
         while (((int) d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);

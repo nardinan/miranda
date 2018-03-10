@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "checkbox.obj.h"
+#include "../camera.obj.h"
 struct s_checkbox_attributes *p_checkbox_alloc(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
   struct s_checkbox_attributes *result = d_prepare(self, checkbox);
   f_label_new_alignment(self, string_content, font, d_checkbox_background, d_checkbox_alignment, d_checkbox_alignment, environment); /* inherit */
@@ -54,8 +55,9 @@ d_define_method_override(checkbox, event)(struct s_object *self, struct s_object
 d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object *environment) {
   d_using(checkbox);
   struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
-  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_selected;
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_object *selected_component = NULL;
   double position_x, position_y, new_position_x, new_position_y, center_x, center_y, new_center_x, new_center_y, dimension_w_self, dimension_h_self,
     dimension_w_selected, dimension_h_selected, new_dimension_w, new_dimension_h;
@@ -82,13 +84,16 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
     drawable_attributes_selected->angle = drawable_attributes_self->angle;
     drawable_attributes_selected->zoom = drawable_attributes_self->zoom;
     drawable_attributes_selected->flip = drawable_attributes_self->flip;
-    if ((d_call(selected_component, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                environment_attributes->reference_h[environment_attributes->current_surface],
-                environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
+    if ((d_call(selected_component, m_drawable_normalize_scale,
+                camera_attributes->scene_reference_w,
+                camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x,
+                camera_attributes->scene_offset_y,
+                camera_attributes->scene_center_x,
+                camera_attributes->scene_center_y,
+                camera_attributes->screen_w,
+                camera_attributes->screen_h,
+                camera_attributes->scene_zoom)))
       while (((int) d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);

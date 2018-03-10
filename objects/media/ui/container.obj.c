@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "container.obj.h"
+#include "../camera.obj.h"
 struct s_container_attributes *p_container_alloc(struct s_object *self) {
   struct s_container_attributes *result = d_prepare(self, container);
   f_mutex_new(self);  /* inherit */
@@ -95,6 +96,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
   struct s_uiable_attributes *uiable_attributes_self = d_cast(self, uiable), *uiable_attributes_entry;
   struct s_square_attributes *square_attributes;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_container_drawable *current_container;
   double position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, position_x_entry, position_y_entry, center_x_self,
     center_y_self, center_x_entry, center_y_entry, max_w = container_attributes->border_left + container_attributes->border_right,
@@ -119,14 +121,16 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
       drawable_attributes_entry->zoom = container_attributes->distributed_zoom;
     if ((drawable_attributes_entry->flags & e_drawable_kind_ui_no_attribute_flip) != e_drawable_kind_ui_no_attribute_flip)
       drawable_attributes_entry->flip = drawable_attributes_self->flip;
-    if (((intptr_t) d_call(current_container->drawable, m_drawable_normalize_scale,
-                           environment_attributes->reference_w[environment_attributes->current_surface],
-                           environment_attributes->reference_h[environment_attributes->current_surface],
-                           environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                           environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                           environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                           environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                           environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+    if ((d_call(current_container->drawable, m_drawable_normalize_scale,
+                camera_attributes->scene_reference_w,
+                camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x,
+                camera_attributes->scene_offset_y,
+                camera_attributes->scene_center_x,
+                camera_attributes->scene_center_y,
+                camera_attributes->screen_w,
+                camera_attributes->screen_h,
+                camera_attributes->scene_zoom))) {
       square_attributes = d_cast(&(drawable_attributes_entry->square_collision_box), square);
       current_w = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
                              d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x)) -
@@ -140,22 +144,23 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
         current_h += uiable_attributes_entry->border_h;
       }
       /* normalization for ratio and environmental zoom */
-      current_w = ((current_w * environment_attributes->reference_w[environment_attributes->current_surface]) / environment_attributes->current_w) /
-                  environment_attributes->zoom[environment_attributes->current_surface];
-      current_h = ((current_h * environment_attributes->reference_h[environment_attributes->current_surface]) / environment_attributes->current_h) /
-                  environment_attributes->zoom[environment_attributes->current_surface];
+      current_w = ((current_w * camera_attributes->scene_reference_w) / camera_attributes->screen_w) / camera_attributes->scene_zoom;
+      current_h = ((current_w * camera_attributes->scene_reference_h) / camera_attributes->screen_h) / camera_attributes->scene_zoom;
       max_w = d_math_max(max_w, current_w);
       max_h = d_math_max(max_h, current_h);
     }
   }
   d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
-  if (((intptr_t) d_call(self, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                         environment_attributes->reference_h[environment_attributes->current_surface],
-                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                         environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                         environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                         environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                         environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+  if ((d_call(self, m_drawable_normalize_scale,
+              camera_attributes->scene_reference_w,
+              camera_attributes->scene_reference_h,
+              camera_attributes->scene_offset_x,
+              camera_attributes->scene_offset_y,
+              camera_attributes->scene_center_x,
+              camera_attributes->scene_center_y,
+              camera_attributes->screen_w,
+              camera_attributes->screen_h,
+              camera_attributes->scene_zoom))) {
     result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
     d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) while (
         ((int) d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);

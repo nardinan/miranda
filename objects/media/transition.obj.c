@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "transition.obj.h"
+#include "camera.obj.h"
 struct s_transition_attributes *p_transition_alloc(struct s_object *self) {
   struct s_transition_attributes *result = d_prepare(self, transition);
   f_mutex_new(self);                                                  /* inherit */
@@ -62,6 +63,7 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
   d_using(transition);
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct timeval current, elapsed_update;
   double real_elapsed_update, fraction_elapsed_update = 0.0, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y,
     center_x, center_y, angle, zoom, mask_R, mask_G, mask_B, mask_A;
@@ -145,13 +147,16 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
       drawable_attributes_core->zoom = zoom;
       drawable_attributes_core->angle = angle;
       drawable_attributes_core->flip = drawable_attributes_self->flip;
-      if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                  environment_attributes->reference_h[environment_attributes->current_surface],
-                  environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                  environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                  environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                  environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                  environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
+      if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale,
+                  camera_attributes->scene_reference_w,
+                  camera_attributes->scene_reference_h,
+                  camera_attributes->scene_offset_x,
+                  camera_attributes->scene_offset_y,
+                  camera_attributes->scene_center_x,
+                  camera_attributes->scene_center_y,
+                  camera_attributes->screen_w,
+                  camera_attributes->screen_h,
+                  camera_attributes->scene_zoom)))
         while (((int) d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }

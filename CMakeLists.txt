@@ -148,13 +148,15 @@ add_library(miranda_media SHARED
         objects/media/track.obj.c
         objects/media/track.obj.h
         objects/media/transition.obj.c
-        objects/media/transition.obj.h)
+        objects/media/transition.obj.h
+        objects/media/camera.obj.c
+        objects/media/camera.obj.h)
 
 set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "objects/media/animation.obj.h;objects/media/bitmap.obj.h;\
 objects/media/controllable.obj.h;objects/media/drawable.obj.h;objects/media/entity.obj.h;\
 objects/media/environment.obj.h;objects/media/eventable.obj.h;objects/media/lights.obj.h;\
 objects/media/media.h;objects/media/media_factory.obj.h;objects/media/morphable.obj.h;objects/media/particle.obj.h;\
-objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h")
+objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/camera.obj.h")
 INSTALL(TARGETS miranda_media
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media

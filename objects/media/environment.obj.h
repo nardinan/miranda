@@ -17,6 +17,7 @@
  */
 #ifndef miranda_media_environment_h
 #define miranda_media_environment_h
+#include "../map.obj.h"
 #include "primitives.h"
 #include "eventable.obj.h"
 #define d_environment_default_title "miranda"
@@ -41,10 +42,9 @@ d_declare_class(environment) {
   SDL_Window *window;
   SDL_Renderer *renderer;
   t_environment_call init_call, main_call, quit_call;
-  enum e_environment_surfaces current_surface;
-  double reference_w[e_environment_surface_NULL], reference_h[e_environment_surface_NULL], current_w, current_h, camera_origin_x[e_environment_surface_NULL],
-    camera_origin_y[e_environment_surface_NULL], camera_focus_x[e_environment_surface_NULL], camera_focus_y[e_environment_surface_NULL],
-    zoom[e_environment_surface_NULL], fps, mask_R, mask_G, mask_B, mask_A;
+  struct s_object *cameras;
+  struct s_object *current_camera;
+  double current_w, current_h, fps, mask_R, mask_G, mask_B, mask_A;
   struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
   t_boolean continue_loop;
 } d_declare_class_tail(environment);
@@ -60,14 +60,8 @@ d_declare_method(environment, set_maskA)(struct s_object *self, unsigned int alp
 d_declare_method(environment, set_fullscreen)(struct s_object *self, t_boolean fullscreen);
 d_declare_method(environment, set_size)(struct s_object *self, int width, int height);
 d_declare_method(environment, get_size)(struct s_object *self, int *width, int *height);
-d_declare_method(environment, set_camera)(struct s_object *self, double offset_x, double offset_y, enum e_environment_surfaces surface);
-d_declare_method(environment, get_camera)(struct s_object *self, double *offset_x, double *offset_y, enum e_environment_surfaces surface);
-d_declare_method(environment, set_reference)(struct s_object *self, double reference_w, double reference_h, enum e_environment_surfaces surface);
-d_declare_method(environment, get_reference)(struct s_object *self, double *reference_w, double *reference_h, enum e_environment_surfaces surface);
-d_declare_method(environment, set_focus)(struct s_object *self, double camera_focus_x, double camera_focus_y, enum e_environment_surfaces surface);
-d_declare_method(environment, get_focus)(struct s_object *self, double *camera_focus_x, double *camera_focus_y, enum e_environment_surfaces surface);
-d_declare_method(environment, set_zoom)(struct s_object *self, double zoom, enum e_environment_surfaces surface);
-d_declare_method(environment, get_zoom)(struct s_object *self, double *zoom, enum e_environment_surfaces surface);
+d_declare_method(environment, add_camera)(struct s_object *self, struct s_object *label, struct s_object *camera);
+d_declare_method(environment, get_camera)(struct s_object *self, struct s_object *label);
 d_declare_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable);

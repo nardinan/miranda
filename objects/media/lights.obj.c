@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "lights.obj.h"
+#include "camera.obj.h"
 void p_lights_modulator_flickering(struct s_lights_emitter *emitter) {
   clock_t current_clock = clock();
   double default_factor = 0.1, new_intensity = ((sin(((double) current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
@@ -102,6 +103,7 @@ d_define_method(lights, get_intensity)(struct s_object *self) {
 d_define_method_override(lights, draw)(struct s_object *self, struct s_object *environment) {
   d_using(lights);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   size_t size;
   double intensity_modifier;
@@ -140,13 +142,16 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     /* force the zoom/rotational center to be alignment with the center of the image */
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
-    if ((d_call(current_emitter->mask, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                environment_attributes->reference_h[environment_attributes->current_surface],
-                environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+    if ((d_call(current_emitter->mask, m_drawable_normalize_scale,
+                camera_attributes->scene_reference_w,
+                camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x,
+                camera_attributes->scene_offset_y,
+                camera_attributes->scene_center_x,
+                camera_attributes->scene_center_y,
+                camera_attributes->screen_w,
+                camera_attributes->screen_h,
+                camera_attributes->scene_zoom))) {
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
       intensity_modifier = (current_emitter->current_intensity / 255.0);

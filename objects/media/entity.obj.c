@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "entity.obj.h"
+#include "camera.obj.h"
 struct s_entity_attributes *p_entity_alloc(struct s_object *self) {
   struct s_entity_attributes *result = d_prepare(self, entity);
   /* abstract (no memory inheritance) */
@@ -114,6 +115,7 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
   d_using(entity);
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   double local_position_x, local_position_y, local_position_z, local_center_x, local_center_y, local_dimension_w, local_dimension_h, position_x, position_y,
     center_x, center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0, difference_x_seconds, difference_y_seconds,
     difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z;
@@ -177,13 +179,16 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
               d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
               drawable_attributes_core->zoom = (drawable_attributes_self->zoom * local_position_z);
               drawable_attributes_core->angle = drawable_attributes_self->angle;
-              if ((d_call(current_element->drawable, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                          environment_attributes->reference_h[environment_attributes->current_surface],
-                          environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                          environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                          environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                          environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                          environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
+              if ((d_call(current_element->drawable, m_drawable_normalize_scale,
+                          camera_attributes->scene_reference_w,
+                          camera_attributes->scene_reference_h,
+                          camera_attributes->scene_offset_x,
+                          camera_attributes->scene_offset_y,
+                          camera_attributes->scene_center_x,
+                          camera_attributes->scene_center_y,
+                          camera_attributes->screen_w,
+                          camera_attributes->screen_h,
+                          camera_attributes->scene_zoom)))
                 while (((int)d_call(current_element->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
             }
         }

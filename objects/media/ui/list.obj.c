@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "list.obj.h"
+#include "../camera.obj.h"
 struct s_list_attributes *p_list_alloc(struct s_object *self) {
   struct s_list_attributes *result = d_prepare(self, list);
   f_mutex_new(self);  /* inherit */
@@ -220,6 +221,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     *drawable_attributes_entry;
   struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_object *current_entry;
   double position_x, position_y, position_x_self, position_y_self, normalized_position_x_self, normalized_position_y_self, normalized_dimension_w_self,
     normalized_dimension_h_self, dimension_w_self, dimension_h_self, center_x_self, center_y_self, dimension_w_scroll, dimension_h_scroll,
@@ -256,13 +258,16 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
         drawable_attributes_entry->zoom = drawable_attributes_self->zoom;
         drawable_attributes_entry->flip = drawable_attributes_self->flip;
         d_call(&(drawable_attributes_entry->point_dimension), m_point_get, &dimension_w_entry, &dimension_h_entry);
-        if ((d_call(current_entry, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                    environment_attributes->reference_h[environment_attributes->current_surface],
-                    environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                    environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                    environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                    environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                    environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+        if ((d_call(current_entry, m_drawable_normalize_scale,
+                    camera_attributes->scene_reference_w,
+                    camera_attributes->scene_reference_h,
+                    camera_attributes->scene_offset_x,
+                    camera_attributes->scene_offset_y,
+                    camera_attributes->scene_center_x,
+                    camera_attributes->scene_center_y,
+                    camera_attributes->screen_w,
+                    camera_attributes->screen_h,
+                    camera_attributes->scene_zoom))) {
           d_call(&(drawable_attributes_entry->point_normalized_destination), m_point_get, &position_x_entry, &position_y_entry);
           d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry, &normalized_dimension_h_entry);
           if ((position_y_entry + normalized_dimension_h_entry) < (normalized_position_y_self + normalized_dimension_h_self)) {
@@ -295,13 +300,16 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
       ++pointer;
     }
   }
-  if ((d_call(list_attributes->scroll, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-              environment_attributes->reference_h[environment_attributes->current_surface],
-              environment_attributes->camera_origin_x[environment_attributes->current_surface],
-              environment_attributes->camera_origin_y[environment_attributes->current_surface],
-              environment_attributes->camera_focus_x[environment_attributes->current_surface],
-              environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-              environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+  if ((d_call(list_attributes->scroll, m_drawable_normalize_scale,
+              camera_attributes->scene_reference_w,
+              camera_attributes->scene_reference_h,
+              camera_attributes->scene_offset_x,
+              camera_attributes->scene_offset_y,
+              camera_attributes->scene_center_x,
+              camera_attributes->scene_center_y,
+              camera_attributes->screen_w,
+              camera_attributes->screen_h,
+              camera_attributes->scene_zoom))) {
     d_call(&(drawable_attributes_scroll->point_normalized_dimension), m_point_get, &normalized_dimension_w_scroll, &normalized_dimension_h_scroll);
     position_x = (normalized_position_x_self + normalized_dimension_w_self) - normalized_dimension_w_scroll - uiable_attributes->border_w;
     position_y = normalized_position_y_self + uiable_attributes->border_h;
