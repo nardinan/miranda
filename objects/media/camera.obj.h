@@ -37,6 +37,8 @@ d_declare_method(camera, set_position)(struct s_object *self, double position_x,
 d_declare_method(camera, get_position)(struct s_object *self, double *position_x, double *position_y);
 d_declare_method(camera, set_offset)(struct s_object *self, double offset_x, double offset_y);
 d_declare_method(camera, get_offset)(struct s_object *self, double *offset_x, double *offset_y);
+d_declare_method(camera, set_center)(struct s_object *self, double center_x, double center_y);
+d_declare_method(camera, get_center)(struct s_object *self, double *center_x, double *center_y);
 d_declare_method(camera, set_angle)(struct s_object *self, double angle);
 d_declare_method(camera, get_angle)(struct s_object *self, double *angle);
 d_declare_method(camera, set_zoom)(struct s_object *self, double zoom);

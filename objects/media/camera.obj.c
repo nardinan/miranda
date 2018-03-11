@@ -39,9 +39,9 @@ struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, dou
       attributes->surface = surface;
       attributes->scene_reference_w = screen_width;
       attributes->scene_reference_h = screen_height;
-      attributes->scene_center_x = (screen_width / 2.0);
-      attributes->scene_center_y = (screen_height / 2.0);
       attributes->scene_zoom = 1.0;
+      SDL_UpdateTexture(attributes->destination, NULL, attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
+      SDL_SetTextureBlendMode(attributes->destination, SDL_BLENDMODE_ADD);
     } else {
       d_free(attributes->memblock);
       attributes->memblock = NULL;
@@ -99,6 +99,18 @@ d_define_method(camera, get_offset)(struct s_object *self, double *offset_x, dou
   d_using(camera);
   *offset_x = camera_attributes->scene_offset_x;
   *offset_y = camera_attributes->scene_offset_y;
+  return self;
+}
+d_define_method(camera, set_center)(struct s_object *self, double center_x, double center_y) {
+  d_using(camera);
+  camera_attributes->scene_center_x = center_x;
+  camera_attributes->scene_center_y = center_y;
+  return self;
+}
+d_define_method(camera, get_center)(struct s_object *self, double *center_x, double *center_y) {
+  d_using(camera);
+  *center_x = camera_attributes->scene_center_x;
+  *center_y = camera_attributes->scene_center_y;
   return self;
 }
 d_define_method(camera, set_angle)(struct s_object *self, double angle) {
@@ -171,6 +183,8 @@ d_define_class(camera) {d_hook_method(camera, e_flag_public, set_size),
                         d_hook_method(camera, e_flag_public, get_position),
                         d_hook_method(camera, e_flag_public, set_offset),
                         d_hook_method(camera, e_flag_public, get_offset),
+                        d_hook_method(camera, e_flag_public, set_center),
+                        d_hook_method(camera, e_flag_public, get_center),
                         d_hook_method(camera, e_flag_public, set_angle),
                         d_hook_method(camera, e_flag_public, get_angle),
                         d_hook_method(camera, e_flag_public, set_zoom),
