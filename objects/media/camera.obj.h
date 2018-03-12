@@ -20,9 +20,10 @@
 #include "bitmap.obj.h"
 d_declare_class(camera) {
   struct s_attributes head;
-  double screen_position_x, screen_position_y, screen_w, screen_h, scene_reference_w, scene_reference_h, scene_offset_x, scene_offset_y,
-    scene_center_x, scene_center_y, scene_angle, scene_zoom;
   enum e_environment_surfaces surface;
+  double screen_position_x, screen_position_y, screen_w, screen_h, scene_reference_w, scene_reference_h, scene_offset_x, scene_offset_y, scene_center_x,
+    scene_center_y, scene_angle, scene_zoom;
+  struct s_object *controllers;
   unsigned char *memblock;
   SDL_Texture *destination;
 } d_declare_class_tail(camera);
@@ -43,6 +44,9 @@ d_declare_method(camera, set_angle)(struct s_object *self, double angle);
 d_declare_method(camera, get_angle)(struct s_object *self, double *angle);
 d_declare_method(camera, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(camera, get_zoom)(struct s_object *self, double *zoom);
+d_declare_method(camera, add_controller)(struct s_object *self, struct s_object *label, struct s_object *camera_controller);
+d_declare_method(camera, get_controller)(struct s_object *self, struct s_object *label);
+d_declare_method(camera, del_controller)(struct s_object *self, struct s_object *label);
 d_declare_method(camera, get_surface)(struct s_object *self, enum e_environment_surfaces *surface);
 d_declare_method(camera, initialize_context)(struct s_object *self, struct s_object *environment);
 d_declare_method(camera, finalize_context)(struct s_object *self, struct s_object *environment);

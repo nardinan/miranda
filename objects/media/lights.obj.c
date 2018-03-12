@@ -46,8 +46,6 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
       SDL_UpdateTexture(attributes->background, NULL, attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
       SDL_SetTextureBlendMode(attributes->background, SDL_BLENDMODE_MOD);
     } else {
-      d_free(attributes->memblock);
-      attributes->memblock = NULL;
       snprintf(buffer, d_string_buffer_size, "ungenerable texture from empty bitmap (size %.02f %.02f)", environment_attributes->current_w,
                environment_attributes->current_h);
       d_throw(v_exception_texture, buffer);
