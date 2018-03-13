@@ -19,15 +19,15 @@
 #include "camera.obj.h"
 struct s_transition_attributes *p_transition_alloc(struct s_object *self) {
   struct s_transition_attributes *result = d_prepare(self, transition);
-  f_mutex_new(self);                                                  /* inherit */
-  f_memory_new(self);                                                  /* inherit */
+  f_mutex_new(self);                                                                  /* inherit */
+  f_memory_new(self);                                                                 /* inherit */
   f_drawable_new(self, (e_drawable_kind_single | e_drawable_kind_force_visibility));  /* inherit */
   return result;
 }
 struct s_object *f_transition_new(struct s_object *self, struct s_object *drawable, double time_ratio) {
   struct s_transition_attributes *attributes = p_transition_alloc(self);
   struct s_drawable_attributes *drawable_attributes_core;
-  double dimension_w = 0.0, dimension_h = 0.0;
+  double dimension_w, dimension_h;
   memset(&(attributes->keys), 0, sizeof(struct s_list));
   if ((attributes->drawable = d_retain(drawable))) {
     drawable_attributes_core = d_cast(attributes->drawable, drawable);
@@ -41,9 +41,9 @@ struct s_object *f_transition_new(struct s_object *self, struct s_object *drawab
 d_define_method(transition, append_key)(struct s_object *self, struct s_transition_key transition) {
   d_using(transition);
   struct s_transition_key *current_key;
-  if ((current_key = (struct s_transition_key *) d_malloc(sizeof(struct s_transition_key)))) {
+  if ((current_key = (struct s_transition_key *)d_malloc(sizeof(struct s_transition_key)))) {
     memcpy(current_key, &transition, sizeof(struct s_transition_key));
-    f_list_append(&(transition_attributes->keys), (struct s_list_node *) current_key, e_list_insert_tail);
+    f_list_append(&(transition_attributes->keys), (struct s_list_node *)current_key, e_list_insert_tail);
   } else
     d_die(d_error_malloc);
   return self;
@@ -75,15 +75,15 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
     if ((transition_attributes->status == e_transition_direction_forward) || (transition_attributes->status == e_transition_direction_rewind)) {
       if ((transition_attributes->current_key) && (transition_attributes->next_key)) {
         timersub(&current, &(transition_attributes->last_update), &elapsed_update);
-        real_elapsed_update = elapsed_update.tv_sec + ((double) (elapsed_update.tv_usec) / 1000000.0);
+        real_elapsed_update = elapsed_update.tv_sec + ((double)(elapsed_update.tv_usec) / 1000000.0);
         if (real_elapsed_update > (transition_attributes->next_key->time * transition_attributes->time_ratio)) {
           transition_attributes->current_key = transition_attributes->next_key;
           switch (transition_attributes->status) {
             case e_transition_direction_forward:
-              transition_attributes->next_key = (struct s_transition_key *) ((struct s_list_node *) transition_attributes->next_key)->next;
+              transition_attributes->next_key = (struct s_transition_key *)((struct s_list_node *)transition_attributes->next_key)->next;
               break;
             case e_transition_direction_rewind:
-              transition_attributes->next_key = (struct s_transition_key *) ((struct s_list_node *) transition_attributes->next_key)->back;
+              transition_attributes->next_key = (struct s_transition_key *)((struct s_list_node *)transition_attributes->next_key)->back;
             default:
               break;
           }
@@ -93,19 +93,19 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
       } else if (!transition_attributes->current_key) {
         switch (transition_attributes->status) {
           case e_transition_direction_forward:
-            if ((transition_attributes->current_key = (struct s_transition_key *) (transition_attributes->keys.head)))
-              transition_attributes->next_key = (struct s_transition_key *) ((struct s_list_node *) transition_attributes->current_key)->next;
+            if ((transition_attributes->current_key = (struct s_transition_key *)(transition_attributes->keys.head)))
+              transition_attributes->next_key = (struct s_transition_key *)((struct s_list_node *)transition_attributes->current_key)->next;
             break;
           case e_transition_direction_rewind:
-            if ((transition_attributes->current_key = (struct s_transition_key *) (transition_attributes->keys.tail)))
-              transition_attributes->next_key = (struct s_transition_key *) ((struct s_list_node *) transition_attributes->current_key)->back;
+            if ((transition_attributes->current_key = (struct s_transition_key *)(transition_attributes->keys.tail)))
+              transition_attributes->next_key = (struct s_transition_key *)((struct s_list_node *)transition_attributes->current_key)->back;
           default:
             break;
         }
         memcpy(&(transition_attributes->last_update), &current, sizeof(struct timeval));
       }
     } else if ((transition_attributes->status == e_transition_direction_stop) || (!transition_attributes->current_key))
-      transition_attributes->current_key = (struct s_transition_key *) (transition_attributes->keys.head);
+      transition_attributes->current_key = (struct s_transition_key *)(transition_attributes->keys.head);
     if (transition_attributes->current_key) {
       if (transition_attributes->next_key) {
         center_x = local_center_x + d_transition_factor_value(transition_attributes->current_key->position_x, transition_attributes->next_key->position_x,
@@ -142,22 +142,15 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
       }
       d_call(transition_attributes->drawable, m_drawable_set_position, position_x, position_y);
       d_call(transition_attributes->drawable, m_drawable_set_center, center_x, center_y);
-      d_call(transition_attributes->drawable, m_drawable_set_maskRGB, (unsigned int) mask_R, (unsigned int) mask_G, (unsigned int) mask_B);
-      d_call(transition_attributes->drawable, m_drawable_set_maskA, (unsigned int) mask_A);
+      d_call(transition_attributes->drawable, m_drawable_set_maskRGB, (unsigned int)mask_R, (unsigned int)mask_G, (unsigned int)mask_B);
+      d_call(transition_attributes->drawable, m_drawable_set_maskA, (unsigned int)mask_A);
       drawable_attributes_core->zoom = zoom;
       drawable_attributes_core->angle = angle;
       drawable_attributes_core->flip = drawable_attributes_self->flip;
-      if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale,
-                  camera_attributes->scene_reference_w,
-                  camera_attributes->scene_reference_h,
-                  camera_attributes->scene_offset_x,
-                  camera_attributes->scene_offset_y,
-                  camera_attributes->scene_center_x,
-                  camera_attributes->scene_center_y,
-                  camera_attributes->screen_w,
-                  camera_attributes->screen_h,
-                  camera_attributes->scene_zoom)))
-        while (((int) d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+      if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                  camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                  camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+        while (((int)d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
   if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
@@ -220,8 +213,8 @@ d_define_method(transition, delete)(struct s_object *self, struct s_transition_a
   struct s_transition_key *current_key;
   if (attributes->drawable)
     d_delete(attributes->drawable);
-  while ((current_key = (struct s_transition_key *) attributes->keys.head)) {
-    f_list_delete(&(attributes->keys), (struct s_list_node *) current_key);
+  while ((current_key = (struct s_transition_key *)attributes->keys.head)) {
+    f_list_delete(&(attributes->keys), (struct s_list_node *)current_key);
     d_free(current_key);
   }
   return NULL;

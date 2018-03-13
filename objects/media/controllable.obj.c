@@ -36,10 +36,10 @@ d_define_method(controllable, add_configuration)(struct s_object *self, int key,
                                                  t_controllable_action action_double, t_boolean single_shot) {
   d_using(controllable);
   struct s_controllable_entry *current_entry;
-  if (!(current_entry = (struct s_controllable_entry *) d_call(self, m_controllable_get_configuration, key))) {
-    if ((current_entry = (struct s_controllable_entry *) d_malloc(sizeof(struct s_controllable_entry)))) {
+  if (!(current_entry = (struct s_controllable_entry *)d_call(self, m_controllable_get_configuration, key))) {
+    if ((current_entry = (struct s_controllable_entry *)d_malloc(sizeof(struct s_controllable_entry)))) {
       current_entry->key = key;
-      f_list_append(&(controllable_attributes->configurations), (struct s_list_node *) current_entry, e_list_insert_head);
+      f_list_append(&(controllable_attributes->configurations), (struct s_list_node *)current_entry, e_list_insert_head);
     } else
       d_die(d_error_malloc);
   }
@@ -109,14 +109,15 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
         {
           d_exception_dump(stderr, exception);
           d_raise;
-        }d_endtry;
+        }
+    d_endtry;
   }
   return result;
 }
 d_define_method(controllable, delete)(struct s_object *self, struct s_controllable_attributes *attributes) {
   struct s_controllable_entry *current_entry;
-  while ((current_entry = (struct s_controllable_entry *) attributes->configurations.head)) {
-    f_list_delete(&(attributes->configurations), (struct s_list_node *) current_entry);
+  while ((current_entry = (struct s_controllable_entry *)attributes->configurations.head)) {
+    f_list_delete(&(attributes->configurations), (struct s_list_node *)current_entry);
     d_free(current_entry);
   }
   return NULL;

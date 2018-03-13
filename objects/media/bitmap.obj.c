@@ -19,9 +19,9 @@
 d_exception_define(texture, 13, "ungenerable texture excepton");
 struct s_bitmap_attributes *p_bitmap_alloc(struct s_object *self) {
   struct s_bitmap_attributes *result = d_prepare(self, bitmap);
-  f_mutex_new(self);                        /* inherit */
-  f_memory_new(self);                        /* inherit */
-  f_drawable_new(self, e_drawable_kind_single);  /* inherit */
+  f_mutex_new(self);                              /* inherit */
+  f_memory_new(self);                             /* inherit */
+  f_drawable_new(self, e_drawable_kind_single);   /* inherit */
   return result;
 }
 struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, struct s_object *environment) {
@@ -42,10 +42,10 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
         attributes->image = SDL_CreateTextureFromSurface(environment_attributes->renderer, unoptimized_surface);
       } d_miranda_unlock(environment);
       if (SDL_QueryTexture(attributes->image, NULL, NULL, &width, &height) == 0) {
-        d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double) width);
-        d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double) height);
-        d_call(&(drawable_attributes->point_center), m_point_set_x, (double) (width / 2.0));
-        d_call(&(drawable_attributes->point_center), m_point_set_y, (double) (height / 2.0));
+        d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)width);
+        d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)height);
+        d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(width / 2.0));
+        d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(height / 2.0));
       } else {
         snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for bitmap %s exception", d_string_cstring(stream_attributes->string_name));
         d_throw(v_exception_texture, buffer);
@@ -85,7 +85,7 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
   center.y = center_y;
   d_miranda_lock(environment) {
     SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                     (SDL_RendererFlip) drawable_attributes->flip);
+                     (SDL_RendererFlip)drawable_attributes->flip);
   } d_miranda_unlock(environment);
   if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);
@@ -94,9 +94,9 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
 d_define_method_override(bitmap, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
   d_using(bitmap);
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
-  drawable_attributes->last_mask_R = (double) red;
-  drawable_attributes->last_mask_G = (double) green;
-  drawable_attributes->last_mask_B = (double) blue;
+  drawable_attributes->last_mask_R = (double)red;
+  drawable_attributes->last_mask_G = (double)green;
+  drawable_attributes->last_mask_B = (double)blue;
   SDL_SetTextureColorMod(bitmap_attributes->image, red, green, blue);
   return self;
 }
@@ -111,7 +111,7 @@ d_define_method_override(bitmap, set_blend)(struct s_object *self, enum e_drawab
   d_using(bitmap);
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   drawable_attributes->last_blend = blend;
-  SDL_SetTextureBlendMode(bitmap_attributes->image, (SDL_BlendMode) blend);
+  SDL_SetTextureBlendMode(bitmap_attributes->image, (SDL_BlendMode)blend);
   return self;
 }
 d_define_method(bitmap, delete)(struct s_object *self, struct s_bitmap_attributes *attributes) {

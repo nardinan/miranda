@@ -76,7 +76,7 @@ d_define_method(runnable, run)(struct s_object *self) {
       if ((value = sem_getvalue_miranda(&(runnable_attributes->kill_required))) != -1)
         if (value > 0)
           while (sem_trywait_miranda(&(runnable_attributes->kill_required)) == 0);
-      if (pthread_create(&(runnable_attributes->descriptor), NULL, (t_thread_routine) &p_runnable_run_interface, self) == 0)
+      if (pthread_create(&(runnable_attributes->descriptor), NULL, (t_thread_routine)&p_runnable_run_interface, self) == 0)
         result = self;
     }
   return result;

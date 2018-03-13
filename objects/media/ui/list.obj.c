@@ -19,9 +19,9 @@
 #include "../camera.obj.h"
 struct s_list_attributes *p_list_alloc(struct s_object *self) {
   struct s_list_attributes *result = d_prepare(self, list);
-  f_mutex_new(self);  /* inherit */
-  f_memory_new(self);  /* inherit */
-  f_uiable_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_uiable_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
@@ -40,9 +40,9 @@ struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
 }
 d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable) {
   d_using(list);
-  d_call(uiable, m_drawable_set_maskRGB, (unsigned int) list_attributes->last_mask_R, (unsigned int) list_attributes->last_mask_G,
-         (unsigned int) list_attributes->last_mask_B);
-  d_call(uiable, m_drawable_set_maskA, (unsigned int) list_attributes->last_mask_A);
+  d_call(uiable, m_drawable_set_maskRGB, (unsigned int)list_attributes->last_mask_R, (unsigned int)list_attributes->last_mask_G,
+         (unsigned int)list_attributes->last_mask_B);
+  d_call(uiable, m_drawable_set_maskA, (unsigned int)list_attributes->last_mask_A);
   d_call(uiable, m_drawable_set_blend, list_attributes->last_blend);
   f_list_append(&(list_attributes->uiables), d_retain(uiable), e_list_insert_tail);
   ++(list_attributes->uiable_entries);
@@ -53,8 +53,8 @@ d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable
   d_using(list);
   struct s_object *current_entry = uiable;
   int index, pointer = 0;
-  while (((struct s_list_node *) current_entry)->back) {
-    current_entry = (struct s_object *) ((struct s_list_node *) current_entry)->back;
+  while (((struct s_list_node *)current_entry)->back) {
+    current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
     ++pointer;
   }
   for (index = 0; index < d_list_max_selected; ++index)
@@ -67,7 +67,7 @@ d_define_method(list, del_uiable)(struct s_object *self, struct s_object *uiable
   for (index = 0; index < d_list_max_selected; ++index)
     if (list_attributes->selection[index] > pointer)
       --list_attributes->selection[index];
-  f_list_delete(&(list_attributes->uiables), (struct s_list_node *) uiable);
+  f_list_delete(&(list_attributes->uiables), (struct s_list_node *)uiable);
   --(list_attributes->uiable_entries);
   d_delete(uiable);
   return uiable;
@@ -90,8 +90,8 @@ d_define_method(list, set_selected_uiable)(struct s_object *self, struct s_objec
   struct s_object *current_entry = uiable;
   int index, pointer = 0;
   t_boolean new_selection = d_false;
-  while (((struct s_list_node *) current_entry)->back) {
-    current_entry = (struct s_object *) ((struct s_list_node *) current_entry)->back;
+  while (((struct s_list_node *)current_entry)->back) {
+    current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
     ++pointer;
   }
   if ((list_attributes->selection[0] != pointer) && (new_selection = d_true))
@@ -105,8 +105,8 @@ d_define_method(list, add_selected_uiable)(struct s_object *self, struct s_objec
   struct s_object *current_entry = uiable;
   int index, pointer = 0;
   t_boolean new_selection = d_false;
-  while (((struct s_list_node *) current_entry)->back) {
-    current_entry = (struct s_object *) ((struct s_list_node *) current_entry)->back;
+  while (((struct s_list_node *)current_entry)->back) {
+    current_entry = (struct s_object *)((struct s_list_node *)current_entry)->back;
     ++pointer;
   }
   for (index = 0; index < d_list_max_selected; ++index)
@@ -149,7 +149,8 @@ d_define_method_override(list, mode)(struct s_object *self, enum e_uiable_modes 
   struct s_object *current_entry;
   struct s_object *result = d_call_owner(self, uiable, m_uiable_mode, mode);
   d_call(list_attributes->scroll, m_uiable_mode, mode);
-  d_foreach(&(list_attributes->uiables), current_entry, struct s_object)d_call(current_entry, m_uiable_mode, mode);
+  d_foreach(&(list_attributes->uiables), current_entry, struct s_object)
+    d_call(current_entry, m_uiable_mode, mode);
   return result;
 }
 d_define_method_override(list, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
@@ -162,13 +163,13 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
   int mouse_x, mouse_y, pointer = 0, forwarded_entries = 0, starting_uiable = 0;
   t_boolean new_selection = d_false, modified = d_false;
   SDL_GetMouseState(&mouse_x, &mouse_y);
-  if (((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y))) {
+  if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
     scroll_attributes->force_event = d_true;
     {
       d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
     }
     scroll_attributes->force_event = d_false;
-    if ((starting_uiable = (intptr_t) d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
+    if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
       d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
         if (pointer >= starting_uiable) {
           d_call(current_entry, m_eventable_event, environment, current_event);
@@ -176,9 +177,9 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
             uiable_attributes_entry = d_cast(current_entry, uiable);
             if (uiable_attributes_entry->selected_mode == e_uiable_mode_selected) {
               if (((keystate[SDL_SCANCODE_LSHIFT]) || (keystate[SDL_SCANCODE_RSHIFT])) && (list_attributes->multi_selection))
-                new_selection |= (intptr_t) d_call(self, m_list_add_selected_uiable, current_entry);
+                new_selection |= (intptr_t)d_call(self, m_list_add_selected_uiable, current_entry);
               else
-                new_selection |= (intptr_t) d_call(self, m_list_set_selected_uiable, current_entry);
+                new_selection |= (intptr_t)d_call(self, m_list_set_selected_uiable, current_entry);
             }
           }
           if ((++forwarded_entries) == list_attributes->visible_entries)
@@ -228,7 +229,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     normalized_dimension_w_scroll, normalized_dimension_h_scroll, position_x_entry, position_y_entry, dimension_w_entry, dimension_h_entry,
     normalized_dimension_w_entry, normalized_dimension_h_entry, center_x, center_y, normalized_center_x_self, normalized_center_y_self, new_position_y;
   int index, pointer = 0, mouse_x, mouse_y, starting_uiable,
-    result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+    result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
   t_boolean is_selected;
   drawable_attributes_scroll->angle = drawable_attributes_self->angle;
   list_attributes->visible_entries = 0;
@@ -243,7 +244,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
   drawable_attributes_scroll->angle = drawable_attributes_self->angle;
   drawable_attributes_scroll->zoom = drawable_attributes_self->zoom;
   drawable_attributes_scroll->flip = drawable_attributes_self->flip;
-  if ((starting_uiable = (intptr_t) d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0) {
+  if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0) {
     SDL_GetMouseState(&mouse_x, &mouse_y);
     new_position_y = position_y_self;
     d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
@@ -258,16 +259,9 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
         drawable_attributes_entry->zoom = drawable_attributes_self->zoom;
         drawable_attributes_entry->flip = drawable_attributes_self->flip;
         d_call(&(drawable_attributes_entry->point_dimension), m_point_get, &dimension_w_entry, &dimension_h_entry);
-        if ((d_call(current_entry, m_drawable_normalize_scale,
-                    camera_attributes->scene_reference_w,
-                    camera_attributes->scene_reference_h,
-                    camera_attributes->scene_offset_x,
-                    camera_attributes->scene_offset_y,
-                    camera_attributes->scene_center_x,
-                    camera_attributes->scene_center_y,
-                    camera_attributes->screen_w,
-                    camera_attributes->screen_h,
-                    camera_attributes->scene_zoom))) {
+        if ((d_call(current_entry, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                    camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
           d_call(&(drawable_attributes_entry->point_normalized_destination), m_point_get, &position_x_entry, &position_y_entry);
           d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry, &normalized_dimension_h_entry);
           if ((position_y_entry + normalized_dimension_h_entry) < (normalized_position_y_self + normalized_dimension_h_self)) {
@@ -278,19 +272,18 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
                 break;
               }
             if (is_selected)
-              d_call(current_entry, m_uiable_set_background, (unsigned int) list_attributes->selected_background_R,
-                     (unsigned int) list_attributes->selected_background_G, (unsigned int) list_attributes->selected_background_B,
-                     (unsigned int) list_attributes->selected_background_A);
-            else if ((intptr_t) d_call(&(drawable_attributes_entry->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y))
-              d_call(current_entry, m_uiable_set_background, (unsigned int) list_attributes->over_background_R,
-                     (unsigned int) list_attributes->over_background_G, (unsigned int) list_attributes->over_background_B,
-                     (unsigned int) list_attributes->over_background_A);
+              d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->selected_background_R,
+                     (unsigned int)list_attributes->selected_background_G, (unsigned int)list_attributes->selected_background_B,
+                     (unsigned int)list_attributes->selected_background_A);
+            else if ((intptr_t)d_call(&(drawable_attributes_entry->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))
+              d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->over_background_R, (unsigned int)list_attributes->over_background_G,
+                     (unsigned int)list_attributes->over_background_B, (unsigned int)list_attributes->over_background_A);
             else
-              d_call(current_entry, m_uiable_set_background, (unsigned int) list_attributes->unselected_background_R,
-                     (unsigned int) list_attributes->unselected_background_G, (unsigned int) list_attributes->unselected_background_B,
-                     (unsigned int) list_attributes->unselected_background_A);
+              d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->unselected_background_R,
+                     (unsigned int)list_attributes->unselected_background_G, (unsigned int)list_attributes->unselected_background_B,
+                     (unsigned int)list_attributes->unselected_background_A);
             d_call(current_entry, m_drawable_set_blend, list_attributes->last_blend);
-            while (((int) d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
+            while (((int)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
             ++(list_attributes->visible_entries);
           } else
             break; /* not visible anymore */
@@ -300,16 +293,9 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
       ++pointer;
     }
   }
-  if ((d_call(list_attributes->scroll, m_drawable_normalize_scale,
-              camera_attributes->scene_reference_w,
-              camera_attributes->scene_reference_h,
-              camera_attributes->scene_offset_x,
-              camera_attributes->scene_offset_y,
-              camera_attributes->scene_center_x,
-              camera_attributes->scene_center_y,
-              camera_attributes->screen_w,
-              camera_attributes->screen_h,
-              camera_attributes->scene_zoom))) {
+  if ((d_call(list_attributes->scroll, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+              camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+              camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
     d_call(&(drawable_attributes_scroll->point_normalized_dimension), m_point_get, &normalized_dimension_w_scroll, &normalized_dimension_h_scroll);
     position_x = (normalized_position_x_self + normalized_dimension_w_self) - normalized_dimension_w_scroll - uiable_attributes->border_w;
     position_y = normalized_position_y_self + uiable_attributes->border_h;
@@ -323,7 +309,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right, (position_x + normalized_dimension_w_scroll),
            (position_y + normalized_dimension_h_scroll));
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_center, center_x, center_y);
-    while (((int) d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
+    while (((int)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
 }
@@ -332,7 +318,8 @@ d_define_method_override(list, set_maskRGB)(struct s_object *self, unsigned int 
   struct s_object *current_node;
   d_call_owner(self, uiable, m_drawable_set_maskRGB, red, green, blue);
   d_call(list_attributes->scroll, m_drawable_set_maskRGB, red, green, blue);
-  d_foreach(&(list_attributes->uiables), current_node, struct s_object) d_call(current_node, m_drawable_set_maskRGB, red, green, blue);
+  d_foreach(&(list_attributes->uiables), current_node, struct s_object)
+    d_call(current_node, m_drawable_set_maskRGB, red, green, blue);
   list_attributes->last_mask_R = red;
   list_attributes->last_mask_G = green;
   list_attributes->last_mask_B = blue;
@@ -343,7 +330,8 @@ d_define_method_override(list, set_maskA)(struct s_object *self, unsigned int al
   struct s_object *current_node;
   d_call_owner(self, uiable, m_drawable_set_maskA, alpha);
   d_call(list_attributes->scroll, m_drawable_set_maskA, alpha);
-  d_foreach(&(list_attributes->uiables), current_node, struct s_object) d_call(current_node, m_drawable_set_maskA, alpha);
+  d_foreach(&(list_attributes->uiables), current_node, struct s_object)
+    d_call(current_node, m_drawable_set_maskA, alpha);
   list_attributes->last_mask_A = alpha;
   return self;
 }
@@ -352,15 +340,16 @@ d_define_method_override(list, set_blend)(struct s_object *self, enum e_drawable
   struct s_object *current_node;
   d_call_owner(self, uiable, m_drawable_set_blend, blend);
   d_call(list_attributes->scroll, m_drawable_set_blend, blend);
-  d_foreach(&(list_attributes->uiables), current_node, struct s_object) d_call(current_node, m_drawable_set_blend, blend);
+  d_foreach(&(list_attributes->uiables), current_node, struct s_object)
+    d_call(current_node, m_drawable_set_blend, blend);
   list_attributes->last_blend = blend;
   return self;
 }
 d_define_method(list, delete)(struct s_object *self, struct s_list_attributes *attributes) {
   struct s_object *current_node;
   d_delete(attributes->scroll);
-  while ((current_node = (struct s_object *) (attributes->uiables.head))) {
-    f_list_delete(&(attributes->uiables), (struct s_list_node *) current_node);
+  while ((current_node = (struct s_object *)(attributes->uiables.head))) {
+    f_list_delete(&(attributes->uiables), (struct s_list_node *)current_node);
     d_delete(current_node);
   }
   return NULL;

@@ -47,7 +47,8 @@ d_define_method(media_factory, get_bitmap)(struct s_object *self, const char *la
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, get_animation)(struct s_object *self, const char *label) {
@@ -60,7 +61,7 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
   enum e_drawable_flips flip;
   char *string_supply;
   t_boolean animation_flip_x = d_false, animation_flip_y = d_false, frame_flip_x, frame_flip_y, key_frame;
-  double offset_x, offset_y, zoom, time, time_ratio = 1.0, mask_R = 255.0, mask_G = 255.0, mask_B = 255.0, mask_A = 255.0, frame_mask_R, frame_mask_G,
+  double offset_x, offset_y, zoom, time_duration, time_ratio = 1.0, mask_R = 255.0, mask_G = 255.0, mask_B = 255.0, mask_A = 255.0, frame_mask_R, frame_mask_G,
     frame_mask_B, frame_mask_A, cycles = d_animation_infinite_loop;
   int index = 0;
   d_try
@@ -77,14 +78,14 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
                 d_call(json, m_json_get_double, &mask_G, "s", "mask_G");
                 d_call(json, m_json_get_double, &mask_B, "s", "mask_B");
                 d_call(json, m_json_get_double, &mask_A, "s", "mask_A");
-                if ((result = f_animation_new(d_new(animation), (int) cycles, time_ratio))) {
-                  d_call(result, m_drawable_set_maskRGB, (unsigned int) mask_R, (unsigned int) mask_G, (unsigned int) mask_B);
-                  d_call(result, m_drawable_set_maskA, (unsigned int) mask_A);
+                if ((result = f_animation_new(d_new(animation), (int)cycles, time_ratio))) {
+                  d_call(result, m_drawable_set_maskRGB, (unsigned int)mask_R, (unsigned int)mask_G, (unsigned int)mask_B);
+                  d_call(result, m_drawable_set_maskA, (unsigned int)mask_A);
                   while ((d_call(json, m_json_get_string, &string_supply, "sds", "frames", index, "drawable"))) {
                     offset_x = 0.0;
                     offset_y = 0.0;
                     zoom = 1.0;
-                    time = d_media_factory_animation_frame_time;
+                    time_duration = d_media_factory_animation_frame_time;
                     frame_flip_x = animation_flip_x;
                     frame_flip_y = animation_flip_y;
                     frame_mask_R = mask_R;
@@ -95,7 +96,7 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
                     d_call(json, m_json_get_double, &offset_x, "sds", "frames", index, "offset_x");
                     d_call(json, m_json_get_double, &offset_y, "sds", "frames", index, "offset_y");
                     d_call(json, m_json_get_double, &zoom, "sds", "frames", index, "zoom");
-                    d_call(json, m_json_get_double, &time, "sds", "frames", index, "time");
+                    d_call(json, m_json_get_double, &time_duration, "sds", "frames", index, "time");
                     d_call(json, m_json_get_double, &frame_mask_R, "sds", "frames", index, "mask_R");
                     d_call(json, m_json_get_double, &frame_mask_G, "sds", "frames", index, "mask_G");
                     d_call(json, m_json_get_double, &frame_mask_B, "sds", "frames", index, "mask_B");
@@ -113,14 +114,14 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
                       else
                         flip = e_drawable_flip_none;
                       d_call(bitmap, m_drawable_flip, flip);
-                      d_call(result, m_animation_append_key_frame, bitmap, offset_x, offset_y, zoom, time, key_frame);
+                      d_call(result, m_animation_append_key_frame, bitmap, offset_x, offset_y, zoom, time_duration, key_frame);
                       if (bitmap) {
-                        d_call(bitmap, m_drawable_set_maskRGB, (unsigned int) frame_mask_R, (unsigned int) frame_mask_G, (unsigned int) frame_mask_B);
-                        d_call(bitmap, m_drawable_set_maskA, (unsigned int) frame_mask_A);
+                        d_call(bitmap, m_drawable_set_maskRGB, (unsigned int)frame_mask_R, (unsigned int)frame_mask_G, (unsigned int)frame_mask_B);
+                        d_call(bitmap, m_drawable_set_maskA, (unsigned int)frame_mask_A);
                         d_delete(bitmap);
                       }
                     } else
-                      d_err(e_log_level_ever, "impossible to load the frame %s, part of the animation %s", string_supply, label);
+                      d_err(e_log_level_ever, "impossible to load the frame %s, part of the animation %s (the frame will be skipped)", string_supply, label);
                     ++index;
                   }
                 } else
@@ -133,7 +134,8 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, get_transition)(struct s_object *self, const char *label) {
@@ -207,7 +209,8 @@ d_define_method(media_factory, get_transition)(struct s_object *self, const char
                     d_die(d_error_malloc);
                   d_delete(drawable);
                 } else
-                  d_err(e_log_level_ever, "impossible to load the drawable %s, part of the transition %s", string_supply, label);
+                  d_err(e_log_level_ever, "impossible to load the drawable %s, part of the transition %s (this component will be skipped)", string_supply,
+                        label);
               }
             d_delete(json);
           } else
@@ -218,7 +221,8 @@ d_define_method(media_factory, get_transition)(struct s_object *self, const char
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, get_particle_structure)(struct s_object *self, struct s_object *json, struct s_particle_configuration_core *configuration,
@@ -304,7 +308,8 @@ d_define_method(media_factory, get_particle)(struct s_object *self, const char *
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, get_media)(struct s_object *self, const char *label, enum e_media_factory_media_types *selected_type) {
@@ -329,7 +334,8 @@ d_define_method(media_factory, get_media)(struct s_object *self, const char *lab
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, get_track)(struct s_object *self, const char *label) {
@@ -348,7 +354,8 @@ d_define_method(media_factory, get_track)(struct s_object *self, const char *lab
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method(media_factory, delete)(struct s_object *self, struct s_media_factory_attributes *attributes) {

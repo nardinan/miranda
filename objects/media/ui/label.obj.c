@@ -18,9 +18,9 @@
 #include "label.obj.h"
 struct s_label_attributes *p_label_alloc(struct s_object *self) {
   struct s_label_attributes *result = d_prepare(self, label);
-  f_mutex_new(self);  /* inherit */
-  f_memory_new(self);  /* inherit */
-  f_uiable_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_uiable_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
@@ -52,12 +52,12 @@ d_define_method(label, set_content_char)(struct s_object *self, char *string_con
     if (label_attributes->string_content) {
       /* realloc only if really needed */
       if (label_attributes->size < (string_length + 1)) {
-        if ((label_attributes->string_content = (char *) d_realloc(label_attributes->string_content, (string_length + 1))))
+        if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, (string_length + 1))))
           label_attributes->size = (string_length + 1);
         else
           d_die(d_error_malloc);
       }
-    } else if ((label_attributes->string_content = (char *) d_malloc(string_length + 1)))
+    } else if ((label_attributes->string_content = (char *)d_malloc(string_length + 1)))
       label_attributes->size = (string_length + 1);
     else
       d_die(d_error_malloc);
@@ -111,13 +111,13 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
             label_attributes->last_width = width + (uiable_attributes->border_w * 2.0);
             label_attributes->last_height = height + (uiable_attributes->border_h * 2.0);
           }
-          d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double) label_attributes->last_width);
-          d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double) label_attributes->last_height);
+          d_call(&(drawable_attributes->point_dimension), m_point_set_x, (double)label_attributes->last_width);
+          d_call(&(drawable_attributes->point_dimension), m_point_set_y, (double)label_attributes->last_height);
           if (label_attributes->last_blend != e_drawable_blend_undefined)
             d_call(self, m_drawable_set_blend, label_attributes->last_blend);
-          d_call(self, m_drawable_set_maskRGB, (unsigned int) label_attributes->last_mask_R, (unsigned int) label_attributes->last_mask_G,
-                 (unsigned int) label_attributes->last_mask_B);
-          d_call(self, m_drawable_set_maskA, (unsigned int) label_attributes->last_mask_A);
+          d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R, (unsigned int)label_attributes->last_mask_G,
+                 (unsigned int)label_attributes->last_mask_B);
+          d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
         } else {
           snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception", label_attributes->string_content);
           d_throw(v_exception_texture, buffer);
@@ -142,8 +142,8 @@ d_define_method_override(label, set_dimension)(struct s_object *self, double w, 
   label_attributes->last_width = w;
   label_attributes->last_height = h;
   label_attributes->format = e_label_background_format_fixed;
-  d_call(&(drawable_attributes->point_center), m_point_set_x, (double) (label_attributes->last_width / 2.0));
-  d_call(&(drawable_attributes->point_center), m_point_set_y, (double) (label_attributes->last_height / 2.0));
+  d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width / 2.0));
+  d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height / 2.0));
   return result;
 }
 d_define_method_override(label, set_dimension_w)(struct s_object *self, double w) {
@@ -152,7 +152,7 @@ d_define_method_override(label, set_dimension_w)(struct s_object *self, double w
   struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_w, w);
   label_attributes->last_width = w;
   label_attributes->format = e_label_background_format_fixed;
-  d_call(&(drawable_attributes->point_center), m_point_set_x, (double) (label_attributes->last_width / 2.0));
+  d_call(&(drawable_attributes->point_center), m_point_set_x, (double)(label_attributes->last_width / 2.0));
   return result;
 }
 d_define_method_override(label, set_dimension_h)(struct s_object *self, double h) {
@@ -161,7 +161,7 @@ d_define_method_override(label, set_dimension_h)(struct s_object *self, double h
   struct s_object *result = d_call_owner(self, drawable, m_drawable_set_dimension_h, h);
   label_attributes->last_height = h;
   label_attributes->format = e_label_background_format_fixed;
-  d_call(&(drawable_attributes->point_center), m_point_set_y, (double) (label_attributes->last_height / 2.0));
+  d_call(&(drawable_attributes->point_center), m_point_set_y, (double)(label_attributes->last_height / 2.0));
   return result;
 }
 d_define_method_override(label, draw)(struct s_object *self, struct s_object *environment) {
@@ -170,7 +170,7 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
   struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   double position_x, position_y, dimension_w, dimension_h, center_x, center_y, width_factor, height_factor;
-  int result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+  int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
   SDL_Rect source, destination;
   SDL_Point center;
   if (label_attributes->image) {
@@ -220,7 +220,7 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
     label_attributes->last_destination = destination;
     d_miranda_lock(environment) {
       SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                       (SDL_RendererFlip) drawable_attributes->flip);
+                       (SDL_RendererFlip)drawable_attributes->flip);
     } d_miranda_unlock(environment);
   }
   d_cast_return(result);
@@ -245,7 +245,7 @@ d_define_method_override(label, set_blend)(struct s_object *self, enum e_drawabl
   d_using(label);
   label_attributes->last_blend = blend;
   if (label_attributes->image)
-    SDL_SetTextureBlendMode(label_attributes->image, (SDL_BlendMode) blend);
+    SDL_SetTextureBlendMode(label_attributes->image, (SDL_BlendMode)blend);
   return self;
 }
 d_define_method(label, delete)(struct s_object *self, struct s_label_attributes *attributes) {

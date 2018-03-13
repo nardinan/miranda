@@ -26,8 +26,8 @@ int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bit
     if (tcgetattr(*device, &tty) == 0) {
       if (before_tty)
         memcpy(before_tty, &tty, sizeof(struct termios));
-      cfsetospeed(&tty, (speed_t) baud);
-      cfsetispeed(&tty, (speed_t) baud);
+      cfsetospeed(&tty, (speed_t)baud);
+      cfsetispeed(&tty, (speed_t)baud);
       tty.c_cflag &= ~CSIZE;
       tty.c_cflag |= (bits | CLOCAL | CREAD);
       switch (parity) {

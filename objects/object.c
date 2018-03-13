@@ -89,7 +89,7 @@ struct s_object *p_object_malloc(const char *file, int line, const char *type, i
 }
 struct s_attributes *p_object_attributes_malloc(size_t size, const char *type) {
   struct s_attributes *result;
-  if ((result = (struct s_attributes *) d_malloc(size)))
+  if ((result = (struct s_attributes *)d_malloc(size)))
     result->type = type;
   else
     d_die(d_error_malloc);
@@ -97,11 +97,11 @@ struct s_attributes *p_object_attributes_malloc(size_t size, const char *type) {
 }
 struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, struct s_attributes *attributes) {
   struct s_virtual_table *node;
-  if ((node = (struct s_virtual_table *) d_malloc(sizeof(struct s_virtual_table)))) {
+  if ((node = (struct s_virtual_table *)d_malloc(sizeof(struct s_virtual_table)))) {
     node->virtual_table = virtual_table;
     node->type = attributes->type;
-    f_list_append(&(object->virtual_tables), (struct s_list_node *) node, e_list_insert_head);
-    f_list_append(&(object->attributes), (struct s_list_node *) attributes, e_list_insert_head);
+    f_list_append(&(object->virtual_tables), (struct s_list_node *)node, e_list_insert_head);
+    f_list_append(&(object->attributes), (struct s_list_node *)attributes, e_list_insert_head);
   } else
     d_die(d_error_malloc);
   return attributes;
@@ -133,14 +133,14 @@ void f_object_delete(struct s_object *object) {
   struct s_attributes *attributes;
   struct s_virtual_table *virtual_table;
   int index;
-  while ((attributes = (struct s_attributes *) object->attributes.tail) && (virtual_table = (struct s_virtual_table *) object->virtual_tables.tail)) {
+  while ((attributes = (struct s_attributes *)object->attributes.tail) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.tail)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
       if (virtual_table->virtual_table[index].symbol == m_object_delete) {
         virtual_table->virtual_table[index].method(object, attributes);
         break;
       }
-    f_list_delete(&(object->attributes), (struct s_list_node *) attributes);
-    f_list_delete(&(object->virtual_tables), (struct s_list_node *) virtual_table);
+    f_list_delete(&(object->attributes), (struct s_list_node *)attributes);
+    f_list_delete(&(object->virtual_tables), (struct s_list_node *)virtual_table);
     d_free(attributes);
     d_free(virtual_table);
   }

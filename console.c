@@ -49,7 +49,7 @@ int f_console_parameter(const char *symbol, char **tokens, size_t elements, int 
 }
 int f_console_init(struct s_console **console, struct s_console_command *commands, int descriptor) {
   int result = d_false;
-  if ((*console = (struct s_console *) d_malloc(sizeof(struct s_console)))) {
+  if ((*console = (struct s_console *)d_malloc(sizeof(struct s_console)))) {
     memset((*console), 0, sizeof(struct s_console));
     (*console)->commands = commands;
     (*console)->descriptor = descriptor;
@@ -231,7 +231,7 @@ int f_console_read(struct s_console *console, struct s_console_input *input, int
             if (input->data_length > 0) {
               input->ready = d_true;
               if (output != d_console_descriptor_null)
-                write(output, (void *) &incoming_character, sizeof(char)); /* new line */
+                write(output, (void *)&incoming_character, sizeof(char)); /* new line */
               p_console_append_history(console, input->input);
             }
             break;
@@ -279,12 +279,12 @@ int p_console_execute(struct s_console *console, char *input, int output) {
       arguments++;
     pointer = next + 1;
   }
-  if ((tokens = (char **) d_malloc(arguments * (sizeof(char *))))) {
+  if ((tokens = (char **)d_malloc(arguments * (sizeof(char *))))) {
     pointer = input;
     while ((next = strchr(pointer, ' '))) {
       if ((length = (next - pointer)) > 0) {
         *next = '\0';
-        if ((tokens[index] = (char *) d_malloc(length + 1))) {
+        if ((tokens[index] = (char *)d_malloc(length + 1))) {
           memcpy(tokens[index], pointer, length);
           f_string_trim(tokens[index]);
           allocated_arguments++;
@@ -295,7 +295,7 @@ int p_console_execute(struct s_console *console, char *input, int output) {
       pointer = next + 1;
     }
     if ((length = f_string_strlen(pointer)) > 0) {
-      if ((tokens[index] = (char *) d_malloc(length + 1))) {
+      if ((tokens[index] = (char *)d_malloc(length + 1))) {
         memcpy(tokens[index], pointer, length);
         f_string_trim(tokens[index]);
         allocated_arguments++;

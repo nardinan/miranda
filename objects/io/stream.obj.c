@@ -22,7 +22,7 @@ d_exception_define(unsupported, 7, "unsupported action exception");
 d_exception_define(closed, 8, "closed resource exception");
 struct s_stream_attributes *p_stream_alloc(struct s_object *self) {
   struct s_stream_attributes *result = d_prepare(self, stream);
-  f_memory_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
   f_mutex_new(self);    /* inherit */
   return result;
 }
@@ -109,7 +109,7 @@ d_define_method(stream, write)(struct s_object *self, unsigned char *raw, size_t
 d_define_method(stream, write_string)(struct s_object *self, struct s_object *string, size_t *written) {
   size_t dimension;
   d_call(string, m_string_length, &dimension);
-  return d_call(self, m_stream_write, (unsigned char *) d_string_cstring(string), dimension, written);
+  return d_call(self, m_stream_write, (unsigned char *)d_string_cstring(string), dimension, written);
 }
 d_define_method(stream, write_stream)(struct s_object *self, struct s_object *stream, size_t *written) {
   unsigned char block[d_stream_block_size];
@@ -182,7 +182,7 @@ d_define_method(stream, size)(struct s_object *self, size_t *size) {
       d_call(self, m_stream_seek, 0, e_stream_seek_begin, NULL);
       d_call(self, m_stream_seek, 0, e_stream_seek_end, &offset);
       if (size)
-        *size = (size_t) offset;
+        *size = (size_t)offset;
       d_call(self, m_stream_seek, current_offset, e_stream_seek_begin);
     } else
       d_throw(v_exception_unsupported, "read in a write-only stream exception");

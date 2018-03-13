@@ -67,7 +67,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
             new_length = string_length + d_field_bucket;
             while (new_length < (string_length + incoming_length + 1))
               new_length += d_field_bucket;
-            if ((label_attributes->string_content = (char *) d_realloc(label_attributes->string_content, new_length)))
+            if ((label_attributes->string_content = (char *)d_realloc(label_attributes->string_content, new_length)))
               label_attributes->size = new_length;
             else
               d_die(d_error_malloc);
@@ -114,7 +114,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
   struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   char buffer[d_string_buffer_size], *string_subcontent;
-  int result = (intptr_t) d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
+  int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
   double position_x, position_y, dimension_w, dimension_h, new_dimension_w = 0, center_x, center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
     radians = (drawable_attributes->angle * d_math_pi) / 180.0, sin_radians, cos_radians;
   size_t string_length = f_string_strlen(label_attributes->string_content);
@@ -131,7 +131,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
     d_call(&(drawable_attributes->point_normalized_center), m_point_get, &center_x, &center_y);
     width_factor = (dimension_w / label_attributes->last_width);
     if ((field_attributes->pointer > 0) && (field_attributes->pointer < string_length) && (string_length > 0)) {
-      if ((string_subcontent = (char *) d_malloc(field_attributes->pointer + 1))) {
+      if ((string_subcontent = (char *)d_malloc(field_attributes->pointer + 1))) {
         strncpy(string_subcontent, label_attributes->string_content, field_attributes->pointer);
         /* we should be sure that the font exits */
         if ((unoptimized_surface = TTF_RenderText_Blended(label_attributes->last_font, string_subcontent, white))) {
@@ -154,8 +154,8 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
     cos_radians = cos(radians);
     p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &top_x, &top_y);
     p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &bottom_x, &bottom_y);
-    if ((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x) / 2.0),
-                          top_y + ((bottom_y - top_y) / 2.0))) {
+    if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x) / 2.0),
+                         top_y + ((bottom_y - top_y) / 2.0))) {
       d_miranda_lock(environment) {
         SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
                                field_attributes->last_cursor_R, field_attributes->last_cursor_A);
@@ -165,12 +165,8 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
   }
   d_cast_return(result);
 }
-d_define_method(field, delete)(struct s_object *self, struct s_field_attributes *attributes) {
-  return NULL;
-}
 d_define_class(field) {d_hook_method(field, e_flag_public, set_cursor),
                        d_hook_method(field, e_flag_public, set_size),
                        d_hook_method_override(field, e_flag_public, eventable, event),
                        d_hook_method_override(field, e_flag_public, drawable, draw),
-                       d_hook_delete(field),
                        d_hook_method_tail};

@@ -26,8 +26,8 @@ const char *v_lisp_object_types[] = {
 };
 struct s_lisp_attributes *p_lisp_alloc(struct s_object *self) {
   struct s_lisp_attributes *result = d_prepare(self, lisp);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_types type, ...) {
@@ -37,39 +37,39 @@ struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_ty
   size_t string_length;
   va_list parameters;
   va_start(parameters, type);
-  if ((result = (struct s_lisp_object *) d_malloc(sizeof(struct s_lisp_object)))) {
+  if ((result = (struct s_lisp_object *)d_malloc(sizeof(struct s_lisp_object)))) {
     result->type = type;
     switch (type) {
       case e_lisp_object_type_value:
-        result->value_double = (double) va_arg(parameters, double);
+        result->value_double = (double)va_arg(parameters, double);
         break;
       case e_lisp_object_type_string:
-        if ((string_buffer = (char *) va_arg(parameters, void *)))
+        if ((string_buffer = (char *)va_arg(parameters, void *)))
           if ((string_length = f_string_strlen(string_buffer)) > 0) {
-            if ((result->value_string = (char *) d_malloc(string_length + 1)))
+            if ((result->value_string = (char *)d_malloc(string_length + 1)))
               strcpy(result->value_string, string_buffer);
             else
               d_die(d_error_malloc);
           }
         break;
       case e_lisp_object_type_symbol:
-        strncpy(result->value_symbol, (char *) va_arg(parameters,
+        strncpy(result->value_symbol, (char *)va_arg(parameters,
           void *), d_lisp_symbol_size);
         break;
       case e_lisp_object_type_cons:
-        result->cons.car = (struct s_lisp_object *) va_arg(parameters, void *);
-        result->cons.cdr = (struct s_lisp_object *) va_arg(parameters, void *);
+        result->cons.car = (struct s_lisp_object *)va_arg(parameters, void *);
+        result->cons.cdr = (struct s_lisp_object *)va_arg(parameters, void *);
         break;
       case e_lisp_object_type_primitive:
-        result->primitive = (t_lisp_primitive) va_arg(parameters, void *);
+        result->primitive = (t_lisp_primitive)va_arg(parameters, void *);
         break;
       case e_lisp_object_type_lambda:
-        result->lambda.args = (struct s_lisp_object *) va_arg(parameters, void *);
-        result->lambda.call = (struct s_lisp_object *) va_arg(parameters, void *);
-        result->lambda.environment = (struct s_lisp_object *) va_arg(parameters, void *);
+        result->lambda.args = (struct s_lisp_object *)va_arg(parameters, void *);
+        result->lambda.call = (struct s_lisp_object *)va_arg(parameters, void *);
+        result->lambda.environment = (struct s_lisp_object *)va_arg(parameters, void *);
         break;
     }
-    f_list_append(&(lisp_attributes->collector), (struct s_list_node *) result, e_list_insert_head);
+    f_list_append(&(lisp_attributes->collector), (struct s_list_node *)result, e_list_insert_head);
   } else
     d_die(d_error_malloc);
   va_end(parameters);
@@ -250,7 +250,7 @@ struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lis
 }
 struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_lisp_object *args) {
   char *string_content = d_lisp_string(d_lisp_car(args));
-  return p_lisp_object(self, e_lisp_object_type_value, (double) f_string_strlen(string_content));
+  return p_lisp_object(self, e_lisp_object_type_value, (double)f_string_strlen(string_content));
 }
 struct s_lisp_object *p_lisp_primitive_compare(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
@@ -368,7 +368,7 @@ d_define_method(lisp, next_token)(struct s_object *self) {
   d_using(lisp);
   int line_comment = -1;
   if (lisp_attributes->current_token)
-    while ((lisp_attributes->current_token = (struct s_json_token *) (((struct s_list_node *) lisp_attributes->current_token)->next))) {
+    while ((lisp_attributes->current_token = (struct s_json_token *)(((struct s_list_node *)lisp_attributes->current_token)->next))) {
       if (line_comment != lisp_attributes->current_token->line_number) {
         if ((lisp_attributes->current_token->type == e_json_token_type_symbol) && (lisp_attributes->current_token->symbol_entry == ';'))
           line_comment = lisp_attributes->current_token->line_number;
@@ -551,11 +551,11 @@ d_define_method(lisp, write)(struct s_object *self, struct s_lisp_object *curren
 }
 d_define_method(lisp, sweep_collector)(struct s_object *self, unsigned char excluded_marks) {
   d_using(lisp);
-  struct s_lisp_object *current_entry = (struct s_lisp_object *) (lisp_attributes->collector.head), *next_entry;
+  struct s_lisp_object *current_entry = (struct s_lisp_object *)(lisp_attributes->collector.head), *next_entry;
   while (current_entry) {
-    next_entry = (struct s_lisp_object *) (((struct s_list_node *) current_entry)->next);
+    next_entry = (struct s_lisp_object *)(((struct s_list_node *)current_entry)->next);
     if ((current_entry->mark & excluded_marks) == 0) {
-      f_list_delete(&(lisp_attributes->collector), (struct s_list_node *) current_entry);
+      f_list_delete(&(lisp_attributes->collector), (struct s_list_node *)current_entry);
       if ((current_entry->type == e_lisp_object_type_string) && (current_entry->value_string))
         d_free(current_entry->value_string);
       d_free(current_entry);
@@ -568,7 +568,7 @@ d_define_method(lisp, run)(struct s_object *self) {
   d_using(lisp);
   int line_comment = -1;
   struct s_lisp_object *current_object;
-  lisp_attributes->current_token = (struct s_json_token *) (lisp_attributes->tokens.head);
+  lisp_attributes->current_token = (struct s_json_token *)(lisp_attributes->tokens.head);
   while (lisp_attributes->current_token) {
     if (line_comment != lisp_attributes->current_token->line_number) {
       if ((lisp_attributes->current_token->type == e_json_token_type_symbol) && (lisp_attributes->current_token->symbol_entry == ';'))
@@ -578,7 +578,7 @@ d_define_method(lisp, run)(struct s_object *self) {
         break;
       }
     }
-    lisp_attributes->current_token = (struct s_json_token *) (((struct s_list_node *) lisp_attributes->current_token)->next);
+    lisp_attributes->current_token = (struct s_json_token *)(((struct s_list_node *)lisp_attributes->current_token)->next);
   }
   while (lisp_attributes->current_token) {
     current_object = d_call(self, m_lisp_read_object, NULL);
@@ -593,7 +593,7 @@ d_define_method(lisp, delete)(struct s_object *self, struct s_lisp_attributes *a
   struct s_json_token *local_token;
   d_call(self, m_lisp_sweep_collector, d_lisp_mark_none);
   while (attributes->tokens.head)
-    if ((local_token = (struct s_json_token *) f_list_delete(&(attributes->tokens), attributes->tokens.head))) {
+    if ((local_token = (struct s_json_token *)f_list_delete(&(attributes->tokens), attributes->tokens.head))) {
       p_json_tokenizer_free(local_token);
       d_free(local_token);
     }

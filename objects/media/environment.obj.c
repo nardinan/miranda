@@ -20,8 +20,8 @@
 #include "camera.obj.h"
 struct s_environment_attributes *p_environment_alloc(struct s_object *self) {
   struct s_environment_attributes *result = d_prepare(self, environment);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_environment_new(struct s_object *self, int width, int height) {
@@ -221,15 +221,9 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                     d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object) {
                       flags = (int)d_call(drawable_object, m_drawable_get_flags, NULL);
                       if ((flags & e_drawable_kind_hidden) != e_drawable_kind_hidden)
-                        if ((d_call(drawable_object, m_drawable_normalize_scale,
-                                    camera_attributes->scene_reference_w,
-                                    camera_attributes->scene_reference_h,
-                                    camera_attributes->scene_offset_x,
-                                    camera_attributes->scene_offset_y,
-                                    camera_attributes->scene_center_x,
-                                    camera_attributes->scene_center_y,
-                                    camera_attributes->screen_w,
-                                    camera_attributes->screen_h,
+                        if ((d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                                    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                                    camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h,
                                     camera_attributes->scene_zoom)))
                           while (((int)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
                     }

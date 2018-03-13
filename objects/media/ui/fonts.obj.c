@@ -19,8 +19,8 @@
 d_exception_define(ttf, 14, "ungenerable TTF exception");
 struct s_fonts_attributes *p_fonts_alloc(struct s_object *self) {
   struct s_fonts_attributes *result = d_prepare(self, fonts);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_fonts_new(struct s_object *self) {

@@ -39,7 +39,7 @@ d_define_method(payload, scan)(struct s_object *self) {
         f_endian_swap(&header.signature_face, sizeof(uint16_t));
         f_endian_swap(&header.signature_dead, sizeof(uint16_t));
       }
-      if ((header.signature_face == (uint16_t) 0xface) && (header.signature_dead == (uint16_t) 0xdead)) {
+      if ((header.signature_face == (uint16_t)0xface) && (header.signature_dead == (uint16_t)0xdead)) {
         misaligned = d_false;
         break;
       } else {
@@ -52,7 +52,7 @@ d_define_method(payload, scan)(struct s_object *self) {
       if ((header.payload_size + header_size) <= unchecked_buffer) {
         if (payload_attributes->payload)
           d_free(payload_attributes->payload);
-        if ((payload_attributes->payload = (unsigned char *) d_malloc(header.payload_size))) {
+        if ((payload_attributes->payload = (unsigned char *)d_malloc(header.payload_size))) {
           memcpy(payload_attributes->payload, (payload_attributes->buffer + payload_attributes->buffer_shift + header_size), header.payload_size);
           payload_attributes->payload_size = header.payload_size;
           payload_attributes->type = header.payload_type;
@@ -79,18 +79,18 @@ d_define_method(payload, push)(struct s_object *self, unsigned char *buffer, siz
     if ((payload_attributes->buffer) && (payload_attributes->buffer_size > 0)) {
       if ((unchecked_buffer = payload_attributes->buffer_size - payload_attributes->buffer_shift) > 0) {
         final_buffer = (size + unchecked_buffer);
-        if ((new_buffer = (unsigned char *) d_malloc(final_buffer))) {
+        if ((new_buffer = (unsigned char *)d_malloc(final_buffer))) {
           memcpy(new_buffer, (payload_attributes->buffer + payload_attributes->buffer_shift), unchecked_buffer);
           memcpy((new_buffer + unchecked_buffer), buffer, size);
         } else
           d_die(d_error_malloc);
-      } else if ((new_buffer = (unsigned char *) d_malloc(final_buffer))) {
+      } else if ((new_buffer = (unsigned char *)d_malloc(final_buffer))) {
         memcpy(new_buffer, payload_attributes->buffer, size);
       } else
         d_die(d_error_malloc);
       d_free(payload_attributes->buffer);
       payload_attributes->buffer = new_buffer;
-    } else if ((payload_attributes->buffer = (unsigned char *) d_malloc(final_buffer))) {
+    } else if ((payload_attributes->buffer = (unsigned char *)d_malloc(final_buffer))) {
       memcpy(payload_attributes->buffer, buffer, size);
     }
     payload_attributes->buffer_shift = 0;
@@ -103,7 +103,7 @@ d_define_method(payload, get)(struct s_object *self, size_t *payload_size, unsig
   d_using(payload);
   *payload_size = payload_attributes->payload_size;
   *type = payload_attributes->type;
-  return (struct s_object *) payload_attributes->payload;
+  return (struct s_object *)payload_attributes->payload;
 }
 d_define_method(payload, delete)(struct s_object *self, struct s_payload_attributes *attributes) {
   if (attributes->buffer) {

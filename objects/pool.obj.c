@@ -19,8 +19,8 @@
 struct s_object *v_default_pool = NULL;
 struct s_pool_attributes *p_pool_alloc(struct s_object *self) {
   struct s_pool_attributes *result = d_prepare(self, pool);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_pool_new(struct s_object *self) {
@@ -30,16 +30,16 @@ struct s_object *f_pool_new(struct s_object *self) {
 }
 d_define_method(pool, insert)(struct s_object *self, struct s_object *pointer) {
   d_using(pool);
-  f_list_append(pool_attributes->pool, (struct s_list_node *) pointer, e_list_insert_head);
+  f_list_append(pool_attributes->pool, (struct s_list_node *)pointer, e_list_insert_head);
   pointer->flags |= e_flag_pooled;
   return pointer;
 }
 d_define_method(pool, clean)(struct s_object *self) {
   d_using(pool);
-  struct s_object *next, *value = (struct s_object *) pool_attributes->pool->head;
+  struct s_object *next, *value = (struct s_object *)pool_attributes->pool->head;
   while (value) {
-    next = (struct s_object *) value->head.next;
-    f_list_delete(pool_attributes->pool, (struct s_list_node *) value);
+    next = (struct s_object *)value->head.next;
+    f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
     if ((value->flags & e_flag_placeholder) == e_flag_placeholder) {
       d_free(value);
       break;

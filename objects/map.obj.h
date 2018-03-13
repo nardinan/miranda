@@ -32,7 +32,7 @@ d_declare_method(map, remove)(struct s_object *self, struct s_object *key);
 d_declare_method(map, find)(struct s_object *self, struct s_object *key);
 d_declare_method(map, reset)(struct s_object *self);
 d_declare_method(map, next)(struct s_object *self, struct s_object **key);
-#define d_map_foreach(o,v,k) for(d_call((o),m_map_reset,NULL),(v)=d_call((o),m_map_next,&(k));(v);(v)=d_call((o),m_map_next,&(k)))
+#define d_map_foreach(o, v, k) for(d_call((o),m_map_reset,NULL),(v)=d_call((o),m_map_next,&(k));(v);(v)=d_call((o),m_map_next,&(k)))
 d_declare_method(map, size)(struct s_object *self, size_t *size);
 d_declare_method(map, delete)(struct s_object *self, struct s_map_attributes *attributes);
 d_declare_method(map, hash)(struct s_object *self, t_hash_value *value);

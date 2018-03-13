@@ -19,8 +19,8 @@
 d_exception_define(bound, 4, "out of bound exception");
 struct s_array_attributes *p_array_alloc(struct s_object *self) {
   struct s_array_attributes *result = d_prepare(self, array);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);      /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_array_new(struct s_object *self, size_t size) {
@@ -28,7 +28,7 @@ struct s_object *f_array_new(struct s_object *self, size_t size) {
 }
 struct s_object *f_array_new_bucket(struct s_object *self, size_t size, size_t bucket) {
   struct s_array_attributes *attributes = p_array_alloc(self);
-  if ((attributes->content = (struct s_object **) d_malloc(size * sizeof(struct s_object *)))) {
+  if ((attributes->content = (struct s_object **)d_malloc(size * sizeof(struct s_object *)))) {
     attributes->size = size;
     attributes->bucket = bucket;
   } else
@@ -46,7 +46,7 @@ struct s_object *f_array_new_args(struct s_object *self, size_t size, va_list pa
   struct s_array_attributes *attributes = p_array_alloc(self);
   struct s_object *object;
   size_t index;
-  if ((attributes->content = (struct s_object **) d_malloc(size * sizeof(struct s_object *)))) {
+  if ((attributes->content = (struct s_object **)d_malloc(size * sizeof(struct s_object *)))) {
     attributes->size = size;
     attributes->bucket = d_array_bucket;
     for (index = 0; index < size; ++index)
@@ -63,7 +63,7 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
   if (position <= array_attributes->size) {
     if (position == array_attributes->size) {
       if ((array_attributes->content =
-             (struct s_object **) d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
+             (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
         memset(&(array_attributes->content[array_attributes->size]), 0, (array_attributes->size * sizeof(struct s_object *)));
         array_attributes->size += array_attributes->bucket;
       } else
@@ -71,7 +71,7 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
     } else if (array_attributes->content[position]) {
       if (array_attributes->content[array_attributes->size - 1]) {
         if ((array_attributes->content =
-               (struct s_object **) d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
+               (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
           memset(&(array_attributes->content[array_attributes->size]), 0, (array_attributes->size * sizeof(struct s_object *)));
           memmove(&(array_attributes->content[position + 1]), &(array_attributes->content[position]),
                   ((array_attributes->size - position) * sizeof(struct s_object *)));

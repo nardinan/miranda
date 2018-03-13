@@ -61,7 +61,7 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
   struct s_object *selected_component = NULL;
   double position_x, position_y, new_position_x, new_position_y, center_x, center_y, new_center_x, new_center_y, dimension_w_self, dimension_h_self,
     dimension_w_selected, dimension_h_selected, new_dimension_w, new_dimension_h;
-  int result = (intptr_t) d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
+  int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
   d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x, &position_y);
   d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
   d_call(&(drawable_attributes_self->point_center), m_point_get, &center_x, &center_y);
@@ -84,17 +84,10 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
     drawable_attributes_selected->angle = drawable_attributes_self->angle;
     drawable_attributes_selected->zoom = drawable_attributes_self->zoom;
     drawable_attributes_selected->flip = drawable_attributes_self->flip;
-    if ((d_call(selected_component, m_drawable_normalize_scale,
-                camera_attributes->scene_reference_w,
-                camera_attributes->scene_reference_h,
-                camera_attributes->scene_offset_x,
-                camera_attributes->scene_offset_y,
-                camera_attributes->scene_center_x,
-                camera_attributes->scene_center_y,
-                camera_attributes->screen_w,
-                camera_attributes->screen_h,
-                camera_attributes->scene_zoom)))
-      while (((int) d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
+    if ((d_call(selected_component, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+      while (((int)d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
 }

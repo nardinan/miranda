@@ -94,7 +94,7 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
   SDL_GetMouseState(&mouse_x, &mouse_y);
   if (morphable_attributes->visible) {
     drawable_attributes->flags &= ~e_drawable_kind_contour;
-    if ((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y)) {
+    if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y)) {
       mouse_inside = d_true;
       drawable_attributes->flags |= e_drawable_kind_contour;
     }
@@ -113,7 +113,7 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
           case SDL_MOUSEBUTTONDOWN:
             if (current_event->button.button == SDL_BUTTON_LEFT) {
               if ((mouse_inside) /* has been already calculated */||
-                  ((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y))) {
+                  ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
                 morphable_attributes->grabbed = d_true;
                 morphable_attributes->offset_x = NAN;
                 morphable_attributes->offset_y = NAN;
@@ -126,11 +126,9 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return self;
-}
-d_define_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes) {
-  return NULL;
 }
 d_define_class(morphable) {d_hook_method(morphable, e_flag_public, set_freedom_x),
                            d_hook_method(morphable, e_flag_public, set_freedom_y),
@@ -138,5 +136,4 @@ d_define_class(morphable) {d_hook_method(morphable, e_flag_public, set_freedom_x
                            d_hook_method(morphable, e_flag_public, set_visibility),
                            d_hook_method(morphable, e_flag_public, update),
                            d_hook_method_override(morphable, e_flag_public, eventable, event),
-                           d_hook_delete(morphable),
                            d_hook_method_tail};

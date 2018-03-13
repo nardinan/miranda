@@ -19,9 +19,9 @@
 #include "../camera.obj.h"
 struct s_container_attributes *p_container_alloc(struct s_object *self) {
   struct s_container_attributes *result = d_prepare(self, container);
-  f_mutex_new(self);  /* inherit */
-  f_memory_new(self);  /* inherit */
-  f_uiable_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_uiable_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_container_new(struct s_object *self, double border_top, double border_bottom, double border_left, double border_right, t_boolean floatable) {
@@ -40,11 +40,11 @@ struct s_object *f_container_new(struct s_object *self, double border_top, doubl
 d_define_method(container, add_drawable)(struct s_object *self, struct s_object *drawable, double position_x, double position_y) {
   d_using(container);
   struct s_container_drawable *current_container;
-  if ((current_container = (struct s_container_drawable *) d_malloc(sizeof(struct s_container_drawable)))) {
+  if ((current_container = (struct s_container_drawable *)d_malloc(sizeof(struct s_container_drawable)))) {
     current_container->drawable = d_retain(drawable);
     current_container->position_x = position_x;
     current_container->position_y = position_y;
-    f_list_append(&(container_attributes->entries), (struct s_list_node *) current_container, e_list_insert_tail);
+    f_list_append(&(container_attributes->entries), (struct s_list_node *)current_container, e_list_insert_tail);
   } else
     d_die(d_error_malloc);
   return self;
@@ -52,8 +52,9 @@ d_define_method(container, add_drawable)(struct s_object *self, struct s_object 
 d_define_method(container, del_drawable)(struct s_object *self, struct s_object *drawable) {
   d_using(container);
   struct s_container_drawable *current_container;
-  d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)if (current_container->drawable == drawable) {
-      f_list_delete(&(container_attributes->entries), (struct s_list_node *) current_container);
+  d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
+    if (current_container->drawable == drawable) {
+      f_list_delete(&(container_attributes->entries), (struct s_list_node *)current_container);
       d_delete(current_container->drawable);
       d_free(current_container);
       break;
@@ -63,7 +64,8 @@ d_define_method(container, del_drawable)(struct s_object *self, struct s_object 
 d_define_method(container, get_drawable)(struct s_object *self, struct s_object *drawable) {
   d_using(container);
   struct s_container_drawable *result = NULL;
-  d_foreach(&(container_attributes->entries), result, struct s_container_drawable)if (result->drawable == drawable)
+  d_foreach(&(container_attributes->entries), result, struct s_container_drawable)
+    if (result->drawable == drawable)
       break;
   d_cast_return(result);
 }
@@ -74,7 +76,8 @@ d_define_method_override(container, event)(struct s_object *self, struct s_objec
   struct s_container_drawable *current_container;
   struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
   struct s_exception *exception;
-  d_try{
+  d_try
+      {
         d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) {
           if (((uiable_attributes = d_cast(current_container->drawable, uiable))) &&
               ((eventable_attributes = d_cast(current_container->drawable, eventable)))) {
@@ -83,11 +86,13 @@ d_define_method_override(container, event)(struct s_object *self, struct s_objec
               d_call(current_container->drawable, m_eventable_event, environment, current_event);
           }
         }
-      }d_catch(exception)
+      }
+    d_catch(exception)
       {
         d_exception_dump(stderr, exception);
         d_raise;
-      }d_endtry;
+      }
+  d_endtry;
   return result;
 }
 d_define_method_override(container, draw)(struct s_object *self, struct s_object *environment) {
@@ -121,16 +126,9 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
       drawable_attributes_entry->zoom = container_attributes->distributed_zoom;
     if ((drawable_attributes_entry->flags & e_drawable_kind_ui_no_attribute_flip) != e_drawable_kind_ui_no_attribute_flip)
       drawable_attributes_entry->flip = drawable_attributes_self->flip;
-    if ((d_call(current_container->drawable, m_drawable_normalize_scale,
-                camera_attributes->scene_reference_w,
-                camera_attributes->scene_reference_h,
-                camera_attributes->scene_offset_x,
-                camera_attributes->scene_offset_y,
-                camera_attributes->scene_center_x,
-                camera_attributes->scene_center_y,
-                camera_attributes->screen_w,
-                camera_attributes->screen_h,
-                camera_attributes->scene_zoom))) {
+    if ((d_call(current_container->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
       square_attributes = d_cast(&(drawable_attributes_entry->square_collision_box), square);
       current_w = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
                              d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x)) -
@@ -149,45 +147,37 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
       max_w = d_math_max(max_w, current_w);
       max_h = d_math_max(max_h, current_h);
     }
+    d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
+    if ((d_call(self, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h, camera_attributes->scene_offset_x,
+                camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y, camera_attributes->screen_w,
+                camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+      result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+      d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
+        while (((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+    }
+    if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
+      d_call(self, m_drawable_draw_contour, environment);
+    d_cast_return(result);
   }
-  d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
-  if ((d_call(self, m_drawable_normalize_scale,
-              camera_attributes->scene_reference_w,
-              camera_attributes->scene_reference_h,
-              camera_attributes->scene_offset_x,
-              camera_attributes->scene_offset_y,
-              camera_attributes->scene_center_x,
-              camera_attributes->scene_center_y,
-              camera_attributes->screen_w,
-              camera_attributes->screen_h,
-              camera_attributes->scene_zoom))) {
-    result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) while (
-        ((int) d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+  d_define_method_override(container, set_zoom)(struct s_object *self, double zoom) {
+    d_using(container);
+    container_attributes->distributed_zoom = zoom;
+    return self;
   }
-  if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
-    d_call(self, m_drawable_draw_contour, environment);
-  d_cast_return(result);
-}
-d_define_method_override(container, set_zoom)(struct s_object *self, double zoom) {
-  d_using(container);
-  container_attributes->distributed_zoom = zoom;
-  return self;
-}
-d_define_method(container, delete)(struct s_object *self, struct s_container_attributes *attributes) {
-  struct s_container_drawable *current_container;
-  while ((current_container = (struct s_container_drawable *) attributes->entries.head)) {
-    f_list_delete(&(attributes->entries), (struct s_list_node *) current_container);
-    d_delete(current_container->drawable);
-    d_free(current_container);
+  d_define_method(container, delete)(struct s_object *self, struct s_container_attributes *attributes) {
+    struct s_container_drawable *current_container;
+    while ((current_container = (struct s_container_drawable *)attributes->entries.head)) {
+      f_list_delete(&(attributes->entries), (struct s_list_node *)current_container);
+      d_delete(current_container->drawable);
+      d_free(current_container);
+    }
+    return NULL;
   }
-  return NULL;
-}
-d_define_class(container) {d_hook_method(container, e_flag_public, add_drawable),
-                           d_hook_method(container, e_flag_public, del_drawable),
-                           d_hook_method(container, e_flag_public, get_drawable),
-                           d_hook_method_override(container, e_flag_public, eventable, event),
-                           d_hook_method_override(container, e_flag_public, drawable, draw),
-                           d_hook_method_override(container, e_flag_public, drawable, set_zoom),
-                           d_hook_delete(container),
-                           d_hook_method_tail};
+  d_define_class(container) {d_hook_method(container, e_flag_public, add_drawable),
+                             d_hook_method(container, e_flag_public, del_drawable),
+                             d_hook_method(container, e_flag_public, get_drawable),
+                             d_hook_method_override(container, e_flag_public, eventable, event),
+                             d_hook_method_override(container, e_flag_public, drawable, draw),
+                             d_hook_method_override(container, e_flag_public, drawable, set_zoom),
+                             d_hook_delete(container),
+                             d_hook_method_tail};

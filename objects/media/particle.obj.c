@@ -24,8 +24,8 @@ struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
   f_drawable_new(self, (e_drawable_kind_multiple | e_drawable_kind_force_visibility));  /* inherit */
   return result;
 }
-struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment,
-                                struct s_particle_configuration *configuration) {
+struct s_object *
+f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment, struct s_particle_configuration *configuration) {
   struct s_particle_attributes *attributes = p_particle_alloc(self);
   attributes->drawable_core = d_retain(drawable_particle);
   memcpy(&(attributes->configuration), configuration, sizeof(struct s_particle_configuration));
@@ -166,16 +166,9 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
       drawable_attributes_core->zoom = (particle_attributes->particles[index].core.zoom * drawable_attributes_self->zoom);
       drawable_attributes_core->angle = (particle_attributes->particles[index].core.angle + drawable_attributes_self->angle);
       drawable_attributes_core->flip = drawable_attributes_self->flip;
-      if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale,
-                  camera_attributes->scene_reference_w,
-                  camera_attributes->scene_reference_h,
-                  camera_attributes->scene_offset_x,
-                  camera_attributes->scene_offset_y,
-                  camera_attributes->scene_center_x,
-                  camera_attributes->scene_center_y,
-                  camera_attributes->screen_w,
-                  camera_attributes->screen_h,
-                  camera_attributes->scene_zoom)))
+      if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                  camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                  camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
         while (((int)d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
       if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(particle_attributes->drawable_core, m_drawable_draw_contour, environment);

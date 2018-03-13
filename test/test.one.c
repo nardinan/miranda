@@ -5,7 +5,7 @@
 #include <miranda/objects/geometry/geometry.h>
 #define d_size 1024
 unsigned char *huffman_string =
-  (unsigned char *) "Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
+  (unsigned char *)"Lorem ipsum dolor sit amet,consectetur adipiscing elit. Non enim iam stirpis bonum quaeret, sed animalis. Qui ita affectus, beatum esse;   "\
         "Te ipsum, dignissimum maioribus tuis, voluptasne induxit, ut adolescentulus eriperes P. Tubulo putas dicere? Qui non moveatur et offensione"\
         " turpitudinis et comprobatione honestatis? Tamen a proposito, inquam, aberramus. Istam voluptatem, inquit, Epicurus ignorat? Nummus in Croe"\
         "si divitiis obscuratur, pars est tamen divitiarum. Efficiens dici potest. Quis Aristidem non mortuum diligit? Quarum ambarum rerum cum medi"\
@@ -103,7 +103,8 @@ int main(int argc, char *argv[]) {
       d_delete(line_B);
       d_delete(line_C);
       d_delete(resources);
-      d_try{
+      d_try
+          {
             d_call(map, m_map_insert, key_pool[0], value_pool[0]);
             d_call(map, m_map_insert, key_pool[1], value_pool[1]);
             d_call(map, m_map_insert, key_pool[2], value_pool[2]);
@@ -145,16 +146,18 @@ int main(int argc, char *argv[]) {
             d_call(json_object, m_json_delete_value, "sdsd", "skills", 1, "values", 0);
             d_call(json_object, m_json_write, stream_pool[3]);
             printf("\n");
-          }d_catch(exception)
+          }
+        d_catch(exception)
           {
             d_exception_dump(stderr, exception);
             d_raise;
-          }d_endtry;
+          }
+      d_endtry;
       if (json_object)
         d_delete(json_object);
-      f_huffman_compression(huffman_string, f_string_strlen((const char *) huffman_string) + 1, &huffman_compressed, &huffman_length);
+      f_huffman_compression(huffman_string, f_string_strlen((const char *)huffman_string) + 1, &huffman_compressed, &huffman_length);
       f_huffman_decompression(huffman_compressed, huffman_length, &huffman_decompressed, &again_length);
-      printf("[huffman compression: %zu bytes VS %zu bytes compressed string]\n", (f_string_strlen((const char *) huffman_string) + 1), huffman_length);
+      printf("[huffman compression: %zu bytes VS %zu bytes compressed string]\n", (f_string_strlen((const char *)huffman_string) + 1), huffman_length);
       printf("[and again: %zu]\n", again_length);
       d_free(huffman_compressed);
       d_free(huffman_decompressed);

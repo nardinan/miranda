@@ -21,7 +21,7 @@ float f_math_mean(float *values, size_t elements) {
   int index;
   for (index = 0; index < elements; ++index)
     result += values[index];
-  result /= (float) elements;
+  result /= (float)elements;
   return result;
 }
 float f_math_sqrt(float value, float precision) {
@@ -39,8 +39,8 @@ float f_math_rms(float *values, size_t elements, float precision) {
     mean += values[index];
     mean_square += (values[index] * values[index]);
   }
-  mean /= (float) elements;
-  mean_square /= (float) elements;
+  mean /= (float)elements;
+  mean_square /= (float)elements;
   return f_math_sqrt(fabs(mean_square - (mean * mean)), precision);
 }
 

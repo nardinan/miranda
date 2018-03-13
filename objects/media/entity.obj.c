@@ -92,8 +92,8 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
 }
 d_define_method(entity, collision)(struct s_object *self, struct s_object *entity) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core = d_cast(entity, drawable);
-  t_boolean collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box),
-                                         m_square_collision, &(drawable_attributes_core->square_collision_box));
+  t_boolean
+    collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
   d_cast_return(collision);
 }
 d_define_method(entity, interact)(struct s_object *self, struct s_object *entity) {
@@ -179,16 +179,9 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
               d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
               drawable_attributes_core->zoom = (drawable_attributes_self->zoom * local_position_z);
               drawable_attributes_core->angle = drawable_attributes_self->angle;
-              if ((d_call(current_element->drawable, m_drawable_normalize_scale,
-                          camera_attributes->scene_reference_w,
-                          camera_attributes->scene_reference_h,
-                          camera_attributes->scene_offset_x,
-                          camera_attributes->scene_offset_y,
-                          camera_attributes->scene_center_x,
-                          camera_attributes->scene_center_y,
-                          camera_attributes->screen_w,
-                          camera_attributes->screen_h,
-                          camera_attributes->scene_zoom)))
+              if ((d_call(current_element->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                          camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
                 while (((int)d_call(current_element->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
             }
         }

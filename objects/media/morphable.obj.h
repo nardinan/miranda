@@ -19,8 +19,6 @@
 #define miranda_media_morphable_h
 #include "eventable.obj.h"
 #include "drawable.obj.h"
-#define d_morphable_x_factor 1.0
-#define d_morphable_y_factor 1.0
 #define d_morphable_z_factor 0.1
 d_declare_class(morphable) {
   struct s_attributes head;
@@ -35,5 +33,4 @@ d_declare_method(morphable, set_freedom_z)(struct s_object *self, t_boolean free
 d_declare_method(morphable, set_visibility)(struct s_object *self, t_boolean visiblity);
 d_declare_method(morphable, update)(struct s_object *self, struct s_object *environment);
 d_declare_method(morphable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
-d_declare_method(morphable, delete)(struct s_object *self, struct s_morphable_attributes *attributes);
 #endif

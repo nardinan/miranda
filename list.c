@@ -17,7 +17,7 @@
  */
 #include "list.h"
 void f_list_init(struct s_list **list) {
-  if ((*list = (struct s_list *) d_malloc(sizeof(struct s_list))))
+  if ((*list = (struct s_list *)d_malloc(sizeof(struct s_list))))
     memset((*list), 0, sizeof(struct s_list));
   else
     d_die(d_error_malloc);

@@ -31,9 +31,5 @@ d_define_method_override(button, event)(struct s_object *self, struct s_object *
     d_call(self, m_uiable_mode, e_uiable_mode_active);
   return self;
 }
-d_define_method(button, delete)(struct s_object *self, struct s_button_attributes *attributes) {
-  return NULL;
-}
 d_define_class(button) {d_hook_method_override(button, e_flag_public, eventable, event),
-                        d_hook_delete(button),
                         d_hook_method_tail};

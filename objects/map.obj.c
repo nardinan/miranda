@@ -34,7 +34,7 @@ d_define_method(map, insert)(struct s_object *self, struct s_object *key, struct
   if (f_hash_insert(map_attributes->hash, (void *)retained_key, (void *)retained_value, d_true, &previous_content)) {
     /* if the value already exists, hash table keeps the previous key */
     d_delete(retained_key);
-    d_delete((struct s_object *) previous_content.value);
+    d_delete((struct s_object *)previous_content.value);
   }
   return self;
 }
@@ -42,7 +42,7 @@ d_define_method(map, remove)(struct s_object *self, struct s_object *key) {
   d_using(map);
   struct s_hash_bucket previous_content;
   if (f_hash_delete(map_attributes->hash, (void *)key, &previous_content))
-    d_delete((struct s_object *) previous_content.value);
+    d_delete((struct s_object *)previous_content.value);
   return self;
 }
 d_define_method(map, find)(struct s_object *self, struct s_object *key) {
@@ -116,7 +116,7 @@ d_define_method(map, compare)(struct s_object *self, struct s_object *other) {
       current_item = &(current_table[elements]);
       other_item = &(other_table[elements]);
       if ((result = f_object_compare((struct s_object *)(current_item->key), (struct s_object *)(other_item->key))) ||
-        (result = f_object_compare((struct s_object *)(current_item->value), (struct s_object *)(other_item->value))))
+          (result = f_object_compare((struct s_object *)(current_item->value), (struct s_object *)(other_item->value))))
         break;
     }
   }

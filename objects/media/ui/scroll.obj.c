@@ -18,9 +18,9 @@
 #include "scroll.obj.h"
 struct s_scroll_attributes *p_scroll_alloc(struct s_object *self) {
   struct s_scroll_attributes *result = d_prepare(self, scroll);
-  f_mutex_new(self);  /* inherit */
-  f_memory_new(self);  /* inherit */
-  f_uiable_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_uiable_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_scroll_new(struct s_object *self, struct s_object *image) {
@@ -51,7 +51,6 @@ d_define_method(scroll, set_position)(struct s_object *self, int position) {
 d_define_method(scroll, get_position)(struct s_object *self) {
   d_using(scroll);
   d_cast_return(scroll_attributes->position);
-  return self;
 }
 d_define_method_override(scroll, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(scroll);
@@ -63,7 +62,7 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
   SDL_GetMouseState(&mouse_x, &mouse_y);
   if (current_event->type == SDL_MOUSEWHEEL)
     if ((scroll_attributes->force_event) ||
-        (((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y)))) {
+        (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y)))) {
       scroll_attributes->position += (current_event->wheel.y * scroll_attributes->modifier);
       if (scroll_attributes->position < scroll_attributes->minimum)
         scroll_attributes->position = scroll_attributes->minimum;
@@ -80,7 +79,7 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
   double position_x_self, position_y_self, dimension_w_self, dimension_h_self, normalized_dimension_w_self, normalized_dimension_h_self, center_x_self,
     center_y_self, dimension_w_image, dimension_h_image, normalized_dimension_w_image, normalized_dimension_h_image, position_x, position_y, center_x, center_y,
     size_ratio;
-  int result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+  int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
   if (scroll_attributes->image) {
     drawable_attributes_image = d_cast(scroll_attributes->image, drawable);
     d_call(&(drawable_attributes_self->point_normalized_destination), m_point_get, &position_x_self, &position_y_self);
@@ -92,7 +91,7 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
     size_ratio = (normalized_dimension_h_self / dimension_h_self);
     position_x = position_x_self - ((normalized_dimension_w_image - normalized_dimension_w_self) / 2.0);
     position_y = position_y_self +
-                 (((double) (scroll_attributes->position - scroll_attributes->minimum) / (double) (scroll_attributes->maximum - scroll_attributes->minimum)) *
+                 (((double)(scroll_attributes->position - scroll_attributes->minimum) / (double)(scroll_attributes->maximum - scroll_attributes->minimum)) *
                   d_math_max((normalized_dimension_h_self - normalized_dimension_h_image), 0));
     center_x = (position_x_self + center_x_self) - position_x;
     center_y = (position_y_self + center_y_self) - position_y;
@@ -101,9 +100,9 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
     drawable_attributes_image->angle = drawable_attributes_self->angle;
     drawable_attributes_image->flip = drawable_attributes_self->flip;
     if ((d_call(scroll_attributes->image, m_drawable_keep_scale, environment_attributes->current_w, environment_attributes->current_h))) {
-      d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_x, (double) (dimension_w_image * size_ratio));
-      d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_y, (double) (dimension_h_image * size_ratio));
-      while (((int) d_call(scroll_attributes->image, m_drawable_draw, environment)) == d_drawable_return_continue);
+      d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_x, (double)(dimension_w_image * size_ratio));
+      d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_y, (double)(dimension_h_image * size_ratio));
+      while (((int)d_call(scroll_attributes->image, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
   d_cast_return(result);

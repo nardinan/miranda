@@ -27,10 +27,10 @@ struct s_object *f_camera_controller_new(struct s_object *self) {
   return self;
 }
 d_define_method(camera_controller, update)(struct s_object *self, double *screen_position_x, double *screen_position_y, double *screen_w, double *screen_h,
-                                 double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y, double *scene_center_x,
-                                 double *scene_center_y, double *scene_angle, double *scene_zoom) {
+                                           double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y,
+                                           double *scene_center_x, double *scene_center_y, double *scene_angle, double *scene_zoom) {
   d_war(e_log_level_ever, "'update' method has not been implemented yet");
   return self;
 }
-d_define_class(camera_controller){d_hook_method(camera_controller,e_flag_public,update),
-                                  d_hook_method_tail};
+d_define_class(camera_controller) {d_hook_method(camera_controller, e_flag_public, update),
+                                   d_hook_method_tail};

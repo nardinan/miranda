@@ -18,8 +18,8 @@
 #include "point.obj.h"
 struct s_point_attributes *p_point_alloc(struct s_object *self) {
   struct s_point_attributes *result = d_prepare(self, point);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_point_new(struct s_object *self, double x, double y) {

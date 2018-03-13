@@ -19,8 +19,8 @@
 #include "camera_controller.obj.h"
 struct s_camera_attributes *p_camera_alloc(struct s_object *self) {
   struct s_camera_attributes *result = d_prepare(self, camera);
-  f_mutex_new(self);                             /* inherit */
-  f_memory_new(self);                            /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
@@ -187,7 +187,7 @@ d_define_method(camera, finalize_context)(struct s_object *self, struct s_object
   d_miranda_lock(environment) {
     SDL_SetRenderTarget(environment_attributes->renderer, NULL);
     SDL_RenderCopyEx(environment_attributes->renderer, camera_attributes->destination, &source, &destination, 0.0, &center,
-                     (SDL_RendererFlip) e_drawable_flip_none);
+                     (SDL_RendererFlip)e_drawable_flip_none);
   } d_miranda_unlock(environment);
   return self;
 }

@@ -19,7 +19,7 @@
 #include "camera.obj.h"
 void p_lights_modulator_flickering(struct s_lights_emitter *emitter) {
   clock_t current_clock = clock();
-  double default_factor = 0.1, new_intensity = ((sin(((double) current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
+  double default_factor = 0.1, new_intensity = ((sin(((double)current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
   emitter->current_intensity = new_intensity;
 }
 struct s_lights_attributes *p_lights_alloc(struct s_object *self) {
@@ -35,7 +35,7 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
   size_t size = (environment_attributes->current_w * environment_attributes->current_h * 4 /* RGBA */);
   char buffer[d_string_buffer_size];
   attributes->intensity = intensity;
-  if ((attributes->memblock = (unsigned char *) d_malloc(size))) {
+  if ((attributes->memblock = (unsigned char *)d_malloc(size))) {
     memset(attributes->memblock, intensity, size);
     if ((attributes->background =
            SDL_CreateTexture(environment_attributes->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, environment_attributes->current_w,
@@ -59,7 +59,7 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
                                    enum e_drawable_alignments alignment) {
   d_using(lights);
   struct s_lights_emitter *current_emitter;
-  if ((current_emitter = (struct s_lights_emitter *) d_malloc(sizeof(struct s_lights_emitter)))) {
+  if ((current_emitter = (struct s_lights_emitter *)d_malloc(sizeof(struct s_lights_emitter)))) {
     current_emitter->current_intensity = current_emitter->original_intensity = intensity;
     current_emitter->current_mask_R = current_emitter->original_mask_R = mask_R;
     current_emitter->current_mask_G = current_emitter->original_mask_G = mask_G;
@@ -70,8 +70,8 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->reference = d_retain(reference);
     current_emitter->mask = d_retain(mask);
     d_call(current_emitter->mask, m_drawable_set_blend, e_drawable_blend_add);
-    d_call(current_emitter->mask, m_drawable_add_flags, (e_drawable_kind_do_not_normalize_environment_zoom|e_drawable_kind_do_not_normalize_camera));
-    f_list_append(&(lights_attributes->emitters), (struct s_list_node *) current_emitter, e_list_insert_head);
+    d_call(current_emitter->mask, m_drawable_add_flags, (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera));
+    f_list_append(&(lights_attributes->emitters), (struct s_list_node *)current_emitter, e_list_insert_head);
   } else
     d_die(d_error_malloc);
   return self;
@@ -111,7 +111,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   if ((environment_attributes->current_w != lights_attributes->current_w) || (environment_attributes->current_h != lights_attributes->current_h)) {
     d_free(lights_attributes->memblock);
     size = (environment_attributes->current_w * environment_attributes->current_h * 4 /* RGBA */);
-    if ((lights_attributes->memblock = (unsigned char *) d_malloc(size))) {
+    if ((lights_attributes->memblock = (unsigned char *)d_malloc(size))) {
       memset(lights_attributes->memblock, lights_attributes->intensity, size);
       lights_attributes->current_w = environment_attributes->current_w;
       lights_attributes->current_h = environment_attributes->current_h;
@@ -140,22 +140,14 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     /* force the zoom/rotational center to be alignment with the center of the image */
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
-    if ((d_call(current_emitter->mask, m_drawable_normalize_scale,
-                camera_attributes->scene_reference_w,
-                camera_attributes->scene_reference_h,
-                camera_attributes->scene_offset_x,
-                camera_attributes->scene_offset_y,
-                camera_attributes->scene_center_x,
-                camera_attributes->scene_center_y,
-                camera_attributes->screen_w,
-                camera_attributes->screen_h,
-                camera_attributes->scene_zoom))) {
+    if ((d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
       intensity_modifier = (current_emitter->current_intensity / 255.0);
-      d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int) (current_emitter->current_mask_R * intensity_modifier),
-             (unsigned int) (current_emitter->current_mask_G * intensity_modifier),
-             (unsigned int) (current_emitter->current_mask_B * intensity_modifier));
+      d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modifier),
+             (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
       while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
     }
   }
@@ -172,11 +164,11 @@ d_define_method_override(lights, normalize_scale)(struct s_object *self, double 
 }
 d_define_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes) {
   struct s_lights_emitter *current_emitter;
-  while ((current_emitter = (struct s_lights_emitter *) attributes->emitters.head)) {
+  while ((current_emitter = (struct s_lights_emitter *)attributes->emitters.head)) {
     d_delete(current_emitter->mask);
     d_delete(current_emitter->reference);
     d_free(current_emitter);
-    f_list_delete(&(attributes->emitters), (struct s_list_node *) attributes->emitters.head);
+    f_list_delete(&(attributes->emitters), (struct s_list_node *)attributes->emitters.head);
   }
   if (attributes->memblock)
     d_free(attributes->memblock);

@@ -18,7 +18,7 @@
 #include "string.obj.h"
 struct s_string_attributes *p_string_alloc(struct s_object *self) {
   struct s_string_attributes *result = d_prepare(self, string);
-  f_memory_new(self);  /* inherit */
+  f_memory_new(self);     /* inherit */
   f_mutex_new(self);      /* inherit */
   return result;
 }
@@ -38,7 +38,7 @@ struct s_object *f_string_new_args(struct s_object *self, char *format, va_list 
   f_string_format_args(buffer_character, &length, d_string_buffer, NULL, NULL, format, parameters);
   if (length > 0) {
     attributes->size = length;
-    if ((attributes->content = (char *) d_malloc(attributes->size + 1))) {
+    if ((attributes->content = (char *)d_malloc(attributes->size + 1))) {
       f_string_format_args(attributes->content, &length, attributes->size + 1, NULL, NULL, format, parameters_backup);
       attributes->length = f_string_strlen(attributes->content);
     } else
@@ -51,7 +51,7 @@ struct s_object *f_string_new_size(struct s_object *self, char *content, size_t 
   struct s_string_attributes *attributes = p_string_alloc(self);
   if (size > 0) {
     attributes->size = size;
-    if ((attributes->content = (char *) d_malloc(attributes->size + 1))) {
+    if ((attributes->content = (char *)d_malloc(attributes->size + 1))) {
       if (content)
         strncpy(attributes->content, content, attributes->size);
       attributes->length = f_string_strlen(attributes->content);
@@ -127,7 +127,7 @@ d_define_method(string, split)(struct s_object *self, char character) {
 }
 d_define_method(string, cstring)(struct s_object *self) {
   d_using(string);
-  return (s_object *) string_attributes->content;
+  return (s_object *)string_attributes->content;
 }
 d_define_method(string, length)(struct s_object *self, size_t *length) {
   d_using(string);
@@ -151,7 +151,7 @@ d_define_method(string, hash)(struct s_object *self, t_hash_value *value) {
   int index;
   *value = 7;
   for (index = 0; index < string_attributes->size; ++index)
-    *value = (*value * 31) + (int) string_attributes->content[index];
+    *value = (*value * 31) + (int)string_attributes->content[index];
   return self;
 }
 d_define_method(string, compare)(struct s_object *self, struct s_object *other) {

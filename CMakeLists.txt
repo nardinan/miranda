@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-Dd_miranda_debug)
-endif()
+endif ()
 
 add_library(miranda_ground SHARED
         console.c

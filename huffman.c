@@ -18,8 +18,8 @@
 #include "huffman.h"
 static int p_huffman_compare(const void *value, const void *reference) {
   const struct s_huffman_node *values[2] = {
-    *(const struct s_huffman_node **) value,
-    *(const struct s_huffman_node **) reference
+    *(const struct s_huffman_node **)value,
+    *(const struct s_huffman_node **)reference
   };
   int result;
   if ((values[0]) && (values[1])) {
@@ -98,7 +98,7 @@ struct s_huffman_node *p_huffman_compression_aggregate(struct s_huffman_node **n
   int index, remaining;
   qsort(nodes, d_huffman_elements, sizeof(struct s_huffman_node *), p_huffman_compare);
   for (index = 0; index < (elements - 1); ++index)
-    if ((current = (struct s_huffman_node *) d_malloc(sizeof(struct s_huffman_node)))) {
+    if ((current = (struct s_huffman_node *)d_malloc(sizeof(struct s_huffman_node)))) {
       current->leaf = d_false;
       current->childs[0] = nodes[0];
       current->childs[1] = nodes[1];
@@ -121,7 +121,7 @@ int f_huffman_compression(unsigned char *block, size_t size, unsigned char **out
   memset(codes, 0, (sizeof(struct s_huffman_code) * d_huffman_elements));
   for (index = 0, elements = 0; index < size; ++index) {
     if (!(nodes[block[index]])) {
-      if ((nodes[block[index]] = (struct s_huffman_node *) d_malloc(sizeof(struct s_huffman_node)))) {
+      if ((nodes[block[index]] = (struct s_huffman_node *)d_malloc(sizeof(struct s_huffman_node)))) {
         nodes[block[index]]->code = block[index];
         nodes[block[index]]->leaf = d_true;
         ++elements;
@@ -136,7 +136,7 @@ int f_huffman_compression(unsigned char *block, size_t size, unsigned char **out
         for (index = 0, bits = 0; index < size; ++index)
           bits += codes[block[index]].bits_number;
         *output_size = sizeof(unsigned char) + sizeof(size_t) + (sizeof(struct s_huffman_code) * elements) + ((bits / 8) + 1);
-        if ((*output = (unsigned char *) d_malloc(*output_size))) {
+        if ((*output = (unsigned char *)d_malloc(*output_size))) {
           (*output)[current_byte++] = elements;
           endian_size = size;
           if (f_endian_check() == d_big_endian)
@@ -171,7 +171,7 @@ void p_huffman_decompression_expand_append(struct s_huffman_node *root, struct s
     --current_bit;
     child = ((code.bytes_encode[current_byte] >> current_bit) & 0x01);
     if (!current_node->childs[child])
-      if (!(current_node->childs[child] = (struct s_huffman_node *) d_malloc(sizeof(struct s_huffman_node))))
+      if (!(current_node->childs[child] = (struct s_huffman_node *)d_malloc(sizeof(struct s_huffman_node))))
         d_die(d_error_malloc);
     current_node = current_node->childs[child];
   }
@@ -185,7 +185,7 @@ struct s_huffman_node *p_huffman_decompression_expand(unsigned char *block, int 
   struct s_huffman_node *root;
   int index;
   memcpy(codes, block, (sizeof(struct s_huffman_code) * elements));
-  if ((root = (struct s_huffman_node *) d_malloc(sizeof(struct s_huffman_node)))) {
+  if ((root = (struct s_huffman_node *)d_malloc(sizeof(struct s_huffman_node)))) {
     for (index = 0; index < elements; ++index)
       p_huffman_decompression_expand_append(root, codes[index]);
   } else
@@ -223,7 +223,7 @@ int f_huffman_decompression(unsigned char *block, size_t size, unsigned char **o
       if ((bytes_elements = (sizeof(struct s_huffman_code) * codes_elements)) < (size - current_block_byte))
         if ((root = p_huffman_decompression_expand(&(block[current_block_byte]), codes_elements))) {
           current_block_byte += bytes_elements;
-          if ((*output = (unsigned char *) d_malloc(*output_size))) {
+          if ((*output = (unsigned char *)d_malloc(*output_size))) {
             while (p_huffman_decompression_append(root, *output, &current_output_byte, block, *output_size, &current_block_byte, &current_block_bit));
           } else
             d_die(d_error_malloc);

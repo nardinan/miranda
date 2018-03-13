@@ -33,7 +33,7 @@ d_declare_method(transformations, run_mapped)(struct s_object *self, struct s_ob
                                               double minimum, double maximum, double *normalized_value);
 d_declare_method(transformations, run_mixed)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double weight,
                                              double normalized_time, double minimum, double maximum, double *normalized_value);
-d_declare_method(transformations, run_crossfaded)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double normalized_time,
-                                                  double minimum, double maximum, double *normalized_value);
+d_declare_method(transformations, run_crossfaded)(struct s_object *self, struct s_object *function_left, struct s_object *function_right,
+                                                  double normalized_time, double minimum, double maximum, double *normalized_value);
 d_declare_method(transformations, delete)(struct s_object *self, struct s_transformations_attributes *attributes);
 #endif

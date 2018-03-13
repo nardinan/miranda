@@ -67,9 +67,9 @@ d_define_method(uiable, set)(struct s_object *self, struct s_object *drawable, e
   uiable_attributes->background[mode][component] = d_retain(drawable);
   if (drawable_attributes->last_blend != e_drawable_blend_undefined)
     d_call(uiable_attributes->background[mode][component], m_drawable_set_blend, drawable_attributes->last_blend);
-  d_call(uiable_attributes->background[mode][component], m_drawable_set_maskRGB, (unsigned int) drawable_attributes->last_mask_R,
-         (unsigned int) drawable_attributes->last_mask_G, (unsigned int) drawable_attributes->last_mask_B);
-  d_call(uiable_attributes->background[mode][component], m_drawable_set_maskA, (unsigned int) drawable_attributes->last_mask_A);
+  d_call(uiable_attributes->background[mode][component], m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R,
+         (unsigned int)drawable_attributes->last_mask_G, (unsigned int)drawable_attributes->last_mask_B);
+  d_call(uiable_attributes->background[mode][component], m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
   return self;
 }
 d_define_method(uiable, set_background)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
@@ -98,7 +98,7 @@ d_define_method_override(uiable, event)(struct s_object *self, struct s_object *
   struct s_object *result = d_call_owner(self, morphable, m_eventable_event, environment, current_event);
   int mouse_x, mouse_y;
   SDL_GetMouseState(&mouse_x, &mouse_y);
-  if (((intptr_t) d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double) mouse_x, (double) mouse_y))) {
+  if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
     if (!uiable_attributes->is_selected) {
       uiable_attributes->is_selected = d_true;
       d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
@@ -224,11 +224,10 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
     if (uiable_attributes->background[uiable_attributes->selected_mode][index]) {
       drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
       drawable_attributes_core->angle = drawable_attributes_self->angle;
-      /* doesn't inerith the flip (this object, the uiable, doesn't flip) and the zoom is hardcoded to one */
+      /* doesn't inherit the flip (this object, the uiable, doesn't flip) and the zoom is hardcoded to one */
       d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_keep_scale, environment_attributes->current_w,
              environment_attributes->current_h);
-      while (((int) d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) ==
-             d_drawable_return_continue);
+      while (((int)d_call(uiable_attributes->background[uiable_attributes->selected_mode][index], m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   if (uiable_attributes->background_mask_A) { /* only if visible */
     d_miranda_lock(environment) {

@@ -22,8 +22,8 @@
 #include "logs.h"
 #ifdef d_miranda_debug
 #define d_malloc(siz) p_malloc((siz),__FILE__,__LINE__)
-#define d_malloc_explicit(siz,f,l) p_malloc((siz),(f),(l))
-#define d_realloc(ptr,siz) p_realloc((ptr),(siz),__FILE__,__LINE__)
+#define d_malloc_explicit(siz, f, l) p_malloc((siz),(f),(l))
+#define d_realloc(ptr, siz) p_realloc((ptr),(siz),__FILE__,__LINE__)
 #define d_free(ptr) p_free((ptr),__FILE__,__LINE__)
 #else
 #define d_malloc(siz) calloc(1,(siz))

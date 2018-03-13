@@ -42,7 +42,7 @@ int f_string_strcmp(const char *left, const char *right) {
 char *f_string_append(char **string, char *postfix, size_t *space) {
   size_t size_string = f_string_strlen(*string), size_element = f_string_strlen(postfix), total;
   if ((total = size_string + size_element + 1) >= *space) {
-    if ((*string = (char *) d_realloc(*string, (total + 1))))
+    if ((*string = (char *)d_realloc(*string, (total + 1))))
       *space = total;
     else
       d_die(d_error_malloc);
@@ -54,7 +54,7 @@ int f_string_key(char *string, struct s_string_key_format *format, size_t size, 
   char *buffer, *key_pointer, *value_pointer, *last_pointer;
   int index, result = 0;
   size_t string_size;
-  if (((string_size = f_string_strlen(string)) > 0) && (buffer = (char *) d_malloc(string_size + 1))) {
+  if (((string_size = f_string_strlen(string)) > 0) && (buffer = (char *)d_malloc(string_size + 1))) {
     strncpy(buffer, string, string_size);
     key_pointer = buffer;
     while ((key_pointer) && (value_pointer = strchr(key_pointer, divisor))) {
@@ -71,13 +71,13 @@ int f_string_key(char *string, struct s_string_key_format *format, size_t size, 
           if ((!format[index].assigned) && (f_string_strcmp(format[index].key, key_pointer) == 0)) {
             switch (format[index].kind) {
               case e_string_key_kind_string:
-                strncpy((char *) format[index].pointer.destination_ptr, value_pointer, format[index].destination_size);
+                strncpy((char *)format[index].pointer.destination_ptr, value_pointer, format[index].destination_size);
                 break;
               case e_string_key_kind_float:
-                *((double *) format[index].pointer.destination_ptr) = atof(value_pointer);
+                *((double *)format[index].pointer.destination_ptr) = atof(value_pointer);
                 break;
               case e_string_key_kind_int:
-                *((int *) format[index].pointer.destination_ptr) = atoi(value_pointer);
+                *((int *)format[index].pointer.destination_ptr) = atoi(value_pointer);
                 break;
               default:
                 *(format[index].pointer.destination_double_ptr) = value_pointer;

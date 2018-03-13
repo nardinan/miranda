@@ -56,17 +56,15 @@ struct s_object *f_transformations_new(struct s_object *self) {
   struct s_scoped_container {
     struct s_object *key;
     t_transformation_function value;
-  } scoped_container[] = {
-    {d_kstr("linear"),          p_normalized_linear},
-    {d_kstr("inverted_linear"), p_normalized_inverted_linear},
-    {d_kstr("smooth_start_2"),  p_normalized_smooth_start_2},
-    {d_kstr("smooth_start_3"),  p_normalized_smooth_start_3},
-    {d_kstr("smooth_start_4"),  p_normalized_smooth_start_4},
-    {d_kstr("smooth_stop_2"),   p_normalized_smooth_stop_2},
-    {d_kstr("smooth_stop_3"),   p_normalized_smooth_stop_3},
-    {d_kstr("smooth_stop_4"),   p_normalized_smooth_stop_4},
-    {NULL, NULL}
-  };
+  } scoped_container[] = {{d_kstr("linear"),          p_normalized_linear},
+                          {d_kstr("inverted_linear"), p_normalized_inverted_linear},
+                          {d_kstr("smooth_start_2"),  p_normalized_smooth_start_2},
+                          {d_kstr("smooth_start_3"),  p_normalized_smooth_start_3},
+                          {d_kstr("smooth_start_4"),  p_normalized_smooth_start_4},
+                          {d_kstr("smooth_stop_2"),   p_normalized_smooth_stop_2},
+                          {d_kstr("smooth_stop_3"),   p_normalized_smooth_stop_3},
+                          {d_kstr("smooth_stop_4"),   p_normalized_smooth_stop_4},
+                          {NULL, NULL}};
   struct s_transformations_attributes *attributes = p_transformations_alloc(self);
   unsigned int index;
   f_hash_init(&attributes->hash, (t_hash_compare *)f_object_compare, (t_hash_calculate *)f_object_hash);
@@ -87,7 +85,7 @@ d_define_method(transformations, insert)(struct s_object *self, struct s_object 
   return self;
 }
 d_define_method(transformations, run)(struct s_object *self, struct s_object *function, double normalized_time, double minimum, double maximum,
-                                       double *normalized_value) {
+                                      double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_function;
@@ -98,7 +96,7 @@ d_define_method(transformations, run)(struct s_object *self, struct s_object *fu
   return result;
 }
 d_define_method(transformations, run_mapped)(struct s_object *self, struct s_object *function, double time, double minimum_time, double maximum_time,
-                                              double minimum, double maximum, double *normalized_value) {
+                                             double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_function;
@@ -111,19 +109,19 @@ d_define_method(transformations, run_mapped)(struct s_object *self, struct s_obj
   return result;
 }
 d_define_method(transformations, run_mixed)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double weight,
-                                             double normalized_time, double minimum, double maximum, double *normalized_value) {
+                                            double normalized_time, double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_left_function, selected_right_function;
   if ((selected_left_function = f_hash_get(transformations_attributes->hash, function_left)) &&
-    (selected_right_function = f_hash_get(transformations_attributes->hash, function_right))) {
+      (selected_right_function = f_hash_get(transformations_attributes->hash, function_right))) {
     *normalized_value = p_normalized_mix(selected_left_function, selected_right_function, weight, normalized_time, minimum, maximum);
     result = self;
   }
   return result;
 }
 d_define_method(transformations, run_crossfaded)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double normalized_time,
-                                                  double minimum, double maximum, double *normalized_value) {
+                                                 double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_left_function, selected_right_function;

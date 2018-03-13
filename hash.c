@@ -18,7 +18,7 @@
 #include "hash.h"
 void p_hash_allocate(struct s_hash_table *table, t_hash_value dimension) {
   t_hash_value index;
-  if ((table->table = (s_hash_bucket *) d_malloc(dimension * sizeof(struct s_hash_bucket)))) {
+  if ((table->table = (s_hash_bucket *)d_malloc(dimension * sizeof(struct s_hash_bucket)))) {
     for (index = 0; index < dimension; ++index) {
       table->table[index].kind = e_hash_kind_empty;
       table->table[index].value = NULL;
@@ -60,7 +60,7 @@ struct s_hash_bucket *p_hash_lookup(struct s_hash_table *table, void *key, t_has
   return item;
 }
 void f_hash_init(struct s_hash_table **table, t_hash_compare *compare, t_hash_calculate *calculate) {
-  if ((*table = (struct s_hash_table *) d_malloc(sizeof(struct s_hash_table)))) {
+  if ((*table = (struct s_hash_table *)d_malloc(sizeof(struct s_hash_table)))) {
     (*table)->compare = compare;
     (*table)->calculate = calculate;
     p_hash_allocate((*table), d_hash_segments);

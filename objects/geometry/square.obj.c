@@ -18,8 +18,8 @@
 #include "square.obj.h"
 struct s_square_attributes *p_square_alloc(struct s_object *self) {
   struct s_square_attributes *result = d_prepare(self, square);
-  f_memory_new(self);  /* inherit */
-  f_mutex_new(self);  /* inherit */
+  f_memory_new(self);   /* inherit */
+  f_mutex_new(self);    /* inherit */
   return result;
 }
 struct s_object *f_square_new(struct s_object *self, double top_left_x, double top_left_y, double bottom_right_x, double bottom_right_y) {
@@ -139,21 +139,21 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
                               d_math_max(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
   center_x_other = position_x_min + ((position_x_max - position_x_min) / 2.0);
   center_y_other = position_y_min + ((position_y_max - position_y_min) / 2.0);
-  if (!(result = (intptr_t) p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_left_y)))
+  if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_left_y)))
     if (!(result =
-            (intptr_t) p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x, square_attributes_other->normalized_top_right_y)))
-      if (!(result = (intptr_t) p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_right_x,
-                                                            square_attributes_other->normalized_bottom_right_y)))
-        if (!(result = (intptr_t) p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
-                                                              square_attributes_other->normalized_bottom_left_y)))
-          if (!(result = (intptr_t) p_square_inside_coordinates(other, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y)))
-            if (!(result = (intptr_t) p_square_inside_coordinates(other, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y)))
-              if (!(result = (intptr_t) p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x,
-                                                                    square_attributes->normalized_bottom_right_y)))
-                if (!(result = (intptr_t) p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
-                                                                      square_attributes->normalized_bottom_left_y)))
-                  if (!(result = (intptr_t) p_square_inside_coordinates(self, center_x_other, center_y_other)))
-                    result = (intptr_t) p_square_inside_coordinates(other, center_x_self, center_y_self);
+            (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x, square_attributes_other->normalized_top_right_y)))
+      if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_right_x,
+                                                           square_attributes_other->normalized_bottom_right_y)))
+        if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
+                                                             square_attributes_other->normalized_bottom_left_y)))
+          if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y)))
+            if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y)))
+              if (!(result =
+                      (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y)))
+                if (!(result =
+                        (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y)))
+                  if (!(result = (intptr_t)p_square_inside_coordinates(self, center_x_other, center_y_other)))
+                    result = (intptr_t)p_square_inside_coordinates(other, center_x_self, center_y_self);
   d_cast_return(result);
 }
 d_define_class(square) {d_hook_method(square, e_flag_public, set_top_left),

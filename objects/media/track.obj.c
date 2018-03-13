@@ -19,8 +19,8 @@
 d_exception_define(chunk, 15, "ungenerable chunk exception");
 struct s_track_attributes *p_track_alloc(struct s_object *self) {
   struct s_track_attributes *result = d_prepare(self, track);
-  f_mutex_new(self);  /* inherit */
-  f_memory_new(self);  /* inherit */
+  f_mutex_new(self);    /* inherit */
+  f_memory_new(self);   /* inherit */
   return result;
 }
 struct s_object *f_track_new(struct s_object *self, struct s_object *stream) {
@@ -43,7 +43,7 @@ struct s_object *f_track_new_channel(struct s_object *self, struct s_object *str
       attributes->next_channel = channel;
       attributes->volume = d_track_default_volume;
     } else {
-      snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for track %s exception", d_string_cstring(stream_attributes->string_name));
+      snprintf(buffer, d_string_buffer_size, "unable to retrieve information for track %s exception", d_string_cstring(stream_attributes->string_name));
       d_throw(v_exception_chunk, buffer);
     }
     munmap(memblock, file_stats.st_size);

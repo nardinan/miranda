@@ -18,14 +18,14 @@
 #include "telnet.h"
 int f_telnet_initialize(struct s_telnet **telnet) {
   int flag = 1;
-  if ((*telnet = (struct s_telnet *) d_malloc(sizeof(struct s_telnet)))) {
+  if ((*telnet = (struct s_telnet *)d_malloc(sizeof(struct s_telnet)))) {
     memset(&((*telnet)->address), 0, sizeof(struct sockaddr_in));
     if (((*telnet)->socket.socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != d_telnet_stream_null)
-      if (setsockopt((*telnet)->socket.socket, SOL_SOCKET, SO_REUSEADDR, (char *) &flag, sizeof(int)) != d_telnet_stream_null) {
+      if (setsockopt((*telnet)->socket.socket, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(int)) != d_telnet_stream_null) {
         (*telnet)->address.sin_family = AF_INET;
         (*telnet)->address.sin_port = htons(d_telnet_port);
         (*telnet)->address.sin_addr.s_addr = htonl(INADDR_ANY);
-        if (bind((*telnet)->socket.socket, (struct sockaddr *) &((*telnet)->address), sizeof(struct sockaddr_in)) == 0)
+        if (bind((*telnet)->socket.socket, (struct sockaddr *)&((*telnet)->address), sizeof(struct sockaddr_in)) == 0)
           if (listen((*telnet)->socket.socket, d_telnet_queue) == 0)
             (*telnet)->socket.initialized = d_true;
       }
@@ -145,7 +145,7 @@ void p_telnet_write_args(struct s_telnet *telnet, int client, t_telnet_quit_acti
   f_string_format_args(buffer, &length, d_string_buffer_size, NULL, NULL, format, backup_args);
   if (length > 0) {
     current_length = length;
-    if ((message = (char *) d_malloc(current_length + 1))) {
+    if ((message = (char *)d_malloc(current_length + 1))) {
       f_string_format_args(message, &length, current_length, NULL, NULL, format, args);
       if (write(telnet->clients[client].socket.socket, message, current_length) < 0) {
         if (quit_action)
