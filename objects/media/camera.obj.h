@@ -22,7 +22,7 @@ d_declare_class(camera) {
   struct s_attributes head;
   enum e_environment_surfaces surface;
   double screen_position_x, screen_position_y, screen_w, screen_h, scene_reference_w, scene_reference_h, scene_offset_x, scene_offset_y, scene_center_x,
-    scene_center_y, scene_angle, scene_zoom;
+    scene_center_y, camera_angle, scene_zoom;
   struct s_object *controllers;
   unsigned char *memblock;
   SDL_Texture *destination;

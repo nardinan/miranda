@@ -117,12 +117,12 @@ d_define_method(camera, get_center)(struct s_object *self, double *center_x, dou
 }
 d_define_method(camera, set_angle)(struct s_object *self, double angle) {
   d_using(camera);
-  camera_attributes->scene_angle = angle;
+  camera_attributes->camera_angle = angle;
   return self;
 }
 d_define_method(camera, get_angle)(struct s_object *self, double *angle) {
   d_using(camera);
-  *angle = camera_attributes->scene_angle;
+  *angle = camera_attributes->camera_angle;
   return self;
 }
 d_define_method(camera, set_zoom)(struct s_object *self, double zoom) {
@@ -162,7 +162,7 @@ d_define_method(camera, initialize_context)(struct s_object *self, struct s_obje
     d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
            &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
            &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x),
-           &(camera_attributes->scene_center_y), &(camera_attributes->scene_angle), &(camera_attributes->scene_zoom));
+           &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
   d_miranda_lock(environment) {
     SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
     SDL_SetRenderTarget(environment_attributes->renderer, camera_attributes->destination);
@@ -182,11 +182,11 @@ d_define_method(camera, finalize_context)(struct s_object *self, struct s_object
   destination.y = camera_attributes->screen_position_y;
   destination.w = camera_attributes->screen_w;
   destination.h = camera_attributes->screen_h;
-  center.x = camera_attributes->scene_center_x;
-  center.y = camera_attributes->scene_center_y;
+  center.x = (camera_attributes->screen_w / 2.0);
+  center.y = (camera_attributes->screen_h / 2.0);
   d_miranda_lock(environment) {
     SDL_SetRenderTarget(environment_attributes->renderer, NULL);
-    SDL_RenderCopyEx(environment_attributes->renderer, camera_attributes->destination, &source, &destination, 0.0, &center,
+    SDL_RenderCopyEx(environment_attributes->renderer, camera_attributes->destination, &source, &destination, camera_attributes->camera_angle, &center,
                      (SDL_RendererFlip)e_drawable_flip_none);
   } d_miranda_unlock(environment);
   return self;
