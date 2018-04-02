@@ -109,7 +109,6 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
                              {NULL}};
   struct s_label_attributes *label_attributes;
   struct s_checkbox_attributes *checkbox_attributes;
-  struct s_scroll_attributes *scroll_attributes;
   struct s_uiable_container *current_component;
   struct s_object *stream;
   t_json_starting_point *next_starting_point;
@@ -155,7 +154,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
                 if ((checkbox_attributes = d_cast(current_component->uiable, checkbox)))
                   if ((d_call(json_ui, m_json_get_boolean_relative, next_starting_point, &boolean_supply, "s", "checked")))
                     checkbox_attributes->is_checked = boolean_supply;
-                if ((scroll_attributes = d_cast(current_component->uiable, scroll))) {
+                if (d_cast(current_component->uiable, scroll)) {
                   range_minimum = 0.0;
                   range_maximum = 100.0;
                   modifier = 1.0;

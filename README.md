@@ -5,7 +5,7 @@ MIRANDA (ground + objects)
 
 Note: Miranda is a 160 characters-per-row library!
 
-#Introduction
+## Introduction
 Miranda is an experimental C library that I started in 2014 and that is still under development.
 The idea behind Miranda is to create a dynamic object-oriented interface for the C programming language that allows users to easily declare their own classes, define private and public methods, inherit, override and much, much more.
 
