@@ -59,8 +59,8 @@ void f_json_tokenizer(struct s_object *stream_file, struct s_list *tokens) {
   struct s_json_token *local_token = NULL;
   struct s_object *current_string, *string_readed = NULL;
   size_t length;
-  char *string_pointer, *head_pointer = NULL, string_definition_character = '\0', last_character = '\0';
-  int index, decimal_digits = d_json_decimal_null, line_number = 0;
+  char *string_pointer = NULL, *head_pointer = NULL, string_definition_character = '\0', last_character = '\0';
+  int index = 0, decimal_digits = d_json_decimal_null, line_number = 0;
   t_boolean submit_token, keep_index, negative_value = d_false;
   while ((current_string = d_call(stream_file, m_stream_read_string, string_readed, d_stream_block_size))) {
     string_readed = current_string;
@@ -329,8 +329,8 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
   struct s_json_token *local_token;
   struct s_exception *exception;
   enum e_json_node_actions current_action = e_json_node_action_key;
-  char buffer[d_string_buffer_size], last_character;
-  while ((local_token = (struct s_json_token *) tokens->current)) {
+  char buffer[d_string_buffer_size];
+  while ((local_token = (struct s_json_token *)tokens->current)) {
     if (!local_node)
       if (!(local_node = (struct s_json_node *) d_malloc(sizeof(struct s_json_node))))
         d_die(d_error_malloc);
@@ -355,7 +355,7 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
       case e_json_node_action_value:
         d_try
             {
-              if ((last_character = p_json_analyzer_value(tokens, &(local_node->value), NULL)) == '}')
+              if (p_json_analyzer_value(tokens, &(local_node->value), NULL) == '}')
                 current_action = e_json_node_action_end;
               else
                 current_action = e_json_node_action_key;
