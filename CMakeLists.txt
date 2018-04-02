@@ -164,6 +164,20 @@ INSTALL(TARGETS miranda_media
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media
         )
 
+add_library(miranda_cameras SHARED
+        objects/media/cameras/cameras.h
+        objects/media/cameras/drawable_chaser.obj.c
+        objects/media/cameras/drawable_chaser.obj.h
+        objects/media/cameras/limiter.obj.c
+        objects/media/cameras/limiter.obj.h)
+
+set_target_properties(miranda_cameras PROPERTIES PUBLIC_HEADER "objects/media/cameras/cameras.h;\
+objects/media/cameras/drawable_chaser.obj.h;objects/media/cameras/limiter.obj.h")
+INSTALL(TARGETS miranda_cameras
+        LIBRARY DESTINATION /usr/local/lib
+        PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/cameras
+        )
+
 add_library(miranda_ui SHARED
         objects/media/ui/button.obj.c
         objects/media/ui/button.obj.h
@@ -201,6 +215,7 @@ target_link_libraries(miranda_geometry miranda_objects)
 target_link_libraries(miranda_io miranda_objects)
 target_link_libraries(miranda_network miranda_objects)
 target_link_libraries(miranda_media miranda_objects miranda_geometry miranda_io miranda_ground)
+target_link_libraries(miranda_cameras miranda_media)
 target_link_libraries(miranda_ui miranda_media)
 
 INCLUDE(FindPkgConfig)
