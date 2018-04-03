@@ -3,7 +3,6 @@ execute_process(COMMAND sdl2-config --libs 2>/dev/null OUTPUT_VARIABLE STATUS_SD
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-Dd_miranda_debug)
 endif()
-
 add_library(miranda_ground SHARED
         console.c
         console.h
@@ -119,7 +118,7 @@ INSTALL(TARGETS miranda_network
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/network
         )
 
-if(DEFINED STATUS_SDL)
+if(NOT (STATUS_SDL STREQUAL ""))
     add_library(miranda_media SHARED
             objects/media/animation.obj.c
             objects/media/animation.obj.h
@@ -198,7 +197,7 @@ target_link_libraries(miranda_objects miranda_ground)
 target_link_libraries(miranda_geometry miranda_objects)
 target_link_libraries(miranda_io miranda_objects)
 target_link_libraries(miranda_network miranda_objects)
-if(DEFINED STATUS_SDL)
+if(NOT (STATUS_SDL STREQUAL ""))
     target_link_libraries(miranda_media miranda_objects miranda_geometry miranda_io miranda_ground)
     target_link_libraries(miranda_ui miranda_media)
 

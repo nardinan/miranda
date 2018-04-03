@@ -272,7 +272,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             current_time = SDL_GetTicks();
             if ((waiting_time = required_time - (current_time - starting_time)) > 0)
               SDL_Delay(waiting_time);
-            else if (fabs(waiting_time) > d_environment_tolerance)
+            else if (abs(waiting_time) > d_environment_tolerance)
               d_war(e_log_level_medium, "loop time has a delay of %d mS", (waiting_time * -1));
             starting_time = current_time;
             /* align the FPS time delay and then refresh the image */
