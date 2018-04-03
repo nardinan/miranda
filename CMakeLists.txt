@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
-
-if (CMAKE_BUILD_TYPE MATCHES Debug)
+execute_process(COMMAND sdl2-config --libs 2>/dev/null OUTPUT_VARIABLE STATUS_SDL)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-Dd_miranda_debug)
-endif ()
-
+endif()
 add_library(miranda_ground SHARED
         console.c
         console.h
@@ -119,112 +118,118 @@ INSTALL(TARGETS miranda_network
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/network
         )
 
-add_library(miranda_media SHARED
-        objects/media/animation.obj.c
-        objects/media/animation.obj.h
-        objects/media/bitmap.obj.c
-        objects/media/bitmap.obj.h
-        objects/media/controllable.obj.c
-        objects/media/controllable.obj.h
-        objects/media/drawable.obj.c
-        objects/media/drawable.obj.h
-        objects/media/entity.obj.c
-        objects/media/entity.obj.h
-        objects/media/environment.obj.c
-        objects/media/environment.obj.h
-        objects/media/eventable.obj.c
-        objects/media/eventable.obj.h
-        objects/media/lights.obj.c
-        objects/media/lights.obj.h
-        objects/media/media.h
-        objects/media/media_factory.obj.c
-        objects/media/media_factory.obj.h
-        objects/media/morphable.obj.c
-        objects/media/morphable.obj.h
-        objects/media/particle.obj.c
-        objects/media/particle.obj.h
-        objects/media/primitives.c
-        objects/media/primitives.h
-        objects/media/track.obj.c
-        objects/media/track.obj.h
-        objects/media/transition.obj.c
-        objects/media/transition.obj.h
-        objects/media/camera.obj.c
-        objects/media/camera.obj.h
-        objects/media/camera_controller.obj.c
-        objects/media/camera_controller.obj.h)
+#SDL dependent code
+if(NOT (STATUS_SDL STREQUAL ""))
+    add_library(miranda_media SHARED
+            objects/media/animation.obj.c
+            objects/media/animation.obj.h
+            objects/media/bitmap.obj.c
+            objects/media/bitmap.obj.h
+            objects/media/controllable.obj.c
+            objects/media/controllable.obj.h
+            objects/media/drawable.obj.c
+            objects/media/drawable.obj.h
+            objects/media/entity.obj.c
+            objects/media/entity.obj.h
+            objects/media/environment.obj.c
+            objects/media/environment.obj.h
+            objects/media/eventable.obj.c
+            objects/media/eventable.obj.h
+            objects/media/lights.obj.c
+            objects/media/lights.obj.h
+            objects/media/media.h
+            objects/media/media_factory.obj.c
+            objects/media/media_factory.obj.h
+            objects/media/morphable.obj.c
+            objects/media/morphable.obj.h
+            objects/media/particle.obj.c
+            objects/media/particle.obj.h
+            objects/media/primitives.c
+            objects/media/primitives.h
+            objects/media/track.obj.c
+            objects/media/track.obj.h
+            objects/media/transition.obj.c
+            objects/media/transition.obj.h
+            objects/media/camera.obj.c
+            objects/media/camera.obj.h
+            objects/media/camera_controller.obj.c
+            objects/media/camera_controller.obj.h)
 
-set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "objects/media/animation.obj.h;objects/media/bitmap.obj.h;\
+    set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "objects/media/animation.obj.h;objects/media/bitmap.obj.h;\
 objects/media/controllable.obj.h;objects/media/drawable.obj.h;objects/media/entity.obj.h;\
 objects/media/environment.obj.h;objects/media/eventable.obj.h;objects/media/lights.obj.h;\
 objects/media/media.h;objects/media/media_factory.obj.h;objects/media/morphable.obj.h;objects/media/particle.obj.h;\
 objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/camera.obj.h;objects/media/camera_controller.obj.h")
-INSTALL(TARGETS miranda_media
-        LIBRARY DESTINATION /usr/local/lib
-        PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media
-        )
+    INSTALL(TARGETS miranda_media
+            LIBRARY DESTINATION /usr/local/lib
+            PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media
+            )
 
-add_library(miranda_cameras SHARED
-        objects/media/cameras/cameras.h
-        objects/media/cameras/drawable_chaser.obj.c
-        objects/media/cameras/drawable_chaser.obj.h
-        objects/media/cameras/limiter.obj.c
-        objects/media/cameras/limiter.obj.h)
+    add_library(miranda_cameras SHARED
+            objects/media/cameras/cameras.h
+            objects/media/cameras/drawable_chaser.obj.c
+            objects/media/cameras/drawable_chaser.obj.h
+            objects/media/cameras/limiter.obj.c
+            objects/media/cameras/limiter.obj.h)
 
-set_target_properties(miranda_cameras PROPERTIES PUBLIC_HEADER "objects/media/cameras/cameras.h;\
+    set_target_properties(miranda_cameras PROPERTIES PUBLIC_HEADER "objects/media/cameras/cameras.h;\
 objects/media/cameras/drawable_chaser.obj.h;objects/media/cameras/limiter.obj.h")
-INSTALL(TARGETS miranda_cameras
-        LIBRARY DESTINATION /usr/local/lib
-        PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/cameras
-        )
+    INSTALL(TARGETS miranda_cameras
+            LIBRARY DESTINATION /usr/local/lib
+            PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/cameras
+            )
 
-add_library(miranda_ui SHARED
-        objects/media/ui/button.obj.c
-        objects/media/ui/button.obj.h
-        objects/media/ui/checkbox.obj.c
-        objects/media/ui/checkbox.obj.h
-        objects/media/ui/container.obj.c
-        objects/media/ui/container.obj.h
-        objects/media/ui/field.obj.c
-        objects/media/ui/field.obj.h
-        objects/media/ui/fonts.obj.c
-        objects/media/ui/fonts.obj.h
-        objects/media/ui/label.obj.c
-        objects/media/ui/label.obj.h
-        objects/media/ui/list.obj.c
-        objects/media/ui/list.obj.h
-        objects/media/ui/scroll.obj.c
-        objects/media/ui/scroll.obj.h
-        objects/media/ui/ui.h
-        objects/media/ui/ui_factory.obj.c
-        objects/media/ui/ui_factory.obj.h
-        objects/media/ui/uiable.obj.c
-        objects/media/ui/uiable.obj.h)
+    add_library(miranda_ui SHARED
+            objects/media/ui/button.obj.c
+            objects/media/ui/button.obj.h
+            objects/media/ui/checkbox.obj.c
+            objects/media/ui/checkbox.obj.h
+            objects/media/ui/container.obj.c
+            objects/media/ui/container.obj.h
+            objects/media/ui/field.obj.c
+            objects/media/ui/field.obj.h
+            objects/media/ui/fonts.obj.c
+            objects/media/ui/fonts.obj.h
+            objects/media/ui/label.obj.c
+            objects/media/ui/label.obj.h
+            objects/media/ui/list.obj.c
+            objects/media/ui/list.obj.h
+            objects/media/ui/scroll.obj.c
+            objects/media/ui/scroll.obj.h
+            objects/media/ui/ui.h
+            objects/media/ui/ui_factory.obj.c
+            objects/media/ui/ui_factory.obj.h
+            objects/media/ui/uiable.obj.c
+            objects/media/ui/uiable.obj.h)
 
-set_target_properties(miranda_ui PROPERTIES PUBLIC_HEADER "objects/media/ui/button.obj.h;\
-objects/media/ui/checkbox.obj.h;objects/media/ui/container.obj.h;objects/media/ui/field.obj.h;\
-objects/media/ui/fonts.obj.h;objects/media/ui/label.obj.h;objects/media/ui/list.obj.h;objects/media/ui/scroll.obj.h;\
-objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h")
-INSTALL(TARGETS miranda_ui
-        LIBRARY DESTINATION /usr/local/lib
-        PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/ui
-        )
+    set_target_properties(miranda_ui PROPERTIES PUBLIC_HEADER "objects/media/ui/button.obj.h;\
+    objects/media/ui/checkbox.obj.h;objects/media/ui/container.obj.h;objects/media/ui/field.obj.h;\
+    objects/media/ui/fonts.obj.h;objects/media/ui/label.obj.h;objects/media/ui/list.obj.h;objects/media/ui/scroll.obj.h;\
+    objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h")
+    INSTALL(TARGETS miranda_ui
+            LIBRARY DESTINATION /usr/local/lib
+            PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/ui
+            )
+endif()
 
 target_link_libraries(miranda_objects miranda_ground)
 target_link_libraries(miranda_geometry miranda_objects)
 target_link_libraries(miranda_io miranda_objects)
 target_link_libraries(miranda_network miranda_objects)
-target_link_libraries(miranda_media miranda_objects miranda_geometry miranda_io miranda_ground)
-target_link_libraries(miranda_cameras miranda_media)
-target_link_libraries(miranda_ui miranda_media)
+# SDL dependent code
+if(NOT (STATUS_SDL STREQUAL ""))
+    target_link_libraries(miranda_media miranda_objects miranda_geometry miranda_io miranda_ground)
+    target_link_libraries(miranda_cameras miranda_media)
+    target_link_libraries(miranda_ui miranda_media)
 
-INCLUDE(FindPkgConfig)
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf)
-PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image)
-PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
+    INCLUDE(FindPkgConfig)
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+    PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf)
+    PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image)
+    PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
 
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2MIXER_INCLUDE_DIRS})
+    INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2MIXER_INCLUDE_DIRS})
 
-TARGET_LINK_LIBRARIES(miranda_media ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
-TARGET_LINK_LIBRARIES(miranda_ui ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
+    TARGET_LINK_LIBRARIES(miranda_media ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
+    TARGET_LINK_LIBRARIES(miranda_ui ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
+endif()
