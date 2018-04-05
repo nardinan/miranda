@@ -149,16 +149,16 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     }
   }
   d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
-  if (((intptr_t) d_call(self, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
-                         environment_attributes->reference_h[environment_attributes->current_surface],
-                         environment_attributes->camera_origin_x[environment_attributes->current_surface],
-                         environment_attributes->camera_origin_y[environment_attributes->current_surface],
-                         environment_attributes->camera_focus_x[environment_attributes->current_surface],
-                         environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
-                         environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
-    result = (intptr_t) d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) while (
-        ((int) d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+  if (((intptr_t)d_call(self, m_drawable_normalize_scale, environment_attributes->reference_w[environment_attributes->current_surface],
+                        environment_attributes->reference_h[environment_attributes->current_surface],
+                        environment_attributes->camera_origin_x[environment_attributes->current_surface],
+                        environment_attributes->camera_origin_y[environment_attributes->current_surface],
+                        environment_attributes->camera_focus_x[environment_attributes->current_surface],
+                        environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
+                        environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface]))) {
+    result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
+    d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
+      while (((intptr_t)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);

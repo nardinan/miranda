@@ -89,7 +89,7 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
                 environment_attributes->camera_focus_x[environment_attributes->current_surface],
                 environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
                 environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
-      while (((int) d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
+      while (((intptr_t)d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
 }

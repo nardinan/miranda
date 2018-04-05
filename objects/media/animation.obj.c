@@ -171,7 +171,7 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
                   environment_attributes->camera_focus_x[environment_attributes->current_surface],
                   environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
                   environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
-        while (((int) d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+        while (((intptr_t)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);
   if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)

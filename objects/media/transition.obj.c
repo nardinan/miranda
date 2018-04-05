@@ -152,7 +152,7 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
                   environment_attributes->camera_focus_x[environment_attributes->current_surface],
                   environment_attributes->camera_focus_y[environment_attributes->current_surface], environment_attributes->current_w,
                   environment_attributes->current_h, environment_attributes->zoom[environment_attributes->current_surface])))
-        while (((int) d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+        while (((intptr_t)d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
   if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)

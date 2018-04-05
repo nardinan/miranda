@@ -266,7 +266,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                                 environment_attributes->camera_origin_y[surface], environment_attributes->camera_focus_x[surface],
                                 environment_attributes->camera_focus_y[surface], environment_attributes->current_w, environment_attributes->current_h,
                                 environment_attributes->zoom[surface])))
-                      while (((int)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
+                      while (((intptr_t)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
                 }
             }
             current_time = SDL_GetTicks();
