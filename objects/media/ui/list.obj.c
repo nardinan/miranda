@@ -283,7 +283,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
                      (unsigned int)list_attributes->unselected_background_G, (unsigned int)list_attributes->unselected_background_B,
                      (unsigned int)list_attributes->unselected_background_A);
             d_call(current_entry, m_drawable_set_blend, list_attributes->last_blend);
-            while (((int)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
+            while (((intptr_t)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
             ++(list_attributes->visible_entries);
           } else
             break; /* not visible anymore */
@@ -309,7 +309,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right, (position_x + normalized_dimension_w_scroll),
            (position_y + normalized_dimension_h_scroll));
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_center, center_x, center_y);
-    while (((int)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
+    while (((intptr_t)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
 }

@@ -102,7 +102,7 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
     if ((d_call(scroll_attributes->image, m_drawable_keep_scale, environment_attributes->current_w, environment_attributes->current_h))) {
       d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_x, (double)(dimension_w_image * size_ratio));
       d_call(&(drawable_attributes_image->point_normalized_dimension), m_point_set_y, (double)(dimension_h_image * size_ratio));
-      while (((int)d_call(scroll_attributes->image, m_drawable_draw, environment)) == d_drawable_return_continue);
+      while (((intptr_t)d_call(scroll_attributes->image, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
   d_cast_return(result);

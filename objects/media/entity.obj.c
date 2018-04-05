@@ -182,7 +182,7 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
               if ((d_call(current_element->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
                           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
                           camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
-                while (((int)d_call(current_element->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+                while (((intptr_t)d_call(current_element->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
             }
         }
       d_catch(exception)

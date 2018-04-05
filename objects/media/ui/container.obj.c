@@ -154,7 +154,7 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
               camera_attributes->screen_h, camera_attributes->scene_zoom))) {
     result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
     d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
-      while (((int)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+      while (((intptr_t)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);
