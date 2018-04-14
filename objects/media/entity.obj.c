@@ -124,6 +124,10 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
   struct timeval current_refresh, difference_x, difference_y, difference_zoom;
   if (entity_attributes->current_component) {
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
+    local_position_z = entity_attributes->factor_z;
+    new_x = local_position_x;
+    new_y = local_position_y;
+    new_z = local_position_z;
     gettimeofday(&current_refresh, NULL);
     timersub(&current_refresh, &(entity_attributes->last_refresh_x), &difference_x);
     timersub(&current_refresh, &(entity_attributes->last_refresh_y), &difference_y);
@@ -131,10 +135,6 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
     difference_x_seconds = ((double)difference_x.tv_sec + (difference_x.tv_usec / 1000000.0));
     difference_y_seconds = ((double)difference_y.tv_sec + (difference_y.tv_usec / 1000000.0));
     difference_zoom_seconds = ((double)difference_zoom.tv_sec + (difference_zoom.tv_usec / 1000000.0));
-    local_position_z = entity_attributes->factor_z;
-    new_x = local_position_x;
-    new_y = local_position_y;
-    new_z = local_position_z;
     if (fabs(movement_x = (difference_x_seconds * entity_attributes->current_component->speed_x) * drawable_attributes_self->zoom) >
         d_entity_minimum_movement) {
       entity_attributes->last_refresh_x = current_refresh;
@@ -147,11 +147,13 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
     }
     if (fabs(movement_zoom = (difference_zoom_seconds * entity_attributes->current_component->speed_z)) > d_entity_minimum_zoom) {
       entity_attributes->last_refresh_zoom = current_refresh;
-      new_z += movement_zoom;
+      if ((new_z + movement_zoom) > 0)
+        new_z += movement_zoom;
     }
     if (entity_attributes->validator)
       entity_attributes->validator(self, local_position_x, local_position_y, entity_attributes->factor_z, &new_x, &new_y, &new_z);
     d_call(self, m_drawable_set_position, new_x, new_y);
+    entity_attributes->factor_z = new_z;
     local_position_x = new_x;
     local_position_y = new_y;
     local_position_z = new_z;
