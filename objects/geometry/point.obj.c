@@ -87,9 +87,9 @@ d_define_method(point, angle)(struct s_object *self, struct s_object *other, dou
 }
 d_define_method(point, rotate)(struct s_object *self, double angle) {
   d_using(point);
-  double radians = angle * d_math_radians_conversion, cosine = cos(radians), sine = sin(radians);
-  point_attributes->x = (point_attributes->x * cosine) - (point_attributes->y * sine);
-  point_attributes->y = (point_attributes->x * sine) - (point_attributes->y * cosine);
+  double radians = angle * d_math_radians_conversion, cosine = cos(radians), sine = sin(radians), new_x = point_attributes->x, new_y = point_attributes->y;
+  point_attributes->x = (new_x * cosine) - (new_y * sine);
+  point_attributes->y = (new_x * sine) - (new_y * cosine);
   return self;
 }
 d_define_method(point, rotate_pivot)(struct s_object *self, double angle, struct s_object *pivot) {
@@ -97,10 +97,8 @@ d_define_method(point, rotate_pivot)(struct s_object *self, double angle, struct
   struct s_point_attributes *point_attributes_pivot = d_cast(pivot, point);
   double radians = angle * d_math_radians_conversion, cosine = cos(radians), sine = sin(radians), new_x = point_attributes->x - point_attributes_pivot->x,
     new_y = point_attributes->y - point_attributes_pivot->y;
-  new_x = (new_x * cosine) - (new_y * sine);
-  new_y = (new_x * sine) + (new_y * cosine);
-  point_attributes->x = new_x + point_attributes_pivot->x;
-  point_attributes->y = new_y + point_attributes_pivot->y;
+  point_attributes->x = (new_x * cosine) - (new_y * sine) + point_attributes_pivot->x;
+  point_attributes->y = (new_x * sine) + (new_y * cosine) + point_attributes_pivot->y;
   return self;
 }
 d_define_class(point) {d_hook_method(point, e_flag_public, set_point),
