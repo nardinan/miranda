@@ -115,7 +115,6 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
   struct s_square_attributes *square_attributes;
   double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y, diagonal_screen,
     diagonal_object, distance_object;
-  struct s_object *result = self;
   d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
   d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
   d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);
@@ -175,21 +174,12 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
   square_attributes->center_y = new_center_y;
   square_attributes->normalized = d_false;
   d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
-  /* is the object still visible? (distance between the center of the object and the center of the screen > (size of object + half of the width)) */
-  if ((drawable_attributes->flags & e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
-    distance_object = (d_math_square((new_x + (new_w / 2.0)) - (current_w / 2.0)) + d_math_square((new_y + (new_h / 2.0)) - (current_h / 2.0)));
-    diagonal_screen = (d_math_square(current_w) + d_math_square(current_h));
-    diagonal_object = (d_math_square(new_w) + d_math_square(new_h));
-    if (distance_object > ((diagonal_screen / 2.0) + (diagonal_object / 2.0)))
-      result = NULL;
-  }
-  return result;
+  return d_call(self, m_drawable_is_visible, current_w, current_h);
 }
 d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, double current_h) {
   d_using(drawable);
   struct s_square_attributes *square_attributes;
   double this_x, this_y, this_w, this_h, this_center_x, this_center_y, min_x, min_y, max_x, max_y, distance_object, diagonal_screen, diagonal_object;
-  struct s_object *result = self;
   d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
   d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
   d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);
@@ -206,14 +196,24 @@ d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, d
   square_attributes->center_y = this_center_y;
   square_attributes->normalized = d_false;
   d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
-  /* is the object still visible? (distance between the center of the object and the center of the screen > (size of object + half of the width)) */
-  if ((drawable_attributes->flags & e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
-    distance_object = (d_math_square((this_x + (this_w / 2.0)) - (current_w / 2.0)) + d_math_square((this_y + (this_h / 2.0)) - (current_h / 2.0)));
-    diagonal_screen = (d_math_square(current_w) + d_math_square(current_h));
-    diagonal_object = (d_math_square(this_w) + d_math_square(this_h));
-    if (distance_object > ((diagonal_screen / 2.0) + (diagonal_object / 2.0)))
-      result = NULL;
-  }
+  return d_call(self, m_drawable_is_visible, current_w, current_h);
+}
+d_define_method(drawable, is_visible)(struct s_object *self, double current_w, double current_h) {
+  d_using(drawable);
+  struct s_object *result = self;
+  double position_x, position_y, width, height, distance_object, diagonal_screen, diagonal_object;
+  if ((drawable_attributes->flags & e_drawable_kind_hidden) != e_drawable_kind_hidden) {
+    if ((drawable_attributes->flags & e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
+      d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
+      d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &width, &height);
+      distance_object = (d_math_square((position_x + (width / 2.0)) - (current_w / 2.0)) + d_math_square((position_y + (height / 2.0)) - (current_h / 2.0)));
+      diagonal_screen = (d_math_square(current_w) + d_math_square(current_h));
+      diagonal_object = (d_math_square(width) + d_math_square(height));
+      if (distance_object > ((diagonal_screen / 2.0) + (diagonal_object / 2.0)))
+        result = NULL;
+    }
+  } else
+    result = NULL;
   return result;
 }
 d_define_method(drawable, set_position)(struct s_object *self, double x, double y) {
@@ -382,6 +382,7 @@ d_define_class(drawable) {d_hook_method(drawable, e_flag_public, copy_geometry),
                           d_hook_method(drawable, e_flag_public, set_blend),
                           d_hook_method(drawable, e_flag_public, normalize_scale),
                           d_hook_method(drawable, e_flag_public, keep_scale),
+                          d_hook_method(drawable, e_flag_public, is_visible),
                           d_hook_method(drawable, e_flag_public, set_position),
                           d_hook_method(drawable, e_flag_public, set_position_x),
                           d_hook_method(drawable, e_flag_public, set_position_y),

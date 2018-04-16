@@ -107,15 +107,13 @@ d_define_method(animation, set_callback)(struct s_object *self, t_animation_rebo
   animation_attributes->raw_data = raw_data;
   return self;
 }
-d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
+d_define_method(animation, update_frame)(struct s_object *self) {
   d_using(animation);
   struct s_animation_frame *next_frame = NULL;
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core;
-  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct timeval current, elapsed_update;
-  double real_elapsed_update, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y, center_x, center_y, dimension_w = 0.0,
-    dimension_h = 0.0;
+  double real_elapsed_update, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y, center_x, center_y,
+    dimension_w = 0.0, dimension_h = 0.0;
   gettimeofday(&current, NULL);
   d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
   d_call(&(drawable_attributes_self->point_center), m_point_get, &local_center_x, &local_center_y);
@@ -152,26 +150,32 @@ d_define_method_override(animation, draw)(struct s_object *self, struct s_object
     animation_attributes->current_frame = (struct s_animation_frame *)d_call(self, m_animation_get_master_frame, d_false);
     memcpy(&(animation_attributes->last_update), &current, sizeof(struct timeval));
   }
-  if (animation_attributes->current_frame)
-    if (animation_attributes->current_frame->drawable) {
-      drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
-      d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
-      center_x = local_center_x - animation_attributes->current_frame->offset_x;
-      center_y = local_center_y - animation_attributes->current_frame->offset_y;
-      position_x = local_position_x + animation_attributes->current_frame->offset_x;
-      position_y = local_position_y + animation_attributes->current_frame->offset_y;
-      d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
-      d_call(animation_attributes->current_frame->drawable, m_drawable_set_center, center_x, center_y);
-      drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
-      drawable_attributes_core->angle = drawable_attributes_self->angle;
-      drawable_attributes_core->flip = drawable_attributes_self->flip;
-      if ((d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w,
-                  camera_attributes->scene_reference_h, camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                  camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
-        while (((intptr_t)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
-    }
+  if ((animation_attributes->current_frame) && (animation_attributes->current_frame->drawable)) {
+    /* inherith the base geometry from the current drawable element */
+    drawable_attributes_core = d_cast(animation_attributes->current_frame->drawable, drawable);
+    d_call(&(drawable_attributes_core->point_dimension), m_point_get, &dimension_w, &dimension_h);
+    center_x = local_center_x - animation_attributes->current_frame->offset_x;
+    center_y = local_center_y - animation_attributes->current_frame->offset_y;
+    position_x = local_position_x + animation_attributes->current_frame->offset_x;
+    position_y = local_position_y + animation_attributes->current_frame->offset_y;
+    d_call(animation_attributes->current_frame->drawable, m_drawable_set_position, position_x, position_y);
+    d_call(animation_attributes->current_frame->drawable, m_drawable_set_center, center_x, center_y);
+    drawable_attributes_core->zoom = (animation_attributes->current_frame->zoom * drawable_attributes_self->zoom);
+    drawable_attributes_core->angle = drawable_attributes_self->angle;
+    drawable_attributes_core->flip = drawable_attributes_self->flip;
+  }
   d_call(self, m_drawable_set_dimension, dimension_w, dimension_h);
-  if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
+  return self;
+}
+d_define_method_override(animation, draw)(struct s_object *self, struct s_object *environment) {
+  d_using(animation);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
+  if ((animation_attributes->current_frame) && (animation_attributes->current_frame->drawable))
+    if (d_call(animation_attributes->current_frame->drawable, m_drawable_is_visible, camera_attributes->screen_w, camera_attributes->screen_h))
+      while (((intptr_t)d_call(animation_attributes->current_frame->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
+  if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);
   d_cast_return(d_drawable_return_last);
 }
@@ -203,6 +207,24 @@ d_define_method_override(animation, set_blend)(struct s_object *self, enum e_dra
   d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
     d_call(current_frame->drawable, m_drawable_set_blend, blend);
   return self;
+}
+d_define_method_override(animation, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
+                                                     double focus_x, double focus_y, double current_w, double current_h, double zoom) {
+  d_using(animation);
+  struct s_object *result = NULL;
+  d_call(self, m_animation_update_frame, NULL);
+  if ((animation_attributes->current_frame) && (animation_attributes->current_frame->drawable))
+    result = d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, reference_w, reference_h, offset_x, offset_y, focus_x, focus_y,
+           current_w, current_h, zoom);
+  return result;
+}
+d_define_method_override(animation, keep_scale)(struct s_object *self, double current_w, double current_h) {
+  d_using(animation);
+  struct s_object *result = NULL;
+  d_call(self, m_animation_update_frame, NULL);
+  if ((animation_attributes->current_frame) && (animation_attributes->current_frame->drawable))
+    result = d_call(animation_attributes->current_frame->drawable, m_drawable_keep_scale, current_w, current_h);
+  return result;
 }
 d_define_method_override(animation, get_scaled_position)(struct s_object *self, double *x, double *y) {
   d_using(animation);
@@ -264,10 +286,13 @@ d_define_class(animation) {d_hook_method(animation, e_flag_public, append_frame)
                            d_hook_method(animation, e_flag_public, get_status),
                            d_hook_method(animation, e_flag_public, get_master_frame),
                            d_hook_method(animation, e_flag_public, set_callback),
+                           d_hook_method(animation, e_flag_private, update_frame),
                            d_hook_method_override(animation, e_flag_public, drawable, draw),
                            d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
                            d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
                            d_hook_method_override(animation, e_flag_public, drawable, set_blend),
+                           d_hook_method_override(animation, e_flag_public, drawable, normalize_scale),
+                           d_hook_method_override(animation, e_flag_public, drawable, keep_scale),
                            d_hook_method_override(animation, e_flag_public, drawable, get_scaled_position),
                            d_hook_method_override(animation, e_flag_public, drawable, get_scaled_center),
                            d_hook_method_override(animation, e_flag_public, drawable, get_dimension),

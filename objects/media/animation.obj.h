@@ -52,10 +52,14 @@ d_declare_method(animation, set_status)(struct s_object *self, enum e_animation_
 d_declare_method(animation, get_status)(struct s_object *self);
 d_declare_method(animation, get_master_frame)(struct s_object *self, t_boolean key_frame);
 d_declare_method(animation, set_callback)(struct s_object *self, t_animation_reboot callback, struct s_object *raw_data);
+d_declare_method(animation, update_frame)(struct s_object *self);
 d_declare_method(animation, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(animation, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(animation, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(animation, set_blend)(struct s_object *self, enum e_drawable_blends blend);
+d_declare_method(animation, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
+                                            double focus_y, double current_w, double current_h, double zoom);
+d_declare_method(animation, keep_scale)(struct s_object *self, double current_w, double current_h);
 d_declare_method(animation, get_scaled_position)(struct s_object *self, double *x, double *y);
 d_declare_method(animation, get_scaled_center)(struct s_object *self, double *x, double *y);
 d_declare_method(animation, get_dimension)(struct s_object *self, double *w, double *h);
