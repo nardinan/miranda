@@ -45,6 +45,7 @@ d_declare_class(environment) {
   struct s_object *cameras;
   struct s_object *current_camera;
   double current_w, current_h, fps, mask_R, mask_G, mask_B, mask_A;
+  unsigned int current_surface, current_layer;
   struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
   t_boolean continue_loop;
 } d_declare_class_tail(environment);

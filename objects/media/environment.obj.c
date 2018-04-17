@@ -179,7 +179,7 @@ d_define_method(environment, del_eventable)(struct s_object *self, struct s_obje
 }
 d_define_method(environment, run_loop)(struct s_object *self) {
   d_using(environment);
-  int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int)(1000.0f / environment_attributes->fps), surface, index, flags;
+  int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int)(1000.0f / environment_attributes->fps), surface, index;
   struct s_eventable_attributes *eventable_attributes;
   struct s_camera_attributes *camera_attributes;
   struct s_object *drawable_object;
@@ -197,12 +197,14 @@ d_define_method(environment, run_loop)(struct s_object *self) {
               if ((eventable_attributes = d_cast(eventable_object, eventable)))
                 if (eventable_attributes->enable)
                   d_call(eventable_object, m_eventable_event, self, &local_event);
-            for (surface = 0; surface < e_environment_surface_NULL; ++surface)
-              for (index = 0; index < d_environment_layers; ++index)
+            for (surface = 0; surface < e_environment_surface_NULL; ++surface) {
+              for (index = 0; index < d_environment_layers; ++index) {
                 d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
                   if ((eventable_attributes = d_cast(drawable_object, eventable)))
                     if (eventable_attributes->enable)
                       d_call(drawable_object, m_eventable_event, self, &local_event);
+              }
+            }
             if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
               environment_attributes->continue_loop = d_false;
           }
@@ -215,18 +217,24 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             d_map_foreach(environment_attributes->cameras, camera_object, string_object) {
               environment_attributes->current_camera = camera_object;
               if ((camera_attributes = d_cast(camera_object, camera))) {
+                environment_attributes->current_surface = camera_attributes->surface;
+                /* normalization of all the objects scale, preparing them for the camera */
+                for (index = 0; index < d_environment_layers; ++index) {
+                  environment_attributes->current_layer = index;
+                  d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
+                    d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                           camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h,
+                           camera_attributes->scene_zoom);
+                }
                 d_call(camera_object, m_camera_initialize_context, self);
                 {
+                  environment_attributes->current_surface = camera_attributes->surface;
                   for (index = 0; index < d_environment_layers; ++index) {
-                    d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object) {
-                      flags = (intptr_t)d_call(drawable_object, m_drawable_get_flags, NULL);
-                      if ((flags & e_drawable_kind_hidden) != e_drawable_kind_hidden)
-                        if ((d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                                    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                                    camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h,
-                                    camera_attributes->scene_zoom)))
-                          while (((intptr_t)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
-                    }
+                    environment_attributes->current_layer = index;
+                    d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
+                      if (d_call(drawable_object, m_drawable_is_visible, camera_attributes->screen_w, camera_attributes->screen_h))
+                        while (((intptr_t)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
                   }
                 }
                 d_call(camera_object, m_camera_finalize_context, self);
@@ -239,7 +247,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             if ((waiting_time = required_time - (current_time - starting_time)) > 0)
               SDL_Delay(waiting_time);
             else if (abs(waiting_time) > d_environment_tolerance)
-              d_war(e_log_level_medium, "loop time has a delay of %d mS", (waiting_time * -1));
+              d_war(e_log_level_medium, "loop time has a delay of %d mS", abs(waiting_time));
             starting_time = current_time;
             /* align the FPS time delay and then refresh the image */
             d_miranda_lock(self) {
