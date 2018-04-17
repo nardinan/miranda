@@ -153,6 +153,8 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
   d_call(&(drawable_attributes_self->point_destination), m_point_get, (double *)&local_position_x, (double *)&local_position_y);
   for (index = 0; index < particle_attributes->configuration.particles; ++index)
     if (particle_attributes->particles[index].alive) {
+      /* since the particle is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw
+       * method */
       normalized_R = ((particle_attributes->particles[index].core.mask_R / 255.0) * (drawable_attributes_self->last_mask_R / 255.0)) * 255.0;
       normalized_G = ((particle_attributes->particles[index].core.mask_G / 255.0) * (drawable_attributes_self->last_mask_G / 255.0)) * 255.0;
       normalized_B = ((particle_attributes->particles[index].core.mask_B / 255.0) * (drawable_attributes_self->last_mask_B / 255.0)) * 255.0;

@@ -43,25 +43,25 @@ struct s_object *f_drawable_new(struct s_object *self, int flags) {
 d_define_method(drawable, copy_geometry)(struct s_object *self, struct s_object *drawable, enum e_drawable_alignments alignment) {
   d_using(drawable);
   struct s_drawable_attributes *drawable_attributes_other = d_cast(drawable, drawable);
-  double position_x, position_y, dimension_x, dimension_y, final_position_x, final_position_y;
+  double position_x, position_y, dimension_w, dimension_h, final_position_x, final_position_y;
   d_call(&(drawable_attributes_other->point_normalized_destination), m_point_get, &position_x, &position_y);
-  d_call(&(drawable_attributes_other->point_normalized_dimension), m_point_get, &dimension_x, &dimension_y);
+  d_call(&(drawable_attributes_other->point_normalized_dimension), m_point_get, &dimension_w, &dimension_h);
   final_position_x = position_x;
   final_position_y = position_y;
   switch (alignment) {
     case e_drawable_alignment_centered:
-      final_position_x = (position_x + (dimension_x / 2.0));
-      final_position_y = (position_y + (dimension_y / 2.0));
+      final_position_x = (position_x + (dimension_w / 2.0));
+      final_position_y = (position_y + (dimension_h / 2.0));
       break;
     case e_drawable_alignment_top_right:
-      final_position_x = position_x + dimension_x;
+      final_position_x = position_x + dimension_w;
       break;
     case e_drawable_alignment_bottom_left:
-      final_position_y = position_y + dimension_y;
+      final_position_y = position_y + dimension_h;
       break;
     case e_drawable_alignment_bottom_right:
-      final_position_x = position_x + dimension_x;
-      final_position_y = position_y + dimension_y;
+      final_position_x = position_x + dimension_w;
+      final_position_y = position_y + dimension_h;
     default:
       break;
   }
