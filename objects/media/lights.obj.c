@@ -98,6 +98,44 @@ d_define_method(lights, get_intensity)(struct s_object *self) {
   d_using(lights);
   d_cast_return(lights_attributes->intensity);
 }
+d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment) {
+  d_using(lights);
+  struct s_drawable_attributes *drawable_attributes = d_cast(drawable, drawable);
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
+  struct s_lights_emitter *current_emitter;
+  struct s_lights_emitter_description *selected_emitter;
+  double light_position_x, light_position_y, light_width, light_height, drawable_position_x, drawable_position_y, drawable_width, drawable_height,
+    drawable_principal_point_x, drawable_principal_point_y, diagonal_light, diagonal_drawable;
+  d_call(drawable, m_drawable_get_scaled_position, &drawable_position_x, &drawable_position_y);
+  d_call(drawable, m_drawable_get_scaled_dimension, &drawable_width, &drawable_height);
+  d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
+  diagonal_drawable = d_math_square(drawable_width) + d_math_square(drawable_height);
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
+    d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+    d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
+    d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
+    d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+               camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+               camera_attributes->screen_w, camera_attributes->screen_h, (current_emitter->current_radius * camera_attributes->scene_zoom));
+    d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
+    d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
+    /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
+    diagonal_light = d_math_square(light_width) + d_math_square(light_height);
+    if (d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y, (light_position_x + (light_width / 2.0)),
+                                (light_position_y + (light_height / 2.0))) < (d_math_square(diagonal_light / 2.0) + d_math_square(diagonal_drawable / 2.0))) {
+      if ((selected_emitter = (struct s_lights_emitter_description *)d_malloc(sizeof(struct s_lights_emitter_description)))) {
+        selected_emitter->position_x = light_position_x;
+        selected_emitter->position_y = light_position_y;
+        selected_emitter->width = light_width;
+        selected_emitter->height = light_height;
+        f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
+      } else
+        d_die(d_error_malloc);
+    }
+  }
+  return self;
+}
 d_define_method_override(lights, draw)(struct s_object *self, struct s_object *environment) {
   d_using(lights);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
@@ -136,13 +174,14 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
   } d_miranda_unlock(environment);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
+    /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
     d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
-    /* force the zoom/rotational center to be alignment with the center of the image */
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-    d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
-    if ((d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+    d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+    if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+               camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+               camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h,
+               camera_attributes->scene_zoom)) {
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
       intensity_modifier = (current_emitter->current_intensity / 255.0);
@@ -157,9 +196,8 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   } d_miranda_unlock(environment);
   d_cast_return(d_drawable_return_last);
 }
-d_define_method_override(lights, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-                                                  double focus_x, double focus_y, double current_w, double current_h, double zoom) {
-  /* we don't need to perform any normalization on the current scale */
+d_define_method_override(lights, is_visible)(struct s_object *self, double current_w, double current_h) {
+  /* is visible, every time */
   return self;
 }
 d_define_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes) {
@@ -180,6 +218,6 @@ d_define_class(lights) {d_hook_method(lights, e_flag_public, add_light),
                         d_hook_method(lights, e_flag_public, set_intensity),
                         d_hook_method(lights, e_flag_public, get_intensity),
                         d_hook_method_override(lights, e_flag_public, drawable, draw),
-                        d_hook_method_override(lights, e_flag_public, drawable, normalize_scale),
+                        d_hook_method_override(lights, e_flag_public, drawable, is_visible),
                         d_hook_delete(lights),
                         d_hook_method_tail};

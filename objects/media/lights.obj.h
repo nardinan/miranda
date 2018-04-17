@@ -28,10 +28,14 @@ typedef struct s_lights_emitter {
   enum e_drawable_alignments alignment;
   t_lights_intensity_modulator modulator; /* isn't mandatory */
 } s_lights_emitter;
+typedef struct s_lights_emitter_description {
+  d_list_node_head;
+  double position_x, position_y, width, height;
+} s_lights_emitter_description;
 d_declare_class(lights) {
   struct s_attributes head;
   struct s_list emitters;
-  double current_w, current_h, factor;
+  double current_w, current_h;
   size_t memblock_size;
   unsigned char *memblock, intensity;
   SDL_Texture *background;
@@ -45,8 +49,8 @@ d_declare_method(lights, add_light)(struct s_object *self, unsigned char intensi
 d_declare_method(lights, get_light)(struct s_object *self, struct s_object *reference);
 d_declare_method(lights, set_intensity)(struct s_object *self, unsigned char intensity);
 d_declare_method(lights, get_intensity)(struct s_object *self);
+d_declare_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment);
 d_declare_method(lights, draw)(struct s_object *self, struct s_object *environment);
-d_declare_method(lights, noralize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
-                                         double focus_y, double current_w, double current_h, double zoom);
+d_declare_method(lights, is_visible)(struct s_object *self, double current_w, double current_h);
 d_declare_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes);
 #endif
