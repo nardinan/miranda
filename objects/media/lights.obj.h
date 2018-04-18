@@ -30,7 +30,7 @@ typedef struct s_lights_emitter {
 } s_lights_emitter;
 typedef struct s_lights_emitter_description {
   d_list_node_head;
-  double position_x, position_y, width, height;
+  double position_x, position_y, width, height, distance, intensity;
 } s_lights_emitter_description;
 d_declare_class(lights) {
   struct s_attributes head;

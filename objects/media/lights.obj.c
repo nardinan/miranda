@@ -100,21 +100,19 @@ d_define_method(lights, get_intensity)(struct s_object *self) {
 }
 d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment) {
   d_using(lights);
-  struct s_drawable_attributes *drawable_attributes = d_cast(drawable, drawable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   struct s_lights_emitter_description *selected_emitter;
-  double light_position_x, light_position_y, light_width, light_height, drawable_position_x, drawable_position_y, drawable_width, drawable_height,
-    drawable_principal_point_x, drawable_principal_point_y, diagonal_light, diagonal_drawable;
-  d_call(drawable, m_drawable_get_scaled_position, &drawable_position_x, &drawable_position_y);
+  double light_position_x, light_position_y, light_width, light_height, drawable_width, drawable_height, drawable_principal_point_x,
+    drawable_principal_point_y, diagonal_light, diagonal_drawable, squared_distance;
   d_call(drawable, m_drawable_get_scaled_dimension, &drawable_width, &drawable_height);
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   diagonal_drawable = d_math_square(drawable_width) + d_math_square(drawable_height);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-    d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
+    d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
     d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
                camera_attributes->screen_w, camera_attributes->screen_h, (current_emitter->current_radius * camera_attributes->scene_zoom));
@@ -122,13 +120,15 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
     d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
     /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
     diagonal_light = d_math_square(light_width) + d_math_square(light_height);
-    if (d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y, (light_position_x + (light_width / 2.0)),
-                                (light_position_y + (light_height / 2.0))) < (d_math_square(diagonal_light / 2.0) + d_math_square(diagonal_drawable / 2.0))) {
+    if ((squared_distance = d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y, (light_position_x + (light_width / 2.0)),
+                                (light_position_y + (light_height / 2.0)))) < (d_math_square(diagonal_light / 2.0) + d_math_square(diagonal_drawable / 2.0))) {
       if ((selected_emitter = (struct s_lights_emitter_description *)d_malloc(sizeof(struct s_lights_emitter_description)))) {
         selected_emitter->position_x = light_position_x;
         selected_emitter->position_y = light_position_y;
         selected_emitter->width = light_width;
         selected_emitter->height = light_height;
+        selected_emitter->intensity = d_math_max(light_width, light_height);
+        selected_emitter->distance = f_math_sqrt(squared_distance, d_math_default_precision);
         f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
       } else
         d_die(d_error_malloc);
