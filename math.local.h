@@ -20,7 +20,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define d_math_pi 3.14159265358979323846
+#define d_math_two_pi 6.28318530718
+#define d_math_pi 3.14159265359
+#define d_math_half_pi 1.57079632679
 #define d_math_default_precision 0.0001
 #define d_math_radians_conversion 0.0174533
 #define d_math_frand (((double)(rand()%1000))/1000.0)
