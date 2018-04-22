@@ -27,6 +27,7 @@ d_declare_class(square) {
 struct s_square_attributes *p_square_alloc(struct s_object *self);
 extern struct s_object *f_square_new(struct s_object *self, double top_left_x, double top_left_y, double bottom_right_x, double bottom_right_y);
 extern struct s_object *f_square_new_points(struct s_object *self, struct s_object *point_top_left, struct s_object *point_bottom_right);
+d_declare_method(square, set_square)(struct s_object *self, struct s_object *source);
 d_declare_method(square, set_top_left)(struct s_object *self, double top_left_x, double top_left_y);
 d_declare_method(square, set_bottom_right)(struct s_object *self, double bottom_right_x, double bottom_right_y);
 d_declare_method(square, set_angle)(struct s_object *self, double angle);

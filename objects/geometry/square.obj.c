@@ -34,6 +34,27 @@ struct s_object *f_square_new_points(struct s_object *self, struct s_object *poi
   struct s_point_attributes *top_left_attributes = d_cast(point_top_left, point), *bottom_right_attributes = d_cast(point_bottom_right, point);
   return f_square_new(self, top_left_attributes->x, top_left_attributes->y, bottom_right_attributes->x, bottom_right_attributes->y);
 }
+d_define_method(square, set_square)(struct s_object *self, struct s_object *source) {
+  d_using(square);
+  struct s_square_attributes *square_source_attributes = d_cast(source, square);
+  square_attributes->top_left_x = square_source_attributes->top_left_x;
+  square_attributes->top_left_y = square_source_attributes->top_left_y;
+  square_attributes->bottom_right_x = square_source_attributes->bottom_right_x;
+  square_attributes->bottom_right_y = square_source_attributes->bottom_right_y;
+  square_attributes->center_x = square_source_attributes->center_x;
+  square_attributes->center_y = square_source_attributes->center_y;
+  square_attributes->angle = square_source_attributes->angle;
+  square_attributes->normalized_top_left_x = square_source_attributes->normalized_top_left_x;
+  square_attributes->normalized_top_left_y = square_source_attributes->normalized_top_left_y;
+  square_attributes->normalized_top_right_x = square_source_attributes->normalized_top_right_x;
+  square_attributes->normalized_top_right_y = square_source_attributes->normalized_top_right_y;
+  square_attributes->normalized_bottom_left_x = square_source_attributes->normalized_bottom_left_x;
+  square_attributes->normalized_bottom_left_y = square_source_attributes->normalized_bottom_left_y;
+  square_attributes->normalized_bottom_right_x = square_source_attributes->normalized_bottom_right_x;
+  square_attributes->normalized_bottom_right_y = square_source_attributes->normalized_bottom_right_y;
+  square_attributes->normalized = square_source_attributes->normalized;
+  return self;
+}
 d_define_method(square, set_top_left)(struct s_object *self, double top_left_x, double top_left_y) {
   d_using(square);
   square_attributes->top_left_x = top_left_x;
@@ -98,11 +119,9 @@ d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 }
 d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
   d_using(square);
-  double radians = -(square_attributes->angle * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y, normalized_x,
-    normalized_y;
+  double radians = -(square_attributes->angle * d_math_radians_conversion), sin_radians = sin(radians), cos_radians = cos(radians), normalized_center_x,
+    normalized_center_y, normalized_x, normalized_y;
   t_boolean result = d_false;
-  sin_radians = sin(radians);
-  cos_radians = cos(radians);
   d_call(self, m_square_normalize, NULL);
   normalized_center_x = square_attributes->top_left_x + square_attributes->center_x;
   normalized_center_y = square_attributes->top_left_y + square_attributes->center_y;
@@ -116,7 +135,7 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
   d_using(square);
   struct s_square_attributes *square_attributes_other = d_cast(other, square);
   double center_x_self, center_y_self, position_x_min, position_y_min, position_x_max, position_y_max, center_x_other, center_y_other;
-  t_boolean result = d_false;
+  t_boolean result;
   d_call(self, m_square_normalize, NULL);
   d_call(other, m_square_normalize, NULL);
   position_x_min = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
@@ -139,24 +158,28 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
                               d_math_max(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
   center_x_other = position_x_min + ((position_x_max - position_x_min) / 2.0);
   center_y_other = position_y_min + ((position_y_max - position_y_min) / 2.0);
-  if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_left_y)))
-    if (!(result =
-            (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x, square_attributes_other->normalized_top_right_y)))
+  if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x,
+                                                       square_attributes_other->normalized_top_left_y)))
+    if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x,
+                                                         square_attributes_other->normalized_top_right_y)))
       if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_right_x,
                                                            square_attributes_other->normalized_bottom_right_y)))
         if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
                                                              square_attributes_other->normalized_bottom_left_y)))
-          if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y)))
-            if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y)))
-              if (!(result =
-                      (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y)))
-                if (!(result =
-                        (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y)))
+          if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x,
+                                                               square_attributes->normalized_top_left_y)))
+            if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x,
+                                                                 square_attributes->normalized_top_right_y)))
+              if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x,
+                                                                   square_attributes->normalized_bottom_right_y)))
+                if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
+                                                                     square_attributes->normalized_bottom_left_y)))
                   if (!(result = (intptr_t)p_square_inside_coordinates(self, center_x_other, center_y_other)))
                     result = (intptr_t)p_square_inside_coordinates(other, center_x_self, center_y_self);
   d_cast_return(result);
 }
-d_define_class(square) {d_hook_method(square, e_flag_public, set_top_left),
+d_define_class(square) {d_hook_method(square, e_flag_public, set_square),
+                        d_hook_method(square, e_flag_public, set_top_left),
                         d_hook_method(square, e_flag_public, set_bottom_right),
                         d_hook_method(square, e_flag_public, set_angle),
                         d_hook_method(square, e_flag_public, set_center),
