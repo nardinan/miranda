@@ -102,18 +102,14 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
       }
       light_normalized_percentage[e_illuminable_bitmap_side_front] = center_factor;
       if ((radians_incident >= 0) && (radians_incident < d_math_half_pi)) {
-        light_normalized_percentage[e_illuminable_bitmap_side_bottom] = (radians_incident / d_math_half_pi) *
-                                                                        (1.0 - center_factor_reduction);
-        light_normalized_percentage[e_illuminable_bitmap_side_right] = (1.0 - (radians_incident / d_math_half_pi)) *
-                                                                       (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_bottom] = (radians_incident / d_math_half_pi) * (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_right] = (1.0 - (radians_incident / d_math_half_pi)) * (1.0 - center_factor_reduction);
       } else if ((radians_incident >= d_math_half_pi) && (radians_incident < d_math_pi)) {
-        light_normalized_percentage[e_illuminable_bitmap_side_left] = ((radians_incident - d_math_half_pi) / d_math_half_pi) *
-                                                                      (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_left] = ((radians_incident - d_math_half_pi) / d_math_half_pi) * (1.0 - center_factor_reduction);
         light_normalized_percentage[e_illuminable_bitmap_side_bottom] = (1.0 - ((radians_incident - d_math_half_pi) / d_math_half_pi)) *
                                                                         (1.0 - center_factor_reduction);
       } else if ((radians_incident >= d_math_pi) && (radians_incident < (d_math_pi + d_math_half_pi))) {
-        light_normalized_percentage[e_illuminable_bitmap_side_top] = ((radians_incident - d_math_pi) / d_math_half_pi) *
-                                                                     (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_top] = ((radians_incident - d_math_pi) / d_math_half_pi) * (1.0 - center_factor_reduction);
         light_normalized_percentage[e_illuminable_bitmap_side_left] = (1.0 - ((radians_incident - d_math_pi) / d_math_half_pi)) *
                                                                       (1.0 - center_factor_reduction);
       } else if ((radians_incident >= (d_math_pi + d_math_half_pi)) && (radians_incident < d_math_two_pi)) {
@@ -125,8 +121,8 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
       for (index_side = 0; index_side < e_illuminable_bitmap_side_NULL; ++index_side)
         if ((local_factor = (light_normalized_percentage[index_side] *
                              (((lights_emitter->radius - lights_emitter->distance) / lights_emitter->radius) * 255.0))) > 0) {
-        /* now we have a factor that is proportional with the angle, with the distance and with the radius of the light. What we should do is to normalized
-         * that value using the intensity and the penetration of the light into the  */
+          /* now we have a factor that is proportional with the angle, with the distance and with the radius of the light. What we should do is to normalized
+           * that value using the intensity and the penetration of the light into the  */
           if ((light_final_mask[index_side] += local_factor) > 255.0)
             light_final_mask[index_side] = 255.0;
         }

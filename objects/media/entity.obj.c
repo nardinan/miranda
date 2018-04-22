@@ -60,6 +60,7 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_entity_component *current_component = NULL;
   struct s_entity_element *current_element = NULL;
+  double current_width, current_height, drawable_width, drawable_height;
   if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label))) {
     if ((current_element = (struct s_entity_element *)d_malloc(sizeof(struct s_entity_element)))) {
       current_element->offset_x = offset_x;
@@ -71,6 +72,14 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
       d_call(current_element->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G,
              (unsigned int)drawable_attributes->last_mask_B);
       d_call(current_element->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
+      d_call(current_element->drawable, m_drawable_get_dimension, &drawable_width, &drawable_height);
+      d_call(&(drawable_attributes->point_dimension), m_point_get, &current_width, &current_height);
+      if (current_width < (offset_x + drawable_width))
+        current_width = offset_x + drawable_width;
+      if (current_height < (offset_y + drawable_height))
+        current_height = offset_y + drawable_height;
+      d_call(&(drawable_attributes->point_dimension), m_point_set_x, current_width);
+      d_call(&(drawable_attributes->point_dimension), m_point_set_y, current_height);
     } else
       d_die(d_error_malloc);
   }
@@ -92,8 +101,8 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
 }
 d_define_method(entity, collision)(struct s_object *self, struct s_object *entity) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core = d_cast(entity, drawable);
-  t_boolean
-    collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
+  t_boolean collision =
+    (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
   d_cast_return(collision);
 }
 d_define_method(entity, interact)(struct s_object *self, struct s_object *entity) {

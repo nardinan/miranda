@@ -102,7 +102,6 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   d_using(lights);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_drawable_attributes *drawable_other_attributes = d_cast(drawable, drawable), *drawable_core_attributes;
-  struct s_square_attributes *square_core_attributes, *square_other_attributes = d_cast(&(drawable_other_attributes->square_collision_box), square);
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   struct s_lights_emitter_description *selected_emitter;
@@ -112,7 +111,6 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     drawable_core_attributes = d_cast(current_emitter->mask, drawable);
-    square_core_attributes = d_cast(&(drawable_core_attributes->square_collision_box), square);
     d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
@@ -128,9 +126,8 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
         selected_emitter->position_y = (light_position_y + (light_height / 2.0));
         selected_emitter->radius = d_math_max(light_width, light_height);
         selected_emitter->intensity = current_emitter->current_intensity;
-        selected_emitter->distance = f_math_sqrt(
-          d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y, selected_emitter->position_x, selected_emitter->position_y),
-          d_math_default_precision);
+        selected_emitter->distance = f_math_sqrt(d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y,
+                                  selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
         f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
       } else
         d_die(d_error_malloc);
@@ -144,7 +141,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   size_t size;
-  double intensity_modifier;
+  double intensity_modifier, position_x, position_y, dimension_w, dimension_h;
   SDL_Texture *previous_target;
   SDL_Rect source, destination;
   SDL_Point center;
@@ -178,6 +175,11 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
     d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+    d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
+    d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
+    position_x -= (dimension_w / 2.0);
+    position_y -= (dimension_h / 2.0);
+    d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
     if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
