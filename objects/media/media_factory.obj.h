@@ -20,7 +20,7 @@
 #include "../io/resources.obj.h"
 #include "../io/json.obj.h"
 #include "../io/lisp.obj.h"
-#include "bitmap.obj.h"
+#include "illuminable_bitmap.obj.h"
 #include "particle.obj.h"
 #include "animation.obj.h"
 #include "transition.obj.h"
@@ -46,6 +46,8 @@ extern struct s_object *
 f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json, struct s_object *resources_ogg,
                     struct s_object *resources_lisp, struct s_object *environment);
 d_declare_method(media_factory, get_bitmap)(struct s_object *self, const char *label);
+d_declare_method(media_factory, get_illuminable_bitmap)(struct s_object *self, const char *label_core, const char *label_left, const char *label_right,
+                                                        const char *label_top, const char *label_bottom, const char *label_front);
 d_declare_method(media_factory, get_animation)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_transition)(struct s_object *self, const char *label);
 d_declare_method(media_factory, get_particle_structure)(struct s_object *self, struct s_object *json, struct s_particle_configuration_core *configuration,
