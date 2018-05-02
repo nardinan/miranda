@@ -70,7 +70,8 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->reference = d_retain(reference);
     current_emitter->mask = d_retain(mask);
     d_call(current_emitter->mask, m_drawable_set_blend, e_drawable_blend_add);
-    d_call(current_emitter->mask, m_drawable_add_flags, (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera));
+    d_call(current_emitter->mask, m_drawable_add_flags,
+           (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera | e_drawable_kind_do_not_normalize_reference_ratio));
     f_list_append(&(lights_attributes->emitters), (struct s_list_node *)current_emitter, e_list_insert_head);
   } else
     d_die(d_error_malloc);

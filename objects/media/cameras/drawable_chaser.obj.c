@@ -113,8 +113,8 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
                *scene_center_x, *scene_center_y, *screen_w, *screen_h, *scene_zoom);
         /* ... and now we could access the normalized position */
         d_call(drawable_chaser_attributes->reference, m_drawable_get_scaled_principal_point, &reference_position_x, &reference_position_y);
-        drawable_chaser_attributes->destination_x = ((reference_position_x + *scene_offset_x) - (*scene_reference_w / 2.0));
-        drawable_chaser_attributes->destination_y = ((reference_position_y + *scene_offset_y) - (*scene_reference_h / 2.0));
+        drawable_chaser_attributes->destination_x = ((reference_position_x + *scene_offset_x) - (*screen_w / 2.0));
+        drawable_chaser_attributes->destination_y = ((reference_position_y + *scene_offset_y) - (*screen_h / 2.0));
       }
       if ((camera_controller_attributes->affected_axis & e_camera_controller_axis_x) == e_camera_controller_axis_x) {
         if ((current_distance = (drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x) - (*scene_offset_x)) != 0.0) {
