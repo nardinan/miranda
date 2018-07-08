@@ -73,7 +73,7 @@ d_declare_class(lisp) {
   int output;
 } d_declare_class_tail(lisp);
 extern const char *v_lisp_object_types[];
-#define d_lisp_object_type(o)   ((o)?v_lisp_object_types[(o)->type]:"nil")
+#define d_lisp_object_type(o) ((o)?v_lisp_object_types[(o)->type]:"nil")
 struct s_lisp_attributes *p_lisp_alloc(struct s_object *self);
 #define d_lisp_car(obj) ((obj)?obj->cons.car:NULL)
 #define d_lisp_cdr(obj) ((obj)?obj->cons.cdr:NULL)
@@ -89,6 +89,8 @@ extern struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct 
 extern struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_multiply(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_and(struct s_object *self, struct s_lisp_object *args);
+extern struct s_lisp_object *p_lisp_primitive_or(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_compare_gr(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_compare_ge(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_compare_lt(struct s_object *self, struct s_lisp_object *args);

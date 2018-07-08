@@ -172,6 +172,22 @@ struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_li
   }
   return p_lisp_object(self, e_lisp_object_type_value, value);
 }
+struct s_lisp_object *p_lisp_primitive_and(struct s_object *self, struct s_lisp_object *args) {
+  struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args), *right_object = d_lisp_cadr(args);
+  if ((left_object) && (left_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) &&
+      (right_object) && (right_object !=lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
+    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  return result;
+}
+struct s_lisp_object *p_lisp_primitive_or(struct s_object *self, struct s_lisp_object *args) {
+  struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args), *right_object = d_lisp_cadr(args);
+  if (((left_object) && (left_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) ||
+      ((right_object) && (right_object !=lisp_attributes->base_symbols[e_lisp_object_symbol_nil])))
+    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  return result;
+}
 struct s_lisp_object *p_lisp_primitive_compare_gr(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
   struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
@@ -281,6 +297,8 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   d_call(self, m_lisp_extend_environment, "-", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_subtract));
   d_call(self, m_lisp_extend_environment, "*", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_multiply));
   d_call(self, m_lisp_extend_environment, "/", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_divide));
+  d_call(self, m_lisp_extend_environment, "and", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_and));
+  d_call(self, m_lisp_extend_environment, "or", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_or));
   d_call(self, m_lisp_extend_environment, "=", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_eq));
   d_call(self, m_lisp_extend_environment, ">", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_gr));
   d_call(self, m_lisp_extend_environment, "<", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare_lt));
@@ -451,13 +469,12 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
             result = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
           else
             result = d_call(self, m_lisp_evaluate, d_lisp_caddr(d_lisp_cdr(current_object)), environment);
-        } if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_cond]) {
+        } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_cond]) {
           if ((current_object = d_lisp_cdr(current_object))) {
-            while (d_lisp_cdr(current_object)) {
+            while (current_object) {
               if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caar(current_object), environment)) &&
                 (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) {
                 result = d_call(self, m_lisp_evaluate, d_lisp_cdar(current_object), environment);
-                /* we want to perform only the first condition that returns a positive evaluation */
                 break;
               } else
                 current_object = d_lisp_cdr(current_object);
