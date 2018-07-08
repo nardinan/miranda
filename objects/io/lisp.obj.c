@@ -41,7 +41,7 @@ struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_ty
     result->type = type;
     switch (type) {
       case e_lisp_object_type_value:
-        result->value_double = (double)va_arg(parameters, double);
+        result->value_double = va_arg(parameters, double);
         break;
       case e_lisp_object_type_string:
         if ((string_buffer = (char *)va_arg(parameters, void *)))
@@ -268,11 +268,13 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   attributes->base_symbols[e_lisp_object_symbol_nil] = d_call(self, m_lisp_import_symbol, "nil");
   attributes->base_symbols[e_lisp_object_symbol_quote] = d_call(self, m_lisp_import_symbol, "quote");
   attributes->base_symbols[e_lisp_object_symbol_if] = d_call(self, m_lisp_import_symbol, "if");
+  attributes->base_symbols[e_lisp_object_symbol_cond] = d_call(self, m_lisp_import_symbol, "cond");
   attributes->base_symbols[e_lisp_object_symbol_lambda] = d_call(self, m_lisp_import_symbol, "lambda");
   attributes->base_symbols[e_lisp_object_symbol_set] = d_call(self, m_lisp_import_symbol, "set");
   attributes->base_symbols[e_lisp_object_symbol_define] = d_call(self, m_lisp_import_symbol, "define");
   attributes->base_symbols[e_lisp_object_symbol_begin] = d_call(self, m_lisp_import_symbol, "begin");
-  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol, attributes->base_symbols[e_lisp_object_symbol_nil]);
+  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol,
+         attributes->base_symbols[e_lisp_object_symbol_nil]);
   d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_true]->value_symbol,
          attributes->base_symbols[e_lisp_object_symbol_true]);
   d_call(self, m_lisp_extend_environment, "+", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_sum));
@@ -449,6 +451,20 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
             result = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
           else
             result = d_call(self, m_lisp_evaluate, d_lisp_caddr(d_lisp_cdr(current_object)), environment);
+        } if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_cond]) {
+          if ((current_object = d_lisp_cdr(current_object))) {
+            while (d_lisp_cdr(current_object)) {
+              if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caar(current_object), environment)) &&
+                (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) {
+                result = d_call(self, m_lisp_evaluate, d_lisp_cdar(current_object), environment);
+                /* we want to perform only the first condition that returns a positive evaluation */
+                break;
+              } else
+                current_object = d_lisp_cdr(current_object);
+            }
+          } else
+            d_err(e_log_level_low, "(source %s:%d) malformed cond construct with no definition", d_string_cstring(lisp_attributes->string_name),
+                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_lambda])
           result = p_lisp_object(self, e_lisp_object_type_lambda, d_lisp_cadr(current_object), d_lisp_cdr(d_lisp_cdr(current_object)), environment);
         else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_quote])

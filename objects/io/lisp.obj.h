@@ -32,6 +32,7 @@ typedef enum e_lisp_object_symbols {
   e_lisp_object_symbol_nil,
   e_lisp_object_symbol_quote,
   e_lisp_object_symbol_if,
+  e_lisp_object_symbol_cond,
   e_lisp_object_symbol_lambda,
   e_lisp_object_symbol_define,
   e_lisp_object_symbol_set,
@@ -76,6 +77,8 @@ extern const char *v_lisp_object_types[];
 struct s_lisp_attributes *p_lisp_alloc(struct s_object *self);
 #define d_lisp_car(obj) ((obj)?obj->cons.car:NULL)
 #define d_lisp_cdr(obj) ((obj)?obj->cons.cdr:NULL)
+#define d_lisp_caar(obj) (d_lisp_car(d_lisp_car(obj)))
+#define d_lisp_cdar(obj) (d_lisp_cdr(d_lisp_car(obj)))
 #define d_lisp_cadr(obj) (d_lisp_car(d_lisp_cdr(obj)))
 #define d_lisp_caddr(obj) (d_lisp_car(d_lisp_cdr(d_lisp_cdr(obj))))
 #define d_lisp_value(obj) (((obj)&&(obj->type==e_lisp_object_type_value))?obj->value_double:0.0)
