@@ -283,12 +283,13 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   attributes->base_symbols[e_lisp_object_symbol_true] = d_call(self, m_lisp_import_symbol, "t");
   attributes->base_symbols[e_lisp_object_symbol_nil] = d_call(self, m_lisp_import_symbol, "nil");
   attributes->base_symbols[e_lisp_object_symbol_quote] = d_call(self, m_lisp_import_symbol, "quote");
+  attributes->base_symbols[e_lisp_object_symbol_lambda] = d_call(self, m_lisp_import_symbol, "lambda");
   attributes->base_symbols[e_lisp_object_symbol_if] = d_call(self, m_lisp_import_symbol, "if");
   attributes->base_symbols[e_lisp_object_symbol_cond] = d_call(self, m_lisp_import_symbol, "cond");
-  attributes->base_symbols[e_lisp_object_symbol_lambda] = d_call(self, m_lisp_import_symbol, "lambda");
-  attributes->base_symbols[e_lisp_object_symbol_set] = d_call(self, m_lisp_import_symbol, "set");
   attributes->base_symbols[e_lisp_object_symbol_define] = d_call(self, m_lisp_import_symbol, "define");
+  attributes->base_symbols[e_lisp_object_symbol_set] = d_call(self, m_lisp_import_symbol, "set");
   attributes->base_symbols[e_lisp_object_symbol_begin] = d_call(self, m_lisp_import_symbol, "begin");
+  attributes->base_symbols[e_lisp_object_symbol_load] = d_call(self, m_lisp_import_symbol, "load");
   d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol,
          attributes->base_symbols[e_lisp_object_symbol_nil]);
   d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_true]->value_symbol,
@@ -463,7 +464,11 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                 ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), current_object->value_symbol);
         break;
       case e_lisp_object_type_cons:
-        if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_if]) {
+        if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_quote])
+          result = d_lisp_cadr(current_object);
+        else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_lambda])
+          result = p_lisp_object(self, e_lisp_object_type_lambda, d_lisp_cadr(current_object), d_lisp_cdr(d_lisp_cdr(current_object)), environment);
+        else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_if]) {
           if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_cadr(current_object), environment)) &&
               (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
             result = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
@@ -482,11 +487,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed cond construct with no definition", d_string_cstring(lisp_attributes->string_name),
                   ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
-        } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_lambda])
-          result = p_lisp_object(self, e_lisp_object_type_lambda, d_lisp_cadr(current_object), d_lisp_cdr(d_lisp_cdr(current_object)), environment);
-        else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_quote])
-          result = d_lisp_cadr(current_object);
-        else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
+        } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
           if ((symbol_object = d_lisp_cadr(current_object)) && (symbol_object->type == e_lisp_object_type_symbol)) {
             symbol_string = symbol_object->value_symbol;
             if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
@@ -513,7 +514,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
             result = d_call(self, m_lisp_evaluate, d_lisp_car(current_object), environment);
           }
         } else {
-          /* is not a base symbol */
+          /* is not a base symbol, we need to evaluate */
           if ((procedure_object = d_call(self, m_lisp_evaluate, d_lisp_car(current_object), environment))) {
             arguments_object = d_call(self, m_lisp_recursive_evaluation, d_lisp_cdr(current_object), environment);
             if (procedure_object->type == e_lisp_object_type_primitive)

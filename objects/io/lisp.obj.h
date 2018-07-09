@@ -31,12 +31,13 @@ typedef enum e_lisp_object_symbols {
   e_lisp_object_symbol_true = 0,
   e_lisp_object_symbol_nil,
   e_lisp_object_symbol_quote,
+  e_lisp_object_symbol_lambda,
   e_lisp_object_symbol_if,
   e_lisp_object_symbol_cond,
-  e_lisp_object_symbol_lambda,
   e_lisp_object_symbol_define,
   e_lisp_object_symbol_set,
   e_lisp_object_symbol_begin,
+  e_lisp_object_symbol_load,
   e_lisp_object_symbol_NULL
 } e_lisp_object_symbols;
 typedef enum e_lisp_object_types {
