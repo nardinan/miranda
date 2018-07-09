@@ -336,7 +336,7 @@ d_define_method(lisp, import_symbol)(struct s_object *self, const char *symbol) 
 d_define_method(lisp, retrieve_symbol)(struct s_object *self, struct s_lisp_object *symbol, struct s_lisp_object *environment) {
   struct s_lisp_object *result = NULL;
   if (environment) {
-    if (d_lisp_car(d_lisp_car(environment)) == symbol)
+    if (d_lisp_caar(environment) == symbol)
       result = d_lisp_car(environment);
     else
       result = d_call(self, m_lisp_retrieve_symbol, symbol, d_lisp_cdr(environment));
@@ -490,11 +490,15 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
           if ((symbol_object = d_lisp_cadr(current_object)) && (symbol_object->type == e_lisp_object_type_symbol)) {
             symbol_string = symbol_object->value_symbol;
-            if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
-              result = d_call(self, m_lisp_extend_environment, symbol_string, evaluated_object);
+            if (!d_call(self, m_lisp_retrieve_symbol, symbol_object, environment)) {
+              if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
+                result = d_call(self, m_lisp_extend_environment, symbol_string, evaluated_object);
+              } else
+                d_err(e_log_level_low, "(source %s:%d) malformed evaluation construct", d_string_cstring(lisp_attributes->string_name),
+                      ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
             } else
-              d_err(e_log_level_low, "(source %s:%d) malformed evaluation construct", d_string_cstring(lisp_attributes->string_name),
-                    ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+              d_err(e_log_level_low, "(source %s:%d) re-definition of an already existing symbol '%s'", d_string_cstring(lisp_attributes->string_name),
+                    ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), symbol_string);
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed symbol, unreadable token", d_string_cstring(lisp_attributes->string_name),
                   ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
