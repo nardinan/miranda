@@ -37,7 +37,6 @@ typedef enum e_lisp_object_symbols {
   e_lisp_object_symbol_define,
   e_lisp_object_symbol_set,
   e_lisp_object_symbol_begin,
-  e_lisp_object_symbol_load,
   e_lisp_object_symbol_NULL
 } e_lisp_object_symbols;
 typedef enum e_lisp_object_types {
@@ -86,6 +85,7 @@ struct s_lisp_attributes *p_lisp_alloc(struct s_object *self);
 #define d_lisp_string(obj) (((obj)&&(obj->type==e_lisp_object_type_string))?obj->value_string:"")
 #define d_lisp_symbol(obj) (((obj)&&(obj->type==e_lisp_object_type_symbol))?obj->value_symbol:"")
 extern struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_types type, ...);
+extern struct s_lisp_object *p_lisp_primitive_load(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_lisp_object *args);
 extern struct s_lisp_object *p_lisp_primitive_multiply(struct s_object *self, struct s_lisp_object *args);
