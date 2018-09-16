@@ -28,6 +28,7 @@ struct s_lisp_attributes *p_lisp_alloc(struct s_object *self) {
   struct s_lisp_attributes *result = d_prepare(self, lisp);
   f_memory_new(self);   /* inherit */
   f_mutex_new(self);    /* inherit */
+  f_runnable_new(self); /* inherit */
   return result;
 }
 struct s_lisp_object *p_lisp_object(struct s_object *self, enum e_lisp_object_types type, ...) {
@@ -632,7 +633,7 @@ d_define_method(lisp, sweep_collector)(struct s_object *self, unsigned char excl
   }
   return self;
 }
-d_define_method(lisp, run)(struct s_object *self) {
+d_define_method_override(lisp, job)(struct s_object *self) {
   d_using(lisp);
   int line_comment = -1;
   struct s_lisp_object *current_object;
@@ -648,7 +649,7 @@ d_define_method(lisp, run)(struct s_object *self) {
     }
     lisp_attributes->current_token = (struct s_json_token *)(((struct s_list_node *)lisp_attributes->current_token)->next);
   }
-  while (lisp_attributes->current_token) {
+  while ((lisp_attributes->current_token) && (d_call(self, m_runnable_kill_required, NULL) == NULL)) {
     current_object = d_call(self, m_lisp_read_object, NULL);
     d_call(self, m_lisp_evaluate, current_object, lisp_attributes->environment);
     d_call(self, m_lisp_mark_environment, NULL);
@@ -682,6 +683,6 @@ d_define_class(lisp) {d_hook_method(lisp, e_flag_private, import_symbol),
                       d_hook_method(lisp, e_flag_private, evaluate),
                       d_hook_method(lisp, e_flag_public, write),
                       d_hook_method(lisp, e_flag_private, sweep_collector),
-                      d_hook_method(lisp, e_flag_public, run),
+                      d_hook_method_override(lisp, e_flag_public, runnable, job),
                       d_hook_delete(lisp),
                       d_hook_method_tail};

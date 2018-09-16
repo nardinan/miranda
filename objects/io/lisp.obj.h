@@ -19,6 +19,7 @@
 #define miranda_object_lisp_h
 #include <stdarg.h>
 #include "json.obj.h"
+#include "../runnable.obj.h"
 #define d_lisp_symbol_size 64
 #define d_lisp_symbols 1024
 #define d_lisp_mark_none        0x00
@@ -118,7 +119,7 @@ d_declare_method(lisp, read_components)(struct s_object *self, struct s_lisp_obj
 d_declare_method(lisp, recursive_evaluation)(struct s_object *self, struct s_lisp_object *current_object, struct s_lisp_object *environment);
 d_declare_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *current_object, struct s_lisp_object *environment);
 d_declare_method(lisp, write)(struct s_object *self, struct s_lisp_object *current_object, int output);
-d_declare_method(lisp, run)(struct s_object *self);
+d_declare_method(lisp, job)(struct s_object *self);
 d_declare_method(lisp, sweep_collector)(struct s_object *self, unsigned char excluded_marks);
 d_declare_method(lisp, delete)(struct s_object *self, struct s_lisp_attributes *attributes);
 #endif

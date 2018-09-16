@@ -89,12 +89,15 @@ int main(int argc, char *argv[]) {
         f_stream_new_file(d_new(stream), d_pkstr("./database.json"), "r", 0777),
         f_stream_new_temporary(d_new(stream), d_pkstr("temporary_file")),
         f_stream_new(d_new(stream), d_pkstr("stdout"), STDOUT_FILENO),
+        f_stream_new_file(d_new(stream), d_pkstr("./test.lisp"), "r", 0777),
         NULL
       };
       s_object *resources = f_resources_new(d_new(resources), d_pkstr("/home/god/Pictures"), ".jpg");
       s_object *line_A = f_line_new(d_new(line), -40, -75, 150, 120), *line_B = f_line_new(d_new(line), -40, 75, 100, 0),
         *line_C = f_line_new(d_new(line), -40, 75, -100, 75);
       s_object *map = f_map_new(d_new(map));
+      s_object *lisp = f_lisp_new(d_new(lisp), stream_pool[4], STDOUT_FILENO);
+      d_call(lisp, m_runnable_run, NULL);
       if (d_call(line_A, m_line_intersect, line_B))
         printf("intersection between line A and line B\n");
       if (d_call(line_A, m_line_intersect, line_C))
@@ -103,6 +106,9 @@ int main(int argc, char *argv[]) {
       d_delete(line_B);
       d_delete(line_C);
       d_delete(resources);
+      d_call(lisp, m_runnable_join, NULL);
+      d_call(lisp, m_runnable_kill, NULL);
+      d_delete(lisp);
       d_try
           {
             d_call(map, m_map_insert, key_pool[0], value_pool[0]);
