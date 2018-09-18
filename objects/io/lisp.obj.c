@@ -485,6 +485,8 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
     switch (current_object->type) {
       case e_lisp_object_type_value:
       case e_lisp_object_type_string:
+      case e_lisp_object_type_primitive:
+      case e_lisp_object_type_lambda:
         result = current_object;
         break;
       case e_lisp_object_type_symbol:
@@ -565,9 +567,6 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                   ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         }
         break;
-      case e_lisp_object_type_primitive:
-      case e_lisp_object_type_lambda:
-        result = current_object;
     }
   d_cast_return(result);
 }
