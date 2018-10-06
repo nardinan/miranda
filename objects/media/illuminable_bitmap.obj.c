@@ -38,7 +38,8 @@ d_define_method(illuminable_bitmap, set_light_mask)(struct s_object *self, struc
   d_call(illuminable_bitmap_attributes->drawable_mask[side], m_drawable_set_blend, e_drawable_blend_add);
   d_call(illuminable_bitmap_attributes->drawable_mask[side], m_drawable_get_dimension, &mask_width, &mask_height);
   d_call(self, m_drawable_get_dimension, &image_width, &image_height);
-  d_assert(((image_width == mask_width) && (image_height == mask_height)));
+  d_assert((image_width == mask_width));
+  d_assert((image_height == mask_height));
   return self;
 }
 d_define_method(illuminable_bitmap, set_lights)(struct s_object *self, struct s_object *lights) {
