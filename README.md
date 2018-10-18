@@ -16,7 +16,7 @@ If a class doesn't inherit from any other class (like *memory* or *mutex* classe
 As soon as you start to inherit from other classes, the virtual tables and the attributes lists of the inherited classes are pushed to these two lists.
 In this example you can understand how a class that defines a character entity in a game is handled by Miranda.
 
-[![example_class.png](https://s15.postimg.org/kp5d50trv/example_class.png)](https://postimg.org/image/jzmksnt87/)
+[![example_class.png](https://preview.ibb.co/nFvOLf/example-class.png)](https://ibb.co/mhLq0f)
 
 *character* class inherits from *memory*, *mutex* and *entity* classes, while *entity* class inherits from *drawable* class (In Miranda, a class that doesn't inherit from *memory* class is considered **abstract**).
 
