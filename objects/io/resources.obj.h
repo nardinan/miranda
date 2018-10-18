@@ -19,12 +19,14 @@
 #define miranda_object_resources_h
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/errno.h>
 #include <unistd.h>
 #include <dirent.h>
 #ifdef __APPLE__
 #include <sys/syslimits.h>
 #endif
 #include "stream.obj.h"
+#include "../../endian.local.h"
 #define d_resources_key_size 64
 #define d_resources_extensions_size 128
 #define d_resources_path_size 1024
@@ -64,6 +66,7 @@ d_declare_class(resources) {
   struct s_hash_table *nodes;
   struct s_resources_node *default_template;
   struct s_list open_streams;
+  t_boolean  destroy_content;
 } d_declare_class_tail(resources);
 struct s_resources_attributes *p_resources_alloc(struct s_object *self);
 extern t_hash_value p_resources_calculate(char *key);
@@ -72,7 +75,7 @@ extern struct s_resources_node *f_resources_scan(struct s_list *open_streams, co
 extern struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions);
 extern struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path,
   struct s_object *string_template_path, const char *extensions);
-extern struct s_object *f_resources_inflate(struct s_object *self, struct s_object *datafile_stream);
+extern struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object *datafile_stream);
 d_declare_method(resources, reload)(struct s_object *self);
 d_declare_method(resources, deflate)(struct s_object *self, struct s_object *string_name);
 d_declare_method(resources, get)(struct s_object *self, const char *key);

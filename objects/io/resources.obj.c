@@ -101,20 +101,24 @@ struct s_object *f_resources_new_template(struct s_object *self, struct s_object
   return self;
 }
 struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object *datafile_stream) {
+  struct s_resources_attributes *attributes = p_resources_alloc(self);
   struct s_resources_header header;
   struct s_resources_block_header block_header;
   struct s_object *string_path;
   unsigned int index;
-  struct s_resources_attributes *attributes = p_resources_alloc(self);
-  size_t read_bytes, residual_size;
+  size_t read_bytes, residual_size, block_size;
   struct s_hash_bucket old_value;
   struct s_resources_node *current_node;
   unsigned char *block_data;
   char buffer[d_string_buffer_size], raw_path[d_resources_path_size], *current_key;
+  attributes->destroy_content = d_true;
+  f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
   d_call(datafile_stream, m_stream_size, &residual_size);
   if (residual_size > sizeof(struct s_resources_header)) {
     d_call(datafile_stream, m_stream_read, &header, sizeof(struct s_resources_header), &read_bytes);
     residual_size -= sizeof(struct s_resources_header);
+    if (f_endian_check() == d_little_endian)
+      f_endian_swap(&(header.entries), sizeof(uint32_t));
     if ((header.magic_sequence_byte1 == d_resources_magic_sequence_byte1) &&
       (header.magic_sequence_byte2 == d_resources_magic_sequence_byte2) &&
       (header.magic_sequence_byte3 == d_resources_magic_sequence_byte3) &&
@@ -123,16 +127,19 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
       strncpy(attributes->path, header.path, d_resources_path_size);
       for (index = 0; index < header.entries; ++index) {
         d_call(datafile_stream, m_stream_read, &block_header, sizeof(struct s_resources_block_header), &read_bytes);
+        if (f_endian_check() == d_little_endian)
+          f_endian_swap(&(block_header.size), sizeof(uint32_t));
         if (residual_size >= block_header.size) {
-          if ((block_data = (unsigned char *)d_malloc(block_header.size))) {
-            d_call(datafile_stream, m_stream_read, block_data, block_header.size);
+          block_size = block_header.size;
+          if ((block_data = (unsigned char *)d_malloc(block_size))) {
+            d_call(datafile_stream, m_stream_read, block_data, block_size, NULL);
             snprintf(raw_path, d_resources_path_size, "/tmp/%s.XXXXXX", block_header.key);
             string_path = f_string_new(d_new(string), mktemp(raw_path));
             if ((current_node = (struct s_resources_node *)d_malloc(sizeof(struct s_resources_node)))) {
               strncpy(current_node->path, d_string_cstring(string_path), d_resources_path_size);
               strncpy(current_node->key, block_header.key, d_resources_key_size);
               current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "w", 0777);
-              d_call(current_node->stream_file, m_stream_write, block_data, block_header.size);
+              d_call(current_node->stream_file, m_stream_write, block_data, block_size, NULL);
               if ((current_key = (char *)d_malloc(f_string_strlen(current_node->key) + 1))) {
                 strncpy(current_key, current_node->key, f_string_strlen(current_node->key));
                 if ((f_hash_insert(attributes->nodes, current_key, current_node, d_true, &old_value)))
@@ -196,7 +203,7 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
   struct s_resources_block_header block_header;
   t_hash_value elements = (resources_attributes->nodes->mask + 1);
   unsigned int index;
-  size_t written_bytes;
+  size_t written_bytes, size_file;
   d_try
       {
         output_stream = f_stream_new_file(d_new(stream), string_name, "w", 0777);
@@ -207,6 +214,8 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
         strncpy(header.extensions, resources_attributes->extensions, d_resources_extensions_size);
         strncpy(header.path, resources_attributes->path, d_resources_path_size);
         header.entries = elements + ((resources_attributes->default_template)?1:0);
+        if (f_endian_check() == d_little_endian)
+          f_endian_swap(&(header.entries), sizeof(uint32_t));
         d_call(output_stream, m_stream_write, (unsigned char *)&header, sizeof(struct s_resources_header), &written_bytes);
         for (index = 0; index < elements; ++index) {
           current_item = &(resources_attributes->nodes->table[index]);
@@ -215,8 +224,11 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
               if ((stream_file = d_call(self, m_resources_open_stream, node, e_resources_type_common))) {
                 memset(&block_header, 0, sizeof(struct s_resources_block_header));
                 strncpy(block_header.key, (char *)current_item->key, d_resources_key_size);
-                d_call(stream_file, m_stream_size, &(block_header.size));
+                d_call(stream_file, m_stream_size, (size_t *)&size_file);
+                block_header.size = size_file;
                 block_header.template = d_false;
+                if (f_endian_check() == d_little_endian)
+                  f_endian_swap(&(block_header.size), sizeof(uint32_t));
                 d_call(output_stream, m_stream_write, (unsigned char *)&block_header, sizeof(struct s_resources_block_header), &written_bytes);
                 d_call(output_stream, m_stream_write_stream, stream_file, &written_bytes);
                 d_log(e_log_level_low, "file '%s' has been included in the compressed datafile (%zu bytes written)",
@@ -228,8 +240,11 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
         if (resources_attributes->default_template) {
           memset(&block_header, 0, sizeof(struct s_resources_block_header));
           strncpy(block_header.key, resources_attributes->default_template->key, d_resources_key_size);
-          d_call(resources_attributes->default_template->stream_file, m_stream_size, &(block_header.size));
+          d_call(resources_attributes->default_template->stream_file, m_stream_size, &size_file);
+          block_header.size = size_file;
           block_header.template = d_true;
+          if (f_endian_check() == d_little_endian)
+            f_endian_swap(&(block_header.size), sizeof(uint32_t));
           d_call(output_stream, m_stream_write, (unsigned char *)&block_header, sizeof(struct s_resources_block_header), &written_bytes);
           d_call(output_stream, m_stream_write_stream, resources_attributes->default_template->stream_file, &written_bytes);
           d_log(e_log_level_low, "file '%s', considered as a template, has been included in the compressed datafiles (%zu bytes written)",
@@ -245,7 +260,6 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
   d_endtry;
   return self;
 }
-
 d_define_method(resources, get)(struct s_object *self, const char *key) {
   d_using(resources);
   d_cast_return(f_hash_get(resources_attributes->nodes, (void *)key));
@@ -332,6 +346,11 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
     if (current_item->kind == e_hash_kind_fill) {
       f_hash_delete(attributes->nodes, current_item->key, &old_content);
       if ((node = (struct s_resources_node *)old_content.value)) {
+        if (attributes->destroy_content)
+          if (unlink(node->path) == -1) {
+            d_err(e_log_level_high, "seems impossible to delete the file %s uncompressed (errno %s)",
+              node->path, strerror(errno));
+          }
         p_resources_scan_free(&(attributes->open_streams), node);
         d_free(node);
       }

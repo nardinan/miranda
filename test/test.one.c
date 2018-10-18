@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
         f_stream_new(d_new(stream), d_pkstr("stdout"), STDOUT_FILENO),
         f_stream_new_file(d_new(stream), d_pkstr("./test.lisp"), "r", 0777),
         NULL
-      };
-      s_object *resources = f_resources_new(d_new(resources), d_pkstr("/home/god/Pictures"), ".jpg");
+      }, *deflated_stream;
+      s_object *resources = f_resources_new(d_new(resources), d_pkstr("/Users/god/Downloads"), ".jpg"), *inflated_resources;
       s_object *line_A = f_line_new(d_new(line), -40, -75, 150, 120), *line_B = f_line_new(d_new(line), -40, 75, 100, 0),
         *line_C = f_line_new(d_new(line), -40, 75, -100, 75);
       s_object *map = f_map_new(d_new(map));
@@ -105,6 +105,11 @@ int main(int argc, char *argv[]) {
       d_delete(line_A);
       d_delete(line_B);
       d_delete(line_C);
+      d_call(resources, m_resources_deflate, d_pkstr("/Users/god/Downloads/compressed.miranda"));
+      deflated_stream = f_stream_new_file(d_new(stream), d_pkstr("/Users/god/Downloads/compressed.miranda"), "r", 0777);
+      inflated_resources = f_resources_new_inflate(d_new(resources), deflated_stream);
+      d_delete(deflated_stream);
+      d_delete(inflated_resources);
       d_delete(resources);
       d_call(lisp, m_runnable_join, NULL);
       d_call(lisp, m_runnable_kill, NULL);

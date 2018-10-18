@@ -183,7 +183,7 @@ d_define_method(stream, size)(struct s_object *self, size_t *size) {
       d_call(self, m_stream_seek, 0, e_stream_seek_end, &offset);
       if (size)
         *size = (size_t)offset;
-      d_call(self, m_stream_seek, current_offset, e_stream_seek_begin);
+      d_call(self, m_stream_seek, current_offset, e_stream_seek_begin, NULL);
     } else
       d_throw(v_exception_unsupported, "read in a write-only stream exception");
   } else
