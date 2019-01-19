@@ -135,7 +135,7 @@ d_define_method(array, get)(struct s_object *self, size_t position) {
   if (position < array_attributes->size)
     result = array_attributes->content[position];
   else
-    d_throw(v_exception_bound, "index is bigget than array size");
+    d_throw(v_exception_bound, "index is bigger than array size");
   return result;
 }
 d_define_method(array, reset)(struct s_object *self) {
