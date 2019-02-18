@@ -127,15 +127,13 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
     if ((drawable_attributes_entry->flags & e_drawable_kind_ui_no_attribute_flip) != e_drawable_kind_ui_no_attribute_flip)
       drawable_attributes_entry->flip = drawable_attributes_self->flip;
     if ((d_call(current_container->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+      camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
       square_attributes = d_cast(&(drawable_attributes_entry->square_collision_box), square);
       current_w = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-                             d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x)) -
-                  normalized_position_x_self;
+                    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x)) - normalized_position_x_self;
       current_h = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-                             d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y)) -
-                  normalized_position_y_self;
+                    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y)) - normalized_position_y_self;
       if ((uiable_attributes_entry = d_cast(current_container->drawable, uiable))) {
         /* we need to take in consideration the border of the object that is not considered in the collision square */
         current_w += uiable_attributes_entry->border_w;
@@ -150,8 +148,8 @@ d_define_method_override(container, draw)(struct s_object *self, struct s_object
   }
   d_call(self, m_drawable_set_dimension, (max_w + uiable_attributes_self->border_w), (max_h + uiable_attributes_self->border_h));
   if ((d_call(self, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h, camera_attributes->scene_offset_x,
-              camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y, camera_attributes->screen_w,
-              camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+    camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y, camera_attributes->screen_w,
+    camera_attributes->screen_h, camera_attributes->scene_zoom))) {
     result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
     d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
       while (((intptr_t)d_call(current_container->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);

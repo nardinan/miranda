@@ -89,16 +89,16 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
       center_factor_reduction = 0.0;
       switch (illuminable_bitmap_attributes->main_axis) {
         case e_illuminable_bitmap_axis_x:
-          center_factor = 1.0 - (fabs(lights_emitter->position_x - image_principal_point_x)/((image_principal_point_x + lights_emitter->radius) - image_x));
+          center_factor = 1.0 - (fabs(lights_emitter->position_x - image_principal_point_x) / ((image_principal_point_x + lights_emitter->radius) - image_x));
           if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, lights_emitter->position_x,
-                               lights_emitter->position_y))
-            center_factor_reduction = 1.0 - (fabs(lights_emitter->position_x - image_principal_point_x)/(image_principal_point_x - image_x));
+            lights_emitter->position_y))
+            center_factor_reduction = 1.0 - (fabs(lights_emitter->position_x - image_principal_point_x) / (image_principal_point_x - image_x));
           break;
         case e_illuminable_bitmap_axis_y:
-          center_factor =  1.0 - (fabs(lights_emitter->position_y - image_principal_point_y)/((image_principal_point_y + lights_emitter->radius) - image_y));
+          center_factor = 1.0 - (fabs(lights_emitter->position_y - image_principal_point_y) / ((image_principal_point_y + lights_emitter->radius) - image_y));
           if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, lights_emitter->position_x,
-                               lights_emitter->position_y))
-            center_factor_reduction = 1.0 - (fabs(lights_emitter->position_y - image_principal_point_y)/(image_principal_point_y - image_y));
+            lights_emitter->position_y))
+            center_factor_reduction = 1.0 - (fabs(lights_emitter->position_y - image_principal_point_y) / (image_principal_point_y - image_y));
           break;
       }
       light_normalized_percentage[e_illuminable_bitmap_side_front] = center_factor;
@@ -107,21 +107,21 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
         light_normalized_percentage[e_illuminable_bitmap_side_right] = (1.0 - (radians_incident / d_math_half_pi)) * (1.0 - center_factor_reduction);
       } else if ((radians_incident >= d_math_half_pi) && (radians_incident < d_math_pi)) {
         light_normalized_percentage[e_illuminable_bitmap_side_left] = ((radians_incident - d_math_half_pi) / d_math_half_pi) * (1.0 - center_factor_reduction);
-        light_normalized_percentage[e_illuminable_bitmap_side_bottom] = (1.0 - ((radians_incident - d_math_half_pi) / d_math_half_pi)) *
-                                                                        (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_bottom] =
+          (1.0 - ((radians_incident - d_math_half_pi) / d_math_half_pi)) * (1.0 - center_factor_reduction);
       } else if ((radians_incident >= d_math_pi) && (radians_incident < (d_math_pi + d_math_half_pi))) {
         light_normalized_percentage[e_illuminable_bitmap_side_top] = ((radians_incident - d_math_pi) / d_math_half_pi) * (1.0 - center_factor_reduction);
-        light_normalized_percentage[e_illuminable_bitmap_side_left] = (1.0 - ((radians_incident - d_math_pi) / d_math_half_pi)) *
-                                                                      (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_left] =
+          (1.0 - ((radians_incident - d_math_pi) / d_math_half_pi)) * (1.0 - center_factor_reduction);
       } else if ((radians_incident >= (d_math_pi + d_math_half_pi)) && (radians_incident < d_math_two_pi)) {
-        light_normalized_percentage[e_illuminable_bitmap_side_right] = ((radians_incident - (d_math_pi + d_math_half_pi)) / d_math_half_pi) *
-                                                                       (1.0 - center_factor_reduction);
-        light_normalized_percentage[e_illuminable_bitmap_side_top] = (1.0 - ((radians_incident - (d_math_pi + d_math_half_pi)) / d_math_half_pi)) *
-                                                                           (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_right] =
+          ((radians_incident - (d_math_pi + d_math_half_pi)) / d_math_half_pi) * (1.0 - center_factor_reduction);
+        light_normalized_percentage[e_illuminable_bitmap_side_top] =
+          (1.0 - ((radians_incident - (d_math_pi + d_math_half_pi)) / d_math_half_pi)) * (1.0 - center_factor_reduction);
       }
       for (index_side = 0; index_side < e_illuminable_bitmap_side_NULL; ++index_side)
-        if ((local_factor = (light_normalized_percentage[index_side] *
-                             (((lights_emitter->radius - lights_emitter->distance) / lights_emitter->radius) * 255.0))) > 0) {
+        if ((local_factor =
+               (light_normalized_percentage[index_side] * (((lights_emitter->radius - lights_emitter->distance) / lights_emitter->radius) * 255.0))) > 0) {
           /* now we have a factor that is proportional with the angle, with the distance and with the radius of the light. What we should do is to normalized
            * that value using the intensity and the penetration of the light into the  */
           if ((light_final_mask[index_side] += local_factor) > 255.0)
@@ -133,7 +133,7 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
         /* we don't need to check the visibility because, if we are in this function, means that the visibility of the object has been already confirmed by the
          * called */
         d_call(illuminable_bitmap_attributes->drawable_mask[index_side], m_drawable_set_maskRGB, (unsigned int)light_final_mask[index_side],
-               (unsigned int)light_final_mask[index_side], (unsigned int)light_final_mask[index_side]);
+          (unsigned int)light_final_mask[index_side], (unsigned int)light_final_mask[index_side]);
         while (((intptr_t)d_call(illuminable_bitmap_attributes->drawable_mask[index_side], m_drawable_draw, environment)) == d_drawable_return_continue);
       }
     }
@@ -146,11 +146,11 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
   return result;
 }
 d_define_method_override(illuminable_bitmap, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-                                                              double focus_x, double focus_y, double current_w, double current_h, double zoom) {
+  double focus_x, double focus_y, double current_w, double current_h, double zoom) {
   d_using(illuminable_bitmap);
   struct s_drawable_attributes *drawable_core_attributes = d_cast(self, drawable), *drawable_other_attributes;
-  struct s_object *result = d_call_owner(self, drawable, m_drawable_normalize_scale, reference_w, reference_h, offset_x, offset_y, focus_x, focus_y, current_w,
-                                         current_h, zoom);
+  struct s_object *result =
+    d_call_owner(self, drawable, m_drawable_normalize_scale, reference_w, reference_h, offset_x, offset_y, focus_x, focus_y, current_w, current_h, zoom);
   int index_side;
   for (index_side = 0; index_side < e_illuminable_bitmap_side_NULL; ++index_side)
     if (illuminable_bitmap_attributes->drawable_mask[index_side]) {

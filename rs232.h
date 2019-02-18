@@ -61,7 +61,7 @@ typedef enum e_rs232_flow_control {
   e_rs232_flow_control_software
 } e_rs232_flow_control;
 extern int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity,
-                        enum e_rs232_flow_control flow_control, int *device, struct termios *before_tty);
+  enum e_rs232_flow_control flow_control, int *device, struct termios *before_tty);
 extern void f_rs232_close_termios(int device, struct termios before_tty);
 extern void f_rs232_close(int device);
 extern int f_rs232_write(int device, const unsigned char *message, size_t size);

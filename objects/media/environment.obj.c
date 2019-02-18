@@ -44,7 +44,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
     if ((initialized_systems = SDL_WasInit(d_environment_default_systems)) != d_environment_default_systems)
       if (SDL_Init(d_environment_default_systems & (d_environment_default_systems & (~initialized_systems))) < 0) {
         d_err(e_log_level_ever, "SDL graphical system returns an error during the initialization (flags 0x%08x)",
-              (d_environment_default_systems & (~initialized_systems)));
+          (d_environment_default_systems & (~initialized_systems)));
         initialized = d_false;
       }
     if (initialized) {
@@ -210,7 +210,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
           }
           d_miranda_lock(self) {
             SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G,
-                                   environment_attributes->mask_B, environment_attributes->mask_A);
+              environment_attributes->mask_B, environment_attributes->mask_A);
             SDL_RenderClear(environment_attributes->renderer);
           } d_miranda_unlock(self);
           if (environment_attributes->main_call(self)) {
@@ -223,9 +223,8 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                   environment_attributes->current_layer = index;
                   d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
                     d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                           camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h,
-                           camera_attributes->scene_zoom);
+                      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                      camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
                 }
                 d_call(camera_object, m_camera_initialize_context, self);
                 {
@@ -240,7 +239,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                 d_call(camera_object, m_camera_finalize_context, self);
               } else
                 d_err(e_log_level_ever, "unrecognizable object stored into the camera stack (labeled as '%s') as type", d_string_cstring(string_object),
-                      camera_object->type);
+                  camera_object->type);
               environment_attributes->current_camera = NULL;
             }
             current_time = SDL_GetTicks();

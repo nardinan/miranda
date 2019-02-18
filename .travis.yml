@@ -1,19 +1,19 @@
 language: c
 
 compiler:
-        - gcc
+  - gcc
 
 before_install:
-        - uname -a
-        - lsb_release -a
-        - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
-        - sudo apt-get update -qq
+  - uname -a
+  - lsb_release -a
+  - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
+  - sudo apt-get update -qq
 
 install:
-        - sudo apt-get install -qq libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev
+  - sudo apt-get install -qq libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev
 
 script:
-        - mkdir build
-        - cd build
-        - cmake ..
-        - make
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make

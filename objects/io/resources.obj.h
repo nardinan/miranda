@@ -66,7 +66,7 @@ d_declare_class(resources) {
   struct s_hash_table *nodes;
   struct s_resources_node *default_template;
   struct s_list open_streams;
-  t_boolean  destroy_content;
+  t_boolean destroy_content;
 } d_declare_class_tail(resources);
 struct s_resources_attributes *p_resources_alloc(struct s_object *self);
 extern t_hash_value p_resources_calculate(char *key);

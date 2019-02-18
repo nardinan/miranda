@@ -77,20 +77,20 @@ d_define_method(line, get)(struct s_object *self, double *starting_x, double *st
 d_define_method(line, intersect)(struct s_object *self, struct s_object *other) {
   struct s_line_attributes *line_attributes = d_cast(other, line);
   return d_call(self, m_line_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x,
-                line_attributes->ending_y, NULL, NULL);
+    line_attributes->ending_y, NULL, NULL);
 }
 d_define_method(line, intersect_point)(struct s_object *self, struct s_object *other) {
   struct s_line_attributes *line_attributes = d_cast(other, line);
   struct s_object *result = NULL;
   double intersection_x, intersection_y;
   if (d_call(self, m_line_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x, line_attributes->ending_y,
-             &intersection_x, &intersection_y)) {
+    &intersection_x, &intersection_y)) {
     result = f_point_new(d_new(point), intersection_x, intersection_y);
   }
   return result;
 }
 d_define_method(line, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-                                             double *collision_x, double *collision_y) {
+  double *collision_x, double *collision_y) {
   d_using(line);
   double starting_x_A = line_attributes->starting_x, starting_y_A = line_attributes->starting_y, ending_x_A = line_attributes->ending_x,
     ending_y_A = line_attributes->ending_y, length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t;

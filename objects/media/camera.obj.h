@@ -29,7 +29,7 @@ d_declare_class(camera) {
 } d_declare_class_tail(camera);
 struct s_camera_attributes *p_camera_alloc(struct s_object *self);
 extern struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
-                                     enum e_environment_surfaces surface, struct s_object *environment);
+  enum e_environment_surfaces surface, struct s_object *environment);
 d_declare_method(camera, set_size)(struct s_object *self, double width, double height);
 d_declare_method(camera, get_size)(struct s_object *self, double *width, double *height);
 d_declare_method(camera, set_reference)(struct s_object *self, double width, double height);

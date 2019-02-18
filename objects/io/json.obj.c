@@ -562,7 +562,7 @@ d_define_method(json, get_double_relative)(struct s_object *self, struct s_json_
   d_cast_return(value);
 }
 d_define_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format,
-                                            ...) {
+  ...) {
   struct s_json_node_value *value = NULL;
   va_list parameters;
   char buffer[d_string_buffer_size];

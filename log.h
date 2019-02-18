@@ -45,12 +45,12 @@ extern void
 p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, unsigned int line, const char *format, ...);
 #ifdef d_miranda_debug
 #ifdef __linux__
-#define     d_break_point asm("0:"\
+#define d_break_point asm("0:"\
                                 ".pushsection embed-breakpoints;"\
                                 ".quad 0b;"\
                                 ".popsection;")
 #else
-#define     d_break_point abort()
+#define d_break_point abort()
 #endif
 #define d_assert(c)\
     do{\

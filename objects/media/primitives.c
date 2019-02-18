@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "primitives.h"
-void
-p_primitive_fill_triangle_bottom_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C, int red, int green, int blue, int alpha) {
+void p_primitive_fill_triangle_bottom_flat(SDL_Renderer *renderer, int x_A, int y_A, int x_B, int y_B, int x_C, int y_C, int red, int green,
+  int blue, int alpha) {
   double inverse_slope[2] = {
     ((double)(x_B - x_A) / (double)(y_B - y_A)),
     ((double)(x_C - x_A) / (double)(y_C - y_A))

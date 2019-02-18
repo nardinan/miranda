@@ -44,9 +44,8 @@ d_declare_class(label) {
 } d_declare_class_tail(label);
 struct s_label_attributes *p_label_alloc(struct s_object *self);
 extern struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
-extern struct s_object *
-f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format, enum e_label_alignments alignment_x,
-                      enum e_label_alignments alignment_y, struct s_object *environment);
+extern struct s_object *f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
+  enum e_label_alignments alignment_x,enum e_label_alignments alignment_y, struct s_object *environment);
 d_declare_method(label, set_content_string)(struct s_object *self, struct s_object *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, set_content_char)(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment);
 d_declare_method(label, get_content_char)(struct s_object *self);

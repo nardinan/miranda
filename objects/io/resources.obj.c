@@ -88,8 +88,8 @@ struct s_resources_node *f_resources_scan(struct s_list *open_streams, const cha
 struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions) {
   return f_resources_new_template(self, string_path, NULL, extensions);
 }
-struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path,
-  struct s_object *string_template_path, const char *extensions) {
+struct s_object *
+f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path, const char *extensions) {
   struct s_resources_attributes *attributes = p_resources_alloc(self);
   strncpy(attributes->extensions, extensions, d_resources_extensions_size);
   strncpy(attributes->path, d_string_cstring(string_directory_path), d_resources_path_size);
@@ -119,10 +119,8 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
     residual_size -= sizeof(struct s_resources_header);
     if (f_endian_check() == d_little_endian)
       f_endian_swap(&(header.entries), sizeof(uint32_t));
-    if ((header.magic_sequence_byte1 == d_resources_magic_sequence_byte1) &&
-      (header.magic_sequence_byte2 == d_resources_magic_sequence_byte2) &&
-      (header.magic_sequence_byte3 == d_resources_magic_sequence_byte3) &&
-      (header.magic_sequence_byte4 == d_resources_magic_sequence_byte4)) {
+    if ((header.magic_sequence_byte1 == d_resources_magic_sequence_byte1) && (header.magic_sequence_byte2 == d_resources_magic_sequence_byte2) &&
+        (header.magic_sequence_byte3 == d_resources_magic_sequence_byte3) && (header.magic_sequence_byte4 == d_resources_magic_sequence_byte4)) {
       strncpy(attributes->extensions, header.extensions, d_resources_extensions_size);
       strncpy(attributes->path, header.path, d_resources_path_size);
       for (index = 0; index < header.entries; ++index) {
@@ -160,7 +158,7 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
           residual_size -= block_header.size;
         } else {
           snprintf(buffer, d_string_buffer_size, "the size of the datafile seems to be shorted than required (%zu residual bytes, VS expected %du)",
-                   residual_size, block_header.size);
+            residual_size, block_header.size);
           d_throw(v_exception_malformed, buffer);
         }
       }
@@ -168,7 +166,7 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
       d_throw(v_exception_malformed, "the magic sequence used to identify a datafile does not correspond with the sequence here defined");
   } else {
     snprintf(buffer, d_string_buffer_size, "the size of the datafile seems to be shorted than required (%zu residual bytes, VS expected %zu)", residual_size,
-             sizeof(struct s_resources_header));
+      sizeof(struct s_resources_header));
     d_throw(v_exception_malformed, buffer);
   }
   return self;
@@ -213,7 +211,7 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
         header.magic_sequence_byte4 = d_resources_magic_sequence_byte4;
         strncpy(header.extensions, resources_attributes->extensions, d_resources_extensions_size);
         strncpy(header.path, resources_attributes->path, d_resources_path_size);
-        header.entries = elements + ((resources_attributes->default_template)?1:0);
+        header.entries = elements + ((resources_attributes->default_template) ? 1 : 0);
         if (f_endian_check() == d_little_endian)
           f_endian_swap(&(header.entries), sizeof(uint32_t));
         d_call(output_stream, m_stream_write, (unsigned char *)&header, sizeof(struct s_resources_header), &written_bytes);
@@ -231,8 +229,7 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
                   f_endian_swap(&(block_header.size), sizeof(uint32_t));
                 d_call(output_stream, m_stream_write, (unsigned char *)&block_header, sizeof(struct s_resources_block_header), &written_bytes);
                 d_call(output_stream, m_stream_write_stream, stream_file, &written_bytes);
-                d_log(e_log_level_low, "file '%s' has been included in the compressed datafile (%zu bytes written)",
-                      block_header.key, written_bytes);
+                d_log(e_log_level_low, "file '%s' has been included in the compressed datafile (%zu bytes written)", block_header.key, written_bytes);
               }
             }
           }
@@ -248,7 +245,7 @@ d_define_method(resources, deflate)(struct s_object *self, struct s_object *stri
           d_call(output_stream, m_stream_write, (unsigned char *)&block_header, sizeof(struct s_resources_block_header), &written_bytes);
           d_call(output_stream, m_stream_write_stream, resources_attributes->default_template->stream_file, &written_bytes);
           d_log(e_log_level_low, "file '%s', considered as a template, has been included in the compressed datafiles (%zu bytes written)",
-                resources_attributes->default_template->key, written_bytes);
+            resources_attributes->default_template->key, written_bytes);
         }
         d_delete(output_stream);
       }
@@ -309,8 +306,7 @@ d_define_method(resources, get_stream)(struct s_object *self, const char *key, e
   d_using(resources);
   struct s_resources_node *current_node;
   struct s_object *result = NULL;
-  if ((current_node = (struct s_resources_node *)d_call(self, m_resources_get, key)) ||
-    (current_node = resources_attributes->default_template))
+  if ((current_node = (struct s_resources_node *)d_call(self, m_resources_get, key)) || (current_node = resources_attributes->default_template))
     result = d_call(self, m_resources_open_stream, current_node, type);
   return result;
 }
@@ -348,8 +344,7 @@ d_define_method(resources, delete)(struct s_object *self, struct s_resources_att
       if ((node = (struct s_resources_node *)old_content.value)) {
         if (attributes->destroy_content)
           if (unlink(node->path) == -1) {
-            d_err(e_log_level_high, "seems impossible to delete the file %s uncompressed (errno %s)",
-              node->path, strerror(errno));
+            d_err(e_log_level_high, "seems impossible to delete the file %s uncompressed (errno %s)", node->path, strerror(errno));
           }
         p_resources_scan_free(&(attributes->open_streams), node);
         d_free(node);

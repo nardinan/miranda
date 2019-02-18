@@ -23,7 +23,7 @@ struct s_media_factory_attributes *p_media_factory_alloc(struct s_object *self) 
   return result;
 }
 struct s_object *f_media_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_json, struct s_object *resources_ogg,
-                                     struct s_object *resources_lisp, struct s_object *environment) {
+  struct s_object *resources_lisp, struct s_object *environment) {
   struct s_media_factory_attributes *attributes = p_media_factory_alloc(self);
   attributes->resources_png = d_retain(resources_png);
   attributes->resources_json = d_retain(resources_json);
@@ -52,7 +52,7 @@ d_define_method(media_factory, get_bitmap)(struct s_object *self, const char *la
   return result;
 }
 d_define_method(media_factory, get_illuminable_bitmap)(struct s_object *self, const char *label_core, const char *label_left, const char *label_right,
-                                                       const char *label_top, const char *label_bottom, const char *label_front) {
+  const char *label_top, const char *label_bottom, const char *label_front) {
   d_using(media_factory);
   struct s_exception *exception;
   struct s_object *stream;
@@ -76,14 +76,13 @@ d_define_method(media_factory, get_illuminable_bitmap)(struct s_object *self, co
               d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_top);
               d_delete(mask);
             }
-          if ((label_bottom) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_bottom,
-                                                 e_resources_type_common)))
+          if ((label_bottom) &&
+              (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_bottom, e_resources_type_common)))
             if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
               d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_bottom);
               d_delete(mask);
             }
-          if ((label_front) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_front,
-                                                 e_resources_type_common)))
+          if ((label_front) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_front, e_resources_type_common)))
             if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
               d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_front);
               d_delete(mask);
@@ -257,7 +256,7 @@ d_define_method(media_factory, get_transition)(struct s_object *self, const char
                   d_delete(drawable);
                 } else
                   d_err(e_log_level_ever, "impossible to load the drawable %s, part of the transition %s (this component will be skipped)", string_supply,
-                        label);
+                    label);
               }
             d_delete(json);
           } else
@@ -273,7 +272,7 @@ d_define_method(media_factory, get_transition)(struct s_object *self, const char
   return result;
 }
 d_define_method(media_factory, get_particle_structure)(struct s_object *self, struct s_object *json, struct s_particle_configuration_core *configuration,
-                                                       const char *prefix) {
+  const char *prefix) {
   memset(configuration, 0, sizeof(struct s_particle_configuration_core));
   d_call(json, m_json_get_double, &(configuration->position_x), "ss", prefix, "position_x");
   d_call(json, m_json_get_double, &(configuration->position_y), "ss", prefix, "position_y");
