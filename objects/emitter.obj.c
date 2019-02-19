@@ -1,4 +1,4 @@
-\/*
+/*
  * miranda
  * Copyright (C) 2015 Andrea Nardinocchi (andrea@nardinan.it)
  *

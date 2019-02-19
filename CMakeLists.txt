@@ -169,7 +169,8 @@ if (NOT (STATUS_SDL STREQUAL ""))
             "objects/media/controllable.obj.h;objects/media/drawable.obj.h;objects/media/entity.obj.h;"
             "objects/media/environment.obj.h;objects/media/eventable.obj.h;objects/media/lights.obj.h;"
             "objects/media/media.h;objects/media/media_factory.obj.h;objects/media/morphable.obj.h;objects/media/particle.obj.h;"
-            "objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/illuminable_bitmap.obj.h")
+            "objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/camera.obj.h;"
+            "objects/media/camera_controller.obj.h;objects/media/illuminable_bitmap.obj.h")
     set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "${miranda_media_properties}")
     INSTALL(TARGETS miranda_media
             LIBRARY DESTINATION /usr/local/lib
