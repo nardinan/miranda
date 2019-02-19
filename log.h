@@ -60,6 +60,6 @@ p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char
         }\
     }while(0)
 #else
-#define d_assert(c) ((void)c)
+#define d_assert(c) ((void)(c))
 #endif
 #endif

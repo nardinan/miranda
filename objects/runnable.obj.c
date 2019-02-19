@@ -61,7 +61,7 @@ d_define_method(runnable, job)(struct s_object *self) {
 }
 d_define_method(runnable, run_interface)(struct s_object *self) {
   d_using(runnable);
-  if (sem_wait_miranda(&(runnable_attributes->running_slots)) == 0) {
+  if (sem_wait_miranda(&(runnable_attributes->running_slots)) != -1) {
     d_call(self, m_runnable_job, NULL);
     sem_post_miranda(&(runnable_attributes->running_slots));
   }

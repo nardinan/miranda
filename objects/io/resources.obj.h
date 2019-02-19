@@ -17,7 +17,6 @@
  */
 #ifndef miranda_object_resources_h
 #define miranda_object_resources_h
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/errno.h>
 #include <unistd.h>
