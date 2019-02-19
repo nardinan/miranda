@@ -48,7 +48,7 @@ extern char *f_string_append(char **string, char *postfix, size_t *space);
 extern char *f_string_trim(char *string);
 extern int f_string_key(char *string, struct s_string_key_format *format, size_t size, char divisor);
 extern char *f_string_format(char *buffer, size_t *computed_size, size_t size, char *symbols, t_string_formatter functions[], char *format, ...);
-extern char *
-f_string_format_args(char *buffer, size_t *computed_size, size_t size, char *symbols, t_string_formatter functions[], char *format, va_list parameters);
+extern char *f_string_format_args(char *buffer, size_t *computed_size, size_t size, char *symbols, t_string_formatter functions[], char *format,
+  va_list parameters);
 extern char *p_string_format_skip(char *buffer, char *symbols);
 #endif

@@ -34,6 +34,6 @@ d_declare_method(line, get)(struct s_object *self, double *starting_x, double *s
 d_declare_method(line, intersect)(struct s_object *self, struct s_object *other);
 d_declare_method(line, intersect_point)(struct s_object *self, struct s_object *other);
 d_declare_method(line, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-                                              double *collision_x, double *collision_y);
+  double *collision_x, double *collision_y);
 #endif
 

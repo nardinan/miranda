@@ -41,7 +41,7 @@ d_define_method(drawable_chaser, move_destination)(struct s_object *self, double
   return self;
 }
 d_define_method(drawable_chaser, chase_destination)(struct s_object *self, struct s_object *environment, double destination_x, double destination_y,
-                                                      double destination_z) {
+  double destination_z) {
   d_using(drawable_chaser);
   if (drawable_chaser_attributes->reference) {
     d_delete(drawable_chaser_attributes->reference);
@@ -90,9 +90,8 @@ d_define_method(drawable_chaser, set_speed)(struct s_object *self, double minimu
   return self;
 }
 d_define_method_override(drawable_chaser, update)(struct s_object *self, double *screen_position_x, double *screen_position_y, double *screen_w,
-                                                   double *screen_h, double *scene_reference_w, double *scene_reference_h, double *scene_offset_x,
-                                                   double *scene_offset_y, double *scene_center_x, double *scene_center_y, double *camera_angle,
-                                                   double *scene_zoom) {
+  double *screen_h, double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y, double *scene_center_x,
+  double *scene_center_y, double *camera_angle, double *scene_zoom) {
   d_using(drawable_chaser);
   d_using(camera_controller);
   struct timeval current, difference;
@@ -110,7 +109,7 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
       if (drawable_chaser_attributes->reference) {
         /* normalize the drawable component using the incoming details ... */
         d_call(drawable_chaser_attributes->reference, m_drawable_normalize_scale, *scene_reference_w, *scene_reference_h, *scene_offset_x, *scene_offset_y,
-               *scene_center_x, *scene_center_y, *screen_w, *screen_h, *scene_zoom);
+          *scene_center_x, *scene_center_y, *screen_w, *screen_h, *scene_zoom);
         /* ... and now we could access the normalized position */
         d_call(drawable_chaser_attributes->reference, m_drawable_get_scaled_principal_point, &reference_position_x, &reference_position_y);
         drawable_chaser_attributes->destination_x = ((reference_position_x + *scene_offset_x) - (*screen_w / 2.0));

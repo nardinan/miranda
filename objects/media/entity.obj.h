@@ -47,7 +47,7 @@ d_declare_class(entity) {
 struct s_entity_attributes *p_entity_alloc(struct s_object *self);
 extern struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator);
 d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
-                                        double offset_point_y);
+  double offset_point_y);
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
 d_declare_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);

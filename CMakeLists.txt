@@ -3,9 +3,9 @@ execute_process(COMMAND sdl2-config --libs 2>/dev/null OUTPUT_VARIABLE STATUS_SD
 execute_process(COMMAND sdl2-config --cflags 2>/dev/null OUTPUT_VARIABLE STATUS_SDL_INCLUDE)
 string(REGEX REPLACE "\n$" "" STATUS_SDL_LIBRARY "${STATUS_SDL_LIBRARY}")
 string(REGEX REPLACE "\n$" "" STATUS_SDL_INCLUDE "${STATUS_SDL_INCLUDE}")
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-Dd_miranda_debug)
-endif()
+endif ()
 add_library(miranda_ground SHARED
         console.c
         console.h
@@ -127,7 +127,7 @@ INSTALL(TARGETS miranda_network
         )
 
 #SDL dependent code
-if(NOT (STATUS_SDL STREQUAL ""))
+if (NOT (STATUS_SDL STREQUAL ""))
     add_library(miranda_media SHARED
             objects/media/animation.obj.c
             objects/media/animation.obj.h
@@ -169,7 +169,8 @@ if(NOT (STATUS_SDL STREQUAL ""))
             "objects/media/controllable.obj.h;objects/media/drawable.obj.h;objects/media/entity.obj.h;"
             "objects/media/environment.obj.h;objects/media/eventable.obj.h;objects/media/lights.obj.h;"
             "objects/media/media.h;objects/media/media_factory.obj.h;objects/media/morphable.obj.h;objects/media/particle.obj.h;"
-            "objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/illuminable_bitmap.obj.h")
+            "objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/camera.obj.h;"
+            "objects/media/camera_controller.obj.h;objects/media/illuminable_bitmap.obj.h")
     set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "${miranda_media_properties}")
     INSTALL(TARGETS miranda_media
             LIBRARY DESTINATION /usr/local/lib
@@ -223,7 +224,7 @@ if(NOT (STATUS_SDL STREQUAL ""))
             LIBRARY DESTINATION /usr/local/lib
             PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/ui
             )
-endif()
+endif ()
 
 target_link_libraries(miranda_objects miranda_ground)
 target_link_libraries(miranda_geometry miranda_objects)
@@ -231,7 +232,7 @@ target_link_libraries(miranda_io miranda_objects)
 target_link_libraries(miranda_network miranda_objects)
 
 # SDL dependent code
-if(NOT (STATUS_SDL STREQUAL ""))
+if (NOT (STATUS_SDL STREQUAL ""))
     target_link_libraries(miranda_media miranda_objects miranda_geometry miranda_io miranda_ground)
     target_link_libraries(miranda_cameras miranda_media)
     target_link_libraries(miranda_ui miranda_media)
@@ -246,4 +247,4 @@ if(NOT (STATUS_SDL STREQUAL ""))
 
     target_link_libraries(miranda_media ${STATUS_SDL_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
     target_link_libraries(miranda_ui ${STATUS_SDL_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2MIXER_LIBRARIES})
-endif()
+endif ()

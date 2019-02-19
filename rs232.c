@@ -17,7 +17,7 @@
  */
 #include "rs232.h"
 int f_rs232_open(const char *port, enum e_rs232_baud baud, enum e_rs232_bits bits, enum e_rs232_stops stops, enum e_rs232_parity parity,
-                 enum e_rs232_flow_control flow_control, int *device, struct termios *before_tty) {
+  enum e_rs232_flow_control flow_control, int *device, struct termios *before_tty) {
   struct termios tty;
   int result = d_false;
   if ((*device = open(port, O_RDWR | O_NOCTTY | O_NDELAY)) >= 0) {

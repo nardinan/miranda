@@ -44,7 +44,7 @@ d_declare_method(illuminable_bitmap, set_lights)(struct s_object *self, struct s
 d_declare_method(illuminable_bitmap, set_main_axis)(struct s_object *self, enum e_illuminable_bitmap_axis main_axis);
 d_declare_method(illuminable_bitmap, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(illuminable_bitmap, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-                                                      double focus_x, double focus_y, double current_w, double current_h, double zoom);
+  double focus_x, double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(illuminable_bitmap, keep_scale)(struct s_object *self, double current_w, double current_h);
 d_declare_method(illuminable_bitmap, delete)(struct s_object *self, struct s_illuminable_bitmap_attributes *attributes);
 #endif

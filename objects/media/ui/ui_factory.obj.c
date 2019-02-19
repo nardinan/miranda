@@ -32,7 +32,7 @@ void p_ui_factory_container_delete(struct s_uiable_container *container) {
   }
 }
 struct s_object *f_ui_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_ttf, struct s_object *resources_json,
-                                  struct s_object *environment, struct s_object *json_configuration, struct s_object *json_ui) {
+  struct s_object *environment, struct s_object *json_configuration, struct s_object *json_ui) {
   struct s_ui_factory_attributes *attributes = p_ui_factory_alloc(self);
   struct s_exception *exception;
   struct s_object *font;
@@ -93,7 +93,7 @@ struct s_object *f_ui_factory_new(struct s_object *self, struct s_object *resour
   return self;
 }
 d_define_method(ui_factory, load_component)(struct s_object *self, struct s_object *json_ui, struct s_uiable_container *current_container,
-                                            t_json_starting_point *starting_point) {
+  t_json_starting_point *starting_point) {
   d_using(ui_factory);
   struct _scoped_keyword_list {
     const char *kind;
@@ -190,7 +190,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
             d_call(json_ui, m_json_get_double_relative, next_starting_point, &background_B, "s", "background_B");
             d_call(json_ui, m_json_get_double_relative, next_starting_point, &background_A, "s", "background_A");
             d_call(current_component->uiable, m_uiable_set_background, (unsigned int)background_R, (unsigned int)background_G, (unsigned int)background_B,
-                   (unsigned int)background_A);
+              (unsigned int)background_A);
           }
           d_call(current_container->uiable, m_container_add_drawable, current_component->uiable, position_x, position_y);
         } else {
@@ -363,7 +363,7 @@ d_define_method(ui_factory, new_label)(struct s_object *self, unsigned int font_
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "label", "alignment_y");
         if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
           if ((result = f_label_new_alignment(d_new(label), string_content, current_font, (enum e_label_background_formats)format,
-                                              (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment)))
+            (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment)))
             d_call(self, m_ui_factory_load_uiable, result, "label");
       }
     d_catch(exception)
@@ -468,8 +468,7 @@ d_define_method(ui_factory, new_field)(struct s_object *self, unsigned int font_
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width, "sss", "ui", "field", "width");
         if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
           if ((result = f_field_new_alignment(d_new(field), string_content, current_font, (enum e_label_background_formats)format,
-                                              (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y,
-                                              ui_factory_attributes->environment))) {
+            (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment))) {
             d_call(result, m_drawable_set_dimension, width, font_height);
             d_call(result, m_field_set_cursor, (unsigned int)cursor_R, (unsigned int)cursor_G, (unsigned int)cursor_B, (unsigned int)cursor_A);
             d_call(result, m_field_set_size, (unsigned int)size);

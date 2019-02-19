@@ -39,7 +39,7 @@ d_define_method(entity, get_component)(struct s_object *self, char *label) {
   d_cast_return(current_component);
 }
 d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
-                                       double offset_point_y) {
+  double offset_point_y) {
   d_using(entity);
   struct s_entity_component *current_component = NULL;
   if (!d_call(self, m_entity_get_component, label)) {
@@ -70,7 +70,7 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
       if (drawable_attributes->last_blend != e_drawable_blend_undefined)
         d_call(current_element->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
       d_call(current_element->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G,
-             (unsigned int)drawable_attributes->last_mask_B);
+        (unsigned int)drawable_attributes->last_mask_B);
       d_call(current_element->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
       d_call(current_element->drawable, m_drawable_get_dimension, &drawable_width, &drawable_height);
       d_call(&(drawable_attributes->point_dimension), m_point_get, &current_width, &current_height);
@@ -101,8 +101,8 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
 }
 d_define_method(entity, collision)(struct s_object *self, struct s_object *entity) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core = d_cast(entity, drawable);
-  t_boolean collision =
-    (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
+  t_boolean
+    collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
   d_cast_return(collision);
 }
 d_define_method(entity, interact)(struct s_object *self, struct s_object *entity) {
@@ -191,8 +191,8 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
               drawable_attributes_core->zoom = (drawable_attributes_self->zoom * local_position_z);
               drawable_attributes_core->angle = drawable_attributes_self->angle;
               if ((d_call(current_element->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                          camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+                camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+                camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
                 while (((intptr_t)d_call(current_element->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
             }
         }

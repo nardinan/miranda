@@ -109,13 +109,13 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
     if (transition_attributes->current_key) {
       if (transition_attributes->next_key) {
         center_x = local_center_x + d_transition_factor_value(transition_attributes->current_key->position_x, transition_attributes->next_key->position_x,
-                                                              fraction_elapsed_update);
+          fraction_elapsed_update);
         center_y = local_center_y + d_transition_factor_value(transition_attributes->current_key->position_y, transition_attributes->next_key->position_y,
-                                                              fraction_elapsed_update);
+          fraction_elapsed_update);
         position_x = local_position_x + d_transition_factor_value(transition_attributes->current_key->position_x, transition_attributes->next_key->position_x,
-                                                                  fraction_elapsed_update);
+          fraction_elapsed_update);
         position_y = local_position_y + d_transition_factor_value(transition_attributes->current_key->position_y, transition_attributes->next_key->position_y,
-                                                                  fraction_elapsed_update);
+          fraction_elapsed_update);
         zoom = drawable_attributes_self->zoom *
                d_transition_factor_value(transition_attributes->current_key->zoom, transition_attributes->next_key->zoom, fraction_elapsed_update);
         angle = drawable_attributes_self->angle +
@@ -148,8 +148,8 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
       drawable_attributes_core->angle = angle;
       drawable_attributes_core->flip = drawable_attributes_self->flip;
       if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                  camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-                  camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+        camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
         while (((intptr_t)d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }

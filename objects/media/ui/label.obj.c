@@ -28,7 +28,7 @@ struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Fo
 }
 struct s_object *
 f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format, enum e_label_alignments alignment_x,
-                      enum e_label_alignments alignment_y, struct s_object *environment) {
+  enum e_label_alignments alignment_y, struct s_object *environment) {
   struct s_label_attributes *attributes = p_label_alloc(self);
   attributes->format = format;
   attributes->alignment_x = alignment_x;
@@ -116,7 +116,7 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
           if (label_attributes->last_blend != e_drawable_blend_undefined)
             d_call(self, m_drawable_set_blend, label_attributes->last_blend);
           d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R, (unsigned int)label_attributes->last_mask_G,
-                 (unsigned int)label_attributes->last_mask_B);
+            (unsigned int)label_attributes->last_mask_B);
           d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
         } else {
           snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception", label_attributes->string_content);
@@ -220,7 +220,7 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
     label_attributes->last_destination = destination;
     d_miranda_lock(environment) {
       SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                       (SDL_RendererFlip)drawable_attributes->flip);
+        (SDL_RendererFlip)drawable_attributes->flip);
     } d_miranda_unlock(environment);
   }
   d_cast_return(result);

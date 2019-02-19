@@ -41,7 +41,7 @@ struct s_object *f_list_new(struct s_object *self, struct s_object *scroll) {
 d_define_method(list, add_uiable)(struct s_object *self, struct s_object *uiable) {
   d_using(list);
   d_call(uiable, m_drawable_set_maskRGB, (unsigned int)list_attributes->last_mask_R, (unsigned int)list_attributes->last_mask_G,
-         (unsigned int)list_attributes->last_mask_B);
+    (unsigned int)list_attributes->last_mask_B);
   d_call(uiable, m_drawable_set_maskA, (unsigned int)list_attributes->last_mask_A);
   d_call(uiable, m_drawable_set_blend, list_attributes->last_blend);
   f_list_append(&(list_attributes->uiables), d_retain(uiable), e_list_insert_tail);
@@ -260,8 +260,8 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
         drawable_attributes_entry->flip = drawable_attributes_self->flip;
         d_call(&(drawable_attributes_entry->point_dimension), m_point_get, &dimension_w_entry, &dimension_h_entry);
         if ((d_call(current_entry, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-                    camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+          camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
           d_call(&(drawable_attributes_entry->point_normalized_destination), m_point_get, &position_x_entry, &position_y_entry);
           d_call(&(drawable_attributes_entry->point_normalized_dimension), m_point_get, &normalized_dimension_w_entry, &normalized_dimension_h_entry);
           if ((position_y_entry + normalized_dimension_h_entry) < (normalized_position_y_self + normalized_dimension_h_self)) {
@@ -273,15 +273,15 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
               }
             if (is_selected)
               d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->selected_background_R,
-                     (unsigned int)list_attributes->selected_background_G, (unsigned int)list_attributes->selected_background_B,
-                     (unsigned int)list_attributes->selected_background_A);
+                (unsigned int)list_attributes->selected_background_G, (unsigned int)list_attributes->selected_background_B,
+                (unsigned int)list_attributes->selected_background_A);
             else if ((intptr_t)d_call(&(drawable_attributes_entry->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))
               d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->over_background_R, (unsigned int)list_attributes->over_background_G,
-                     (unsigned int)list_attributes->over_background_B, (unsigned int)list_attributes->over_background_A);
+                (unsigned int)list_attributes->over_background_B, (unsigned int)list_attributes->over_background_A);
             else
               d_call(current_entry, m_uiable_set_background, (unsigned int)list_attributes->unselected_background_R,
-                     (unsigned int)list_attributes->unselected_background_G, (unsigned int)list_attributes->unselected_background_B,
-                     (unsigned int)list_attributes->unselected_background_A);
+                (unsigned int)list_attributes->unselected_background_G, (unsigned int)list_attributes->unselected_background_B,
+                (unsigned int)list_attributes->unselected_background_A);
             d_call(current_entry, m_drawable_set_blend, list_attributes->last_blend);
             while (((intptr_t)d_call(current_entry, m_drawable_draw, environment)) == d_drawable_return_continue);
             ++(list_attributes->visible_entries);
@@ -294,8 +294,8 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     }
   }
   if ((d_call(list_attributes->scroll, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-              camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-              camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+    camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
     d_call(&(drawable_attributes_scroll->point_normalized_dimension), m_point_get, &normalized_dimension_w_scroll, &normalized_dimension_h_scroll);
     position_x = (normalized_position_x_self + normalized_dimension_w_self) - normalized_dimension_w_scroll - uiable_attributes->border_w;
     position_y = normalized_position_y_self + uiable_attributes->border_h;
@@ -307,7 +307,7 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     d_call(&(drawable_attributes_scroll->point_normalized_center), m_point_set_y, center_y);
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_top_left, position_x, position_y);
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right, (position_x + normalized_dimension_w_scroll),
-           (position_y + normalized_dimension_h_scroll));
+      (position_y + normalized_dimension_h_scroll));
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_center, center_x, center_y);
     while (((intptr_t)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
   }

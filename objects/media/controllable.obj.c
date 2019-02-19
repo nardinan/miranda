@@ -33,7 +33,7 @@ d_define_method(controllable, set)(struct s_object *self, t_boolean enable) {
   return self;
 }
 d_define_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
-                                                 t_controllable_action action_double, t_boolean single_shot) {
+  t_controllable_action action_double, t_boolean single_shot) {
   d_using(controllable);
   struct s_controllable_entry *current_entry;
   if (!(current_entry = (struct s_controllable_entry *)d_call(self, m_controllable_get_configuration, key))) {

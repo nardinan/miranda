@@ -110,7 +110,7 @@ struct s_lisp_object *p_lisp_primitive_load(struct s_object *self, struct s_lisp
     }
   } else
     d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'string' object was expected", d_string_cstring(lisp_attributes->string_name),
-          ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+      ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
   return result;
 }
 struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_object *args) {
@@ -123,7 +123,7 @@ struct s_lisp_object *p_lisp_primitive_sum(struct s_object *self, struct s_lisp_
         value += entry->value_double;
       } else if (entry != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
         d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+          ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
         break;
       }
       pointer = d_lisp_cdr(pointer);
@@ -145,7 +145,7 @@ struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_
             value -= entry->value_double;
           } else if (entry != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
             d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
             break;
           }
           pointer = d_lisp_cdr(pointer);
@@ -153,7 +153,7 @@ struct s_lisp_object *p_lisp_primitive_subtract(struct s_object *self, struct s_
           break;
     } else
       d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-            ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+        ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
   }
   return p_lisp_object(self, e_lisp_object_type_value, value);
 }
@@ -169,7 +169,7 @@ struct s_lisp_object *p_lisp_primitive_multiply(struct s_object *self, struct s_
         value = 0.0;
       } else {
         d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+          ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
         break;
       }
       pointer = d_lisp_cdr(pointer);
@@ -191,7 +191,7 @@ struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_li
             value /= entry->value_double;
           } else if (entry != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) {
             d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
             break;
           }
           pointer = d_lisp_cdr(pointer);
@@ -199,15 +199,15 @@ struct s_lisp_object *p_lisp_primitive_divide(struct s_object *self, struct s_li
           break;
     } else
       d_err(e_log_level_low, "(source %s:%d) '%s' object founded while 'value' object was expected", d_string_cstring(lisp_attributes->string_name),
-            ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
+        ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), d_lisp_object_type(entry));
   }
   return p_lisp_object(self, e_lisp_object_type_value, value);
 }
 struct s_lisp_object *p_lisp_primitive_and(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
   struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args), *right_object = d_lisp_cadr(args);
-  if ((left_object) && (left_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) &&
-      (right_object) && (right_object !=lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
+  if ((left_object) && (left_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]) && (right_object) &&
+      (right_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
     result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
   return result;
 }
@@ -215,7 +215,7 @@ struct s_lisp_object *p_lisp_primitive_or(struct s_object *self, struct s_lisp_o
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
   struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args), *right_object = d_lisp_cadr(args);
   if (((left_object) && (left_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) ||
-      ((right_object) && (right_object !=lisp_attributes->base_symbols[e_lisp_object_symbol_nil])))
+      ((right_object) && (right_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])))
     result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
   return result;
 }
@@ -320,10 +320,9 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   attributes->base_symbols[e_lisp_object_symbol_define] = d_call(self, m_lisp_import_symbol, "define");
   attributes->base_symbols[e_lisp_object_symbol_set] = d_call(self, m_lisp_import_symbol, "set");
   attributes->base_symbols[e_lisp_object_symbol_begin] = d_call(self, m_lisp_import_symbol, "begin");
-  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol,
-         attributes->base_symbols[e_lisp_object_symbol_nil]);
+  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol, attributes->base_symbols[e_lisp_object_symbol_nil]);
   d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_true]->value_symbol,
-         attributes->base_symbols[e_lisp_object_symbol_true]);
+    attributes->base_symbols[e_lisp_object_symbol_true]);
   d_call(self, m_lisp_extend_environment, "+", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_sum));
   d_call(self, m_lisp_extend_environment, "-", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_subtract));
   d_call(self, m_lisp_extend_environment, "*", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_multiply));
@@ -378,8 +377,7 @@ d_define_method(lisp, extend_closure)(struct s_object *self, struct s_lisp_objec
   struct s_lisp_object *result = environment;
   if (symbol)
     result = d_call(self, m_lisp_extend_closure, d_lisp_cdr(symbol), d_lisp_cdr(values),
-                    p_lisp_object(self, e_lisp_object_type_cons, p_lisp_object(self, e_lisp_object_type_cons, d_lisp_car(symbol), d_lisp_car(values)),
-                                  environment));
+      p_lisp_object(self, e_lisp_object_type_cons, p_lisp_object(self, e_lisp_object_type_cons, d_lisp_car(symbol), d_lisp_car(values)), environment));
   d_cast_return(result);
 }
 d_define_method(lisp, extend_environment)(struct s_object *self, const char *symbol, struct s_lisp_object *primitive) {
@@ -444,7 +442,7 @@ d_define_method(lisp, read_object)(struct s_object *self, struct s_lisp_object *
     /* move the cursor foward */
     d_call(self, m_lisp_next_token, NULL);
     result = p_lisp_object(self, e_lisp_object_type_cons, lisp_attributes->base_symbols[e_lisp_object_symbol_quote],
-                           p_lisp_object(self, e_lisp_object_type_cons, d_call(self, m_lisp_read_object, NULL), NULL));
+      p_lisp_object(self, e_lisp_object_type_cons, d_call(self, m_lisp_read_object, NULL), NULL));
   } else if (current_token->type == e_json_token_type_value)
     result = p_lisp_object(self, e_lisp_object_type_value, current_token->value_entry);
   else if (current_token->type == e_json_token_type_string)
@@ -474,7 +472,7 @@ d_define_method(lisp, recursive_evaluation)(struct s_object *self, struct s_lisp
   struct s_lisp_object *result = NULL;
   if (current_object)
     result = p_lisp_object(self, e_lisp_object_type_cons, d_call(self, m_lisp_evaluate, d_lisp_car(current_object), environment),
-                           d_call(self, m_lisp_recursive_evaluation, d_lisp_cdr(current_object), environment));
+      d_call(self, m_lisp_recursive_evaluation, d_lisp_cdr(current_object), environment));
   d_cast_return(result);
 }
 d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *current_object, struct s_lisp_object *environment) {
@@ -494,7 +492,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
           result = d_lisp_cdr(result);
         else
           d_err(e_log_level_low, "(source %s:%d) unbounded symbol '%s'", d_string_cstring(lisp_attributes->string_name),
-                ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), current_object->value_symbol);
+            ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), current_object->value_symbol);
         break;
       case e_lisp_object_type_cons:
         if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_quote])
@@ -511,7 +509,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
           if ((current_object = d_lisp_cdr(current_object))) {
             while (current_object) {
               if ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_caar(current_object), environment)) &&
-                (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) {
+                  (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil])) {
                 result = d_call(self, m_lisp_evaluate, d_lisp_cdar(current_object), environment);
                 break;
               } else
@@ -519,7 +517,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
             }
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed cond construct with no definition", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
           if ((symbol_object = d_lisp_cadr(current_object)) && (symbol_object->type == e_lisp_object_type_symbol)) {
             symbol_string = symbol_object->value_symbol;
@@ -528,20 +526,20 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
                 result = d_call(self, m_lisp_extend_environment, symbol_string, evaluated_object);
               } else
                 d_err(e_log_level_low, "(source %s:%d) malformed evaluation construct", d_string_cstring(lisp_attributes->string_name),
-                      ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
             } else
               d_err(e_log_level_low, "(source %s:%d) re-definition of an already existing symbol '%s'", d_string_cstring(lisp_attributes->string_name),
-                    ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), symbol_string);
+                ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0), symbol_string);
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed symbol, unreadable token", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_set]) {
           if ((symbol_object = d_call(self, m_lisp_retrieve_symbol, d_lisp_cadr(current_object), environment)) &&
               (result = d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment))) {
             symbol_object->cons.cdr = result;
           } else
             d_err(e_log_level_low, "(source %s:%d) undefined symbol / malformed evaluation construct", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_begin]) {
           if ((current_object = d_lisp_cdr(current_object))) {
             while (d_lisp_cdr(current_object)) {
@@ -564,7 +562,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
             }
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed symbol, unreadable token", d_string_cstring(lisp_attributes->string_name),
-                  ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+              ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
         }
         break;
     }

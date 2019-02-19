@@ -47,7 +47,7 @@ struct s_animation_attributes *p_animation_alloc(struct s_object *self);
 extern struct s_object *f_animation_new(struct s_object *self, int cycles, double time_ratio);
 d_declare_method(animation, append_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time);
 d_declare_method(animation, append_key_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time,
-                                              t_boolean key);
+  t_boolean key);
 d_declare_method(animation, set_status)(struct s_object *self, enum e_animation_directions status);
 d_declare_method(animation, get_status)(struct s_object *self);
 d_declare_method(animation, get_master_frame)(struct s_object *self, t_boolean key_frame);
@@ -58,7 +58,7 @@ d_declare_method(animation, set_maskRGB)(struct s_object *self, unsigned int red
 d_declare_method(animation, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(animation, set_blend)(struct s_object *self, enum e_drawable_blends blend);
 d_declare_method(animation, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
-                                            double focus_y, double current_w, double current_h, double zoom);
+  double focus_y, double current_w, double current_h, double zoom);
 d_declare_method(animation, keep_scale)(struct s_object *self, double current_w, double current_h);
 d_declare_method(animation, get_scaled_position)(struct s_object *self, double *x, double *y);
 d_declare_method(animation, get_scaled_center)(struct s_object *self, double *x, double *y);

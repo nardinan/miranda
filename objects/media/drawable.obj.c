@@ -85,15 +85,15 @@ d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *
   d_miranda_lock(environment) {
     SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
-                       square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
+      square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
-                       square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y);
+      square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y,
-                       square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
+      square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
-                       square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
+      square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
-                       square_attributes->top_left_x + center_x, square_attributes->top_left_y + center_y);
+      square_attributes->top_left_x + center_x, square_attributes->top_left_y + center_y);
   } d_miranda_unlock(environment);
   return self;
 }
@@ -110,7 +110,7 @@ d_define_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blen
   return self;
 }
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
-                                           double focus_y, double current_w, double current_h, double zoom) {
+  double focus_y, double current_w, double current_h, double zoom) {
   d_using(drawable);
   struct s_square_attributes *square_attributes;
   double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y;
