@@ -113,6 +113,29 @@ d_define_method(square, normalize)(struct s_object *self) {
   }
   return self;
 }
+d_define_method(square, get_normalized_coordinates)(struct s_object *self, double *top_left_x, double *top_left_y,
+  double *bottom_right_x, double *bottom_right_y) {
+  struct s_square_attributes *square_attributes = d_cast(self, square);
+  double position_x_min, position_y_min, position_x_max, position_y_max;
+  d_call(self, m_square_normalize, NULL);
+  position_x_min = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+    d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+  position_x_max = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
+    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+  position_y_min = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+    d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+  position_y_max = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
+    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+  if (top_left_x)
+    *top_left_x = position_x_min;
+  if (top_left_y)
+    *top_left_y = position_y_min;
+  if (bottom_right_x)
+    *bottom_right_x = position_x_max;
+  if (bottom_right_y)
+    *bottom_right_y = position_y_max;
+  return self;
+}
 d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
   struct s_point_attributes *point_attributes = d_cast(point, point);
   return d_call(self, m_square_inside_coordinates, point_attributes->x, point_attributes->y);
@@ -182,6 +205,7 @@ d_define_class(square) {d_hook_method(square, e_flag_public, set_square),
                         d_hook_method(square, e_flag_public, set_center),
                         d_hook_method(square, e_flag_private, normalize_coordinate),
                         d_hook_method(square, e_flag_public, normalize),
+                        d_hook_method(square, e_flag_public, get_normalized_coordinates),
                         d_hook_method(square, e_flag_public, inside),
                         d_hook_method(square, e_flag_public, inside_coordinates),
                         d_hook_method(square, e_flag_public, collision),
