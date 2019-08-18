@@ -105,6 +105,18 @@ d_define_method(array, remove)(struct s_object *self, size_t position) {
     d_throw(v_exception_bound, "index is bigger than array size");
   return result;
 }
+d_define_method(array, clear)(struct s_object *self) {
+  d_using(array);
+  size_t index;
+  for (index = 0; index < array_attributes->size; ++index) {
+    if (array_attributes->content[index]) {
+      d_delete(array_attributes->content[index]);
+      array_attributes->content[index] = NULL;
+    }
+  }
+  array_attributes->elements = 0;
+  return self;
+}
 d_define_method(array, push)(struct s_object *self, struct s_object *element) {
   d_using(array);
   size_t index;
@@ -198,6 +210,7 @@ d_define_method(array, compare)(struct s_object *self, struct s_object *other) {
 }
 d_define_class(array) {d_hook_method(array, e_flag_public, insert),
                        d_hook_method(array, e_flag_public, remove),
+                       d_hook_method(array, e_flag_public, clear),
                        d_hook_method(array, e_flag_public, push),
                        d_hook_method(array, e_flag_public, pop),
                        d_hook_method(array, e_flag_public, get),
