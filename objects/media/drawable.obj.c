@@ -169,8 +169,8 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
   square_attributes->bottom_right_x = (new_x + new_w);
   square_attributes->bottom_right_y = (new_y + new_h);
   square_attributes->angle = drawable_attributes->angle;
-  square_attributes->center_x = new_center_x;
-  square_attributes->center_y = new_center_y;
+  square_attributes->center_x = (new_center_x + new_x);
+  square_attributes->center_y = (new_center_y + new_y);
   square_attributes->normalized = d_false;
   d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
   return d_call(self, m_drawable_is_visible, current_w, current_h);
@@ -191,8 +191,8 @@ d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, d
   square_attributes->bottom_right_x = (this_x + this_w);
   square_attributes->bottom_right_y = (this_y + this_h);
   square_attributes->angle = drawable_attributes->angle;
-  square_attributes->center_x = this_center_x;
-  square_attributes->center_y = this_center_y;
+  square_attributes->center_x = (this_center_x + this_x);
+  square_attributes->center_y = (this_center_y + this_x);
   square_attributes->normalized = d_false;
   d_call(&(drawable_attributes->square_collision_box), m_square_normalize, NULL);
   return d_call(self, m_drawable_is_visible, current_w, current_h);

@@ -99,8 +99,8 @@ d_define_method(square, normalize)(struct s_object *self) {
   if (!square_attributes->normalized) {
     sin_radians = sin(radians);
     cos_radians = cos(radians);
-    normalized_center_x = square_attributes->top_left_x + square_attributes->center_x;
-    normalized_center_y = square_attributes->top_left_y + square_attributes->center_y;
+    normalized_center_x = square_attributes->center_x;
+    normalized_center_y = square_attributes->center_y;
     d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->top_left_y, normalized_center_x, normalized_center_y,
       sin_radians, cos_radians, &(square_attributes->normalized_top_left_x), &(square_attributes->normalized_top_left_y));
     d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->top_left_y, normalized_center_x, normalized_center_y,
@@ -146,8 +146,8 @@ d_define_method(square, inside_coordinates)(struct s_object *self, double x, dou
     normalized_center_y, normalized_x, normalized_y;
   t_boolean result = d_false;
   d_call(self, m_square_normalize, NULL);
-  normalized_center_x = square_attributes->top_left_x + square_attributes->center_x;
-  normalized_center_y = square_attributes->top_left_y + square_attributes->center_y;
+  normalized_center_x = square_attributes->center_x;
+  normalized_center_y = square_attributes->center_y;
   d_call(self, m_square_normalize_coordinate, x, y, normalized_center_x, normalized_center_y, sin_radians, cos_radians, &normalized_x, &normalized_y);
   if (((normalized_x >= square_attributes->top_left_x) && (normalized_x <= square_attributes->bottom_right_x)) &&
       ((normalized_y >= square_attributes->top_left_y) && (normalized_y <= square_attributes->bottom_right_y)))
