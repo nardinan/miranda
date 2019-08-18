@@ -170,6 +170,72 @@ d_define_method(polygon, normalize)(struct s_object *self) {
   }
   return self;
 }
+d_define_method(polygon, intersect_line)(struct s_object *self, struct s_object *other) {
+  struct s_line_attributes *line_attributes = d_cast(other, line);
+  return d_call(self, m_polygon_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x,
+    line_attributes->ending_y, NULL, NULL);
+}
+d_define_method(polygon, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
+  unsigned int *collisions) {
+  d_using(polygon);
+  struct s_object *point_current, *point_previous = NULL, *point_first = NULL;
+  double starting_x_A, starting_y_A, ending_x_A, ending_y_A, length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t, last_intersection_x = NAN,
+    last_intersection_y = NAN, first_intersection_x = NAN, first_intersection_y = NAN;
+  unsigned int collision_numbers = 0, index;
+  t_boolean result = d_false;
+  length_x_B = ending_x_B - starting_x_B;
+  length_y_B = ending_y_B - starting_y_B;
+  d_call(self, m_polygon_normalize, NULL);
+  d_array_foreach(&(polygon_attributes->array_normalized_points), point_current) {
+    if (point_previous) {
+      d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
+      d_call(point_current, m_point_get, &ending_x_A, &ending_y_A);
+      length_x_A = ending_x_A - starting_x_A;
+      length_y_A = ending_y_A - starting_y_A;
+      if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
+        s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
+        t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
+        if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
+          if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
+              (last_intersection_x != (starting_x_A + (t * length_x_A))) || (last_intersection_y != (starting_y_A + (t * length_y_A)))) {
+            ++collision_numbers;
+            last_intersection_x = (starting_x_A + (t * length_x_A));
+            last_intersection_y = (starting_y_A + (t * length_y_A));
+          }
+          if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y)) {
+            first_intersection_x = last_intersection_x;
+            first_intersection_y = last_intersection_y;
+          }
+          result = d_true;
+        }
+      }
+    }
+    if (!point_first)
+      point_first = point_current;
+    point_previous = point_current;
+  }
+  if ((point_first) && (point_previous) && (point_first != point_previous)) {
+    d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
+    d_call(point_first, m_point_get, &ending_x_A, &ending_y_A);
+    length_x_A = ending_x_A - starting_x_A;
+    length_y_A = ending_y_A - starting_y_A;
+    if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
+      s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
+      t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
+      if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
+        if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
+             (last_intersection_x != (starting_x_A + (t * length_x_A))) || (last_intersection_y != (starting_y_A + (t * length_y_A))))
+          if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y) ||
+              (first_intersection_x != (starting_x_A + (t * length_x_A))) || (first_intersection_y != (starting_y_A + (t * length_y_A))))
+            ++collision_numbers;
+        result = d_true;
+      }
+    }
+  }
+  if (collisions)
+    *collisions = collision_numbers;
+  d_cast_return(result);
+}
 d_define_method(polygon, delete)(struct s_object *self, struct s_polygon_attributes *attributes) {
   d_delete(&(attributes->array_points));
   d_delete(&(attributes->array_normalized_points));
@@ -188,5 +254,7 @@ d_define_class(polygon) {d_hook_method(polygon, e_flag_public, set_polygon),
                          d_hook_method(polygon, e_flag_public, set_angle),
                          d_hook_method(polygon, e_flag_public, normalize_coordinate),
                          d_hook_method(polygon, e_flag_public, normalize),
+                         d_hook_method(polygon, e_flag_public, intersect_line),
+                         d_hook_method(polygon, e_flag_public, intersect_coordinates),
                          d_hook_delete(polygon),
                          d_hook_method_tail};

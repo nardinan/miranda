@@ -19,6 +19,7 @@
 #define miranda_object_polygon_h
 #include "../array.obj.h"
 #include "point.obj.h"
+#include "line.obj.h"
 d_declare_class(polygon) {
   struct s_attributes head;
   struct s_object array_points, array_normalized_points;
@@ -44,5 +45,8 @@ d_declare_method(polygon, normalize_coordinate)(struct s_object *self, double x,
 d_declare_method(polygon, normalize)(struct s_object *self);
 d_declare_method(polygon, inside)(struct s_object *self, struct s_object *point);
 d_declare_method(polygon, inside_coordinates)(struct s_object *self, double x, double y);
+d_declare_method(polygon, intersect_line)(struct s_object *self, struct s_object *other);
+d_declare_method(polygon, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
+  unsigned int *collisions);
 d_declare_method(polygon, delete)(struct s_object *self, struct s_polygon_attributes *attributes);
 #endif
