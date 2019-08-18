@@ -20,4 +20,5 @@
 #include "point.obj.h"
 #include "line.obj.h"
 #include "square.obj.h"
+#include "polygon.obj.h"
 #endif
