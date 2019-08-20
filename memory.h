@@ -29,11 +29,7 @@
 #define d_malloc(siz) calloc(1,(siz))
 #define d_malloc_explicit(siz, f, l) calloc(1,(siz))
 #define d_realloc(p,siz) ((p)?realloc((p),(siz)):calloc(1,(siz)))
-#define d_free(ptr)\
-    do{\
-        if(ptr)\
-        free(ptr);\
-    }while(0)
+#define d_free(ptr) free(ptr)
 #endif
 #define d_memory_checksum 0xfacefeed
 #define d_explicit_result __attribute__ ((warn_unused_result))
