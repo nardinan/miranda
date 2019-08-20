@@ -124,4 +124,13 @@ void f_primitive_fill_polygon(SDL_Renderer *renderer, int *x, int *y, size_t ent
       }
     }
 }
+void f_primitive_fill_circle(SDL_Renderer *renderer, int x, int y, int radius, int red, int green, int blue, int alpha) {
+  double dx, dy, current_position_x = x, current_position_y = y;
+  SDL_SetRenderDrawColor(renderer, red, green, blue, alpha);
+  for (dy = 1.0; dy <= (double)radius; dy += 1.0) {
+    dx = floor(f_math_sqrt((2.0 * radius * dy) - (dy * dy), d_math_default_precision));
+    SDL_RenderDrawLine(renderer, (current_position_x - dx), (current_position_y + dy - radius), (current_position_x + dx), (current_position_y + dy - radius));
+    SDL_RenderDrawLine(renderer, (current_position_x - dx), (current_position_y - dy + radius), (current_position_x + dx), (current_position_y - dy + radius));
+  }
+}
 

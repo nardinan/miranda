@@ -31,6 +31,7 @@ extern struct s_object *f_point_new(struct s_object *self, double x, double y);
 d_declare_method(point, set_point)(struct s_object *self, struct s_object *source);
 d_declare_method(point, set_x)(struct s_object *self, double x);
 d_declare_method(point, set_y)(struct s_object *self, double y);
+d_declare_method(point, set)(struct s_object *self, double x, double y);
 d_declare_method(point, get)(struct s_object *self, double *x, double *y);
 d_declare_method(point, add)(struct s_object *self, double x, double y);
 d_declare_method(point, subtract)(struct s_object *self, double x, double y);

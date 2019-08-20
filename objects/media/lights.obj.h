@@ -17,6 +17,8 @@
  */
 #ifndef miranda_media_lights_h
 #define miranda_media_lights_h
+#define d_lights_default_contour_color 255, 255, 0, 255
+#define d_lights_default_contour_radius 5
 #include "bitmap.obj.h"
 struct s_lights_emitter;
 typedef void (*t_lights_intensity_modulator)(struct s_lights_emitter *emitter);
@@ -30,7 +32,7 @@ typedef struct s_lights_emitter {
 } s_lights_emitter;
 typedef struct s_lights_emitter_description {
   d_list_node_head;
-  double position_x, position_y, distance, radius, intensity;
+  double position_x, position_y, distance, radius, intensity, mask_R, mask_G, mask_B;
 } s_lights_emitter_description;
 d_declare_class(lights) {
   struct s_attributes head;
@@ -50,6 +52,7 @@ d_declare_method(lights, set_intensity)(struct s_object *self, unsigned char int
 d_declare_method(lights, get_intensity)(struct s_object *self);
 d_declare_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment);
 d_declare_method(lights, draw)(struct s_object *self, struct s_object *environment);
+d_declare_method(lights, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(lights, is_visible)(struct s_object *self, double current_w, double current_h);
 d_declare_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes);
 #endif

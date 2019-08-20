@@ -45,6 +45,12 @@ d_define_method(point, set_y)(struct s_object *self, double y) {
   point_attributes->y = y;
   return self;
 }
+d_define_method(point, set)(struct s_object *self, double x, double y) {
+  d_using(point);
+  point_attributes->x = x;
+  point_attributes->y = y;
+  return self;
+}
 d_define_method(point, get)(struct s_object *self, double *x, double *y) {
   d_using(point);
   if (x)
@@ -104,6 +110,7 @@ d_define_method(point, rotate_pivot)(struct s_object *self, double angle, struct
 d_define_class(point) {d_hook_method(point, e_flag_public, set_point),
                        d_hook_method(point, e_flag_public, set_x),
                        d_hook_method(point, e_flag_public, set_y),
+                       d_hook_method(point, e_flag_public, set),
                        d_hook_method(point, e_flag_public, get),
                        d_hook_method(point, e_flag_public, add),
                        d_hook_method(point, e_flag_public, subtract),

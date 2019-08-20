@@ -85,10 +85,12 @@ add_library(miranda_geometry SHARED
         objects/geometry/point.obj.c
         objects/geometry/point.obj.h
         objects/geometry/square.obj.c
-        objects/geometry/square.obj.h)
+        objects/geometry/square.obj.h
+        objects/geometry/polygon.obj.h
+        objects/geometry/polygon.obj.c)
 string(CONCAT miranda_geometry_properties
         "objects/geometry/geometry.h;"
-        "objects/geometry/line.obj.h;objects/geometry/point.obj.h;objects/geometry/square.obj.h")
+        "objects/geometry/line.obj.h;objects/geometry/point.obj.h;objects/geometry/square.obj.h;objects/geometry/polygon.obj.h")
 set_target_properties(miranda_geometry PROPERTIES PUBLIC_HEADER "${miranda_geometry_properties}")
 INSTALL(TARGETS miranda_geometry
         LIBRARY DESTINATION /usr/local/lib

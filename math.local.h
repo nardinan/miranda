@@ -23,7 +23,7 @@
 #define d_math_two_pi 6.28318530718
 #define d_math_pi 3.14159265359
 #define d_math_half_pi 1.57079632679
-#define d_math_default_precision 0.0001
+#define d_math_default_precision 0.1
 #define d_math_radians_conversion 0.0174533
 #define d_math_frand (((double)(rand()%1000))/1000.0)
 #define d_math_square(a) ((a)*(a))
