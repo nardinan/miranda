@@ -39,6 +39,7 @@ d_declare_method(array, pop)(struct s_object *self);
 d_declare_method(array, get)(struct s_object *self, size_t position);
 d_declare_method(array, reset)(struct s_object *self);
 d_declare_method(array, next)(struct s_object *self);
+d_declare_method(array, sort)(struct s_object *self, struct s_object *payload, int (*comparator)(void *, const void *, const void *));
 #define d_array_foreach(o, v) for(d_call((o),m_array_reset,NULL),(v)=d_call((o),m_array_next,NULL);(v);(v)=d_call((o),m_array_next,NULL))
 d_declare_method(array, size)(struct s_object *self, size_t *size);
 d_declare_method(array, delete)(struct s_object *self, struct s_array_attributes *attributes);

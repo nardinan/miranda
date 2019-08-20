@@ -108,12 +108,11 @@ d_define_method(array, remove)(struct s_object *self, size_t position) {
 d_define_method(array, clear)(struct s_object *self) {
   d_using(array);
   size_t index;
-  for (index = 0; index < array_attributes->size; ++index) {
+  for (index = 0; index < array_attributes->size; ++index)
     if (array_attributes->content[index]) {
       d_delete(array_attributes->content[index]);
       array_attributes->content[index] = NULL;
     }
-  }
   array_attributes->elements = 0;
   return self;
 }
@@ -161,6 +160,11 @@ d_define_method(array, next)(struct s_object *self) {
   if (array_attributes->pointer < array_attributes->size)
     result = array_attributes->content[array_attributes->pointer++];
   return result;
+}
+d_define_method(array, sort)(struct s_object *self, struct s_object *payload, int (*comparator)(void *, const void *, const void *)) {
+  d_using(array);
+  qsort_r(array_attributes->content, array_attributes->size, sizeof(struct s_object *), payload, comparator);
+  return self;
 }
 d_define_method(array, size)(struct s_object *self, size_t *size) {
   d_using(array);
@@ -216,6 +220,7 @@ d_define_class(array) {d_hook_method(array, e_flag_public, insert),
                        d_hook_method(array, e_flag_public, get),
                        d_hook_method(array, e_flag_public, reset),
                        d_hook_method(array, e_flag_public, next),
+                       d_hook_method(array, e_flag_public, sort),
                        d_hook_method(array, e_flag_public, size),
                        d_hook_delete(array),
                        d_hook_hash(array),
