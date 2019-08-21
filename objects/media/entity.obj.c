@@ -101,8 +101,8 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
 }
 d_define_method(entity, collision)(struct s_object *self, struct s_object *entity) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core = d_cast(entity, drawable);
-  t_boolean
-    collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision, &(drawable_attributes_core->square_collision_box));
+  t_boolean collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision,
+    &(drawable_attributes_core->square_collision_box));
   d_cast_return(collision);
 }
 d_define_method(entity, interact)(struct s_object *self, struct s_object *entity) {
