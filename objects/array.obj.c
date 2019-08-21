@@ -52,7 +52,7 @@ struct s_object *f_array_new_args(struct s_object *self, size_t size, va_list pa
     for (index = 0; index < size; ++index)
       if ((object = va_arg(parameters, struct s_object *))) {
         attributes->content[index] = d_retain(object);
-        attributes->elements++;
+        ++(attributes->elements);
       }
   } else
     d_die(d_error_malloc);
@@ -84,7 +84,7 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
     }
     if (element) {
       array_attributes->content[position] = d_retain(element);
-      array_attributes->elements++;
+      ++(array_attributes->elements);
     } else
       array_attributes->content[position] = NULL;
   } else
@@ -98,7 +98,7 @@ d_define_method(array, remove)(struct s_object *self, size_t position) {
     if ((result = array_attributes->content[position])) {
       d_delete(result);
       array_attributes->content[position] = NULL;
-      array_attributes->elements--;
+      --(array_attributes->elements);
       result = self;
     }
   } else
@@ -129,14 +129,15 @@ d_define_method(array, push)(struct s_object *self, struct s_object *element) {
 }
 d_define_method(array, pop)(struct s_object *self) {
   d_using(array);
-  size_t shift, next;
-  struct s_object *result = NULL;
-  for (shift = 0; shift < array_attributes->size; ++shift)
-    if ((result = array_attributes->content[shift]))
+  struct s_object *result;
+  size_t index;
+  for (index = (array_attributes->size - 1); index > 0; --index)
+    if (array_attributes->content[index])
       break;
-  for (next = (shift + 1); next < array_attributes->size; ++next) {
-    array_attributes->content[next - (shift + 1)] = array_attributes->content[next];
-    array_attributes->content[next] = NULL;
+  if ((result = array_attributes->content[index])) {
+    d_delete(result);
+    array_attributes->content[index] = NULL;
+    --(array_attributes->elements);
   }
   return result;
 }
@@ -163,7 +164,7 @@ d_define_method(array, next)(struct s_object *self) {
 }
 d_define_method(array, sort)(struct s_object *self, struct s_object *payload, int (*comparator)(void *, const void *, const void *)) {
   d_using(array);
-  qsort_r(array_attributes->content, array_attributes->size, sizeof(struct s_object *), payload, comparator);
+  qsort_r(array_attributes->content, array_attributes->elements, sizeof(struct s_object *), payload, comparator);
   return self;
 }
 d_define_method(array, size)(struct s_object *self, size_t *size) {

@@ -23,7 +23,7 @@
 #define d_exception_kind_size 64
 #define d_exception_file_size 64
 #define d_exception_function_size 64
-#define d_exception_description_size 128
+#define d_exception_description_size 256
 #define d_try\
     do{\
         jmp_buf _local_hook, *_last_hook=v_exception_hook;\

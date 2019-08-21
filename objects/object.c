@@ -55,11 +55,12 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
   pthread_mutex_unlock(&(object->lock));
   if (result) {
     if ((result->flag == e_flag_private) && (result->file != file)) {
-      snprintf(buffer, d_string_buffer_size, "method '%s' is private and you are out of context (%s, %d)", symbol, file, line);
+      snprintf(buffer, d_string_buffer_size, "method '%s' is private in object %s and you are out of context (%s, %d)", symbol, object->type, file, line);
       d_throw(v_exception_private_method, buffer);
     }
   } else {
-    snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined or it is a member of another class (%s, %d)", symbol, file, line);
+    snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined in object %s or it is a member of another class (%s, %d)", symbol,
+      object->type, file, line);
     d_throw(v_exception_undefined_method, buffer);
   }
   return result;

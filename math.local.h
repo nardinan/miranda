@@ -29,6 +29,7 @@
 #define d_math_square(a) ((a)*(a))
 #define d_math_min(a, b) (((a)<(b))?(a):(b))
 #define d_math_max(a, b) (((a)<(b))?(b):(a))
+#define d_math_double_different(a, b) (fabs(a-b)>0.000001)
 extern float f_math_mean(float *values, size_t elements);
 extern float f_math_sqrt(float value, float precision);
 extern float f_math_rms(float *values, size_t elements, float precision);
