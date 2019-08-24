@@ -164,7 +164,7 @@ d_define_method(array, next)(struct s_object *self) {
 }
 d_define_method(array, sort)(struct s_object *self, struct s_object *payload, int (*comparator)(void *, const void *, const void *)) {
   d_using(array);
-  qsort_r(array_attributes->content, array_attributes->elements, sizeof(struct s_object *), payload, comparator);
+  qsort_r(array_attributes->content, array_attributes->size, sizeof(struct s_object *), payload, comparator);
   return self;
 }
 d_define_method(array, size)(struct s_object *self, size_t *size) {
