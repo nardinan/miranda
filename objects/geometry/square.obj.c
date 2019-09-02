@@ -154,6 +154,28 @@ d_define_method(square, inside_coordinates)(struct s_object *self, double x, dou
     result = d_true;
   d_cast_return(result);
 }
+d_define_method(square, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
+  double *collision_x, double *collision_y) {
+  d_using(square);
+  t_boolean result = d_false;
+  d_call(self, m_square_normalize, NULL);
+  if (!(result = f_line_intersection(square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
+    square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
+    collision_y))) {
+    if (!(result = f_line_intersection(square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
+      square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
+      collision_x, collision_y))) {
+      if (!(result = f_line_intersection(square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y,
+        square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
+        collision_x, collision_y))) {
+        result = f_line_intersection(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
+          square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
+          collision_y);
+      }
+    }
+  }
+  d_cast_return(result);
+}
 d_define_method(square, collision)(struct s_object *self, struct s_object *other) {
   d_using(square);
   struct s_square_attributes *square_attributes_other = d_cast(other, square);
@@ -208,5 +230,6 @@ d_define_class(square) {d_hook_method(square, e_flag_public, set_square),
                         d_hook_method(square, e_flag_public, get_normalized_coordinates),
                         d_hook_method(square, e_flag_public, inside),
                         d_hook_method(square, e_flag_public, inside_coordinates),
+                        d_hook_method(square, e_flag_public, intersect_coordinates),
                         d_hook_method(square, e_flag_public, collision),
                         d_hook_method_tail};

@@ -39,6 +39,8 @@ d_declare_method(square, get_normalized_coordinates)(struct s_object *self, doub
   double *bottom_right_x, double *bottom_right_y);
 d_declare_method(square, inside)(struct s_object *self, struct s_object *point);
 d_declare_method(square, inside_coordinates)(struct s_object *self, double x, double y);
+d_declare_method(square, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
+  double *collision_x, double *collision_y);
 d_declare_method(square, collision)(struct s_object *self, struct s_object *other);
 #endif
 
