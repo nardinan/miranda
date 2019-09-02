@@ -63,7 +63,7 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->current_mask_R = current_emitter->original_mask_R = mask_R;
     current_emitter->current_mask_G = current_emitter->original_mask_G = mask_G;
     current_emitter->current_mask_B = current_emitter->original_mask_B = mask_B;
-    current_emitter->current_radius = current_emitter->original_radius = radius;
+    current_emitter->current_radius = radius;
     current_emitter->modulator = modulator;
     current_emitter->alignment = alignment;
     current_emitter->reference = d_retain(reference);
@@ -194,6 +194,8 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
       camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
       camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
+      d_call(current_emitter->mask, m_drawable_get_scaled_position, &(current_emitter->last_normalized_x), &(current_emitter->last_normalized_y));
+      d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &(current_emitter->last_normalized_w), &(current_emitter->last_normalized_h));
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
       intensity_modifier = (current_emitter->current_intensity / 255.0);
@@ -212,17 +214,30 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
 }
 d_define_method_override(lights, draw_contour)(struct s_object *self, struct s_object *environment) {
   d_using(lights);
+  SDL_Rect rectangle_forward, rectangle_background;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-  double position_x, position_y, dimension_w, dimension_h;
+  double position_x, position_y;
   struct s_lights_emitter *current_emitter;
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
-    d_call(current_emitter->mask, m_drawable_get_scaled_position, &position_x, &position_y);
-    d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &dimension_w, &dimension_h);
-    position_x += (dimension_w / 2.0);
-    position_y += (dimension_h / 2.0);
+    position_x = current_emitter->last_normalized_x + (current_emitter->last_normalized_w / 2.0);
+    position_y = current_emitter->last_normalized_y + (current_emitter->last_normalized_h / 2.0);
+    rectangle_forward.x = (position_x - (d_lights_default_contour_width / 2.0));
+    rectangle_forward.y = (position_y + d_lights_default_contour_radius);
+    rectangle_forward.w = d_lights_default_contour_width;
+    rectangle_forward.h = d_lights_default_contour_height;
+    rectangle_background.x = rectangle_forward.x - 1;
+    rectangle_background.y = rectangle_forward.y - 1;
+    rectangle_background.w = rectangle_forward.w + 2;
+    rectangle_background.h = rectangle_forward.h + 2;
     d_miranda_lock(environment) {
-      f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, d_lights_default_contour_radius,
-        d_lights_default_contour_color);
+      SDL_SetRenderDrawColor(environment_attributes->renderer, d_lights_default_contour_color_background);
+      SDL_RenderFillRect(environment_attributes->renderer, &rectangle_background);
+      SDL_SetRenderDrawColor(environment_attributes->renderer, d_lights_default_contour_color_body);
+      SDL_RenderFillRect(environment_attributes->renderer, &rectangle_forward);
+      f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, (d_lights_default_contour_radius + 1),
+        d_lights_default_contour_color_background);
+      f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, d_lights_default_contour_radius, current_emitter->current_mask_R,
+        current_emitter->current_mask_G, current_emitter->current_mask_B, 255.0);
     } d_miranda_unlock(environment);
   }
   return self;

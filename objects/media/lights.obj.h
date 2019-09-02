@@ -17,8 +17,11 @@
  */
 #ifndef miranda_media_lights_h
 #define miranda_media_lights_h
-#define d_lights_default_contour_color 255, 255, 0, 255
-#define d_lights_default_contour_radius 5
+#define d_lights_default_contour_color_background 0, 0, 0, 255
+#define d_lights_default_contour_color_body 100, 100, 100, 255
+#define d_lights_default_contour_radius 8
+#define d_lights_default_contour_width 6
+#define d_lights_default_contour_height 6
 #include "bitmap.obj.h"
 struct s_lights_emitter;
 typedef void (*t_lights_intensity_modulator)(struct s_lights_emitter *emitter);
@@ -26,7 +29,7 @@ typedef struct s_lights_emitter {
   d_list_node_head;
   struct s_object *mask, *reference;
   unsigned char original_intensity, current_intensity, original_mask_R, original_mask_G, original_mask_B, current_mask_R, current_mask_G, current_mask_B;
-  double original_radius, current_radius;
+  double current_radius, last_normalized_x, last_normalized_y, last_normalized_w, last_normalized_h;
   enum e_drawable_alignments alignment;
   t_lights_intensity_modulator modulator; /* isn't mandatory */
 } s_lights_emitter;
