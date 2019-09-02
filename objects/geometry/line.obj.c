@@ -16,6 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "line.obj.h"
+t_boolean f_line_intersection(double starting_x_A, double starting_y_A, double ending_x_A, double ending_y_A, double starting_x_B, double starting_y_B,
+  double ending_x_B, double ending_y_B, double *collision_x, double *collision_y) {
+  double length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t;
+  t_boolean result = d_false;
+  length_x_A = ending_x_A - starting_x_A;
+  length_y_A = ending_y_A - starting_y_A;
+  length_x_B = ending_x_B - starting_x_B;
+  length_y_B = ending_y_B - starting_y_B;
+  if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
+    s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
+    t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
+    if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
+      if (collision_x)
+        *collision_x = (starting_x_A + (t * length_x_A));
+      if (collision_y)
+        *collision_y = (starting_y_A + (t * length_y_A));
+      result = d_true;
+    }
+  }
+  return result;
+}
 struct s_line_attributes *p_line_alloc(struct s_object *self) {
   struct s_line_attributes *result = d_prepare(self, line);
   f_memory_new(self);   /* inherit */
@@ -93,23 +114,9 @@ d_define_method(line, intersect_coordinates)(struct s_object *self, double start
   double *collision_x, double *collision_y) {
   d_using(line);
   double starting_x_A = line_attributes->starting_x, starting_y_A = line_attributes->starting_y, ending_x_A = line_attributes->ending_x,
-    ending_y_A = line_attributes->ending_y, length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t;
-  t_boolean result = d_false;
-  length_x_A = ending_x_A - starting_x_A;
-  length_y_A = ending_y_A - starting_y_A;
-  length_x_B = ending_x_B - starting_x_B;
-  length_y_B = ending_y_B - starting_y_B;
-  if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
-    s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
-    t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
-    if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
-      if (collision_x)
-        *collision_x = (starting_x_A + (t * length_x_A));
-      if (collision_y)
-        *collision_y = (starting_y_A + (t * length_y_A));
-      result = d_true;
-    }
-  }
+    ending_y_A = line_attributes->ending_y;
+  t_boolean result = f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
+    collision_y);
   d_cast_return(result);
 }
 d_define_class(line) {d_hook_method(line, e_flag_public, set_starting),
