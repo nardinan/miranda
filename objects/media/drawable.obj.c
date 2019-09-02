@@ -205,7 +205,8 @@ d_define_method(drawable, is_visible)(struct s_object *self, double current_w, d
     if ((drawable_attributes->flags & e_drawable_kind_force_visibility) != e_drawable_kind_force_visibility) {
       d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
       d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &width, &height);
-      distance_object = (d_math_square((position_x + (width / 2.0)) - (current_w / 2.0)) + d_math_square((position_y + (height / 2.0)) - (current_h / 2.0)));
+      distance_object = d_point_square_distance((position_x + (width/2.0)), (position_y + (height / 2.0)), (current_w / 2.0),
+        (current_h / 2.0));
       diagonal_screen = (d_math_square(current_w) + d_math_square(current_h));
       diagonal_object = (d_math_square(width) + d_math_square(height));
       if (distance_object > ((diagonal_screen / 2.0) + (diagonal_object / 2.0)))
