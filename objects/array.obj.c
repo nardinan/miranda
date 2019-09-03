@@ -28,7 +28,10 @@ struct s_object *f_array_new(struct s_object *self, size_t size) {
 }
 struct s_object *f_array_new_bucket(struct s_object *self, size_t size, size_t bucket) {
   struct s_array_attributes *attributes = p_array_alloc(self);
+  if (size < d_array_bucket)
+    size = d_array_bucket;
   if ((attributes->content = (struct s_object **)d_malloc(size * sizeof(struct s_object *)))) {
+    memset(attributes->content, 0, (size * sizeof(struct s_object *)));
     attributes->size = size;
     attributes->bucket = bucket;
   } else
@@ -45,9 +48,12 @@ struct s_object *f_array_new_list(struct s_object *self, size_t size, ...) {
 struct s_object *f_array_new_args(struct s_object *self, size_t size, va_list parameters) {
   struct s_array_attributes *attributes = p_array_alloc(self);
   struct s_object *object;
-  size_t index;
-  if ((attributes->content = (struct s_object **)d_malloc(size * sizeof(struct s_object *)))) {
-    attributes->size = size;
+  size_t index, required_size = size;
+  if (required_size < d_array_bucket)
+    required_size = d_array_bucket;
+  if ((attributes->content = (struct s_object **)d_malloc(required_size * sizeof(struct s_object *)))) {
+    memset(attributes->content, 0, (required_size * sizeof(struct s_object *)));
+    attributes->size = required_size;
     attributes->bucket = d_array_bucket;
     for (index = 0; index < size; ++index)
       if ((object = va_arg(parameters, struct s_object *))) {
@@ -60,6 +66,7 @@ struct s_object *f_array_new_args(struct s_object *self, size_t size, va_list pa
 }
 d_define_method(array, insert)(struct s_object *self, struct s_object *element, size_t position) {
   d_using(array);
+  char buffer[d_string_buffer_size];
   if (position <= array_attributes->size) {
     if (position == array_attributes->size) {
       if ((array_attributes->content =
@@ -87,12 +94,15 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
       ++(array_attributes->elements);
     } else
       array_attributes->content[position] = NULL;
-  } else
-    d_throw(v_exception_bound, "index is bigger than array size");
+  } else {
+    snprintf(buffer, d_string_buffer_size, "index (%zu) is bigger than array size (%zu)", position, array_attributes->size);
+    d_throw(v_exception_bound, buffer);
+  }
   return self;
 }
 d_define_method(array, remove)(struct s_object *self, size_t position) {
   d_using(array);
+  char buffer[d_string_buffer_size];
   struct s_object *result = NULL;
   if (position < array_attributes->size) {
     if ((result = array_attributes->content[position])) {
@@ -101,8 +111,10 @@ d_define_method(array, remove)(struct s_object *self, size_t position) {
       --(array_attributes->elements);
       result = self;
     }
-  } else
-    d_throw(v_exception_bound, "index is bigger than array size");
+  } else {
+    snprintf(buffer, d_string_buffer_size, "index (%zu) is bigger than array size (%zu)", position, array_attributes->size);
+    d_throw(v_exception_bound, buffer);
+  }
   return result;
 }
 d_define_method(array, clear)(struct s_object *self) {
@@ -118,26 +130,39 @@ d_define_method(array, clear)(struct s_object *self) {
 }
 d_define_method(array, push)(struct s_object *self, struct s_object *element) {
   d_using(array);
-  size_t index;
-  for (index = (array_attributes->size - 1); index > 0; --index)
+  struct s_exception *exception;
+  size_t index = 0;
+  if (array_attributes->size > 0) {
+    for (index = (array_attributes->size - 1); index > 0; --index)
+      if (array_attributes->content[index])
+        break;
     if (array_attributes->content[index])
-      break;
-  if (array_attributes->content[index])
-    ++index;
-  d_call(self, m_array_insert, element, index);
+      ++index;
+  }
+  d_try
+      {
+        d_call(self, m_array_insert, element, index);
+      }
+    d_catch(exception)
+      {
+        d_exception_dump(stderr, exception);
+        d_raise;
+      }
+  d_endtry;
   return self;
 }
 d_define_method(array, pop)(struct s_object *self) {
   d_using(array);
-  struct s_object *result;
+  struct s_object *result = NULL;
   size_t index;
-  for (index = (array_attributes->size - 1); index > 0; --index)
-    if (array_attributes->content[index])
-      break;
-  if ((result = array_attributes->content[index])) {
-    d_delete(result);
-    array_attributes->content[index] = NULL;
-    --(array_attributes->elements);
+  if (array_attributes->size > 0) {
+    for (index = (array_attributes->size - 1); index > 0; --index)
+      if (array_attributes->content[index])
+        break;
+    if ((result = array_attributes->content[index])) {
+      array_attributes->content[index] = NULL;
+      --(array_attributes->elements);
+    }
   }
   return result;
 }
