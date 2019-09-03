@@ -18,9 +18,9 @@
 #ifndef miranda_drawable_chaser_h
 #define miranda_drawable_chaser_h
 #include "../camera_controller.obj.h"
-#define d_drawable_chaser_default_minimum_speed 2.0           /* pixels per second */
-#define d_drawable_chaser_default_maximum_speed 100.0         /* pixels per second */
-#define d_drawable_chaser_default_acceleration_distance 300.0 /* pixels per second */
+#define d_drawable_chaser_default_minimum_speed 50.0           /* pixels per second */
+#define d_drawable_chaser_default_maximum_speed 300.0          /* pixels per second */
+#define d_drawable_chaser_default_acceleration_distance 300.0  /* pixels per second */
 d_declare_class(drawable_chaser) {
   struct s_attributes head;
   double offset_x, offset_y, offset_z, destination_x, destination_y, destination_z, minimum_speed, maximum_speed, acceleration_distance;
