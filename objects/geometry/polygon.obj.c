@@ -247,36 +247,27 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
   unsigned int *collisions) {
   d_using(polygon);
   struct s_object *point_current, *point_previous = NULL, *point_first = NULL;
-  double starting_x_A, starting_y_A, ending_x_A, ending_y_A, length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t, last_intersection_x = NAN,
-    last_intersection_y = NAN, first_intersection_x = NAN, first_intersection_y = NAN, proposed_x, proposed_y;
+  double starting_x_A, starting_y_A, ending_x_A, ending_y_A, last_intersection_x = NAN, last_intersection_y = NAN, first_intersection_x = NAN,
+    first_intersection_y = NAN, proposed_x, proposed_y;
   unsigned int collision_numbers = 0;
   t_boolean result = d_false;
-  length_x_B = ending_x_B - starting_x_B;
-  length_y_B = ending_y_B - starting_y_B;
   d_call(self, m_polygon_normalize, NULL);
   d_array_foreach(polygon_attributes->array_normalized_points, point_current) {
     if (point_previous) {
       d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
       d_call(point_current, m_point_get, &ending_x_A, &ending_y_A);
-      length_x_A = ending_x_A - starting_x_A;
-      length_y_A = ending_y_A - starting_y_A;
-      if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
-        s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
-        t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
-        if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
-          proposed_x = starting_x_A + (t * length_x_A);
-          proposed_y = starting_y_A + (t * length_y_A);
-          if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
-              (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
-            ++collision_numbers;
-          if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y)) {
-            first_intersection_x = proposed_x;
-            first_intersection_y = proposed_y;
-          }
-          last_intersection_x = proposed_x;
-          last_intersection_y = proposed_y;
-          result = d_true;
+      if (f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, &proposed_x,
+        &proposed_y)) {
+        if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
+            (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
+          ++collision_numbers;
+        if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y)) {
+          first_intersection_x = proposed_x;
+          first_intersection_y = proposed_y;
         }
+        last_intersection_x = proposed_x;
+        last_intersection_y = proposed_y;
+        result = d_true;
       }
     }
     if (!point_first)
@@ -286,21 +277,13 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
   if ((point_first) && (point_previous) && (point_first != point_previous)) {
     d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
     d_call(point_first, m_point_get, &ending_x_A, &ending_y_A);
-    length_x_A = ending_x_A - starting_x_A;
-    length_y_A = ending_y_A - starting_y_A;
-    if (fabs((determinant = (-length_x_B * length_y_A + length_x_A * length_y_B))) > 1e-20) {
-      s = (-length_y_A * (starting_x_A - starting_x_B) + length_x_A * (starting_y_A - starting_y_B)) / determinant;
-      t = (length_x_B * (starting_y_A - starting_y_B) - length_y_B * (starting_x_A - starting_x_B)) / determinant;
-      if ((s >= 0) && (s <= 1) && (t >= 0) && (t <= 1)) {
-        proposed_x = starting_x_A + (t * length_x_A);
-        proposed_y = starting_y_A + (t * length_y_A);
-        if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
-             (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
-          if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y) ||
-              (d_math_double_different(first_intersection_x, proposed_x)) || (d_math_double_different(first_intersection_y, proposed_y)))
-            ++collision_numbers;
-        result = d_true;
-      }
+    if (f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, &proposed_x, &proposed_y)) {
+      if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
+          (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
+        if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y) ||
+            (d_math_double_different(first_intersection_x, proposed_x)) || (d_math_double_different(first_intersection_y, proposed_y)))
+          ++collision_numbers;
+      result = d_true;
     }
   }
   if (collisions)
