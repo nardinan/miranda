@@ -42,7 +42,6 @@ void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket) {
 void f_memory_bucket_destroy(struct s_memory_buckets **buckets) {
   struct s_hash_bucket *current_table = (*buckets)->hash->table, *item;
   t_hash_value elements = (*buckets)->hash->mask;
-  size_t index;
   for (; elements >= 0; --elements) {
     item = &current_table[elements];
     if (item->kind == e_hash_kind_fill)
@@ -53,19 +52,15 @@ void f_memory_bucket_destroy(struct s_memory_buckets **buckets) {
 }
 void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, void *memory) {
   void *result = NULL;
-  struct s_memory_bucket *bucket;
+  struct s_memory_bucket *bucket = NULL;
   struct s_hash_bucket old_value;
-  size_t index;
   if (!(bucket = f_hash_get(buckets->hash, (void *)type))) {
+    printf("Create the bucket for %s\n", type);
     if ((bucket = (struct s_memory_bucket *)d_malloc(sizeof(struct s_memory_bucket)))) {
       memset(bucket, 0, sizeof(struct s_memory_bucket));
-      bucket->entries = 0;
       if (f_hash_insert(buckets->hash, (void *)type, bucket, d_true, &old_value)) {
         if (old_value.kind == e_hash_kind_fill)
           f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(old_value.value));
-      } else {
-        d_free(bucket);
-        bucket = NULL;
       }
     } else
       d_die(d_error_malloc);
@@ -73,10 +68,11 @@ void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, v
   if (bucket) {
     if (bucket->entries >= d_memory_bucket_slots) {
       result = bucket->pointers[0];
-      memmove(bucket->pointers, (bucket->pointers + sizeof(void *)), ((d_memory_bucket_slots - 1) * sizeof(void *)));
+      memmove(&(bucket->pointers[0]), &(bucket->pointers[1]), ((d_memory_bucket_slots - 1) * sizeof(void *)));
       bucket->pointers[d_memory_bucket_slots - 1] = memory;
-    } else
+    } else {
       bucket->pointers[bucket->entries++] = memory;
+    }
   }
   return result;
 }
