@@ -22,18 +22,22 @@ t_hash_value f_memory_bucket_hash(const char *key) {
 int f_memory_bucket_compare(const char *left, const char *right) {
   return (intptr_t)(left-right);
 }
-void f_memory_bucket_init(struct s_memory_buckets **buckets) {
-  if ((*buckets = (struct s_memory_buckets *)d_malloc(sizeof(struct s_memory_buckets))))
+void f_memory_bucket_init(struct s_memory_buckets **buckets, t_memory_bucket_delete *delete_operator) {
+  if ((*buckets = (struct s_memory_buckets *)d_malloc(sizeof(struct s_memory_buckets)))) {
     f_hash_init(&((*buckets)->hash), (t_hash_compare *)&f_memory_bucket_compare, (t_hash_calculate *)&f_memory_bucket_hash);
-  else
+    (*buckets)->delete_operator = delete_operator;
+  } else
     d_die(d_error_malloc);
 }
-void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket) {
+void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket, t_memory_bucket_delete *delete_operator) {
   size_t index;
   for (index = 0; index < d_memory_bucket_slots; ++index) {
-    if ((*bucket)->pointers[index])
-      d_free((*bucket)->pointers[index]);
-    else
+    if ((*bucket)->pointers[index]) {
+      if (delete_operator) {
+        delete_operator((*bucket)->pointers[index]);
+        (*bucket)->pointers[index] = NULL;
+      }
+    } else
       break;
   }
   d_free((*bucket));
@@ -41,14 +45,21 @@ void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket) {
 }
 void f_memory_bucket_destroy(struct s_memory_buckets **buckets) {
   struct s_hash_bucket *current_table = (*buckets)->hash->table, *item;
+  struct s_memory_bucket *current_element;
   t_hash_value elements = (*buckets)->hash->mask;
   for (; elements >= 0; --elements) {
     item = &current_table[elements];
-    if (item->kind == e_hash_kind_fill)
-      f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(item->value));
+    if (item->kind == e_hash_kind_fill) {
+      current_element = (struct s_memory_bucket *)(item->value);
+      if (current_element->projected_bucket_slots > 0)
+        d_log(e_log_level_medium, "Memory queue for type %s is currently %zu, while shall be probably increased by %zu elements to have better performances",
+          (const char *)item->key, d_memory_bucket_slots, current_element->projected_bucket_slots);
+      f_memory_bucket_destroy_single_bucket(&current_element, (*buckets)->delete_operator);
+    }
   }
   f_hash_destroy(&((*buckets)->hash));
   d_free(*buckets);
+  *buckets = NULL;
 }
 void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, void *memory) {
   void *result = NULL;
@@ -59,7 +70,7 @@ void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, v
       memset(bucket, 0, sizeof(struct s_memory_bucket));
       if (f_hash_insert(buckets->hash, (void *)type, bucket, d_true, &old_value)) {
         if (old_value.kind == e_hash_kind_fill)
-          f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(old_value.value));
+          f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(old_value.value), buckets->delete_operator);
       }
     } else
       d_die(d_error_malloc);
@@ -69,6 +80,7 @@ void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, v
       result = bucket->pointers[0];
       memmove(&(bucket->pointers[0]), &(bucket->pointers[1]), ((d_memory_bucket_slots - 1) * sizeof(void *)));
       bucket->pointers[d_memory_bucket_slots - 1] = memory;
+      ++(bucket->current_bucket_counter);
     } else {
       bucket->pointers[bucket->entries++] = memory;
     }
@@ -80,8 +92,10 @@ void *f_memory_bucket_query(struct s_memory_buckets *buckets, const char *type) 
   struct s_memory_bucket *bucket;
   if ((bucket = f_hash_get(buckets->hash, (void *)type)))
     if (bucket->entries > 0) {
-      --(bucket->entries);
-      result = bucket->pointers[bucket->entries];
+      if (bucket->current_bucket_counter > bucket->projected_bucket_slots)
+        bucket->projected_bucket_slots = bucket->current_bucket_counter;
+      bucket->current_bucket_counter = 0;
+      result = bucket->pointers[--(bucket->entries)];
       bucket->pointers[bucket->entries] = NULL;
     }
   return result;

@@ -18,18 +18,20 @@
 #ifndef miranda_object_memory_bucket_h
 #define miranda_object_memory_bucket_h
 #include "../hash.h"
-#define d_memory_bucket_slots 32
+#define d_memory_bucket_slots 64
+typedef t_hash_value (t_memory_bucket_delete)(void *key);
 typedef struct s_memory_bucket {
   void *pointers[d_memory_bucket_slots];
-  size_t entries;
+  size_t entries, projected_bucket_slots, current_bucket_counter;
 } s_memory_bucket;
 typedef struct s_memory_buckets {
   struct s_hash_table *hash;
+  t_memory_bucket_delete *delete_operator;
 } s_memory_buckets;
 extern t_hash_value f_memory_bucket_hash(const char *key);
 extern int f_memory_bucket_compare(const char *left, const char *right);
-extern void f_memory_bucket_init(struct s_memory_buckets **buckets);
-extern void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket);
+extern void f_memory_bucket_init(struct s_memory_buckets **buckets, t_memory_bucket_delete *delete_operator);
+extern void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket, t_memory_bucket_delete *delete_operator);
 extern void f_memory_bucket_destroy(struct s_memory_buckets **buckets);
 extern void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, void *memory);
 extern void *f_memory_bucket_query(struct s_memory_buckets *buckets, const char *type);

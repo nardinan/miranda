@@ -88,6 +88,7 @@ extern struct s_attributes *p_object_setup(struct s_object *object, struct s_met
 #define d_cast(obj, kind) ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,(obj),v_##kind##_type))
 #define d_using(kind) struct s_##kind##_attributes *kind##_attributes = ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,self,v_##kind##_type))
 extern struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type);
+extern void p_object_residual_delete(struct s_object *object);
 extern void f_object_delete(struct s_object *object);
 extern t_hash_value f_object_hash(struct s_object *object);
 extern struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other);

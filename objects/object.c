@@ -137,6 +137,19 @@ struct s_attributes *p_object_cast(const char *file, int line, struct s_object *
   pthread_mutex_unlock(&(object->lock));
   return result;
 }
+void p_object_residual_delete(struct s_object *object) {
+  struct s_attributes *attributes;
+  struct s_virtual_table *virtual_table;
+  while ((attributes = (struct s_attributes *)object->attributes.tail) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.tail)) {
+    f_list_delete(&(object->attributes), (struct s_list_node *)attributes);
+    f_list_delete(&(object->virtual_tables), (struct s_list_node *)virtual_table);
+    d_free(attributes);
+    d_free(virtual_table);
+  }
+  pthread_mutex_destroy(&(object->lock));
+  if ((object->flags & e_flag_allocated) == e_flag_allocated)
+    d_free(object);
+}
 void f_object_delete(struct s_object *object) {
   struct s_object *destroyable = object;
   struct s_attributes *attributes = (struct s_attributes *)object->attributes.head;
@@ -152,18 +165,9 @@ void f_object_delete(struct s_object *object) {
     virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
   }
   if (!v_memory_bucket)
-    f_memory_bucket_init(&v_memory_bucket);
-  if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object)))) {
-    while ((attributes = (struct s_attributes *)destroyable->attributes.tail) && (virtual_table = (struct s_virtual_table *)destroyable->virtual_tables.tail)) {
-      f_list_delete(&(destroyable->attributes), (struct s_list_node *)attributes);
-      f_list_delete(&(destroyable->virtual_tables), (struct s_list_node *)virtual_table);
-      d_free(attributes);
-      d_free(virtual_table);
-    }
-    pthread_mutex_destroy(&(destroyable->lock));
-    if ((destroyable->flags & e_flag_allocated) == e_flag_allocated)
-      d_free(destroyable);
-  }
+    f_memory_bucket_init(&v_memory_bucket, &p_object_residual_delete);
+  if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
+    p_object_residual_delete(destroyable);
 }
 t_hash_value f_object_hash(struct s_object *object) {
   struct s_virtual_table *virtual_table;
