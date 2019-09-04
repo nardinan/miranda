@@ -68,22 +68,26 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
 }
 struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags) {
   pthread_mutexattr_t attributes_mutex;
-  memset(provided, 0, sizeof(struct s_object));
+  if ((flags & e_flag_recovered) != e_flag_recovered) {
+    memset(provided, 0, sizeof(struct s_object));
+    pthread_mutexattr_init(&attributes_mutex);
+    pthread_mutexattr_settype(&attributes_mutex, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&(provided->lock), &attributes_mutex);
+    pthread_mutexattr_destroy(&attributes_mutex);
+  }
   provided->type = type;
   provided->file = file;
   provided->line = line;
-  memset(&(provided->virtual_tables), 0, sizeof(struct s_list));
-  memset(&(provided->attributes), 0, sizeof(struct s_list));
-  pthread_mutexattr_init(&attributes_mutex);
-  pthread_mutexattr_settype(&attributes_mutex, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&(provided->lock), &attributes_mutex);
-  pthread_mutexattr_destroy(&attributes_mutex);
   provided->flags = flags;
   return provided;
 }
 struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags) {
-  struct s_object *result;
-  if ((result = d_malloc_explicit(sizeof(struct s_object), file, line)))
+  struct s_object *result = NULL;
+  if (v_memory_bucket)
+    result = f_memory_bucket_query(v_memory_bucket, type);
+  if (result)
+    p_object_prepare(result, file, line, type, (flags | e_flag_allocated | e_flag_recovered));
+  else if ((result = d_malloc_explicit(sizeof(struct s_object), file, line)))
     p_object_prepare(result, file, line, type, (flags | e_flag_allocated));
   else
     d_die(d_error_malloc);
@@ -149,7 +153,6 @@ void f_object_delete(struct s_object *object) {
   }
   if (!v_memory_bucket)
     f_memory_bucket_init(&v_memory_bucket);
-  /* we need to keep in mind that if the object has not been allocated (e_flag_allocated is not present) then we cannot use this specific trick */
   if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object)))) {
     while ((attributes = (struct s_attributes *)destroyable->attributes.tail) && (virtual_table = (struct s_virtual_table *)destroyable->virtual_tables.tail)) {
       f_list_delete(&(destroyable->attributes), (struct s_list_node *)attributes);
