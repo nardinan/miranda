@@ -55,6 +55,8 @@ add_library(miranda_objects SHARED
         objects/mutex.obj.h
         objects/object.c
         objects/object.h
+        objects/memory_bucket.c
+        objects/memory_bucket.h
         objects/objects.h
         objects/pool.obj.c
         objects/pool.obj.h
@@ -70,7 +72,7 @@ add_library(miranda_objects SHARED
         objects/transformations.obj.h)
 string(CONCAT miranda_objects_properties
         "objects/array.obj.h;objects/emitter.obj.h;"
-        "objects/memory.obj.h;objects/mutex.obj.h;objects/object.h;objects/objects.h;objects/pool.obj.h;objects/runnable.obj.h;"
+        "objects/memory.obj.h;objects/mutex.obj.h;objects/object.h;objects/memory_bucket.h;objects/objects.h;objects/pool.obj.h;objects/runnable.obj.h;"
         "objects/string.obj.h;objects/map.obj.h;objects/transformations.obj.h")
 set_target_properties(miranda_objects PROPERTIES PUBLIC_HEADER "${miranda_objects_properties}")
 INSTALL(TARGETS miranda_objects
