@@ -55,7 +55,6 @@ void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, v
   struct s_memory_bucket *bucket = NULL;
   struct s_hash_bucket old_value;
   if (!(bucket = f_hash_get(buckets->hash, (void *)type))) {
-    printf("Create the bucket for %s\n", type);
     if ((bucket = (struct s_memory_bucket *)d_malloc(sizeof(struct s_memory_bucket)))) {
       memset(bucket, 0, sizeof(struct s_memory_bucket));
       if (f_hash_insert(buckets->hash, (void *)type, bucket, d_true, &old_value)) {
@@ -80,7 +79,10 @@ void *f_memory_bucket_query(struct s_memory_buckets *buckets, const char *type) 
   void *result = NULL;
   struct s_memory_bucket *bucket;
   if ((bucket = f_hash_get(buckets->hash, (void *)type)))
-    if (bucket->entries > 0)
-      result =  bucket->pointers[bucket->entries--];
+    if (bucket->entries > 0) {
+      --(bucket->entries);
+      result = bucket->pointers[bucket->entries];
+      bucket->pointers[bucket->entries] = NULL;
+    }
   return result;
 }
