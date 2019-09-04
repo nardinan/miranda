@@ -1,6 +1,6 @@
 /*
  * miranda
- * Copyright (C) 2018 Andrea Nardinocchi (andrea@nardinan.it)
+ * Copyright (C) 2019 Andrea Nardinocchi (andrea@nardinan.it)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,46 +15,76 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "timer.obj.h"
-struct s_timer_attributes *p_timer_alloc(struct s_object *self) {
-  struct s_timer_attributes *result = d_prepare(self, timer);
-  f_memory_new(self);     /* inherit */
-  f_mutex_new(self);      /* inherit */
+#include "memory_bucket.h"
+t_hash_value f_memory_bucket_hash(const char *key) {
+  return (intptr_t)key;
+}
+int f_memory_bucket_compare(const char *left, const char *right) {
+  return (intptr_t)(left-right);
+}
+void f_memory_bucket_init(struct s_memory_buckets **buckets) {
+  if ((*buckets = (struct s_memory_buckets *)d_malloc(sizeof(struct s_memory_buckets))))
+    f_hash_init(&((*buckets)->hash), (t_hash_compare *)&f_memory_bucket_compare, (t_hash_calculate *)&f_memory_bucket_hash);
+  else
+    d_die(d_error_malloc);
+}
+void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket) {
+  size_t index;
+  for (index = 0; index < d_memory_bucket_slots; ++index) {
+    if ((*bucket)->pointers[index])
+      d_free((*bucket)->pointers[index]);
+    else
+      break;
+  }
+  d_free((*bucket));
+  *bucket = NULL;
+}
+void f_memory_bucket_destroy(struct s_memory_buckets **buckets) {
+  struct s_hash_bucket *current_table = (*buckets)->hash->table, *item;
+  t_hash_value elements = (*buckets)->hash->mask;
+  size_t index;
+  for (; elements >= 0; --elements) {
+    item = &current_table[elements];
+    if (item->kind == e_hash_kind_fill)
+      f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(item->value));
+  }
+  f_hash_destroy(&((*buckets)->hash));
+  d_free(*buckets);
+}
+void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, void *memory) {
+  void *result = NULL;
+  struct s_memory_bucket *bucket;
+  struct s_hash_bucket old_value;
+  size_t index;
+  if (!(bucket = f_hash_get(buckets->hash, (void *)type))) {
+    if ((bucket = (struct s_memory_bucket *)d_malloc(sizeof(struct s_memory_bucket)))) {
+      memset(bucket, 0, sizeof(struct s_memory_bucket));
+      bucket->entries = 0;
+      if (f_hash_insert(buckets->hash, (void *)type, bucket, d_true, &old_value)) {
+        if (old_value.kind == e_hash_kind_fill)
+          f_memory_bucket_destroy_single_bucket((struct s_memory_bucket **)&(old_value.value));
+      } else {
+        d_free(bucket);
+        bucket = NULL;
+      }
+    } else
+      d_die(d_error_malloc);
+  }
+  if (bucket) {
+    if (bucket->entries >= d_memory_bucket_slots) {
+      result = bucket->pointers[0];
+      memmove(bucket->pointers, (bucket->pointers + sizeof(void *)), ((d_memory_bucket_slots - 1) * sizeof(void *)));
+      bucket->pointers[d_memory_bucket_slots - 1] = memory;
+    } else
+      bucket->pointers[bucket->entries++] = memory;
+  }
   return result;
 }
-struct s_object *f_timer_new(struct s_object *self) {
-  struct s_timer_attributes *attributes = p_timer_alloc(self);
-  gettimeofday(&(attributes->start), NULL);
-  return self;
+void *f_memory_bucket_query(struct s_memory_buckets *buckets, const char *type) {
+  void *result = NULL;
+  struct s_memory_bucket *bucket;
+  if ((bucket = f_hash_get(buckets->hash, (void *)type)))
+    if (bucket->entries > 0)
+      result =  bucket->pointers[bucket->entries--];
+  return result;
 }
-d_define_method(timer, reset)(struct s_object *self) {
-  d_using(timer);
-  gettimeofday(&(timer_attributes->start), NULL);
-  return self;
-}
-d_define_method(timer, elapsed_time_s)(struct s_object *self, double *elapsed_time) {
-  d_using(timer);
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  *elapsed_time = (double)(now.tv_sec - timer_attributes->start.tv_sec) + ((now.tv_usec - timer_attributes->start.tv_usec) / 1000000.0);
-  return self;
-}
-d_define_method(timer, elapsed_time_ms)(struct s_object *self, double *elapsed_time) {
-  d_using(timer);
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  *elapsed_time = ((now.tv_sec - timer_attributes->start.tv_sec) * 1000.0) + ((now.tv_usec - timer_attributes->start.tv_usec) / 1000.0);
-  return self;
-}
-d_define_method(timer, elapsed_time_us)(struct s_object *self, long long int *elapsed_time) {
-  d_using(timer);
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  *elapsed_time = ((now.tv_sec - timer_attributes->start.tv_sec) * 1000000L) + (now.tv_usec - timer_attributes->start.tv_usec);
-  return self;
-}
-d_define_class(timer) {d_hook_method(timer, e_flag_public, reset),
-                       d_hook_method(timer, e_flag_public, elapsed_time_s),
-                       d_hook_method(timer, e_flag_public, elapsed_time_ms),
-                       d_hook_method(timer, e_flag_public, elapsed_time_us),
-                       d_hook_method_tail};

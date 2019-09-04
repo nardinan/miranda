@@ -1,6 +1,6 @@
 /*
  * miranda
- * Copyright (C) 2018 Andrea Nardinocchi (andrea@nardinan.it)
+ * Copyright (C) 2019 Andrea Nardinocchi (andrea@nardinan.it)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_object_timer_h
-#define miranda_object_timer_h
-#include <sys/time.h>
-#include "memory.obj.h"
-#include "mutex.obj.h"
-d_declare_class(timer) {
-  struct s_attributes head;
-  struct timeval start;
-} d_declare_class_tail(timer);
-struct s_timer_attributes *p_timer_alloc(struct s_object *self);
-extern struct s_object *f_timer_new(struct s_object *self);
-d_declare_method(timer, reset)(struct s_object *self);
-d_declare_method(timer, elapsed_time_s)(struct s_object *self, double *elapsed_time);
-d_declare_method(timer, elapsed_time_ms)(struct s_object *self, double *elapsed_time);
-d_declare_method(timer, elapsed_time_us)(struct s_object *self, long long *elapsed_time);
+#ifndef miranda_object_memory_bucket_h
+#define miranda_object_memory_bucket_h
+#include "../hash.h"
+#define d_memory_bucket_slots 32
+typedef struct s_memory_bucket {
+  void *pointers[d_memory_bucket_slots];
+  size_t entries;
+} s_memory_bucket;
+typedef struct s_memory_buckets {
+  struct s_hash_table *hash;
+} s_memory_buckets;
+extern t_hash_value f_memory_bucket_hash(const char *key);
+extern int f_memory_bucket_compare(const char *left, const char *right);
+extern void f_memory_bucket_init(struct s_memory_buckets **buckets);
+extern void f_memory_bucket_destroy_single_bucket(struct s_memory_bucket **bucket);
+extern void f_memory_bucket_destroy(struct s_memory_buckets **buckets);
+extern void *f_memory_bucket_push(struct s_memory_buckets *buckets, const char *type, void *memory);
+extern void *f_memory_bucket_query(struct s_memory_buckets *buckets, const char *type);
 #endif

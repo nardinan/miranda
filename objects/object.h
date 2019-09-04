@@ -23,6 +23,7 @@
 #include "../hash.h"
 #include "../exception.h"
 #include "../memory.h"
+#include "memory_bucket.h"
 typedef enum e_flag {
   e_flag_null = 0X00000000,
   e_flag_private = 0x00000001,
@@ -30,7 +31,8 @@ typedef enum e_flag {
   e_flag_hashed = 0x00000004,
   e_flag_pooled = 0x00000008,
   e_flag_placeholder = 0x00000010,
-  e_flag_allocated = 0x00000020
+  e_flag_allocated = 0x00000020,
+  e_flag_recovered = 0x00000040
 } e_flag;
 #define d_cast_return(v) return ((void *)(intptr_t)v)
 typedef void *(*t_class_method)();
@@ -71,6 +73,7 @@ extern const char v_undefined_type[];
 extern const char m_object_delete[];
 extern const char m_object_hash[];
 extern const char m_object_compare[];
+extern struct s_memory_buckets *v_memory_bucket;
 d_exception_declare(undefined_method);
 d_exception_declare(private_method);
 #define d_call_owner(obj, kind, sym, ...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_##kind##_type)->method((obj),__VA_ARGS__))
@@ -80,10 +83,8 @@ extern const struct s_method *p_object_recall(const char *file, int line, struct
 #define d_use(obj, kind) (p_object_prepare((obj),__FILE__,__LINE__,v_##kind##_type,e_flag_null))
 extern struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags);
 extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
-#define d_prepare(obj, kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,\
-            p_object_attributes_malloc(sizeof(struct s_##kind##_attributes),v_##kind##_type)))
-extern __attribute__ ((warn_unused_result)) struct s_attributes *p_object_attributes_malloc(size_t size, const char *type);
-extern struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, struct s_attributes *attributes);
+#define d_prepare(obj, kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,sizeof(struct s_##kind##_attributes),v_##kind##_type))
+extern struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, size_t attributes_size, const char *attributes_type);
 #define d_cast(obj, kind) ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,(obj),v_##kind##_type))
 #define d_using(kind) struct s_##kind##_attributes *kind##_attributes = ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,self,v_##kind##_type))
 extern struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type);

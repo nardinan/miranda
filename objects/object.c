@@ -20,6 +20,7 @@ const char v_undefined_type[] = "undefined";
 const char m_object_delete[] = "delete";
 const char m_object_hash[] = "hash";
 const char m_object_compare[] = "compare";
+struct s_memory_buckets *v_memory_bucket = NULL;
 d_exception_define(undefined_method, 1, "undefined method exception");
 d_exception_define(private_method, 2, "private method exception");
 const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type) {
@@ -88,23 +89,25 @@ struct s_object *p_object_malloc(const char *file, int line, const char *type, i
     d_die(d_error_malloc);
   return result;
 }
-struct s_attributes *p_object_attributes_malloc(size_t size, const char *type) {
-  struct s_attributes *result;
-  if ((result = (struct s_attributes *)d_malloc(size)))
-    result->type = type;
-  else
-    d_die(d_error_malloc);
-  return result;
-}
-struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, struct s_attributes *attributes) {
+struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, size_t attributes_size, const char *attributes_type) {
   struct s_virtual_table *node;
-  if ((node = (struct s_virtual_table *)d_malloc(sizeof(struct s_virtual_table)))) {
-    node->virtual_table = virtual_table;
-    node->type = attributes->type;
-    f_list_append(&(object->virtual_tables), (struct s_list_node *)node, e_list_insert_head);
-    f_list_append(&(object->attributes), (struct s_list_node *)attributes, e_list_insert_head);
+  struct s_attributes *attributes = NULL;
+  if ((object->flags & e_flag_recovered) != e_flag_recovered) {
+    if ((attributes = (struct s_attributes *)d_malloc(attributes_size))) {
+      attributes->type = attributes_type;
+      if ((node = (struct s_virtual_table *)d_malloc(sizeof(struct s_virtual_table)))) {
+        node->virtual_table = virtual_table;
+        node->type = attributes_type;
+        f_list_append(&(object->virtual_tables), (struct s_list_node *)node, e_list_insert_head);
+        f_list_append(&(object->attributes), (struct s_list_node *)attributes, e_list_insert_head);
+      } else
+        d_die(d_error_malloc);
+    } else
+      d_die(d_error_malloc);
   } else
-    d_die(d_error_malloc);
+    d_foreach(&(object->attributes), attributes, struct s_attributes)
+      if (attributes->type == attributes_type)
+        break;
   return attributes;
 }
 struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {
@@ -131,23 +134,33 @@ struct s_attributes *p_object_cast(const char *file, int line, struct s_object *
   return result;
 }
 void f_object_delete(struct s_object *object) {
-  struct s_attributes *attributes;
-  struct s_virtual_table *virtual_table;
+  struct s_object *destroyable = object;
+  struct s_attributes *attributes = (struct s_attributes *)object->attributes.head;
+  struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
   int index;
-  while ((attributes = (struct s_attributes *)object->attributes.tail) && (virtual_table = (struct s_virtual_table *)object->virtual_tables.tail)) {
+  while ((attributes) && (virtual_table)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
       if (virtual_table->virtual_table[index].symbol == m_object_delete) {
         virtual_table->virtual_table[index].method(object, attributes);
         break;
       }
-    f_list_delete(&(object->attributes), (struct s_list_node *)attributes);
-    f_list_delete(&(object->virtual_tables), (struct s_list_node *)virtual_table);
-    d_free(attributes);
-    d_free(virtual_table);
+    attributes = (struct s_attributes *)(((struct s_list_node *)attributes)->next);
+    virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
   }
-  pthread_mutex_destroy(&(object->lock));
-  if ((object->flags & e_flag_allocated) == e_flag_allocated)
-    d_free(object);
+  if (!v_memory_bucket)
+    f_memory_bucket_init(&v_memory_bucket);
+  /* we need to keep in mind that if the object has not been allocated (e_flag_allocated is not present) then we cannot use this specific trick */
+  if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object)))) {
+    while ((attributes = (struct s_attributes *)destroyable->attributes.tail) && (virtual_table = (struct s_virtual_table *)destroyable->virtual_tables.tail)) {
+      f_list_delete(&(destroyable->attributes), (struct s_list_node *)attributes);
+      f_list_delete(&(destroyable->virtual_tables), (struct s_list_node *)virtual_table);
+      d_free(attributes);
+      d_free(virtual_table);
+    }
+    pthread_mutex_destroy(&(destroyable->lock));
+    if ((destroyable->flags & e_flag_allocated) == e_flag_allocated)
+      d_free(destroyable);
+  }
 }
 t_hash_value f_object_hash(struct s_object *object) {
   struct s_virtual_table *virtual_table;
