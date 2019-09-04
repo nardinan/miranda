@@ -67,7 +67,7 @@ struct s_object *f_transformations_new(struct s_object *self) {
                           {NULL, NULL}};
   struct s_transformations_attributes *attributes = p_transformations_alloc(self);
   unsigned int index;
-  f_hash_init(&attributes->hash, (t_hash_compare *)f_object_compare, (t_hash_calculate *)f_object_hash);
+  f_hash_init(&attributes->hash, (t_hash_compare *)&f_object_compare, (t_hash_calculate *)&f_object_hash);
   for (index = 0; (scoped_container[index].key); ++index) {
     p_transformations_insert(self, scoped_container[index].key, scoped_container[index].value);
     d_delete(scoped_container[index].key);

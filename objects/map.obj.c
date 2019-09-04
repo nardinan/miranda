@@ -24,7 +24,7 @@ struct s_map_attributes *p_map_alloc(struct s_object *self) {
 }
 struct s_object *f_map_new(struct s_object *self) {
   struct s_map_attributes *attributes = p_map_alloc(self);
-  f_hash_init(&attributes->hash, (t_hash_compare *)f_object_compare, (t_hash_calculate *)f_object_hash);
+  f_hash_init(&attributes->hash, (t_hash_compare *)&f_object_compare, (t_hash_calculate *)&f_object_hash);
   return self;
 }
 d_define_method(map, insert)(struct s_object *self, struct s_object *key, struct s_object *value) {
