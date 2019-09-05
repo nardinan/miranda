@@ -247,7 +247,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
               SDL_Delay(waiting_time);
             else if (abs(waiting_time) > d_environment_tolerance)
               d_war(e_log_level_medium, "loop time has a delay of %d mS", abs(waiting_time));
-            starting_time = current_time;
+            starting_time = SDL_GetTicks();
             /* align the FPS time delay and then refresh the image */
             d_miranda_lock(self) {
               SDL_RenderPresent(environment_attributes->renderer);
