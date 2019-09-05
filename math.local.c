@@ -43,4 +43,3 @@ float f_math_rms(float *values, size_t elements, float precision) {
   mean_square /= (float)elements;
   return f_math_sqrt(fabs(mean_square - (mean * mean)), precision);
 }
-
