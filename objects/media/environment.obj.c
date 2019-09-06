@@ -179,7 +179,7 @@ d_define_method(environment, del_eventable)(struct s_object *self, struct s_obje
 }
 d_define_method(environment, run_loop)(struct s_object *self) {
   d_using(environment);
-  int starting_time = SDL_GetTicks(), current_time, waiting_time, required_time = (int)(1000.0f / environment_attributes->fps), surface, index;
+  int starting_time = SDL_GetTicks(), waiting_time, required_time = (int)(1000.0f / environment_attributes->fps), surface, index;
   struct s_eventable_attributes *eventable_attributes;
   struct s_camera_attributes *camera_attributes;
   struct s_object *drawable_object;
@@ -242,13 +242,12 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                   camera_object->type);
               environment_attributes->current_camera = NULL;
             }
-            current_time = SDL_GetTicks();
-            if ((waiting_time = required_time - (current_time - starting_time)) > 0)
+            /* align the FPS time delay and then refresh the image */
+            if ((waiting_time = required_time - (SDL_GetTicks() - starting_time)) > 0)
               SDL_Delay(waiting_time);
             else if (abs(waiting_time) > d_environment_tolerance)
               d_war(e_log_level_medium, "loop time has a delay of %d mS", abs(waiting_time));
-            starting_time = current_time;
-            /* align the FPS time delay and then refresh the image */
+            starting_time = SDL_GetTicks();
             d_miranda_lock(self) {
               SDL_RenderPresent(environment_attributes->renderer);
             } d_miranda_unlock(self);
