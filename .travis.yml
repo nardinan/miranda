@@ -6,7 +6,6 @@ compiler:
 before_install:
   - uname -a
   - lsb_release -a
-  - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
   - sudo apt-get update -qq
 
 install:
