@@ -218,7 +218,7 @@ d_define_method(ui_factory, load_uiable)(struct s_object *self, struct s_object 
   char buffer_path[PATH_MAX];
   d_try
       {
-        for (index_component = 0; index_component != e_uiable_component_NULL; ++index_component) {
+        for (index_component = 0; index_component != e_uiable_component_NULL; ++index_component)
           for (index_mode = 0; index_mode != e_uiable_mode_NULL; ++index_mode) {
             snprintf(buffer_path, PATH_MAX, "%s_%s_%s", component, v_uiable_modes[index_mode], v_uiable_components[index_component]);
             if (!(stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream_strict, buffer_path, e_resources_type_common))) {
@@ -231,7 +231,6 @@ d_define_method(ui_factory, load_uiable)(struct s_object *self, struct s_object 
                 d_delete(bitmap);
               }
           }
-        }
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_R, "sss", "ui", "default", "mask_R");
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_G, "sss", "ui", "default", "mask_G");
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_B, "sss", "ui", "default", "mask_B");
