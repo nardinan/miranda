@@ -17,6 +17,7 @@
  */
 #ifndef miranda_object_memory_bucket_h
 #define miranda_object_memory_bucket_h
+#include <stdint.h>
 #include "../hash.h"
 #define d_memory_bucket_slots 64
 typedef t_hash_value (t_memory_bucket_delete)(void *key);
