@@ -30,6 +30,7 @@
 #include "track.obj.h"
 #include "entity.obj.h"
 #include "lights.obj.h"
+#include "shadows.obj.h"
 #include "media_factory.obj.h"
 #include "camera.obj.h"
 #endif

@@ -18,6 +18,7 @@
 #ifndef miranda_objects_h
 #define miranda_objects_h
 #include "object.h"
+#include "memory_bucket.h"
 #include "memory.obj.h"
 #include "mutex.obj.h"
 #include "runnable.obj.h"
