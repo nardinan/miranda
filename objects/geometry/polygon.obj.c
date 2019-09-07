@@ -251,29 +251,32 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
     first_intersection_y = NAN, proposed_x, proposed_y;
   unsigned int collision_numbers = 0;
   t_boolean result = d_false;
+  size_t index_vertex, elements;
   d_call(self, m_polygon_normalize, NULL);
-  d_array_foreach(polygon_attributes->array_normalized_points, point_current) {
-    if (point_previous) {
-      d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
-      d_call(point_current, m_point_get, &ending_x_A, &ending_y_A);
-      if (f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, &proposed_x,
-        &proposed_y)) {
-        if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
-            (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
-          ++collision_numbers;
-        if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y)) {
-          first_intersection_x = proposed_x;
-          first_intersection_y = proposed_y;
+  d_call(polygon_attributes->array_normalized_points, m_array_size, &elements);
+  for (index_vertex = 0; index_vertex < elements; ++index_vertex)
+    if ((point_current = d_call(polygon_attributes->array_normalized_points, m_array_get, index_vertex))) {
+      if (point_previous) {
+        d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
+        d_call(point_current, m_point_get, &ending_x_A, &ending_y_A);
+        if (f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, &proposed_x,
+          &proposed_y)) {
+          if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
+              (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
+            ++collision_numbers;
+          if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y)) {
+            first_intersection_x = proposed_x;
+            first_intersection_y = proposed_y;
+          }
+          last_intersection_x = proposed_x;
+          last_intersection_y = proposed_y;
+          result = d_true;
         }
-        last_intersection_x = proposed_x;
-        last_intersection_y = proposed_y;
-        result = d_true;
       }
+      if (!point_first)
+        point_first = point_current;
+      point_previous = point_current;
     }
-    if (!point_first)
-      point_first = point_current;
-    point_previous = point_current;
-  }
   if ((point_first) && (point_previous) && (point_first != point_previous)) {
     d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
     d_call(point_first, m_point_get, &ending_x_A, &ending_y_A);

@@ -3,9 +3,9 @@ execute_process(COMMAND sdl2-config --libs 2>/dev/null OUTPUT_VARIABLE STATUS_SD
 execute_process(COMMAND sdl2-config --cflags 2>/dev/null OUTPUT_VARIABLE STATUS_SDL_INCLUDE)
 string(REGEX REPLACE "\n$" "" STATUS_SDL_LIBRARY "${STATUS_SDL_LIBRARY}")
 string(REGEX REPLACE "\n$" "" STATUS_SDL_INCLUDE "${STATUS_SDL_INCLUDE}")
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-Dd_miranda_debug)
-endif ()
+#if (CMAKE_BUILD_TYPE MATCHES Debug)
+#    add_definitions(-Dd_miranda_debug)
+#endif ()
 add_library(miranda_ground SHARED
         console.c
         console.h

@@ -17,17 +17,18 @@
  */
 #ifndef miranda_media_shadows_h
 #define miranda_media_shadows_h
-#include "bitmap.obj.h"
+#include "illuminable_bitmap.obj.h"
 #include "../array.obj.h"
+#define d_shadows_default_maximum_intensity 0.5
+#define d_shadows_maximum_vertices 125
 d_declare_class(shadows) {
   struct s_attributes head;
-  struct s_object *lights;
-  struct s_object *array_shadow_casters;
+  struct s_object *array_casters;
+  double maximum_intensity;
 } d_declare_class_tail(shadows);
 struct s_shadows_attributes *p_shadows_alloc(struct s_object *self);
 extern struct s_object *f_shadows_new(struct s_object *self);
-d_declare_method(shadows, set_lights)(struct s_object *self, struct s_object *lights);
-d_declare_method(shadows, add_shadow_caster)(struct s_object *self, struct s_object *polygon);
+d_declare_method(shadows, add_caster)(struct s_object *self, struct s_object *illuminable_bitmap);
 d_declare_method(shadows, clear)(struct s_object *self);
 d_declare_method(shadows, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(shadows, draw_contour)(struct s_object *self, struct s_object *environment);
