@@ -165,7 +165,7 @@ void f_object_delete(struct s_object *object) {
     virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
   }
   if (!v_memory_bucket)
-    f_memory_bucket_init(&v_memory_bucket, &p_object_residual_delete);
+    f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
   if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
     p_object_residual_delete(destroyable);
 }
