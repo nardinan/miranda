@@ -19,9 +19,13 @@
 #define miranda_media_shadows_h
 #include "illuminable_bitmap.obj.h"
 #include "../array.obj.h"
-#define d_lights_default_contour_color 255, 0, 0, 255
+#define d_shadows_default_contour_color 255, 0, 0, 255
+#define d_shadows_default_polygon_color 255, 255, 0, 255
 #define d_shadows_default_maximum_intensity 0.5
-#define d_shadows_maximum_vertices 125
+#define d_shadows_maximum_polygons 64
+typedef struct s_shadows_quadrilateral {
+  double point_A_x, point_A_y, point_B_x, point_B_y, point_C_x, point_C_y, point_D_x, point_D_y;
+} s_shadows_quadrilateral;
 d_declare_class(shadows) {
   struct s_attributes head;
   struct s_object *array_casters;

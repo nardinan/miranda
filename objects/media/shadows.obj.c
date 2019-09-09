@@ -47,14 +47,12 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   struct s_list affected_lights;
   struct s_object *illuminable_bitmap_caster;
   struct s_object *point_vertex;
-  double projected_position_x, projected_position_y, point_x, point_y, current_position_x, current_position_y, distance, intensity_alpha,
-    final_incident_angle[d_shadows_maximum_vertices], current_incident_angle, screen_diagonal =
-    f_math_sqrt(d_math_square(environmental_attributes->current_w) + d_math_square(environmental_attributes->current_h), d_math_default_precision);
+  double projected_position_x, projected_position_y, point_x, point_y, previous_valid_point_x = NAN, previous_valid_point_y = NAN, current_position_x,
+    current_position_y, distance, shadow_projection, intensity_alpha, screen_diagonal = f_math_sqrt(d_math_square(environmental_attributes->current_w) +
+      d_math_square(environmental_attributes->current_h), d_math_default_precision);
   unsigned int collisions;
-  ssize_t raycasts, index_raycast, vertices, index_vertex, index_compensation;
-  int vertices_x[d_shadows_maximum_vertices], vertices_y[d_shadows_maximum_vertices], real_vertices_x[d_shadows_maximum_vertices],
-    real_vertices_y[d_shadows_maximum_vertices];
-  t_boolean raycast_required[d_shadows_maximum_vertices];
+  ssize_t polygons, index_polygon;
+  struct s_shadows_quadrilateral projected_polygons[d_shadows_maximum_polygons];
   d_array_foreach(shadows_attributes->array_casters, illuminable_bitmap_caster) {
     if ((illuminable_bitmap_attributes = d_cast(illuminable_bitmap_caster, illuminable_bitmap))) {
       if (illuminable_bitmap_attributes->lights) {
@@ -66,75 +64,77 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             d_math_default_precision);
           if (distance < lights_emitter->radius) {
             intensity_alpha = (shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255;
-            raycasts = 0;
-            vertices = 0;
+            shadow_projection = (-1.0 * (distance / lights_emitter->radius));
+            polygons = 0;
             d_polygon_foreach(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, point_vertex) {
               d_call(point_vertex, m_point_get, &point_x, &point_y);
               projected_position_x = ((lights_emitter->position_x - point_x) * (-1.0 * screen_diagonal)) + point_x;
               projected_position_y = ((lights_emitter->position_y - point_y) * (-1.0 * screen_diagonal)) + point_y;
               d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y, projected_position_x,
                 projected_position_y, &collisions);
-              real_vertices_x[vertices] = point_x;
-              real_vertices_y[vertices] = point_y;
-              ++vertices;
               if (collisions < 2) {
                 if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour) {
-                  SDL_SetRenderDrawColor(environmental_attributes->renderer, d_lights_default_contour_color);
+                  SDL_SetRenderDrawColor(environmental_attributes->renderer, d_shadows_default_contour_color);
                   SDL_RenderDrawLine(environmental_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
                 }
-                current_incident_angle = d_point_angle(lights_emitter->position_x, lights_emitter->position_y, point_x, point_y);
-                if (raycasts > 0) {
-                  for (index_raycast = (raycasts - 1); index_raycast >= 0; --index_raycast)
-                    if (current_incident_angle < final_incident_angle[index_raycast]) {
-                      final_incident_angle[index_raycast + 1] = final_incident_angle[index_raycast];
-                      vertices_x[index_raycast + 1] = vertices_x[index_raycast];
-                      vertices_y[index_raycast + 1] = vertices_y[index_raycast];
-                    } else
-                      break;
-                  final_incident_angle[index_raycast + 1] = current_incident_angle;
-                  vertices_x[index_raycast + 1] = point_x;
-                  vertices_y[index_raycast + 1] = point_y;
-
-                } else {
-                  final_incident_angle[0] = current_incident_angle;
-                  vertices_x[0] = point_x;
-                  vertices_y[0] = point_y;
+                if ((previous_valid_point_x == previous_valid_point_x) && (previous_valid_point_y == previous_valid_point_y)) {
+                  projected_polygons[polygons].point_A_x = previous_valid_point_x;
+                  projected_polygons[polygons].point_A_y = previous_valid_point_y;
+                  projected_polygons[polygons].point_B_x =
+                    ((lights_emitter->position_x - previous_valid_point_x) * shadow_projection) + previous_valid_point_x;
+                  projected_polygons[polygons].point_B_y =
+                    ((lights_emitter->position_y - previous_valid_point_y) * shadow_projection) + previous_valid_point_y;
+                  projected_polygons[polygons].point_C_x = ((lights_emitter->position_x - point_x) * shadow_projection) + point_x;
+                  projected_polygons[polygons].point_C_y = ((lights_emitter->position_y - point_y) * shadow_projection) + point_y;
+                  projected_polygons[polygons].point_D_x = point_x;
+                  projected_polygons[polygons].point_D_y = point_y;
+                  ++polygons;
                 }
-                ++raycasts;
+                previous_valid_point_x = point_x;
+                previous_valid_point_y = point_y;
+              } else {
+                previous_valid_point_x = NAN;
+                previous_valid_point_y = NAN;
               }
             }
-            memset(raycast_required, d_true, raycasts);
-            for (index_raycast = 0; index_raycast < (raycasts - 1); ++index_raycast) {
-              for (index_vertex = 0; index_vertex < vertices; ++index_vertex)
-                if ((real_vertices_x[index_vertex] == vertices_x[index_raycast]) && (real_vertices_y[index_vertex] == vertices_y[index_raycast])) {
-                  ++index_vertex;
-                  break;
-                }
-              while ((index_vertex < vertices) && (real_vertices_x[index_vertex] != vertices_x[index_raycast + 1]) &&
-                     (real_vertices_y[index_vertex] != vertices_y[index_raycast + 1])) {
-                memmove(&(vertices_x[index_raycast + 2]), &(vertices_x[index_raycast + 1]), (raycasts - (index_raycast + 1)) * sizeof(int));
-                memmove(&(vertices_y[index_raycast + 2]), &(vertices_y[index_raycast + 1]), (raycasts - (index_raycast + 1)) * sizeof(int));
-                ++raycasts;
-                vertices_x[index_raycast + 1] = real_vertices_x[index_vertex];
-                vertices_y[index_raycast + 1] = real_vertices_y[index_vertex];
-                raycast_required[index_raycast + 1] = d_false;
-                ++index_raycast;
-                ++index_vertex;
-              }
+            if (polygons > 0) {
+              projected_polygons[polygons].point_A_x = projected_polygons[0].point_A_x;
+              projected_polygons[polygons].point_A_y = projected_polygons[0].point_A_y;
+              projected_polygons[polygons].point_B_x = projected_polygons[0].point_B_x;
+              projected_polygons[polygons].point_B_y = projected_polygons[0].point_B_y;
+              projected_polygons[polygons].point_C_x = projected_polygons[polygons - 1].point_C_x;
+              projected_polygons[polygons].point_C_y = projected_polygons[polygons - 1].point_C_y;
+              projected_polygons[polygons].point_D_x = projected_polygons[polygons - 1].point_D_x;
+              projected_polygons[polygons].point_D_y = projected_polygons[polygons - 1].point_D_y;
             }
-            for (index_raycast = 0, index_compensation = 0; index_raycast < raycasts; ++index_raycast) {
-              if (raycast_required[index_raycast]) {
-                vertices_x[raycasts + index_raycast - index_compensation] =
-                  ((lights_emitter->position_x - vertices_x[raycasts - 1 - index_raycast]) * (-1.0 * (distance / lights_emitter->radius))) +
-                  vertices_x[raycasts - 1 - index_raycast];
-                vertices_y[raycasts + index_raycast - index_compensation] =
-                  ((lights_emitter->position_y - vertices_y[raycasts - 1 - index_raycast]) * (-1.0 * (distance / lights_emitter->radius))) +
-                  vertices_y[raycasts - 1 - index_raycast];
-              } else
-                ++index_compensation;
-            }
+            ++polygons;
+            /* check for clipping and removing all the clipping obstacles */
             d_miranda_lock(environment) {
-              f_primitive_fill_polygon(environmental_attributes->renderer, vertices_x, vertices_y, (raycasts * 2), 0, 0, 0, intensity_alpha);
+              for (index_polygon = 0; index_polygon < polygons; ++index_polygon) {
+                if (!d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates,
+                            (double)projected_polygons[index_polygon].point_B_x, (double)projected_polygons[index_polygon].point_B_y,
+                            (double)projected_polygons[index_polygon].point_C_x, (double)projected_polygons[index_polygon].point_C_y, NULL)) {
+                  int vector_point_x[] = {
+                    projected_polygons[index_polygon].point_A_x,
+                    projected_polygons[index_polygon].point_B_x,
+                    projected_polygons[index_polygon].point_C_x,
+                    projected_polygons[index_polygon].point_D_x
+                  }, vector_point_y[] = {
+                    projected_polygons[index_polygon].point_A_y,
+                    projected_polygons[index_polygon].point_B_y,
+                    projected_polygons[index_polygon].point_C_y,
+                    projected_polygons[index_polygon].point_D_y
+                  };
+                  if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour) {
+                    SDL_SetRenderDrawColor(environmental_attributes->renderer, d_shadows_default_polygon_color);
+                    SDL_RenderDrawLine(environmental_attributes->renderer, vector_point_x[0], vector_point_y[0], vector_point_x[1], vector_point_y[1]);
+                    SDL_RenderDrawLine(environmental_attributes->renderer, vector_point_x[1], vector_point_y[1], vector_point_x[2], vector_point_y[2]);
+                    SDL_RenderDrawLine(environmental_attributes->renderer, vector_point_x[2], vector_point_y[2], vector_point_x[3], vector_point_y[3]);
+                    SDL_RenderDrawLine(environmental_attributes->renderer, vector_point_x[3], vector_point_y[3], vector_point_x[0], vector_point_y[0]);
+                  }
+                  f_primitive_fill_polygon(environmental_attributes->renderer, vector_point_x, vector_point_y, 4, 0, 0, 0, intensity_alpha);
+                }
+              }
             } d_miranda_unlock(environment);
           }
         }

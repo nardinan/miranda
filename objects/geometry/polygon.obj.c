@@ -247,10 +247,10 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
   unsigned int *collisions) {
   d_using(polygon);
   struct s_object *point_current, *point_previous = NULL, *point_first = NULL;
+  struct s_object *result = NULL;
   double starting_x_A, starting_y_A, ending_x_A, ending_y_A, last_intersection_x = NAN, last_intersection_y = NAN, first_intersection_x = NAN,
     first_intersection_y = NAN, proposed_x, proposed_y;
   unsigned int collision_numbers = 0;
-  t_boolean result = d_false;
   size_t index_vertex, elements;
   d_call(self, m_polygon_normalize, NULL);
   d_call(polygon_attributes->array_normalized_points, m_array_size, &elements);
@@ -270,7 +270,7 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
           }
           last_intersection_x = proposed_x;
           last_intersection_y = proposed_y;
-          result = d_true;
+          result = self;
         }
       }
       if (!point_first)
@@ -286,12 +286,12 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
         if ((first_intersection_x != first_intersection_x) || (first_intersection_y != first_intersection_y) ||
             (d_math_double_different(first_intersection_x, proposed_x)) || (d_math_double_different(first_intersection_y, proposed_y)))
           ++collision_numbers;
-      result = d_true;
+      result = self;
     }
   }
   if (collisions)
     *collisions = collision_numbers;
-  d_cast_return(result);
+  return result;
 }
 d_define_method(polygon, delete)(struct s_object *self, struct s_polygon_attributes *attributes) {
   d_delete(attributes->array_points);
