@@ -105,9 +105,8 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   struct s_lights_emitter_description *selected_emitter;
-  double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_width, drawable_height,
-    drawable_principal_point_x, drawable_principal_point_y;
-  d_call(drawable, m_drawable_get_scaled_dimension, &drawable_width, &drawable_height);
+  double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
+    drawable_principal_point_y;
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     drawable_core_attributes = d_cast(current_emitter->mask, drawable);
