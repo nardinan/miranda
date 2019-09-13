@@ -144,6 +144,11 @@ d_define_method(list, set_unselected)(struct s_object *self, unsigned int red, u
   list_attributes->unselected_background_A = alpha;
   return self;
 }
+d_define_method(list, make_unscrollable)(struct s_object *self, t_boolean unscrollable) {
+  d_using(list);
+  list_attributes->unscrollable = unscrollable;
+  return self;
+}
 d_define_method_override(list, mode)(struct s_object *self, enum e_uiable_modes mode) {
   d_using(list);
   struct s_object *current_entry;
@@ -164,11 +169,13 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
   t_boolean new_selection = d_false, modified = d_false;
   SDL_GetMouseState(&mouse_x, &mouse_y);
   if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
-    scroll_attributes->force_event = d_true;
-    {
-      d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
+    if (!list_attributes->unscrollable) {
+      scroll_attributes->force_event = d_true;
+      {
+        d_call(list_attributes->scroll, m_eventable_event, environment, current_event);
+      }
+      scroll_attributes->force_event = d_false;
     }
-    scroll_attributes->force_event = d_false;
     if ((starting_uiable = (intptr_t)d_call(list_attributes->scroll, m_scroll_get_position, NULL)) >= 0)
       d_foreach(&(list_attributes->uiables), current_entry, struct s_object) {
         if (pointer >= starting_uiable) {
@@ -309,7 +316,8 @@ d_define_method_override(list, draw)(struct s_object *self, struct s_object *env
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_bottom_right, (position_x + normalized_dimension_w_scroll),
       (position_y + normalized_dimension_h_scroll));
     d_call(&(drawable_attributes_scroll->square_collision_box), m_square_set_center, center_x, center_y);
-    while (((intptr_t)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
+    if (!list_attributes->unscrollable)
+      while (((intptr_t)d_call(list_attributes->scroll, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
 }
@@ -363,6 +371,7 @@ d_define_class(list) {d_hook_method(list, e_flag_public, add_uiable),
                       d_hook_method(list, e_flag_public, set_selected),
                       d_hook_method(list, e_flag_public, set_over),
                       d_hook_method(list, e_flag_public, set_unselected),
+                      d_hook_method(list, e_flag_public, make_unscrollable),
                       d_hook_method_override(list, e_flag_public, uiable, mode),
                       d_hook_method_override(list, e_flag_public, eventable, event),
                       d_hook_method_override(list, e_flag_public, drawable, draw),

@@ -219,12 +219,14 @@ if (NOT (STATUS_SDL STREQUAL ""))
             objects/media/ui/ui_factory.obj.c
             objects/media/ui/ui_factory.obj.h
             objects/media/ui/uiable.obj.c
-            objects/media/ui/uiable.obj.h)
+            objects/media/ui/uiable.obj.h
+            objects/media/ui/contextual_menu.c
+            objects/media/ui/contextual_menu.h)
     string(CONCAT miranda_ui_properties
             "objects/media/ui/button.obj.h;"
             "objects/media/ui/checkbox.obj.h;objects/media/ui/container.obj.h;objects/media/ui/field.obj.h;"
             "objects/media/ui/fonts.obj.h;objects/media/ui/label.obj.h;objects/media/ui/list.obj.h;objects/media/ui/scroll.obj.h;"
-            "objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h")
+            "objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h;objects/media/ui/contextual_menu.h")
     set_target_properties(miranda_ui PROPERTIES PUBLIC_HEADER "${miranda_ui_properties}")
     INSTALL(TARGETS miranda_ui
             LIBRARY DESTINATION /usr/local/lib

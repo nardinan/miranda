@@ -27,7 +27,7 @@ d_declare_class(list) {
   struct s_object *scroll;
   ssize_t selection[d_list_max_selected];
   size_t uiable_entries, visible_entries;
-  t_boolean multi_selection;
+  t_boolean multi_selection, unscrollable;
   enum e_drawable_blends last_blend;
   double last_mask_R, last_mask_G, last_mask_B, last_mask_A, selected_background_R, selected_background_G, selected_background_B, selected_background_A,
     over_background_R, over_background_G, over_background_B, over_background_A, unselected_background_R, unselected_background_G, unselected_background_B,
@@ -44,6 +44,7 @@ d_declare_method(list, get_selected_uiable)(struct s_object *self);
 d_declare_method(list, set_selected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 d_declare_method(list, set_over)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
 d_declare_method(list, set_unselected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha);
+d_declare_method(list, make_unscrollable)(struct s_object *self, t_boolean uscrollable);
 d_declare_method(list, mode)(struct s_object *self, enum e_uiable_modes mode);
 d_declare_method(list, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(list, draw)(struct s_object *self, struct s_object *environment);

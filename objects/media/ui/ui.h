@@ -25,6 +25,7 @@
 #include "checkbox.obj.h"
 #include "scroll.obj.h"
 #include "list.obj.h"
+#include "contextual_menu.h"
 #include "container.obj.h"
 #include "ui_factory.obj.h"
 #endif
