@@ -82,13 +82,14 @@ d_define_method_override(contextual_menu, draw)(struct s_object *self, struct s_
   struct s_list_attributes *list_attributes;
   struct s_object *current_node;
   int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
-  double dimension_w_scroll, dimension_h_scroll, dimension_h_components = 0, dimension_w_self, dimension_h_self, dimension_w_uiable, dimension_h_uiable;
+  double dimension_w_scroll = 0, dimension_h_scroll, dimension_h_components = 0, dimension_w_self, dimension_h_self, dimension_w_uiable, dimension_h_uiable;
   if ((contextual_menu_attributes->list) && (contextual_menu_attributes->status == e_contextual_menu_status_visible)) {
     list_attributes = d_cast(contextual_menu_attributes->list, list);
     drawable_attributes_list = d_cast(contextual_menu_attributes->list, drawable);
     drawable_attributes_scroll = d_cast(list_attributes->scroll, drawable);
     uiable_attributes_list = d_cast(contextual_menu_attributes->list, uiable);
-    d_call(&(drawable_attributes_scroll->point_dimension), m_point_get, &dimension_w_scroll, &dimension_h_scroll);
+    if (!list_attributes->unscrollable)
+      d_call(&(drawable_attributes_scroll->point_dimension), m_point_get, &dimension_w_scroll, &dimension_h_scroll);
     d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
     d_foreach(&(list_attributes->uiables), current_node, struct s_object) {
       drawable_attributes_component = d_cast(current_node, drawable);
