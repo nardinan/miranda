@@ -20,18 +20,18 @@
 #include "list.obj.h"
 typedef enum e_contextual_menu_statuses {
   e_contextual_menu_status_visible,
-  e_contextual_menu_stauts_hidden
+  e_contextual_menu_status_hidden
 } e_contextual_menu_statuses;
 d_declare_class(contextual_menu) {
   struct s_attributes head;
   struct s_object *list;
-  struct s_object *map_context;
+  struct s_object *selected_element;
   e_contextual_menu_statuses status;
 } d_declare_class_tail(contextual_menu);
 struct s_contextual_menu_attributes *p_contextual_menu_alloc(struct s_object *self);
 extern struct s_object *f_contextual_menu_new(struct s_object *self);
 d_declare_method(contextual_menu, set)(struct s_object *self, struct s_object *list);
-d_declare_method(contextual_menu, add_submenu)(struct s_object *self, struct s_object *uiable_key, struct s_object *list);
+d_declare_method(contextual_menu, get_selected_uiable)(struct s_object *self);
 d_declare_method(contextual_menu, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
 d_declare_method(contextual_menu, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(contextual_menu, delete)(struct s_object *self, struct s_contextual_menu_attributes *attributes);

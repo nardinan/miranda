@@ -24,6 +24,7 @@
 #include "checkbox.obj.h"
 #include "scroll.obj.h"
 #include "list.obj.h"
+#include "contextual_menu.h"
 #include "container.obj.h"
 #define d_ui_factory_label_size 32
 #define d_ui_factory_default_mode 0
@@ -62,6 +63,8 @@ d_declare_method(ui_factory, new_label)(struct s_object *self, unsigned int font
 d_declare_method(ui_factory, new_checkbox)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
 d_declare_method(ui_factory, new_button)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
 d_declare_method(ui_factory, new_field)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
+d_declare_method(ui_factory, new_contextual_menu)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
+  size_t elements);
 d_declare_method(ui_factory, get_component)(struct s_object *self, struct s_uiable_container *current_container, const char *label);
 d_declare_method(ui_factory, get_font)(struct s_object *self, int ID, int style, int *height);
 d_declare_method(ui_factory, delete)(struct s_object *self, struct s_ui_factory_attributes *attributes);

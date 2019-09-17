@@ -482,11 +482,23 @@ d_define_method(ui_factory, new_field)(struct s_object *self, unsigned int font_
   d_endtry;
   return result;
 }
-d_define_method(ui_factory, show_container)(struct s_object *self, struct s_object *environment, struct s_object *container) {
-  return self;
-}
-d_define_method(ui_factory, hide_container)(struct s_object *self, struct s_object *environment, struct s_object *container) {
-  return self;
+d_define_method(ui_factory, new_contextual_menu)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
+  size_t elements) {
+  size_t index;
+  struct s_object *result;
+  struct s_object *list_current;
+  struct s_object *label_current;
+  if ((result = f_contextual_menu_new(d_new(contextual_menu))))
+    if ((list_current = d_call(self, m_ui_factory_new_list, NULL))) {
+      for (index = 0; index < elements; ++index)
+        if ((label_current = d_call(self, m_ui_factory_new_label, font_id, font_style, string_entries[index]))) {
+          d_call(list_current, m_list_add_uiable, label_current);
+          d_delete(label_current);
+        }
+      d_call(result, m_contextual_menu_set, list_current);
+      d_delete(list_current);
+    }
+  return result;
 }
 d_define_method(ui_factory, get_component)(struct s_object *self, struct s_uiable_container *current_container, const char *label) {
   d_using(ui_factory);
@@ -537,6 +549,7 @@ d_define_class(ui_factory) {d_hook_method(ui_factory, e_flag_private, load_compo
                             d_hook_method(ui_factory, e_flag_public, new_checkbox),
                             d_hook_method(ui_factory, e_flag_public, new_button),
                             d_hook_method(ui_factory, e_flag_public, new_field),
+                            d_hook_method(ui_factory, e_flag_public, new_contextual_menu),
                             d_hook_method(ui_factory, e_flag_public, get_component),
                             d_hook_method(ui_factory, e_flag_public, get_font),
                             d_hook_delete(ui_factory),

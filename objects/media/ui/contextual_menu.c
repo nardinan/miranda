@@ -26,10 +26,7 @@ struct s_contextual_menu_attributes *p_contextual_menu_alloc(struct s_object *se
 }
 extern struct s_object *f_contextual_menu_new(struct s_object *self) {
   struct s_contextual_menu_attributes *attributes = p_contextual_menu_alloc(self);
-  if ((attributes->map_context = f_map_new(d_new(map))))
-    attributes->status = e_contextual_menu_stauts_hidden;
-  else
-    d_die(d_error_malloc);
+  attributes->status = e_contextual_menu_status_hidden;
   return self;
 }
 d_define_method(contextual_menu, set)(struct s_object *self, struct s_object *list) {
@@ -38,33 +35,51 @@ d_define_method(contextual_menu, set)(struct s_object *self, struct s_object *li
     d_delete(contextual_menu_attributes->list);
   contextual_menu_attributes->list = d_retain(list);
   d_call(contextual_menu_attributes->list, m_list_make_unscrollable, d_true);
+  d_call(contextual_menu_attributes->list, m_list_make_multi_selection, d_false);
   return self;
 }
-d_define_method(contextual_menu, add_submenu)(struct s_object *self, struct s_object *uiable_key, struct s_object *list) {
+d_define_method(contextual_menu, get_selected_uiable)(struct s_object *self) {
   d_using(contextual_menu);
-  return d_call(contextual_menu_attributes->map_context, m_map_insert, uiable_key, list);
+  return contextual_menu_attributes->selected_element;
 }
 d_define_method_override(contextual_menu, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(contextual_menu);
   struct s_drawable_attributes *drawable_attributes_list;
   struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
-  int mouse_x, mouse_y;
+  ssize_t *selection;
+  int mouse_x, mouse_y, index;
   if (contextual_menu_attributes->list) {
-    if (contextual_menu_attributes->status == e_contextual_menu_status_visible)
+    if (contextual_menu_attributes->status == e_contextual_menu_status_visible) {
       d_call(contextual_menu_attributes->list, m_eventable_event, environment, current_event);
+      if ((selection = d_call(contextual_menu_attributes->list, m_list_get_selected_uiable, NULL))) {
+        for (index = 0; (!contextual_menu_attributes->selected_element) && (index < d_list_max_selected); ++index)
+          if (selection[index] != d_list_selected_null)
+            if ((contextual_menu_attributes->selected_element = d_retain(d_call(contextual_menu_attributes->list, m_list_get_uiable,
+              (unsigned int)selection[index])))) {
+              contextual_menu_attributes->status = e_contextual_menu_status_hidden;
+              d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
+            }
+      }
+    }
     if (current_event->type == SDL_MOUSEBUTTONUP) {
       SDL_GetMouseState(&mouse_x, &mouse_y);
       if (current_event->button.button == SDL_BUTTON_RIGHT) {
-        if (contextual_menu_attributes->status == e_contextual_menu_stauts_hidden) {
+        if (contextual_menu_attributes->status == e_contextual_menu_status_hidden) {
           contextual_menu_attributes->status = e_contextual_menu_status_visible;
           d_call(contextual_menu_attributes->list, m_drawable_set_position, (double)mouse_x, (double)mouse_y);
+          d_call(contextual_menu_attributes->list, m_list_reset_select, NULL);
+          d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_unselected]);
+          if (contextual_menu_attributes->selected_element) {
+            d_delete(contextual_menu_attributes->selected_element);
+            contextual_menu_attributes->selected_element = NULL;
+          }
         } else
-          contextual_menu_attributes->status = e_contextual_menu_stauts_hidden;
+          contextual_menu_attributes->status = e_contextual_menu_status_hidden;
         d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
-      } else if (current_event->button.button == SDL_BUTTON_LEFT) {
+      } else if ((current_event->button.button == SDL_BUTTON_LEFT) && (contextual_menu_attributes->status == e_contextual_menu_status_visible)) {
         drawable_attributes_list = d_cast(contextual_menu_attributes->list, drawable);
         if (!((intptr_t)d_call(&(drawable_attributes_list->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
-          contextual_menu_attributes->status = e_contextual_menu_stauts_hidden;
+          contextual_menu_attributes->status = e_contextual_menu_status_hidden;
           d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
         }
       }
@@ -113,14 +128,18 @@ d_define_method_override(contextual_menu, draw)(struct s_object *self, struct s_
   }
   d_cast_return(result);
 }
-d_declare_method(contextual_menu, delete)(struct s_object *self, struct s_contextual_menu_attributes *attributes) {
+d_define_method(contextual_menu, delete)(struct s_object *self, struct s_contextual_menu_attributes *attributes) {
   if (attributes->list)
     d_delete(attributes->list);
-  d_delete(attributes->map_context);
+  if (attributes->selected_element) {
+    d_delete(attributes->selected_element);
+    attributes->selected_element = NULL;
+  }
   return NULL;
 }
 d_define_class(contextual_menu) {d_hook_method(contextual_menu, e_flag_public, set),
-                                 d_hook_method(contextual_menu, e_flag_public, add_submenu),
+                                 d_hook_method(contextual_menu, e_flag_public, get_selected_uiable),
                                  d_hook_method_override(contextual_menu, e_flag_public, eventable, event),
                                  d_hook_method_override(contextual_menu, e_flag_public, drawable, draw),
+                                 d_hook_delete(contextual_menu),
                                  d_hook_method_tail};

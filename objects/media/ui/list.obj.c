@@ -120,6 +120,13 @@ d_define_method(list, get_selected_uiable)(struct s_object *self) {
   d_using(list);
   d_cast_return(list_attributes->selection);
 }
+d_define_method(list, reset_select)(struct s_object *self) {
+  d_using(list);
+  int index;
+  for (index = 0; index < d_list_max_selected; ++index)
+    list_attributes->selection[index] = d_list_selected_null;
+  return self;
+}
 d_define_method(list, set_selected)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha) {
   d_using(list);
   list_attributes->selected_background_R = red;
@@ -147,6 +154,11 @@ d_define_method(list, set_unselected)(struct s_object *self, unsigned int red, u
 d_define_method(list, make_unscrollable)(struct s_object *self, t_boolean unscrollable) {
   d_using(list);
   list_attributes->unscrollable = unscrollable;
+  return self;
+}
+d_define_method(list, make_multi_selection)(struct s_object *self, t_boolean multi_selection) {
+  d_using(list);
+  list_attributes->multi_selection = multi_selection;
   return self;
 }
 d_define_method_override(list, mode)(struct s_object *self, enum e_uiable_modes mode) {
@@ -370,10 +382,12 @@ d_define_class(list) {d_hook_method(list, e_flag_public, add_uiable),
                       d_hook_method(list, e_flag_public, set_selected_uiable),
                       d_hook_method(list, e_flag_public, add_selected_uiable),
                       d_hook_method(list, e_flag_public, get_selected_uiable),
+                      d_hook_method(list, e_flag_public, reset_select),
                       d_hook_method(list, e_flag_public, set_selected),
                       d_hook_method(list, e_flag_public, set_over),
                       d_hook_method(list, e_flag_public, set_unselected),
                       d_hook_method(list, e_flag_public, make_unscrollable),
+                      d_hook_method(list, e_flag_public, make_multi_selection),
                       d_hook_method_override(list, e_flag_public, uiable, mode),
                       d_hook_method_override(list, e_flag_public, eventable, event),
                       d_hook_method_override(list, e_flag_public, drawable, draw),
