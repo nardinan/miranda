@@ -57,7 +57,7 @@ d_declare_class(uiable) {
   struct s_object *background[e_uiable_mode_NULL][e_uiable_component_NULL];
   unsigned int component_id;
   enum e_uiable_modes selected_mode;
-  t_boolean is_selected;
+  t_boolean is_selected, inherit_visibility_from_parent;
   double border_h, border_w, background_mask_R, background_mask_G, background_mask_B, background_mask_A;
 } d_declare_class_tail(uiable);
 struct s_uiable_attributes *p_uiable_alloc(struct s_object *self);

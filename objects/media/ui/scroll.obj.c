@@ -57,6 +57,7 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   double position_x, position_y, dimension_w, dimension_h;
   int mouse_x, mouse_y;
+  t_boolean changed = d_false;
   d_call(&(drawable_attributes->point_destination), m_point_get, &position_x, &position_y);
   d_call(&(drawable_attributes->point_dimension), m_point_get, &dimension_w, &dimension_h);
   SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -69,8 +70,9 @@ d_define_method_override(scroll, event)(struct s_object *self, struct s_object *
       else if (scroll_attributes->position > scroll_attributes->maximum)
         scroll_attributes->position = scroll_attributes->maximum;
       d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+      changed = d_true;
     }
-  return self;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *environment) {
   d_using(scroll);

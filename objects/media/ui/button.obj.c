@@ -27,9 +27,12 @@ struct s_object *f_button_new(struct s_object *self, char *string_content, TTF_F
   return self;
 }
 d_define_method_override(button, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
-  if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT))
+  t_boolean changed = d_false;
+  if ((current_event->type == SDL_MOUSEBUTTONUP) && (current_event->button.button == SDL_BUTTON_LEFT)) {
     d_call(self, m_uiable_mode, e_uiable_mode_active);
-  return self;
+    changed = d_true;
+  }
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_class(button) {d_hook_method_override(button, e_flag_public, eventable, event),
                         d_hook_method_tail};

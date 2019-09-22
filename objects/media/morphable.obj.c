@@ -90,7 +90,7 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_exception *exception;
   int mouse_x, mouse_y;
-  t_boolean mouse_inside = d_false;
+  t_boolean mouse_inside = d_false, change_performed = d_false;
   SDL_GetMouseState(&mouse_x, &mouse_y);
   if (morphable_attributes->visible) {
     drawable_attributes->flags &= ~e_drawable_kind_contour;
@@ -103,12 +103,16 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
       {
         switch (current_event->type) {
           case SDL_MOUSEWHEEL:
-            if (morphable_attributes->grabbed)
+            if (morphable_attributes->grabbed) {
               morphable_attributes->offset_z += (current_event->wheel.y * d_morphable_z_factor);
+              change_performed = d_true;
+            }
             break;
           case SDL_MOUSEBUTTONUP:
-            if (current_event->button.button == SDL_BUTTON_LEFT)
+            if (current_event->button.button == SDL_BUTTON_LEFT) {
               morphable_attributes->grabbed = d_false;
+              change_performed = d_true;
+            }
             break;
           case SDL_MOUSEBUTTONDOWN:
             if (current_event->button.button == SDL_BUTTON_LEFT) {
@@ -118,6 +122,7 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
                 morphable_attributes->offset_x = NAN;
                 morphable_attributes->offset_y = NAN;
                 morphable_attributes->offset_z = NAN;
+                change_performed = d_true;
               }
             }
         }
@@ -128,7 +133,7 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
         d_raise;
       }
   d_endtry;
-  return self;
+  d_cast_return(((change_performed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_class(morphable) {d_hook_method(morphable, e_flag_public, set_freedom_x),
                            d_hook_method(morphable, e_flag_public, set_freedom_y),

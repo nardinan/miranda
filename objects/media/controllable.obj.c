@@ -69,8 +69,8 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
   struct s_controllable_entry *current_entry;
   struct s_exception *exception;
   struct timeval last_pressed;
-  struct s_object *result = d_call_owner(self, morphable, m_eventable_event, environment, current_event);
-  t_boolean double_active = d_false;
+  t_boolean double_active = d_false, changed = (((intptr_t )d_call_owner(self, morphable, m_eventable_event, environment, current_event) ==
+    e_eventable_status_captured));
   if (controllable_attributes->enable) {
     d_try
         {
@@ -93,6 +93,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
                       current_entry->is_pressed = d_true;
                     }
                   }
+                  changed = d_true;
                   break;
                 case SDL_KEYUP:
                   if (current_event->key.keysym.sym == current_entry->key) {
@@ -101,6 +102,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
                     controllable_attributes->last_key = current_event->key.keysym.sym;
                     gettimeofday(&(controllable_attributes->last_released), NULL);
                   }
+                  changed = d_true;
               }
             }
           }
@@ -112,7 +114,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
         }
     d_endtry;
   }
-  return result;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method(controllable, delete)(struct s_object *self, struct s_controllable_attributes *attributes) {
   struct s_controllable_entry *current_entry;

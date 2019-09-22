@@ -33,6 +33,13 @@
 #define d_ui_factory_default_font_id 0
 #define d_ui_factory_default_font_style TTF_STYLE_NORMAL
 #define d_ui_factory_default_level 0
+#define d_ui_factory_default_array_size 64
+typedef enum e_uiable_categories {
+  e_uiable_category_container,
+  e_uiable_category_list,
+  e_uiable_category_label,
+  e_uiable_category_accessory
+} e_uiable_categories;
 typedef struct s_uiable_container {
   d_list_node_head;
   char label[d_ui_factory_label_size];
@@ -57,7 +64,8 @@ d_declare_method(ui_factory, load_component)(struct s_object *self, struct s_obj
   t_json_starting_point *starting_point);
 d_declare_method(ui_factory, load_uiable)(struct s_object *self, struct s_object *uiable, const char *component);
 d_declare_method(ui_factory, new_container)(struct s_object *self, t_boolean floatable);
-d_declare_method(ui_factory, new_list)(struct s_object *self);
+d_declare_method(ui_factory, new_list)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
+  size_t elements);
 d_declare_method(ui_factory, new_scroll)(struct s_object *self);
 d_declare_method(ui_factory, new_label)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);
 d_declare_method(ui_factory, new_checkbox)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_content);

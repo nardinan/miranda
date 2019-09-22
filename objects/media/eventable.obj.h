@@ -20,6 +20,10 @@
 #include <SDL_events.h>
 #include "../memory.obj.h"
 #include "../mutex.obj.h"
+typedef enum e_eventable_statuses {
+  e_eventable_status_ignored,
+  e_eventable_status_captured
+} e_eventable_statuses;
 d_declare_class(eventable) {
   struct s_attributes head;
   t_boolean enable;

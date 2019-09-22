@@ -51,7 +51,7 @@ d_define_method(field, set_size)(struct s_object *self, size_t max_size) {
 d_define_method_override(field, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(field);
   struct s_label_attributes *label_attributes = d_cast(self, label);
-  t_boolean update_required = d_false;
+  t_boolean update_required = d_false, changed = d_false;
   size_t string_length, new_length, incoming_length;
   switch (current_event->type) {
     case SDL_TEXTINPUT:
@@ -77,6 +77,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
           field_attributes->pointer += incoming_length;
           update_required = d_true;
         }
+      changed = d_true;
       break;
     case SDL_KEYDOWN:
       switch (current_event->key.keysym.sym) {
@@ -98,12 +99,13 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
         default:
           break;
       }
+      changed = d_true;
     default:
       break;
   }
   if (update_required)
     d_call(self, m_label_update_texture, NULL, environment);
-  return self;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method_override(field, draw)(struct s_object *self, struct s_object *environment) {
   d_using(field);

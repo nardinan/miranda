@@ -26,7 +26,9 @@ struct s_contextual_menu_attributes *p_contextual_menu_alloc(struct s_object *se
 }
 extern struct s_object *f_contextual_menu_new(struct s_object *self) {
   struct s_contextual_menu_attributes *attributes = p_contextual_menu_alloc(self);
+  struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
   attributes->status = e_contextual_menu_status_hidden;
+  uiable_attributes->inherit_visibility_from_parent = d_true;
   return self;
 }
 d_define_method(contextual_menu, set)(struct s_object *self, struct s_object *list) {
@@ -45,9 +47,9 @@ d_define_method(contextual_menu, get_selected_uiable)(struct s_object *self) {
 d_define_method_override(contextual_menu, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(contextual_menu);
   struct s_drawable_attributes *drawable_attributes_list;
-  struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
   ssize_t *selection;
   int mouse_x, mouse_y, index;
+  t_boolean changed = d_false;
   if (contextual_menu_attributes->list) {
     if (contextual_menu_attributes->status == e_contextual_menu_status_visible) {
       d_call(contextual_menu_attributes->list, m_eventable_event, environment, current_event);
@@ -60,6 +62,7 @@ d_define_method_override(contextual_menu, event)(struct s_object *self, struct s
               d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
             }
       }
+      changed = d_true;
     }
     if (current_event->type == SDL_MOUSEBUTTONUP) {
       SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -76,16 +79,18 @@ d_define_method_override(contextual_menu, event)(struct s_object *self, struct s
         } else
           contextual_menu_attributes->status = e_contextual_menu_status_hidden;
         d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+        changed = d_true;
       } else if ((current_event->button.button == SDL_BUTTON_LEFT) && (contextual_menu_attributes->status == e_contextual_menu_status_visible)) {
         drawable_attributes_list = d_cast(contextual_menu_attributes->list, drawable);
         if (!((intptr_t)d_call(&(drawable_attributes_list->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
           contextual_menu_attributes->status = e_contextual_menu_status_hidden;
           d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_changed]);
+          changed = d_true;
         }
       }
     }
   }
-  return result;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method_override(contextual_menu, draw)(struct s_object *self, struct s_object *environment) {
   d_using(contextual_menu);

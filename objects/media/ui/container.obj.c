@@ -72,20 +72,23 @@ d_define_method(container, get_drawable)(struct s_object *self, struct s_object 
 d_define_method_override(container, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(container);
   struct s_eventable_attributes *eventable_attributes;
-  struct s_uiable_attributes *uiable_attributes;
+  struct s_uiable_attributes *uiable_attributes_other, *uiable_attributes_self = d_cast(self, uiable);
   struct s_container_drawable *current_container;
-  struct s_object *result = d_call_owner(self, uiable, m_eventable_event, environment, current_event);
   struct s_exception *exception;
+  t_boolean changed = (((intptr_t)d_call_owner(self, uiable, m_eventable_event, environment, current_event)) == e_eventable_status_captured);
   d_try
       {
-        d_foreach(&(container_attributes->entries), current_container, struct s_container_drawable) {
-          if (((uiable_attributes = d_cast(current_container->drawable, uiable))) &&
+        d_reverse_foreach(&(container_attributes->entries), current_container, struct s_container_drawable)
+          if (((uiable_attributes_other = d_cast(current_container->drawable, uiable))) &&
               ((eventable_attributes = d_cast(current_container->drawable, eventable)))) {
             d_call_owner(current_container->drawable, uiable, m_eventable_event, environment, current_event);
-            if ((uiable_attributes->is_selected) && (eventable_attributes->enable))
-              d_call(current_container->drawable, m_eventable_event, environment, current_event);
+            if ((((uiable_attributes_other->inherit_visibility_from_parent) && (uiable_attributes_self->is_selected)) ||
+                (uiable_attributes_other->is_selected)) && (eventable_attributes->enable))
+              if (((intptr_t)d_call(current_container->drawable, m_eventable_event, environment, current_event)) == e_eventable_status_captured) {
+                changed = d_true;
+                break;
+              }
           }
-        }
       }
     d_catch(exception)
       {
@@ -93,7 +96,7 @@ d_define_method_override(container, event)(struct s_object *self, struct s_objec
         d_raise;
       }
   d_endtry;
-  return result;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method_override(container, draw)(struct s_object *self, struct s_object *environment) {
   d_using(container);

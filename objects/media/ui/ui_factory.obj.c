@@ -98,23 +98,25 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
   struct _scoped_keyword_list {
     const char *kind;
     t_class_method call;
-    t_boolean container;
-  } scoped_keyword_list[] = {{"container", (t_class_method)&(p_ui_factory_new_container), d_true},
-                             {"label",     (t_class_method)&(p_ui_factory_new_label),     d_false},
-                             {"checkbox",  (t_class_method)&(p_ui_factory_new_checkbox),  d_false},
-                             {"button",    (t_class_method)&(p_ui_factory_new_button),    d_false},
-                             {"field",     (t_class_method)&(p_ui_factory_new_field),     d_false},
-                             {"list",      (t_class_method)&(p_ui_factory_new_list),      d_false},
-                             {"scroll",    (t_class_method)&(p_ui_factory_new_scroll),    d_false},
+    e_uiable_categories category;
+  } scoped_keyword_list[] = {{"container",       (t_class_method)&(p_ui_factory_new_container),        e_uiable_category_container},
+                             {"label",           (t_class_method)&(p_ui_factory_new_label),            e_uiable_category_label},
+                             {"checkbox",        (t_class_method)&(p_ui_factory_new_checkbox),         e_uiable_category_label},
+                             {"button",          (t_class_method)&(p_ui_factory_new_button),           e_uiable_category_label},
+                             {"field",           (t_class_method)&(p_ui_factory_new_field),            e_uiable_category_label},
+                             {"scroll",          (t_class_method)&(p_ui_factory_new_scroll),           e_uiable_category_accessory},
+                             {"list",            (t_class_method)&(p_ui_factory_new_list),             e_uiable_category_list},
+                             {"contextual_menu", (t_class_method)&(p_ui_factory_new_contextual_menu),  e_uiable_category_list},
                              {NULL}};
   struct s_label_attributes *label_attributes;
   struct s_checkbox_attributes *checkbox_attributes;
+  struct s_scroll_attributes *scroll_attributes;
   struct s_uiable_container *current_component;
   struct s_object *stream;
   t_json_starting_point *next_starting_point;
   t_boolean boolean_supply;
-  char buffer[d_string_buffer_size], *string_supply = NULL;
-  int index, index_component = 0;
+  char buffer[d_string_buffer_size], *string_supply, *strings_vector_supply[d_ui_factory_default_array_size];
+  int index, index_component = 0, index_string = 0;
   double font_id = d_ui_factory_default_font_id, font_style = d_ui_factory_default_font_style, position_x, position_y, width, height, alignment_x, alignment_y,
     background_R, background_G, background_B, background_A, angle, range_minimum, range_maximum, modifier;
   while ((d_call(json_ui, m_json_get_string_relative, starting_point, &string_supply, "sds", "components", index_component, "label"))) {
@@ -133,39 +135,50 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
             if (f_string_strcmp(string_supply, scoped_keyword_list[index].kind) == 0)
               break;
           if (scoped_keyword_list[index].kind) {
-            if (scoped_keyword_list[index].container) {
+            if (scoped_keyword_list[index].category == e_uiable_category_container) {
               /* a container */
               d_call(json_ui, m_json_get_boolean_relative, next_starting_point, &boolean_supply, "s", "floatable");
               if ((current_component->uiable = scoped_keyword_list[index].call(self, boolean_supply)))
                 d_call(self, m_ui_factory_load_component, json_ui, current_component, next_starting_point);
-            } else {
+            } else if (scoped_keyword_list[index].category == e_uiable_category_list) {
+              index_string = 0;
+              d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_id, "s", "font_id");
+              d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_style, "s", "font_style");
+              while ((d_call(json_ui, m_json_get_string_relative, next_starting_point, &(strings_vector_supply[index_string]), "sd", "content",
+                index_string)))
+                ++index_string;
+              current_component->uiable =
+                scoped_keyword_list[index].call(self, (unsigned int)font_id, (unsigned int)font_style, strings_vector_supply, index_string);
+            } else if (scoped_keyword_list[index].category == e_uiable_category_label) {
               d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_id, "s", "font_id");
               d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_style, "s", "font_style");
               d_call(json_ui, m_json_get_string_relative, next_starting_point, &string_supply, "s", "content");
               if ((current_component->uiable = scoped_keyword_list[index].call(self, (unsigned int)font_id, (unsigned int)font_style, string_supply))) {
-                /* if ineriths from the label object */
+                /* if inherits from the label object */
                 if ((label_attributes = d_cast(current_component->uiable, label))) {
                   if ((d_call(json_ui, m_json_get_double_relative, next_starting_point, &alignment_x, "s", "alignment_x")))
                     label_attributes->alignment_x = (enum e_label_alignments)alignment_x;
                   if ((d_call(json_ui, m_json_get_double_relative, next_starting_point, &alignment_y, "s", "alignment_y")))
                     label_attributes->alignment_y = (enum e_label_alignments)alignment_y;
                 }
-                /* if ineriths from the checkbox object */
+                /* if inherits from the checkbox object */
                 if ((checkbox_attributes = d_cast(current_component->uiable, checkbox)))
                   if ((d_call(json_ui, m_json_get_boolean_relative, next_starting_point, &boolean_supply, "s", "checked")))
                     checkbox_attributes->is_checked = boolean_supply;
-                if (d_cast(current_component->uiable, scroll)) {
+              }
+            } else if (scoped_keyword_list[index].category == e_uiable_category_accessory)
+              if ((current_component->uiable = scoped_keyword_list[index].call(self, NULL)))
+                if ((scroll_attributes = d_cast(current_component->uiable, scroll))) {
                   range_minimum = 0.0;
                   range_maximum = 100.0;
                   modifier = 1.0;
                   d_call(json_ui, m_json_get_double_relative, next_starting_point, &range_minimum, "s", "minimum");
                   d_call(json_ui, m_json_get_double_relative, next_starting_point, &range_maximum, "s", "maximum");
                   d_call(json_ui, m_json_get_double_relative, next_starting_point, &modifier, "s", "scroll_speed");
-                  d_call(current_component->uiable, m_scroll_set_modifier, (int)modifier);
-                  d_call(current_component->uiable, m_scroll_set_range, (int)range_minimum, (int)range_maximum);
+                  scroll_attributes->modifier = modifier;
+                  scroll_attributes->maximum = range_maximum;
+                  scroll_attributes->minimum = range_minimum;
                 }
-              }
-            }
           }
         } else if (d_call(json_ui, m_json_get_string_relative, next_starting_point, &string_supply, "s", "source"))
           if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
@@ -279,13 +292,17 @@ d_define_method(ui_factory, new_container)(struct s_object *self, t_boolean floa
   d_endtry;
   return result;
 }
-d_define_method(ui_factory, new_list)(struct s_object *self) {
+d_define_method(ui_factory, new_list)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
+  size_t elements) {
   d_using(ui_factory);
   struct s_exception *exception;
-  struct s_object *scroll, *result = NULL;
+  struct s_object *result = NULL;
+  struct s_object *scroll;
   struct s_object *stream;
+  struct s_object *label;
   char *string_supply = NULL;
   double selected_R = 0.0, selected_G = 0.0, selected_B = 0.0, selected_A = 0.0, over_R = 0.0, over_G = 0.0, over_B = 0.0, over_A = 0.0, width_scroll = 0.0;
+  int index_label;
   d_try
       {
         d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_R, "sss", "ui", "list", "selected_R");
@@ -308,6 +325,11 @@ d_define_method(ui_factory, new_list)(struct s_object *self) {
             d_call(result, m_list_set_selected, (unsigned int)selected_R, (unsigned int)selected_G, (unsigned int)selected_B, (unsigned int)selected_A);
             d_call(result, m_list_set_over, (unsigned int)over_R, (unsigned int)over_G, (unsigned int)over_B, (unsigned int)over_A);
             d_call(self, m_ui_factory_load_uiable, result, "list");
+            for (index_label = 0; index_label < elements; ++index_label)
+              if ((label = d_call(self, m_ui_factory_new_label, font_id, font_style, string_entries[index_label]))) {
+                d_call(result, m_list_add_uiable, label);
+                d_delete(label);
+              }
           }
           d_delete(scroll);
         }
@@ -484,17 +506,10 @@ d_define_method(ui_factory, new_field)(struct s_object *self, unsigned int font_
 }
 d_define_method(ui_factory, new_contextual_menu)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
   size_t elements) {
-  size_t index;
   struct s_object *result;
   struct s_object *list_current;
-  struct s_object *label_current;
   if ((result = f_contextual_menu_new(d_new(contextual_menu))))
-    if ((list_current = d_call(self, m_ui_factory_new_list, NULL))) {
-      for (index = 0; index < elements; ++index)
-        if ((label_current = d_call(self, m_ui_factory_new_label, font_id, font_style, string_entries[index]))) {
-          d_call(list_current, m_list_add_uiable, label_current);
-          d_delete(label_current);
-        }
+    if ((list_current = d_call(self, m_ui_factory_new_list, font_id, font_style, string_entries, elements))) {
       d_call(result, m_contextual_menu_set, list_current);
       d_delete(list_current);
     }

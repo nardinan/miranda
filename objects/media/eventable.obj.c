@@ -33,7 +33,7 @@ d_define_method(eventable, set_enable)(struct s_object *self, t_boolean enable) 
 }
 d_define_method(eventable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_war(e_log_level_ever, "'event' method has not been implemented yet");
-  return self;
+  d_cast_return(e_eventable_status_ignored);
 }
 d_define_class(eventable) {d_hook_method(eventable, e_flag_public, set_enable),
                            d_hook_method(eventable, e_flag_public, event),

@@ -178,7 +178,7 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
   struct s_object *current_entry;
   const unsigned char *keystate = SDL_GetKeyboardState(NULL);
   int mouse_x, mouse_y, pointer = 0, forwarded_entries = 0, starting_uiable = 0;
-  t_boolean new_selection = d_false, modified = d_false;
+  t_boolean new_selection = d_false, modified = d_false, changed = d_false;
   SDL_GetMouseState(&mouse_x, &mouse_y);
   if (((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
     if (!list_attributes->unscrollable) {
@@ -206,6 +206,7 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
         }
         ++pointer;
       }
+    changed = d_true;
   }
   if ((uiable_attributes_self->selected_mode == e_uiable_mode_selected) && (current_event->type == SDL_KEYDOWN))
     if (list_attributes->selection[0] != d_list_selected_null) {
@@ -229,11 +230,12 @@ d_define_method_override(list, event)(struct s_object *self, struct s_object *en
           d_call(list_attributes->scroll, m_scroll_set_position, list_attributes->selection[0]);
         else if (list_attributes->selection[0] > (starting_uiable + (list_attributes->visible_entries - 1)))
           d_call(list_attributes->scroll, m_scroll_set_position, (list_attributes->selection[0] - (list_attributes->visible_entries - 1)));
+        changed = d_true;
       }
     }
   if (new_selection)
     d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_content_changed]);
-  return self;
+  d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_method_override(list, draw)(struct s_object *self, struct s_object *environment) {
   d_using(list);
