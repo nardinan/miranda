@@ -27,8 +27,6 @@ add_library(miranda_ground SHARED
         math.local.h
         memory.c
         memory.h
-        rs232.c
-        rs232.h
         string.local.c
         string.local.h
         telnet.c
@@ -37,7 +35,7 @@ add_library(miranda_ground SHARED
         types.h)
 string(CONCAT miranda_ground_properties
         "console.h;endian.local.h;exception.h;ground.h;hash.h;"
-        "huffman.h;list.h;log.h;logs.h;math.local.h;memory.h;rs232.h;string.local.h;telnet.h;types.h")
+        "huffman.h;list.h;log.h;logs.h;math.local.h;memory.h;string.local.h;telnet.h;types.h")
 set_target_properties(miranda_ground PROPERTIES PUBLIC_HEADER "${miranda_ground_properties}")
 INSTALL(TARGETS miranda_ground
         LIBRARY DESTINATION /usr/local/lib

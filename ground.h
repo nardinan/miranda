@@ -1,6 +1,6 @@
 /*
  * miranda
- * Copyright (C) 2014 Andrea Nardinocchi (andrea@nardinan.it)
+ * Copyright (C) 2014-2020 Andrea Nardinocchi (andrea@nardinan.it)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 #include "exception.h"
 #include "endian.local.h"
 #include "memory.h"
-#include "rs232.h"
 #include "console.h"
 #include "telnet.h"
 #include "huffman.h"
