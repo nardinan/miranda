@@ -26,6 +26,7 @@ struct s_container_attributes *p_container_alloc(struct s_object *self) {
 }
 struct s_object *f_container_new(struct s_object *self, double border_top, double border_bottom, double border_left, double border_right, t_boolean floatable) {
   struct s_container_attributes *attributes = p_container_alloc(self);
+  struct s_eventable_attributes *eventable_attributes = d_cast(self, eventable);
   attributes->border_top = border_top;
   attributes->border_bottom = border_bottom;
   attributes->border_left = border_left;
@@ -35,6 +36,7 @@ struct s_object *f_container_new(struct s_object *self, double border_top, doubl
     d_call(self, m_morphable_set_freedom_x, d_true);
     d_call(self, m_morphable_set_freedom_y, d_true);
   }
+  eventable_attributes->ignore_event_if_consumed = d_true;
   return self;
 }
 d_define_method(container, add_drawable)(struct s_object *self, struct s_object *drawable, double position_x, double position_y) {

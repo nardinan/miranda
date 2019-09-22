@@ -26,7 +26,7 @@ typedef enum e_eventable_statuses {
 } e_eventable_statuses;
 d_declare_class(eventable) {
   struct s_attributes head;
-  t_boolean enable;
+  t_boolean enable, ignore_event_if_consumed;
 } d_declare_class_tail(eventable);
 struct s_eventable_attributes *p_eventable_alloc(struct s_object *self);
 extern struct s_object *f_eventable_new(struct s_object *self);

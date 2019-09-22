@@ -108,8 +108,9 @@ d_define_method_override(uiable, event)(struct s_object *self, struct s_object *
       if (current_event->button.button == SDL_BUTTON_LEFT) {
         d_call(self, m_uiable_mode, e_uiable_mode_selected);
         d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_left]);
-      } else if (current_event->button.button == SDL_BUTTON_RIGHT)
+      } else if (current_event->button.button == SDL_BUTTON_RIGHT) {
         d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_clicked_right]);
+      }
     }
   } else {
     if (uiable_attributes->is_selected) {

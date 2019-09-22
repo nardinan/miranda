@@ -189,20 +189,25 @@ d_define_method(environment, run_loop)(struct s_object *self) {
   struct s_exception *exception;
   SDL_Event local_event;
   environment_attributes->init_call(self);
+  t_boolean event_captured;
   while (environment_attributes->continue_loop) {
     d_try
         {
           while (SDL_PollEvent(&local_event)) {
-            d_foreach(&(environment_attributes->eventable), eventable_object, struct s_object)
+            event_captured = d_false;
+            d_reverse_foreach(&(environment_attributes->eventable), eventable_object, struct s_object) {
               if ((eventable_attributes = d_cast(eventable_object, eventable)))
-                if (eventable_attributes->enable)
-                  d_call(eventable_object, m_eventable_event, self, &local_event);
-            for (surface = 0; surface < e_environment_surface_NULL; ++surface) {
-              for (index = 0; index < d_environment_layers; ++index) {
-                d_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
+                if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
+                  if ((intptr_t)d_call(eventable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
+                    event_captured = d_true;
+            }
+            for (surface = (e_environment_surface_NULL -1); surface >= 0 ; --surface) {
+              for (index = (d_environment_layers - 1); index >= 0; --index) {
+                d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
                   if ((eventable_attributes = d_cast(drawable_object, eventable)))
-                    if (eventable_attributes->enable)
-                      d_call(drawable_object, m_eventable_event, self, &local_event);
+                    if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
+                      if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
+                        event_captured = d_true;
               }
             }
             if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
