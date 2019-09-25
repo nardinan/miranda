@@ -87,6 +87,17 @@ d_define_method(lights, get_light)(struct s_object *self, struct s_object *refer
   }
   d_cast_return(result);
 }
+d_define_method(lights, clear)(struct s_object *self) {
+  d_using(lights);
+  struct s_lights_emitter *current_emitter;
+  while ((current_emitter = (struct s_lights_emitter *)lights_attributes->emitters.head)) {
+    d_delete(current_emitter->mask);
+    d_delete(current_emitter->reference);
+    d_free(current_emitter);
+    f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)lights_attributes->emitters.head);
+  }
+  return self;
+}
 d_define_method(lights, set_intensity)(struct s_object *self, unsigned char intensity) {
   d_using(lights);
   lights_attributes->intensity = intensity;
@@ -260,6 +271,7 @@ d_define_method(lights, delete)(struct s_object *self, struct s_lights_attribute
 }
 d_define_class(lights) {d_hook_method(lights, e_flag_public, add_light),
                         d_hook_method(lights, e_flag_public, get_light),
+                        d_hook_method(lights, e_flag_public, clear),
                         d_hook_method(lights, e_flag_public, set_intensity),
                         d_hook_method(lights, e_flag_public, get_intensity),
                         d_hook_method(lights, e_flag_public, get_affecting_lights),
