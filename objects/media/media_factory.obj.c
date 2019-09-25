@@ -16,6 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "media_factory.obj.h"
+const char *v_extension_media_illuminable[e_illuminable_bitmap_side_NULL] = {
+"_top",
+"_right",
+"_bottom",
+"_left",
+"_front"
+};
 struct s_media_factory_attributes *p_media_factory_alloc(struct s_object *self) {
   struct s_media_factory_attributes *result = d_prepare(self, media_factory);
   f_memory_new(self);         /* inherit */
@@ -38,9 +45,22 @@ d_define_method(media_factory, get_bitmap)(struct s_object *self, const char *la
   struct s_exception *exception;
   struct s_object *stream;
   struct s_object *result = NULL;
+  char extra_layers[e_illuminable_bitmap_side_NULL][d_string_buffer_size];
+  int index_layer;
+  t_boolean illuminable_bitmap = d_false;
+  for (index_layer = 0; index_layer < e_illuminable_bitmap_side_NULL; ++index_layer) {
+    snprintf(extra_layers[index_layer], d_string_buffer_size, "%s%s", label, v_extension_media_illuminable[index_layer]);
+    if (!illuminable_bitmap)
+      if ((d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, extra_layers, e_resources_type_common)))
+        illuminable_bitmap = d_true;
+  }
   d_try
       {
-        if ((stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label, e_resources_type_common)))
+        if (illuminable_bitmap)
+          result = d_call(self, m_media_factory_get_illuminable_bitmap, label, extra_layers[e_illuminable_bitmap_side_left],
+            extra_layers[e_illuminable_bitmap_side_right], extra_layers[e_illuminable_bitmap_side_top], extra_layers[e_illuminable_bitmap_side_bottom],
+            extra_layers[e_illuminable_bitmap_side_front]);
+        else if ((stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label, e_resources_type_common)))
           result = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment);
       }
     d_catch(exception)

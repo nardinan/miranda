@@ -35,6 +35,7 @@ typedef enum e_media_factory_media_types {
   e_media_factory_media_type_particle,
   e_media_factory_media_type_NULL
 } e_media_factory_media_types;
+extern const char *v_extension_media_illuminable[e_illuminable_bitmap_side_NULL];
 d_declare_class(media_factory) {
   struct s_attributes head;
   struct s_object *environment;
