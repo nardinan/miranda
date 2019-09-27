@@ -51,7 +51,7 @@ d_define_method(media_factory, get_bitmap)(struct s_object *self, const char *la
   for (index_layer = 0; index_layer < e_illuminable_bitmap_side_NULL; ++index_layer) {
     snprintf(extra_layers[index_layer], d_string_buffer_size, "%s%s", label, v_extension_media_illuminable[index_layer]);
     if (!illuminable_bitmap)
-      if ((d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, extra_layers, e_resources_type_common)))
+      if ((d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, extra_layers[index_layer], e_resources_type_common)))
         illuminable_bitmap = d_true;
   }
   d_try
