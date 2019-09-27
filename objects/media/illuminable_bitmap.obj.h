@@ -41,7 +41,8 @@ extern struct s_object *f_illuminable_bitmap_new(struct s_object *self, struct s
 d_declare_method(illuminable_bitmap, set_light_mask)(struct s_object *self, struct s_object *drawable_mask, enum e_illuminable_bitmap_sides side);
 d_declare_method(illuminable_bitmap, set_lights)(struct s_object *self, struct s_object *lights);
 d_declare_method(illuminable_bitmap, set_shadows)(struct s_object *self, struct s_object *shadows);
-d_declare_method(illuminable_bitmap, set_shadow_caster_points)(struct s_object *self, size_t size, ...);
+d_declare_method(illuminable_bitmap, set_shadow_caster_points_args)(struct s_object *self, size_t size, ...);
+d_declare_method(illuminable_bitmap, set_shadow_caster_points_list)(struct s_object *self, size_t size, struct s_object *points[]);
 d_declare_method(illuminable_bitmap, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(illuminable_bitmap, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(illuminable_bitmap, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,

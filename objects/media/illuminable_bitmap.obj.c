@@ -60,7 +60,7 @@ d_define_method(illuminable_bitmap, set_shadows)(struct s_object *self, struct s
   illuminable_bitmap_attributes->shadows = d_retain(shadows);
   return self;
 }
-d_define_method(illuminable_bitmap, set_shadow_caster_points)(struct s_object *self, size_t size, ...) {
+d_define_method(illuminable_bitmap, set_shadow_caster_points_args)(struct s_object *self, size_t size, ...) {
   d_using(illuminable_bitmap);
   va_list parameters;
   struct s_object *current_point;
@@ -71,6 +71,14 @@ d_define_method(illuminable_bitmap, set_shadow_caster_points)(struct s_object *s
     if ((current_point = va_arg(parameters, struct s_object *)))
       d_call(illuminable_bitmap_attributes->polygon_shadow_caster, m_polygon_push, current_point);
   va_end(parameters);
+  return self;
+}
+d_define_method(illuminable_bitmap, set_shadow_caster_points_list)(struct s_object *self, size_t size, struct s_object *points[]) {
+  d_using(illuminable_bitmap);
+  unsigned int index;
+  d_call(illuminable_bitmap_attributes->polygon_shadow_caster, m_polygon_clear, NULL);
+  for (index = 0; index < size; ++index)
+    d_call(illuminable_bitmap_attributes->polygon_shadow_caster, m_polygon_push, points[index]);
   return self;
 }
 d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct s_object *environment) {
@@ -343,7 +351,8 @@ d_declare_method(illuminable_bitmap, delete)(struct s_object *self, struct s_ill
 d_define_class(illuminable_bitmap) {d_hook_method(illuminable_bitmap, e_flag_public, set_light_mask),
                                     d_hook_method(illuminable_bitmap, e_flag_public, set_lights),
                                     d_hook_method(illuminable_bitmap, e_flag_public, set_shadows),
-                                    d_hook_method(illuminable_bitmap, e_flag_public, set_shadow_caster_points),
+                                    d_hook_method(illuminable_bitmap, e_flag_public, set_shadow_caster_points_args),
+                                    d_hook_method(illuminable_bitmap, e_flag_public, set_shadow_caster_points_list),
                                     d_hook_method_override(illuminable_bitmap, e_flag_public, drawable, draw),
                                     d_hook_method_override(illuminable_bitmap, e_flag_public, drawable, draw_contour),
                                     d_hook_method_override(illuminable_bitmap, e_flag_public, drawable, normalize_scale),
