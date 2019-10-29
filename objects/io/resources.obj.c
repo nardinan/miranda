@@ -111,6 +111,7 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
   struct s_resources_node *current_node;
   unsigned char *block_data;
   char buffer[d_string_buffer_size], raw_path[d_resources_path_size], *current_key;
+  int temporary_descriptor;
   attributes->destroy_content = d_true;
   f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
   d_call(datafile_stream, m_stream_size, &residual_size);
@@ -132,26 +133,32 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
           if ((block_data = (unsigned char *)d_malloc(block_size))) {
             d_call(datafile_stream, m_stream_read, block_data, block_size, NULL);
             snprintf(raw_path, d_resources_path_size, "/tmp/%s.XXXXXX", block_header.key);
-            string_path = f_string_new(d_new(string), mktemp(raw_path));
-            if ((current_node = (struct s_resources_node *)d_malloc(sizeof(struct s_resources_node)))) {
-              strncpy(current_node->path, d_string_cstring(string_path), d_resources_path_size);
-              strncpy(current_node->key, block_header.key, d_resources_key_size);
-              current_node->stream_file = f_stream_new_file(d_new(stream), string_path, "w", 0777);
-              d_call(current_node->stream_file, m_stream_write, block_data, block_size, NULL);
-              if ((current_key = (char *)d_malloc(f_string_strlen(current_node->key) + 1))) {
-                strncpy(current_key, current_node->key, f_string_strlen(current_node->key));
-                if ((f_hash_insert(attributes->nodes, current_key, current_node, d_true, &old_value)))
-                  if (old_value.kind == e_hash_kind_fill) {
-                    p_resources_scan_free(&(attributes->open_streams), (struct s_resources_node *)old_value.value);
-                    d_free(old_value.value);
-                    d_free(current_key);
-                  }
+            /* seems that mktemp cannot be used anymore and mkstemp has to be used as replacement. While
+             * mktemp was returning the pointer to the char *, mkstemp does the replacement and returns
+             * and error code.
+             */
+            if ((temporary_descriptor = mkstemp(raw_path)) >= 0) {
+              string_path = f_string_new(d_new(string), raw_path);
+              if ((current_node = (struct s_resources_node *)d_malloc(sizeof(struct s_resources_node)))) {
+                strncpy(current_node->path, d_string_cstring(string_path), d_resources_path_size);
+                strncpy(current_node->key, block_header.key, d_resources_key_size);
+                current_node->stream_file = f_stream_new(d_new(stream), string_path, temporary_descriptor);
+                d_call(current_node->stream_file, m_stream_write, block_data, block_size, NULL);
+                if ((current_key = (char *)d_malloc(f_string_strlen(current_node->key) + 1))) {
+                  strncpy(current_key, current_node->key, f_string_strlen(current_node->key));
+                  if ((f_hash_insert(attributes->nodes, current_key, current_node, d_true, &old_value)))
+                    if (old_value.kind == e_hash_kind_fill) {
+                      p_resources_scan_free(&(attributes->open_streams), (struct s_resources_node *)old_value.value);
+                      d_free(old_value.value);
+                      d_free(current_key);
+                    }
+                } else
+                  d_die(d_error_malloc);
+                f_list_append(&(attributes->open_streams), (struct s_list_node *)current_node, e_list_insert_tail);
               } else
                 d_die(d_error_malloc);
-              f_list_append(&(attributes->open_streams), (struct s_list_node *)current_node, e_list_insert_tail);
-            } else
-              d_die(d_error_malloc);
-            d_delete(string_path);
+              d_delete(string_path);
+            }
             d_free(block_data);
           } else
             d_die(d_error_malloc);
