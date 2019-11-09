@@ -21,6 +21,7 @@
 #include <sys/errno.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdlib.h>
 #ifdef __APPLE__
 #include <sys/syslimits.h>
 #endif

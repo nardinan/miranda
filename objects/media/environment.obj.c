@@ -174,7 +174,8 @@ d_define_method(environment, get_mouse_normalized)(struct s_object *self, char *
 }
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
   d_using(environment);
-  f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)(d_retain(drawable)), e_list_insert_tail);
+  if (!d_list_node_in(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable))
+    f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)(d_retain(drawable)), e_list_insert_tail);
   return drawable;
 }
 d_define_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
@@ -224,11 +225,12 @@ d_define_method(environment, run_loop)(struct s_object *self) {
             }
             for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface) {
               for (index = (d_environment_layers - 1); index >= 0; --index) {
-                d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
+                d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
                   if ((eventable_attributes = d_cast(drawable_object, eventable)))
                     if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
                       if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                         event_captured = d_true;
+                }
               }
             }
             if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
