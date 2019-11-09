@@ -60,12 +60,7 @@ d_define_method(morphable, update)(struct s_object *self, struct s_object *envir
     if (morphable_attributes->grabbed) {
       d_call(&(drawable_attributes->point_destination), m_point_get, &position_x_self, &position_y_self);
       SDL_GetMouseState(&mouse_x, &mouse_y);
-      mouse_x = (mouse_x * camera_attributes->scene_reference_w) / camera_attributes->screen_w;
-      mouse_y = (mouse_y * camera_attributes->scene_reference_h) / camera_attributes->screen_h;
-      mouse_x = (mouse_x - camera_attributes->scene_offset_x);
-      mouse_y = (mouse_y - camera_attributes->scene_offset_y);
-      mouse_x = (mouse_x / camera_attributes->scene_zoom);
-      mouse_y = (mouse_y / camera_attributes->scene_zoom);
+
       if ((morphable_attributes->offset_x != morphable_attributes->offset_x) && (morphable_attributes->offset_y != morphable_attributes->offset_y) &&
           (morphable_attributes->offset_z != morphable_attributes->offset_z)) {
         morphable_attributes->offset_x = (mouse_x - position_x_self);

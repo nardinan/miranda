@@ -44,7 +44,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
     if ((initialized_systems = SDL_WasInit(d_environment_default_systems)) != d_environment_default_systems)
       if (SDL_Init(d_environment_default_systems & (d_environment_default_systems & (~initialized_systems))) < 0) {
         d_err(e_log_level_ever, "SDL graphical system returns an error during the initialization (flags 0x%08x)",
-          (d_environment_default_systems & (~initialized_systems)));
+              (d_environment_default_systems & (~initialized_systems)));
         initialized = d_false;
       }
     if (initialized) {
@@ -151,6 +151,27 @@ d_define_method(environment, get_camera)(struct s_object *self, struct s_object 
   d_using(environment);
   return d_call(environment_attributes->cameras, m_map_find, label);
 }
+d_define_method(environment, get_mouse_normalized)(struct s_object *self, char *camera_label, int *mouse_x, int *mouse_y) {
+  d_using(environment);
+  struct s_object *string_camera_label = d_kstr(camera_label);
+  struct s_object *camera = d_call(environment_attributes->cameras, m_map_find, string_camera_label);
+  struct s_camera_attributes *camera_attributes;
+  int current_mouse_x, current_mouse_y;
+  SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
+  if (camera) {
+    camera_attributes = d_cast(camera, camera);
+    current_mouse_x = (current_mouse_x * camera_attributes->scene_reference_w) / camera_attributes->screen_w;
+    current_mouse_y = (current_mouse_y * camera_attributes->scene_reference_h) / camera_attributes->screen_h;
+    current_mouse_x = (current_mouse_x - camera_attributes->scene_offset_x);
+    current_mouse_y = (current_mouse_y - camera_attributes->scene_offset_y);
+    current_mouse_x = (current_mouse_x / camera_attributes->scene_zoom);
+    current_mouse_y = (current_mouse_y / camera_attributes->scene_zoom);
+  }
+  *mouse_x = current_mouse_x;
+  *mouse_y = current_mouse_y;
+  d_free(string_camera_label);
+  return self;
+}
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
   d_using(environment);
   f_list_append(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)(d_retain(drawable)), e_list_insert_tail);
@@ -201,7 +222,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                   if ((intptr_t)d_call(eventable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                     event_captured = d_true;
             }
-            for (surface = (e_environment_surface_NULL -1); surface >= 0 ; --surface) {
+            for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface) {
               for (index = (d_environment_layers - 1); index >= 0; --index) {
                 d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
                   if ((eventable_attributes = d_cast(drawable_object, eventable)))
@@ -215,7 +236,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
           }
           d_miranda_lock(self) {
             SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G,
-              environment_attributes->mask_B, environment_attributes->mask_A);
+                                   environment_attributes->mask_B, environment_attributes->mask_A);
             SDL_RenderClear(environment_attributes->renderer);
           } d_miranda_unlock(self);
           if (environment_attributes->main_call(self)) {
@@ -228,8 +249,8 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                   environment_attributes->current_layer = index;
                   d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
                     d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                      camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+                           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                           camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
                 }
                 d_call(camera_object, m_camera_initialize_context, self);
                 {
@@ -244,7 +265,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                 d_call(camera_object, m_camera_finalize_context, self);
               } else
                 d_err(e_log_level_ever, "unrecognizable object stored into the camera stack (labeled as '%s') as type", d_string_cstring(string_object),
-                  camera_object->type);
+                      camera_object->type);
               environment_attributes->current_camera = NULL;
             }
             /* align the FPS time delay and then refresh the image */
@@ -289,6 +310,7 @@ d_define_class(environment) {d_hook_method(environment, e_flag_public, set_metho
                              d_hook_method(environment, e_flag_public, get_size),
                              d_hook_method(environment, e_flag_public, add_camera),
                              d_hook_method(environment, e_flag_public, get_camera),
+                             d_hook_method(environment, e_flag_public, get_mouse_normalized),
                              d_hook_method(environment, e_flag_public, add_drawable),
                              d_hook_method(environment, e_flag_public, del_drawable),
                              d_hook_method(environment, e_flag_public, add_eventable),
