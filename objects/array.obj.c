@@ -166,6 +166,22 @@ d_define_method(array, pop)(struct s_object *self) {
   }
   return result;
 }
+d_define_method(array, shrink)(struct s_object *self) {
+  d_using(array);
+  size_t index;
+  ssize_t hole_index = -1;
+  if (array_attributes->size > 0)
+    for (index = 0; index < array_attributes->size; ) {
+      if ((array_attributes->content[index]) && (hole_index >= 0)) {
+        memmove(&(array_attributes->content[hole_index]), &(array_attributes->content[index]), ((array_attributes->size - index) * sizeof(struct s_object *)));
+        index = hole_index;
+        hole_index = -1;
+      } else if ((!array_attributes->content[index]) && (hole_index < 0))
+        hole_index = index;
+      ++index;
+    }
+  return self;
+}
 d_define_method(array, get)(struct s_object *self, size_t position) {
   d_using(array);
   struct s_object *result = NULL;
@@ -243,6 +259,7 @@ d_define_class(array) {d_hook_method(array, e_flag_public, insert),
                        d_hook_method(array, e_flag_public, clear),
                        d_hook_method(array, e_flag_public, push),
                        d_hook_method(array, e_flag_public, pop),
+                       d_hook_method(array, e_flag_public, shrink),
                        d_hook_method(array, e_flag_public, get),
                        d_hook_method(array, e_flag_public, reset),
                        d_hook_method(array, e_flag_public, next),

@@ -96,6 +96,7 @@ struct s_object *p_object_malloc(const char *file, int line, const char *type, i
 struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, size_t attributes_size, const char *attributes_type) {
   struct s_virtual_table *node;
   struct s_attributes *attributes = NULL;
+  struct s_list_node attributes_head;
   if ((object->flags & e_flag_recovered) != e_flag_recovered) {
     if ((attributes = (struct s_attributes *)d_malloc(attributes_size))) {
       attributes->type = attributes_type;
@@ -110,8 +111,13 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
       d_die(d_error_malloc);
   } else
     d_foreach(&(object->attributes), attributes, struct s_attributes)
-      if (attributes->type == attributes_type)
+      if (attributes->type == attributes_type) {
+        attributes_head = attributes->head;
+        memset(attributes, 0, attributes_size);
+        attributes->type = attributes_type;
+        attributes->head = attributes_head;
         break;
+      }
   return attributes;
 }
 struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {

@@ -37,6 +37,7 @@ d_declare_method(array, remove)(struct s_object *self, size_t position);
 d_declare_method(array, clear)(struct s_object *self);
 d_declare_method(array, push)(struct s_object *self, struct s_object *element);
 d_declare_method(array, pop)(struct s_object *self);
+d_declare_method(array, shrink)(struct s_object *self);
 d_declare_method(array, get)(struct s_object *self, size_t position);
 d_declare_method(array, reset)(struct s_object *self);
 d_declare_method(array, next)(struct s_object *self);
