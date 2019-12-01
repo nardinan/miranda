@@ -168,18 +168,23 @@ d_define_method(array, pop)(struct s_object *self) {
 }
 d_define_method(array, shrink)(struct s_object *self) {
   d_using(array);
-  size_t index;
+  size_t index, shift_detected = 0;
   ssize_t hole_index = -1;
-  if (array_attributes->size > 0)
+  if (array_attributes->size > 0) {
     for (index = 0; index < array_attributes->size; ) {
       if ((array_attributes->content[index]) && (hole_index >= 0)) {
         memmove(&(array_attributes->content[hole_index]), &(array_attributes->content[index]), ((array_attributes->size - index) * sizeof(struct s_object *)));
+        shift_detected += (index - hole_index); /* we keep track of the final shift */
         index = hole_index;
         hole_index = -1;
       } else if ((!array_attributes->content[index]) && (hole_index < 0))
         hole_index = index;
       ++index;
     }
+    if (shift_detected > 0)
+      memset(&(array_attributes->content[array_attributes->size - shift_detected]), 0,
+          (shift_detected * sizeof(struct s_object *))); 
+  }
   return self;
 }
 d_define_method(array, get)(struct s_object *self, size_t position) {
