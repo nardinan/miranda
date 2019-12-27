@@ -26,9 +26,8 @@ struct s_label_attributes *p_label_alloc(struct s_object *self) {
 struct s_object *f_label_new(struct s_object *self, char *string_content, TTF_Font *font, struct s_object *environment) {
   return f_label_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_top, environment);
 }
-struct s_object *
-f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format, enum e_label_alignments alignment_x,
-  enum e_label_alignments alignment_y, struct s_object *environment) {
+struct s_object *f_label_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format, 
+    enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
   struct s_label_attributes *attributes = p_label_alloc(self);
   attributes->format = format;
   attributes->alignment_x = alignment_x;
@@ -72,6 +71,18 @@ d_define_method(label, get_content_char)(struct s_object *self) {
   d_using(label);
   d_cast_return(label_attributes->string_content);
 }
+d_define_method(label, set_border)(struct s_object *self, double border_w, double border_h) {
+  d_using(label);
+  struct s_uiable_attributes *uiable_attributes = d_cast(self, uiable);
+  if (label_attributes->format == e_label_background_format_adaptable) {
+    label_attributes->last_width = (label_attributes->last_width - (uiable_attributes->border_w * 2.0)) + (border_w * 2.0);
+    label_attributes->last_height = (label_attributes->last_height - (uiable_attributes->border_h * 2.0)) + (border_h * 2.0);
+  }
+  uiable_attributes->border_w = border_w;
+  uiable_attributes->border_h = border_h;
+  return self;
+}
+
 d_define_method(label, set_alignment)(struct s_object *self, enum e_label_alignments alignment_x, enum e_label_alignments alignment_y) {
   d_using(label);
   label_attributes->alignment_x = alignment_x;
@@ -116,7 +127,7 @@ d_define_method(label, update_texture)(struct s_object *self, TTF_Font *font, st
           if (label_attributes->last_blend != e_drawable_blend_undefined)
             d_call(self, m_drawable_set_blend, label_attributes->last_blend);
           d_call(self, m_drawable_set_maskRGB, (unsigned int)label_attributes->last_mask_R, (unsigned int)label_attributes->last_mask_G,
-            (unsigned int)label_attributes->last_mask_B);
+              (unsigned int)label_attributes->last_mask_B);
           d_call(self, m_drawable_set_maskA, (unsigned int)label_attributes->last_mask_A);
         } else {
           snprintf(buffer, d_string_buffer_size, "unable to retrieve informations for label \"%s\" exception", label_attributes->string_content);
@@ -181,8 +192,8 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
     height_factor = (dimension_h / label_attributes->last_height);
     source.x = 0;
     source.y = 0;
-    destination.x = (position_x + uiable_attributes->border_w);
-    destination.y = (position_y + uiable_attributes->border_h);
+    destination.x = (position_x + (uiable_attributes->border_w * width_factor));
+    destination.y = (position_y + (uiable_attributes->border_h * height_factor));
     if (label_attributes->format == e_label_background_format_fixed) {
       source.w = d_math_min((label_attributes->last_width - (uiable_attributes->border_w * 2.0)), label_attributes->string_width);
       source.h = d_math_min((label_attributes->last_height - (uiable_attributes->border_h * 2.0)), label_attributes->string_height);
@@ -220,7 +231,7 @@ d_define_method_override(label, draw)(struct s_object *self, struct s_object *en
     label_attributes->last_destination = destination;
     d_miranda_lock(environment) {
       SDL_RenderCopyEx(environment_attributes->renderer, label_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-        (SDL_RendererFlip)drawable_attributes->flip);
+          (SDL_RendererFlip)drawable_attributes->flip);
     } d_miranda_unlock(environment);
   }
   d_cast_return(result);
@@ -256,16 +267,17 @@ d_define_method(label, delete)(struct s_object *self, struct s_label_attributes 
   return NULL;
 }
 d_define_class(label) {d_hook_method(label, e_flag_public, set_content_string),
-                       d_hook_method(label, e_flag_public, set_content_char),
-                       d_hook_method(label, e_flag_public, get_content_char),
-                       d_hook_method(label, e_flag_public, set_alignment),
-                       d_hook_method(label, e_flag_public, update_texture),
-                       d_hook_method_override(label, e_flag_public, drawable, set_dimension),
-                       d_hook_method_override(label, e_flag_public, drawable, set_dimension_w),
-                       d_hook_method_override(label, e_flag_public, drawable, set_dimension_h),
-                       d_hook_method_override(label, e_flag_public, drawable, draw),
-                       d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
-                       d_hook_method_override(label, e_flag_public, drawable, set_maskA),
-                       d_hook_method_override(label, e_flag_public, drawable, set_blend),
-                       d_hook_delete(label),
-                       d_hook_method_tail};
+  d_hook_method(label, e_flag_public, set_content_char),
+  d_hook_method(label, e_flag_public, get_content_char),
+  d_hook_method(label, e_flag_public, set_border),
+  d_hook_method(label, e_flag_public, set_alignment),
+  d_hook_method(label, e_flag_public, update_texture),
+  d_hook_method_override(label, e_flag_public, drawable, set_dimension),
+  d_hook_method_override(label, e_flag_public, drawable, set_dimension_w),
+  d_hook_method_override(label, e_flag_public, drawable, set_dimension_h),
+  d_hook_method_override(label, e_flag_public, drawable, draw),
+  d_hook_method_override(label, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(label, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(label, e_flag_public, drawable, set_blend),
+  d_hook_delete(label),
+  d_hook_method_tail};
