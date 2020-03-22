@@ -28,12 +28,12 @@ struct s_transformations_attributes *p_transformations_alloc(struct s_object *se
 extern struct s_object *f_transformations_new(struct s_object *self);
 d_declare_method(transformations, insert)(struct s_object *self, struct s_object *function, t_transformation_function pointer);
 d_declare_method(transformations, run)(struct s_object *self, struct s_object *function, double normalized_time, double minimum, double maximum,
-  double *normalized_value);
+    double *normalized_value);
 d_declare_method(transformations, run_mapped)(struct s_object *self, struct s_object *function, double time, double minimum_time, double maximum_time,
-  double minimum, double maximum, double *normalized_value);
+    double minimum, double maximum, double *normalized_value);
 d_declare_method(transformations, run_mixed)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double weight,
-  double normalized_time, double minimum, double maximum, double *normalized_value);
+    double normalized_time, double minimum, double maximum, double *normalized_value);
 d_declare_method(transformations, run_crossfaded)(struct s_object *self, struct s_object *function_left, struct s_object *function_right,
-  double normalized_time, double minimum, double maximum, double *normalized_value);
+    double normalized_time, double minimum, double maximum, double *normalized_value);
 d_declare_method(transformations, delete)(struct s_object *self, struct s_transformations_attributes *attributes);
 #endif

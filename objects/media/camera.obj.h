@@ -22,14 +22,14 @@ d_declare_class(camera) {
   struct s_attributes head;
   enum e_environment_surfaces surface;
   double screen_position_x, screen_position_y, screen_w, screen_h, scene_reference_w, scene_reference_h, scene_offset_x, scene_offset_y, scene_center_x,
-    scene_center_y, camera_angle, scene_zoom;
+         scene_center_y, camera_angle, scene_zoom;
   struct s_object *controllers;
   unsigned char *memblock;
   SDL_Texture *destination;
 } d_declare_class_tail(camera);
 struct s_camera_attributes *p_camera_alloc(struct s_object *self);
 extern struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
-  enum e_environment_surfaces surface, struct s_object *environment);
+    enum e_environment_surfaces surface, struct s_object *environment);
 d_declare_method(camera, set_size)(struct s_object *self, double width, double height);
 d_declare_method(camera, get_size)(struct s_object *self, double *width, double *height);
 d_declare_method(camera, set_reference)(struct s_object *self, double width, double height);

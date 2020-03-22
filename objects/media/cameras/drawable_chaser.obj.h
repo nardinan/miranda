@@ -31,14 +31,14 @@ struct s_drawable_chaser_attributes *p_drawable_chaser_alloc(struct s_object *se
 extern struct s_object *f_drawable_chaser_new(struct s_object *self, unsigned short int affected_axis);
 d_declare_method(drawable_chaser, move_destination)(struct s_object *self, double destination_x, double destination_y, double destination_z);
 d_declare_method(drawable_chaser, chase_destination)(struct s_object *self, struct s_object *environment, double destination_x, double destination_y,
-  double destination_z);
+    double destination_z);
 d_declare_method(drawable_chaser, chase_reference)(struct s_object *self, struct s_object *reference);
 d_declare_method(drawable_chaser, chase_depth)(struct s_object *self, double destination_z);
 d_declare_method(drawable_chaser, remove_reference)(struct s_object *self);
 d_declare_method(drawable_chaser, set_offset)(struct s_object *self, double offset_x, double offset_y, double offset_z);
 d_declare_method(drawable_chaser, set_speed)(struct s_object *self, double minimum_speed, double maximum_speed, double acceleration_distance);
 d_declare_method(drawable_chaser, update)(struct s_object *self, double *screen_position_x, double *screen_position_y, double *screen_w, double *screen_h,
-  double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y, double *scene_center_x, double *scene_center_y,
-  double *camera_angle, double *scene_zoom);
+    double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y, double *scene_center_x, double *scene_center_y,
+    double *camera_angle, double *scene_zoom);
 d_declare_method(drawable_chaser, delete)(struct s_object *self, struct s_drawable_chaser_attributes *attributes);
 #endif

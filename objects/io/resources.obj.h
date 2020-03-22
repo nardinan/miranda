@@ -74,7 +74,7 @@ extern void p_resources_scan_free(struct s_list *open_streams, struct s_resource
 extern struct s_resources_node *f_resources_scan(struct s_list *open_streams, const char *directory, const char *extensions, struct s_hash_table *nodes);
 extern struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions);
 extern struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path,
-  struct s_object *string_template_path, const char *extensions);
+    struct s_object *string_template_path, const char *extensions);
 extern struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object *datafile_stream);
 d_declare_method(resources, reload)(struct s_object *self);
 d_declare_method(resources, deflate)(struct s_object *self, struct s_object *string_name);

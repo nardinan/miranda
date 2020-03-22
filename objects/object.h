@@ -94,13 +94,13 @@ extern t_hash_value f_object_hash(struct s_object *object);
 extern struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other);
 extern struct s_object *f_object_compare(struct s_object *object, struct s_object *other);
 #define d_declare_class(kind)\
-    extern const char v_##kind##_type[];\
-    extern struct s_method v_##kind##_vtable[];\
-    typedef struct s_##kind##_attributes
+  extern const char v_##kind##_type[];\
+extern struct s_method v_##kind##_vtable[];\
+typedef struct s_##kind##_attributes
 #define d_declare_class_tail(kind) s_##kind##_attributes
 #define d_define_class(kind)\
-    const char v_##kind##_type[]=#kind;\
-    struct s_method v_##kind##_vtable[]=
+  const char v_##kind##_type[]=#kind;\
+struct s_method v_##kind##_vtable[]=
 #define d_hook_method(kind, flag, sym) {m_##kind##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
 #define d_hook_method_override(kind, flag, own, sym) {m_##own##_##sym,__FILE__,(flag),(t_class_method)&(p_##kind##_##sym)}
 #define d_hook_delete(kind) {m_object_delete,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_delete)}
@@ -108,12 +108,12 @@ extern struct s_object *f_object_compare(struct s_object *object, struct s_objec
 #define d_hook_compare(kind) {m_object_compare,__FILE__,e_flag_public,(t_class_method)&(p_##kind##_compare)}
 #define d_hook_method_tail {NULL,__FILE__,e_flag_private,NULL}
 #define d_declare_method(kind, sym)\
-    extern const char m_##kind##_##sym[];\
-    struct s_object *p_##kind##_##sym
+  extern const char m_##kind##_##sym[];\
+struct s_object *p_##kind##_##sym
 #define d_define_method(kind, sym)\
-    const char m_##kind##_##sym[]=#sym;\
-    struct s_object *p_##kind##_##sym
+  const char m_##kind##_##sym[]=#sym;\
+struct s_object *p_##kind##_##sym
 #define d_define_method_override(kind, sym)\
-    struct s_object *p_##kind##_##sym
+  struct s_object *p_##kind##_##sym
 #endif
 

@@ -27,12 +27,12 @@ extern struct s_object *f_mutex_new(struct s_object *self);
 d_declare_method(mutex, trylock)(struct s_object *self);
 d_declare_method(mutex, lock)(struct s_object *self, const char *file, const char *function, unsigned int line);
 #define d_miranda_lock(_s)\
-    d_call(_s, m_mutex_lock, __FILE__, __FUNCTION__, __LINE__);\
-    do
+  d_call(_s, m_mutex_lock, __FILE__, __FUNCTION__, __LINE__);\
+do
 d_declare_method(mutex, unlock)(struct s_object *self, const char *file, const char *function, unsigned int line);
 #define d_miranda_unlock(_s)\
-    while(0);\
-    d_call(_s, m_mutex_unlock, __FILE__, __FUNCTION__, __LINE__);
+  while(0);\
+d_call(_s, m_mutex_unlock, __FILE__, __FUNCTION__, __LINE__);
 d_declare_method(mutex, delete)(struct s_object *self, struct s_mutex_attributes *attributes);
 #endif
 

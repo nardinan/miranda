@@ -45,12 +45,12 @@ d_declare_method(polygon, convex_hull)(struct s_object *self);
 d_declare_method(polygon, size)(struct s_object *self, size_t *size);
 d_declare_method(polygon, set_angle)(struct s_object *self, double angle);
 d_declare_method(polygon, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
-  double sin_radians, double cos_radians, double *normalized_x, double *normalized_y);
+    double sin_radians, double cos_radians, double *normalized_x, double *normalized_y);
 d_declare_method(polygon, normalize)(struct s_object *self);
 d_declare_method(polygon, inside)(struct s_object *self, struct s_object *point);
 d_declare_method(polygon, inside_coordinates)(struct s_object *self, double x, double y);
 d_declare_method(polygon, intersect_line)(struct s_object *self, struct s_object *other);
 d_declare_method(polygon, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-  unsigned int *collisions);
+    unsigned int *collisions);
 d_declare_method(polygon, delete)(struct s_object *self, struct s_polygon_attributes *attributes);
 #endif

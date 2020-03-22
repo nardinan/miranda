@@ -110,7 +110,7 @@ d_declare_method(json, get_relative)(struct s_object *self, struct s_json_node_v
 d_declare_method(json, get_string_relative)(struct s_object *self, struct s_json_node_value *starting_point, char **string_supply, const char *format, ...);
 d_declare_method(json, get_double_relative)(struct s_object *self, struct s_json_node_value *starting_point, double *value_supply, const char *format, ...);
 d_declare_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format,
-  ...);
+    ...);
 d_declare_method(json, get_string)(struct s_object *self, char **string_supply, const char *format, ...);
 d_declare_method(json, get_double)(struct s_object *self, double *value_supply, const char *format, ...);
 d_declare_method(json, get_boolean)(struct s_object *self, t_boolean *boolean_supply, const char *format, ...);

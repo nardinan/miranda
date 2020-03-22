@@ -39,7 +39,7 @@ struct s_controllable_attributes *p_controllable_alloc(struct s_object *self);
 extern struct s_object *f_controllable_new(struct s_object *self);
 d_declare_method(controllable, set)(struct s_object *self, t_boolean enable);
 d_declare_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
-  t_controllable_action action_double, t_boolean single_shot);
+    t_controllable_action action_double, t_boolean single_shot);
 d_declare_method(controllable, get_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, del_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);

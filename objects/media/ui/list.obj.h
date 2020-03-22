@@ -30,8 +30,8 @@ d_declare_class(list) {
   t_boolean multi_selection, unscrollable;
   enum e_drawable_blends last_blend;
   double last_mask_R, last_mask_G, last_mask_B, last_mask_A, selected_background_R, selected_background_G, selected_background_B, selected_background_A,
-    over_background_R, over_background_G, over_background_B, over_background_A, unselected_background_R, unselected_background_G, unselected_background_B,
-    unselected_background_A;
+         over_background_R, over_background_G, over_background_B, over_background_A, unselected_background_R, unselected_background_G, unselected_background_B,
+         unselected_background_A;
 } d_declare_class_tail(list);
 struct s_list_attributes *p_list_alloc(struct s_object *self);
 extern struct s_object *f_list_new(struct s_object *self, struct s_object *scroll);
