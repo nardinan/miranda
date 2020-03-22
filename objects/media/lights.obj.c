@@ -38,8 +38,8 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
   if ((attributes->memblock = (unsigned char *)d_malloc(size))) {
     memset(attributes->memblock, intensity, size);
     if ((attributes->background =
-           SDL_CreateTexture(environment_attributes->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, environment_attributes->current_w,
-             environment_attributes->current_h))) {
+          SDL_CreateTexture(environment_attributes->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, environment_attributes->current_w,
+            environment_attributes->current_h))) {
       attributes->current_w = environment_attributes->current_w;
       attributes->current_h = environment_attributes->current_h;
       attributes->memblock_size = size;
@@ -47,7 +47,7 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
       SDL_SetTextureBlendMode(attributes->background, SDL_BLENDMODE_MOD);
     } else {
       snprintf(buffer, d_string_buffer_size, "ungenerable texture from empty bitmap (size %.02f %.02f)", environment_attributes->current_w,
-        environment_attributes->current_h);
+          environment_attributes->current_h);
       d_throw(v_exception_texture, buffer);
     }
   } else
@@ -55,7 +55,7 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
   return self;
 }
 d_define_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B,
-  double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment) {
+    double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment) {
   d_using(lights);
   struct s_lights_emitter *current_emitter;
   if ((current_emitter = (struct s_lights_emitter *)d_malloc(sizeof(struct s_lights_emitter)))) {
@@ -70,7 +70,7 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->mask = d_retain(mask);
     d_call(current_emitter->mask, m_drawable_set_blend, e_drawable_blend_add);
     d_call(current_emitter->mask, m_drawable_add_flags,
-      (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera | e_drawable_kind_do_not_normalize_reference_ratio));
+        (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera | e_drawable_kind_do_not_normalize_reference_ratio));
     f_list_append(&(lights_attributes->emitters), (struct s_list_node *)current_emitter, e_list_insert_head);
   } else
     d_die(d_error_malloc);
@@ -117,7 +117,7 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   struct s_lights_emitter *current_emitter;
   struct s_lights_emitter_description *selected_emitter;
   double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
-    drawable_principal_point_y;
+         drawable_principal_point_y;
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     drawable_core_attributes = d_cast(current_emitter->mask, drawable);
@@ -130,8 +130,8 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
     d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-      camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+        camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
     d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
     d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
     /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
@@ -145,7 +145,7 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
         selected_emitter->mask_G = current_emitter->original_mask_G;
         selected_emitter->mask_B = current_emitter->original_mask_B;
         selected_emitter->distance = f_math_sqrt(d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y,
-          selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
+              selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
         f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
       } else
         d_die(d_error_malloc);
@@ -202,15 +202,15 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
     d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
     if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-      camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
+          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+          camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
       d_call(current_emitter->mask, m_drawable_get_scaled_position, &(current_emitter->last_normalized_x), &(current_emitter->last_normalized_y));
       d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &(current_emitter->last_normalized_w), &(current_emitter->last_normalized_h));
       if (current_emitter->modulator)
         current_emitter->modulator(current_emitter);
       intensity_modifier = (current_emitter->current_intensity / 255.0);
       d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modifier),
-        (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
+          (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
       while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
     }
   }
@@ -245,9 +245,9 @@ d_define_method_override(lights, draw_contour)(struct s_object *self, struct s_o
       SDL_SetRenderDrawColor(environment_attributes->renderer, d_lights_default_contour_color_body);
       SDL_RenderFillRect(environment_attributes->renderer, &rectangle_forward);
       f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, (d_lights_default_contour_radius + 1),
-        d_lights_default_contour_color_background);
+          d_lights_default_contour_color_background);
       f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, d_lights_default_contour_radius, current_emitter->current_mask_R,
-        current_emitter->current_mask_G, current_emitter->current_mask_B, 255.0);
+          current_emitter->current_mask_G, current_emitter->current_mask_B, 255.0);
     } d_miranda_unlock(environment);
   }
   return self;
@@ -270,13 +270,13 @@ d_define_method(lights, delete)(struct s_object *self, struct s_lights_attribute
   return NULL;
 }
 d_define_class(lights) {d_hook_method(lights, e_flag_public, add_light),
-                        d_hook_method(lights, e_flag_public, get_light),
-                        d_hook_method(lights, e_flag_public, clear),
-                        d_hook_method(lights, e_flag_public, set_intensity),
-                        d_hook_method(lights, e_flag_public, get_intensity),
-                        d_hook_method(lights, e_flag_public, get_affecting_lights),
-                        d_hook_method_override(lights, e_flag_public, drawable, draw),
-                        d_hook_method_override(lights, e_flag_public, drawable, draw_contour),
-                        d_hook_method_override(lights, e_flag_public, drawable, is_visible),
-                        d_hook_delete(lights),
-                        d_hook_method_tail};
+  d_hook_method(lights, e_flag_public, get_light),
+  d_hook_method(lights, e_flag_public, clear),
+  d_hook_method(lights, e_flag_public, set_intensity),
+  d_hook_method(lights, e_flag_public, get_intensity),
+  d_hook_method(lights, e_flag_public, get_affecting_lights),
+  d_hook_method_override(lights, e_flag_public, drawable, draw),
+  d_hook_method_override(lights, e_flag_public, drawable, draw_contour),
+  d_hook_method_override(lights, e_flag_public, drawable, is_visible),
+  d_hook_delete(lights),
+  d_hook_method_tail};

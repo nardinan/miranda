@@ -44,7 +44,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
     if ((initialized_systems = SDL_WasInit(d_environment_default_systems)) != d_environment_default_systems)
       if (SDL_Init(d_environment_default_systems & (d_environment_default_systems & (~initialized_systems))) < 0) {
         d_err(e_log_level_ever, "SDL graphical system returns an error during the initialization (flags 0x%08x)",
-              (d_environment_default_systems & (~initialized_systems)));
+            (d_environment_default_systems & (~initialized_systems)));
         initialized = d_false;
       }
     if (initialized) {
@@ -72,7 +72,7 @@ struct s_object *f_environment_new_flags(struct s_object *self, int width, int h
         }
       }
       if ((attributes->window =
-             SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, (flags | SDL_WINDOW_OPENGL)))) {
+            SDL_CreateWindow(d_environment_default_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, (flags | SDL_WINDOW_OPENGL)))) {
         attributes->renderer = SDL_CreateRenderer(attributes->window, -1, (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
         SDL_SetRenderDrawBlendMode(attributes->renderer, SDL_BLENDMODE_BLEND);
         SDL_GetWindowSize(attributes->window, &width, &height);
@@ -214,79 +214,79 @@ d_define_method(environment, run_loop)(struct s_object *self) {
   t_boolean event_captured;
   while (environment_attributes->continue_loop) {
     d_try
-        {
-          while (SDL_PollEvent(&local_event)) {
-            event_captured = d_false;
-            d_reverse_foreach(&(environment_attributes->eventable), eventable_object, struct s_object) {
-              if ((eventable_attributes = d_cast(eventable_object, eventable)))
+    {
+      while (SDL_PollEvent(&local_event)) {
+        event_captured = d_false;
+        d_reverse_foreach(&(environment_attributes->eventable), eventable_object, struct s_object) {
+          if ((eventable_attributes = d_cast(eventable_object, eventable)))
+            if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
+              if ((intptr_t)d_call(eventable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
+                event_captured = d_true;
+        }
+        for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface) {
+          for (index = (d_environment_layers - 1); index >= 0; --index) {
+            d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
+              if ((eventable_attributes = d_cast(drawable_object, eventable)))
                 if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
-                  if ((intptr_t)d_call(eventable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
+                  if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                     event_captured = d_true;
             }
-            for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface) {
-              for (index = (d_environment_layers - 1); index >= 0; --index) {
-                d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
-                  if ((eventable_attributes = d_cast(drawable_object, eventable)))
-                    if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
-                      if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
-                        event_captured = d_true;
-                }
+          }
+        }
+        if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
+          environment_attributes->continue_loop = d_false;
+      }
+      d_miranda_lock(self) {
+        SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G,
+            environment_attributes->mask_B, environment_attributes->mask_A);
+        SDL_RenderClear(environment_attributes->renderer);
+      } d_miranda_unlock(self);
+      if (environment_attributes->main_call(self)) {
+        d_map_foreach(environment_attributes->cameras, camera_object, string_object) {
+          environment_attributes->current_camera = camera_object;
+          if ((camera_attributes = d_cast(camera_object, camera))) {
+            environment_attributes->current_surface = camera_attributes->surface;
+            /* normalization of all the objects scale, preparing them for the camera */
+            for (index = 0; index < d_environment_layers; ++index) {
+              environment_attributes->current_layer = index;
+              d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
+                d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                    camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                    camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+            }
+            d_call(camera_object, m_camera_initialize_context, self);
+            {
+              environment_attributes->current_surface = camera_attributes->surface;
+              for (index = 0; index < d_environment_layers; ++index) {
+                environment_attributes->current_layer = index;
+                d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
+                  if (d_call(drawable_object, m_drawable_is_visible, camera_attributes->screen_w, camera_attributes->screen_h))
+                    while (((intptr_t)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
               }
             }
-            if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
-              environment_attributes->continue_loop = d_false;
-          }
-          d_miranda_lock(self) {
-            SDL_SetRenderDrawColor(environment_attributes->renderer, environment_attributes->mask_R, environment_attributes->mask_G,
-                                   environment_attributes->mask_B, environment_attributes->mask_A);
-            SDL_RenderClear(environment_attributes->renderer);
-          } d_miranda_unlock(self);
-          if (environment_attributes->main_call(self)) {
-            d_map_foreach(environment_attributes->cameras, camera_object, string_object) {
-              environment_attributes->current_camera = camera_object;
-              if ((camera_attributes = d_cast(camera_object, camera))) {
-                environment_attributes->current_surface = camera_attributes->surface;
-                /* normalization of all the objects scale, preparing them for the camera */
-                for (index = 0; index < d_environment_layers; ++index) {
-                  environment_attributes->current_layer = index;
-                  d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
-                    d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                           camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
-                }
-                d_call(camera_object, m_camera_initialize_context, self);
-                {
-                  environment_attributes->current_surface = camera_attributes->surface;
-                  for (index = 0; index < d_environment_layers; ++index) {
-                    environment_attributes->current_layer = index;
-                    d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
-                      if (d_call(drawable_object, m_drawable_is_visible, camera_attributes->screen_w, camera_attributes->screen_h))
-                        while (((intptr_t)d_call(drawable_object, m_drawable_draw, self)) == d_drawable_return_continue);
-                  }
-                }
-                d_call(camera_object, m_camera_finalize_context, self);
-              } else
-                d_err(e_log_level_ever, "unrecognizable object stored into the camera stack (labeled as '%s') as type", d_string_cstring(string_object),
-                      camera_object->type);
-              environment_attributes->current_camera = NULL;
-            }
-            /* align the FPS time delay and then refresh the image */
-            if ((waiting_time = required_time - (SDL_GetTicks() - starting_time)) > 0)
-              SDL_Delay(waiting_time);
-            else if (abs(waiting_time) > d_environment_tolerance)
-              d_war(e_log_level_medium, "loop time has a delay of %d mS", abs(waiting_time));
-            starting_time = SDL_GetTicks();
-            d_miranda_lock(self) {
-              SDL_RenderPresent(environment_attributes->renderer);
-            } d_miranda_unlock(self);
+            d_call(camera_object, m_camera_finalize_context, self);
           } else
-            environment_attributes->continue_loop = d_false;
+            d_err(e_log_level_ever, "unrecognizable object stored into the camera stack (labeled as '%s') as type", d_string_cstring(string_object),
+                camera_object->type);
+          environment_attributes->current_camera = NULL;
         }
-      d_catch(exception)
-        {
-          d_exception_dump(stderr, exception);
-          d_raise;
-        }
+        /* align the FPS time delay and then refresh the image */
+        if ((waiting_time = required_time - (SDL_GetTicks() - starting_time)) > 0)
+          SDL_Delay(waiting_time);
+        else if (abs(waiting_time) > d_environment_tolerance)
+          d_war(e_log_level_medium, "loop time has a delay of %d mS", abs(waiting_time));
+        starting_time = SDL_GetTicks();
+        d_miranda_lock(self) {
+          SDL_RenderPresent(environment_attributes->renderer);
+        } d_miranda_unlock(self);
+      } else
+        environment_attributes->continue_loop = d_false;
+    }
+    d_catch(exception)
+    {
+      d_exception_dump(stderr, exception);
+      d_raise;
+    }
     d_endtry;
   }
   environment_attributes->quit_call(self);
@@ -303,20 +303,20 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
   return NULL;
 }
 d_define_class(environment) {d_hook_method(environment, e_flag_public, set_methods),
-                             d_hook_method(environment, e_flag_public, set_title),
-                             d_hook_method(environment, e_flag_public, set_channels),
-                             d_hook_method(environment, e_flag_public, set_maskRGB),
-                             d_hook_method(environment, e_flag_public, set_maskA),
-                             d_hook_method(environment, e_flag_public, set_fullscreen),
-                             d_hook_method(environment, e_flag_public, set_size),
-                             d_hook_method(environment, e_flag_public, get_size),
-                             d_hook_method(environment, e_flag_public, add_camera),
-                             d_hook_method(environment, e_flag_public, get_camera),
-                             d_hook_method(environment, e_flag_public, get_mouse_normalized),
-                             d_hook_method(environment, e_flag_public, add_drawable),
-                             d_hook_method(environment, e_flag_public, del_drawable),
-                             d_hook_method(environment, e_flag_public, add_eventable),
-                             d_hook_method(environment, e_flag_public, del_eventable),
-                             d_hook_method(environment, e_flag_public, run_loop),
-                             d_hook_delete(environment),
-                             d_hook_method_tail};
+  d_hook_method(environment, e_flag_public, set_title),
+  d_hook_method(environment, e_flag_public, set_channels),
+  d_hook_method(environment, e_flag_public, set_maskRGB),
+  d_hook_method(environment, e_flag_public, set_maskA),
+  d_hook_method(environment, e_flag_public, set_fullscreen),
+  d_hook_method(environment, e_flag_public, set_size),
+  d_hook_method(environment, e_flag_public, get_size),
+  d_hook_method(environment, e_flag_public, add_camera),
+  d_hook_method(environment, e_flag_public, get_camera),
+  d_hook_method(environment, e_flag_public, get_mouse_normalized),
+  d_hook_method(environment, e_flag_public, add_drawable),
+  d_hook_method(environment, e_flag_public, del_drawable),
+  d_hook_method(environment, e_flag_public, add_eventable),
+  d_hook_method(environment, e_flag_public, del_eventable),
+  d_hook_method(environment, e_flag_public, run_loop),
+  d_hook_delete(environment),
+  d_hook_method_tail};

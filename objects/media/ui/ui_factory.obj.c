@@ -32,7 +32,7 @@ void p_ui_factory_container_delete(struct s_uiable_container *container) {
   }
 }
 struct s_object *f_ui_factory_new(struct s_object *self, struct s_object *resources_png, struct s_object *resources_ttf, struct s_object *resources_json,
-  struct s_object *environment, struct s_object *json_configuration, struct s_object *json_ui) {
+    struct s_object *environment, struct s_object *json_configuration, struct s_object *json_ui) {
   struct s_ui_factory_attributes *attributes = p_ui_factory_alloc(self);
   struct s_exception *exception;
   struct s_object *font;
@@ -48,66 +48,66 @@ struct s_object *f_ui_factory_new(struct s_object *self, struct s_object *resour
   attributes->environment = d_retain(environment);
   attributes->json_configuration = d_retain(json_configuration);
   d_try
-      {
-        if ((attributes->font_system = f_fonts_new(d_new(fonts)))) {
-          while (d_call(attributes->json_configuration, m_json_get_string, &font_buffer, "sds", "fonts", index_font, "font")) {
-            font_size = d_ui_factory_default_font_size;
-            font_outline = d_ui_factory_default_font_outline;
-            d_call(attributes->json_configuration, m_json_get_double, &font_size, "sds", "fonts", index_font, "size");
-            d_call(attributes->json_configuration, m_json_get_double, &font_outline, "sds", "fonts", index_font, "outline");
-            if ((font = d_call(attributes->resources_ttf, m_resources_get_stream, font_buffer, e_resources_type_common))) {
-              d_call(attributes->font_system, m_fonts_add_font, index_font, font, (int)font_size);
-              if (font_outline > 0)
-                d_call(attributes->font_system, m_fonts_set_outline, index_font, (int)font_outline);
+  {
+    if ((attributes->font_system = f_fonts_new(d_new(fonts)))) {
+      while (d_call(attributes->json_configuration, m_json_get_string, &font_buffer, "sds", "fonts", index_font, "font")) {
+        font_size = d_ui_factory_default_font_size;
+        font_outline = d_ui_factory_default_font_outline;
+        d_call(attributes->json_configuration, m_json_get_double, &font_size, "sds", "fonts", index_font, "size");
+        d_call(attributes->json_configuration, m_json_get_double, &font_outline, "sds", "fonts", index_font, "outline");
+        if ((font = d_call(attributes->resources_ttf, m_resources_get_stream, font_buffer, e_resources_type_common))) {
+          d_call(attributes->font_system, m_fonts_add_font, index_font, font, (int)font_size);
+          if (font_outline > 0)
+            d_call(attributes->font_system, m_fonts_set_outline, index_font, (int)font_outline);
+        }
+        ++index_font;
+      }
+      while (d_call(json_ui, m_json_get_string, &string_supply, "sds", "root", index_container, "label")) {
+        position_x = 0;
+        position_y = 0;
+        if ((current_container = (struct s_uiable_container *)d_malloc(sizeof(struct s_uiable_container)))) {
+          strncpy(current_container->label, string_supply, d_ui_factory_label_size);
+          f_list_append(&(attributes->children), (struct s_list_node *)current_container, e_list_insert_head);
+          if ((starting_point = (t_json_starting_point *)d_call(json_ui, m_json_get_relative, NULL, "sd", "root", index_container))) {
+            d_call(json_ui, m_json_get_boolean_relative, starting_point, &boolean_supply, "s", "floatable");
+            d_call(json_ui, m_json_get_double_relative, starting_point, &position_x, "s", "position_x");
+            d_call(json_ui, m_json_get_double_relative, starting_point, &position_y, "s", "position_y");
+            if ((current_container->uiable = d_call(self, m_ui_factory_new_container, boolean_supply))) {
+              d_call(current_container->uiable, m_drawable_set_position, position_x, position_y);
+              d_call(self, m_ui_factory_load_component, json_ui, current_container, starting_point);
             }
-            ++index_font;
-          }
-          while (d_call(json_ui, m_json_get_string, &string_supply, "sds", "root", index_container, "label")) {
-            position_x = 0;
-            position_y = 0;
-            if ((current_container = (struct s_uiable_container *)d_malloc(sizeof(struct s_uiable_container)))) {
-              strncpy(current_container->label, string_supply, d_ui_factory_label_size);
-              f_list_append(&(attributes->children), (struct s_list_node *)current_container, e_list_insert_head);
-              if ((starting_point = (t_json_starting_point *)d_call(json_ui, m_json_get_relative, NULL, "sd", "root", index_container))) {
-                d_call(json_ui, m_json_get_boolean_relative, starting_point, &boolean_supply, "s", "floatable");
-                d_call(json_ui, m_json_get_double_relative, starting_point, &position_x, "s", "position_x");
-                d_call(json_ui, m_json_get_double_relative, starting_point, &position_y, "s", "position_y");
-                if ((current_container->uiable = d_call(self, m_ui_factory_new_container, boolean_supply))) {
-                  d_call(current_container->uiable, m_drawable_set_position, position_x, position_y);
-                  d_call(self, m_ui_factory_load_component, json_ui, current_container, starting_point);
-                }
-              }
-            } else
-              d_die(d_error_malloc);
-            ++index_container;
           }
         } else
           d_die(d_error_malloc);
+        ++index_container;
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+    } else
+      d_die(d_error_malloc);
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return self;
 }
 d_define_method(ui_factory, load_component)(struct s_object *self, struct s_object *json_ui, struct s_uiable_container *current_container,
-  t_json_starting_point *starting_point) {
+    t_json_starting_point *starting_point) {
   d_using(ui_factory);
   struct _scoped_keyword_list {
     const char *kind;
     t_class_method call;
     e_uiable_categories category;
   } scoped_keyword_list[] = {{"container",       (t_class_method)&(p_ui_factory_new_container),        e_uiable_category_container},
-                             {"label",           (t_class_method)&(p_ui_factory_new_label),            e_uiable_category_label},
-                             {"checkbox",        (t_class_method)&(p_ui_factory_new_checkbox),         e_uiable_category_label},
-                             {"button",          (t_class_method)&(p_ui_factory_new_button),           e_uiable_category_label},
-                             {"field",           (t_class_method)&(p_ui_factory_new_field),            e_uiable_category_label},
-                             {"scroll",          (t_class_method)&(p_ui_factory_new_scroll),           e_uiable_category_accessory},
-                             {"list",            (t_class_method)&(p_ui_factory_new_list),             e_uiable_category_list},
-                             {"contextual_menu", (t_class_method)&(p_ui_factory_new_contextual_menu),  e_uiable_category_list},
-                             {NULL}};
+    {"label",           (t_class_method)&(p_ui_factory_new_label),            e_uiable_category_label},
+    {"checkbox",        (t_class_method)&(p_ui_factory_new_checkbox),         e_uiable_category_label},
+    {"button",          (t_class_method)&(p_ui_factory_new_button),           e_uiable_category_label},
+    {"field",           (t_class_method)&(p_ui_factory_new_field),            e_uiable_category_label},
+    {"scroll",          (t_class_method)&(p_ui_factory_new_scroll),           e_uiable_category_accessory},
+    {"list",            (t_class_method)&(p_ui_factory_new_list),             e_uiable_category_list},
+    {"contextual_menu", (t_class_method)&(p_ui_factory_new_contextual_menu),  e_uiable_category_list},
+    {NULL}};
   struct s_label_attributes *label_attributes;
   struct s_checkbox_attributes *checkbox_attributes;
   struct s_scroll_attributes *scroll_attributes;
@@ -118,7 +118,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
   char buffer[d_string_buffer_size], *string_supply, *strings_vector_supply[d_ui_factory_default_array_size];
   int index, index_component = 0, index_string = 0;
   double font_id = d_ui_factory_default_font_id, font_style = d_ui_factory_default_font_style, position_x, position_y, width, height, alignment_x, alignment_y,
-    background_R, background_G, background_B, background_A, angle, range_minimum, range_maximum, modifier;
+         background_R, background_G, background_B, background_A, angle, range_minimum, range_maximum, modifier;
   while ((d_call(json_ui, m_json_get_string_relative, starting_point, &string_supply, "sds", "components", index_component, "label"))) {
     position_x = 0.0;
     position_y = 0.0;
@@ -145,7 +145,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
               d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_id, "s", "font_id");
               d_call(json_ui, m_json_get_double_relative, next_starting_point, &font_style, "s", "font_style");
               while ((d_call(json_ui, m_json_get_string_relative, next_starting_point, &(strings_vector_supply[index_string]), "sd", "content",
-                index_string)))
+                      index_string)))
                 ++index_string;
               current_component->uiable =
                 scoped_keyword_list[index].call(self, (unsigned int)font_id, (unsigned int)font_style, strings_vector_supply, index_string);
@@ -203,7 +203,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
             d_call(json_ui, m_json_get_double_relative, next_starting_point, &background_B, "s", "background_B");
             d_call(json_ui, m_json_get_double_relative, next_starting_point, &background_A, "s", "background_A");
             d_call(current_component->uiable, m_uiable_set_background, (unsigned int)background_R, (unsigned int)background_G, (unsigned int)background_B,
-              (unsigned int)background_A);
+                (unsigned int)background_A);
           }
           d_call(current_container->uiable, m_container_add_drawable, current_component->uiable, position_x, position_y);
         } else {
@@ -226,46 +226,46 @@ d_define_method(ui_factory, load_uiable)(struct s_object *self, struct s_object 
   struct s_object *bitmap = NULL;
   int index_component, index_mode;
   double default_mask_R = drawable_attributes->last_mask_R, default_mask_G = drawable_attributes->last_mask_G,
-    default_mask_B = drawable_attributes->last_mask_B, default_mask_A = drawable_attributes->last_mask_A, default_border_w = d_uiable_default_border,
-    default_border_h = d_uiable_default_border;
+         default_mask_B = drawable_attributes->last_mask_B, default_mask_A = drawable_attributes->last_mask_A, default_border_w = d_uiable_default_border,
+         default_border_h = d_uiable_default_border;
   char buffer_path[PATH_MAX];
   d_try
-      {
-        for (index_component = 0; index_component != e_uiable_component_NULL; ++index_component)
-          for (index_mode = 0; index_mode != e_uiable_mode_NULL; ++index_mode) {
-            snprintf(buffer_path, PATH_MAX, "%s_%s_%s", component, v_uiable_modes[index_mode], v_uiable_components[index_component]);
-            if (!(stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream_strict, buffer_path, e_resources_type_common))) {
-              snprintf(buffer_path, PATH_MAX, "%s_%s_%s", component, v_uiable_modes[d_ui_factory_default_mode], v_uiable_components[index_component]);
-              stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream_strict, buffer_path, e_resources_type_common);
-            }
-            if (stream)
-              if ((bitmap = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment))) {
-                d_call(uiable, m_uiable_set, bitmap, index_mode, index_component);
-                d_delete(bitmap);
-              }
+  {
+    for (index_component = 0; index_component != e_uiable_component_NULL; ++index_component)
+      for (index_mode = 0; index_mode != e_uiable_mode_NULL; ++index_mode) {
+        snprintf(buffer_path, PATH_MAX, "%s_%s_%s", component, v_uiable_modes[index_mode], v_uiable_components[index_component]);
+        if (!(stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream_strict, buffer_path, e_resources_type_common))) {
+          snprintf(buffer_path, PATH_MAX, "%s_%s_%s", component, v_uiable_modes[d_ui_factory_default_mode], v_uiable_components[index_component]);
+          stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream_strict, buffer_path, e_resources_type_common);
+        }
+        if (stream)
+          if ((bitmap = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment))) {
+            d_call(uiable, m_uiable_set, bitmap, index_mode, index_component);
+            d_delete(bitmap);
           }
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_R, "sss", "ui", "default", "mask_R");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_G, "sss", "ui", "default", "mask_G");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_B, "sss", "ui", "default", "mask_B");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_A, "sss", "ui", "default", "mask_A");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_w, "sss", "ui", "default", "border_w");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_h, "sss", "ui", "default", "border_h");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_R, "sss", "ui", component, "mask_R");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_G, "sss", "ui", component, "mask_G");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_B, "sss", "ui", component, "mask_B");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_A, "sss", "ui", component, "mask_A");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_w, "sss", "ui", component, "border_w");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_h, "sss", "ui", component, "border_h");
-        d_call(uiable, m_drawable_set_maskRGB, (unsigned int)default_mask_R, (unsigned int)default_mask_G, (unsigned int)default_mask_B);
-        d_call(uiable, m_drawable_set_maskA, (unsigned int)default_mask_A);
-        uiable_attributes->border_w = default_border_w;
-        uiable_attributes->border_h = default_border_h;
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_R, "sss", "ui", "default", "mask_R");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_G, "sss", "ui", "default", "mask_G");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_B, "sss", "ui", "default", "mask_B");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_A, "sss", "ui", "default", "mask_A");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_w, "sss", "ui", "default", "border_w");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_h, "sss", "ui", "default", "border_h");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_R, "sss", "ui", component, "mask_R");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_G, "sss", "ui", component, "mask_G");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_B, "sss", "ui", component, "mask_B");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_mask_A, "sss", "ui", component, "mask_A");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_w, "sss", "ui", component, "border_w");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &default_border_h, "sss", "ui", component, "border_h");
+    d_call(uiable, m_drawable_set_maskRGB, (unsigned int)default_mask_R, (unsigned int)default_mask_G, (unsigned int)default_mask_B);
+    d_call(uiable, m_drawable_set_maskA, (unsigned int)default_mask_A);
+    uiable_attributes->border_w = default_border_w;
+    uiable_attributes->border_h = default_border_h;
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return self;
 }
@@ -274,26 +274,26 @@ d_define_method(ui_factory, new_container)(struct s_object *self, t_boolean floa
   struct s_exception *exception;
   struct s_object *result = NULL;
   double border_top = d_uiable_default_border, border_bottom = d_uiable_default_border, border_left = d_uiable_default_border,
-    border_right = d_uiable_default_border;
+         border_right = d_uiable_default_border;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_top, "sss", "ui", "container", "border_top");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_bottom, "sss", "ui", "container", "border_bottom");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_left, "sss", "ui", "container", "border_left");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_right, "sss", "ui", "container", "border_right");
-        if ((result = f_container_new(d_new(container), border_top, border_bottom, border_left, border_right, floatable)))
-          d_call(self, m_ui_factory_load_uiable, result, "container");
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_top, "sss", "ui", "container", "border_top");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_bottom, "sss", "ui", "container", "border_bottom");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_left, "sss", "ui", "container", "border_left");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &border_right, "sss", "ui", "container", "border_right");
+    if ((result = f_container_new(d_new(container), border_top, border_bottom, border_left, border_right, floatable)))
+      d_call(self, m_ui_factory_load_uiable, result, "container");
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
 d_define_method(ui_factory, new_list)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
-  size_t elements) {
+    size_t elements) {
   d_using(ui_factory);
   struct s_exception *exception;
   struct s_object *result = NULL;
@@ -304,41 +304,41 @@ d_define_method(ui_factory, new_list)(struct s_object *self, unsigned int font_i
   double selected_R = 0.0, selected_G = 0.0, selected_B = 0.0, selected_A = 0.0, over_R = 0.0, over_G = 0.0, over_B = 0.0, over_A = 0.0, width_scroll = 0.0;
   int index_label;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_R, "sss", "ui", "list", "selected_R");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_G, "sss", "ui", "list", "selected_G");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_B, "sss", "ui", "list", "selected_B");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_A, "sss", "ui", "list", "selected_A");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_R, "sss", "ui", "list", "over_R");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_G, "sss", "ui", "list", "over_G");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_B, "sss", "ui", "list", "over_B");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_A, "sss", "ui", "list", "over_A");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width_scroll, "sss", "ui", "scroll", "width");
-        if (!ui_factory_attributes->scroll_handler)
-          if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply, "sss", "ui", "scroll", "scroll")))
-            if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
-              ui_factory_attributes->scroll_handler = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment);
-        if ((scroll = f_scroll_new(d_new(scroll), ui_factory_attributes->scroll_handler))) {
-          d_call(scroll, m_drawable_set_dimension_w, width_scroll);
-          d_call(self, m_ui_factory_load_uiable, scroll, "scroll");
-          if ((result = f_list_new(d_new(list), scroll))) {
-            d_call(result, m_list_set_selected, (unsigned int)selected_R, (unsigned int)selected_G, (unsigned int)selected_B, (unsigned int)selected_A);
-            d_call(result, m_list_set_over, (unsigned int)over_R, (unsigned int)over_G, (unsigned int)over_B, (unsigned int)over_A);
-            d_call(self, m_ui_factory_load_uiable, result, "list");
-            for (index_label = 0; index_label < elements; ++index_label)
-              if ((label = d_call(self, m_ui_factory_new_label, font_id, font_style, string_entries[index_label]))) {
-                d_call(result, m_list_add_uiable, label);
-                d_delete(label);
-              }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_R, "sss", "ui", "list", "selected_R");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_G, "sss", "ui", "list", "selected_G");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_B, "sss", "ui", "list", "selected_B");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &selected_A, "sss", "ui", "list", "selected_A");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_R, "sss", "ui", "list", "over_R");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_G, "sss", "ui", "list", "over_G");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_B, "sss", "ui", "list", "over_B");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &over_A, "sss", "ui", "list", "over_A");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width_scroll, "sss", "ui", "scroll", "width");
+    if (!ui_factory_attributes->scroll_handler)
+      if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply, "sss", "ui", "scroll", "scroll")))
+        if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
+          ui_factory_attributes->scroll_handler = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment);
+    if ((scroll = f_scroll_new(d_new(scroll), ui_factory_attributes->scroll_handler))) {
+      d_call(scroll, m_drawable_set_dimension_w, width_scroll);
+      d_call(self, m_ui_factory_load_uiable, scroll, "scroll");
+      if ((result = f_list_new(d_new(list), scroll))) {
+        d_call(result, m_list_set_selected, (unsigned int)selected_R, (unsigned int)selected_G, (unsigned int)selected_B, (unsigned int)selected_A);
+        d_call(result, m_list_set_over, (unsigned int)over_R, (unsigned int)over_G, (unsigned int)over_B, (unsigned int)over_A);
+        d_call(self, m_ui_factory_load_uiable, result, "list");
+        for (index_label = 0; index_label < elements; ++index_label)
+          if ((label = d_call(self, m_ui_factory_new_label, font_id, font_style, string_entries[index_label]))) {
+            d_call(result, m_list_add_uiable, label);
+            d_delete(label);
           }
-          d_delete(scroll);
-        }
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+      d_delete(scroll);
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
@@ -350,23 +350,23 @@ d_define_method(ui_factory, new_scroll)(struct s_object *self) {
   char *string_supply = NULL;
   double width_scroll = 0.0;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width_scroll, "sss", "ui", "scroll", "width");
-        if (!ui_factory_attributes->pointer_handler)
-          if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply, "sss", "ui", "scroll", "pointer")))
-            if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
-              ui_factory_attributes->pointer_handler = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment);
-        if ((result = f_scroll_new(d_new(scroll), ui_factory_attributes->pointer_handler))) {
-          d_call(result, m_drawable_set_dimension_w, width_scroll);
-          d_call(result, m_drawable_add_flags, e_drawable_kind_ui_no_attribute_angle);
-          d_call(self, m_ui_factory_load_uiable, result, "scroll");
-        }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width_scroll, "sss", "ui", "scroll", "width");
+    if (!ui_factory_attributes->pointer_handler)
+      if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply, "sss", "ui", "scroll", "pointer")))
+        if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
+          ui_factory_attributes->pointer_handler = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment);
+    if ((result = f_scroll_new(d_new(scroll), ui_factory_attributes->pointer_handler))) {
+      d_call(result, m_drawable_set_dimension_w, width_scroll);
+      d_call(result, m_drawable_add_flags, e_drawable_kind_ui_no_attribute_angle);
+      d_call(self, m_ui_factory_load_uiable, result, "scroll");
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
@@ -376,22 +376,22 @@ d_define_method(ui_factory, new_label)(struct s_object *self, unsigned int font_
   struct s_object *result = NULL;
   TTF_Font *current_font;
   double format = (double)e_label_background_format_adaptable, alignment_x = (double)e_label_alignment_left, alignment_y = (double)e_label_alignment_center,
-    font_height;
+         font_height;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "label", "format");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "label", "alignment_x");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "label", "alignment_y");
-        if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
-          if ((result = f_label_new_alignment(d_new(label), string_content, current_font, (enum e_label_background_formats)format,
-            (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment)))
-            d_call(self, m_ui_factory_load_uiable, result, "label");
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "label", "format");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "label", "alignment_x");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "label", "alignment_y");
+    if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
+      if ((result = f_label_new_alignment(d_new(label), string_content, current_font, (enum e_label_background_formats)format,
+              (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment)))
+        d_call(self, m_ui_factory_load_uiable, result, "label");
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
@@ -404,37 +404,37 @@ d_define_method(ui_factory, new_checkbox)(struct s_object *self, unsigned int fo
   char *string_supply_checked, *string_supply_unchecked;
   struct s_object *stream_checked, *stream_unchecked;
   double format = (double)e_label_background_format_fixed, alignment_x = (double)e_label_alignment_left, alignment_y = (double)e_label_alignment_center,
-    width = 0.0, font_height = 0.0;
+         width = 0.0, font_height = 0.0;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "checkbox", "format");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "checkbox", "alignment_x");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "checkbox", "alignment_y");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width, "sss", "ui", "checkbox", "width");
-        if (!ui_factory_attributes->checkbox_bitmap_checked)
-          if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply_checked, "sss", "ui", "checkbox", "checked")))
-            if ((stream_checked = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply_checked, e_resources_type_common)))
-              ui_factory_attributes->checkbox_bitmap_checked = f_bitmap_new(d_new(bitmap), stream_checked, ui_factory_attributes->environment);
-        if (!ui_factory_attributes->checkbox_bitmap_unchecked)
-          if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply_unchecked, "sss", "ui", "checkbox", "unchecked")))
-            if ((stream_unchecked = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply_unchecked, e_resources_type_common)))
-              ui_factory_attributes->checkbox_bitmap_unchecked = f_bitmap_new(d_new(bitmap), stream_unchecked, ui_factory_attributes->environment);
-        if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
-          if ((result = f_checkbox_new(d_new(field), string_content, current_font, ui_factory_attributes->environment))) {
-            label_attributes = d_cast(result, label);
-            label_attributes->format = (enum e_label_background_formats)format;
-            label_attributes->alignment_x = (enum e_label_alignments)alignment_x;
-            label_attributes->alignment_y = (enum e_label_alignments)alignment_y;
-            d_call(result, m_drawable_set_dimension, width, font_height);
-            d_call(result, m_checkbox_set_drawable, ui_factory_attributes->checkbox_bitmap_checked, ui_factory_attributes->checkbox_bitmap_unchecked);
-            d_call(self, m_ui_factory_load_uiable, result, "label");
-          }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "checkbox", "format");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "checkbox", "alignment_x");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "checkbox", "alignment_y");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width, "sss", "ui", "checkbox", "width");
+    if (!ui_factory_attributes->checkbox_bitmap_checked)
+      if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply_checked, "sss", "ui", "checkbox", "checked")))
+        if ((stream_checked = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply_checked, e_resources_type_common)))
+          ui_factory_attributes->checkbox_bitmap_checked = f_bitmap_new(d_new(bitmap), stream_checked, ui_factory_attributes->environment);
+    if (!ui_factory_attributes->checkbox_bitmap_unchecked)
+      if ((d_call(ui_factory_attributes->json_configuration, m_json_get_string, &string_supply_unchecked, "sss", "ui", "checkbox", "unchecked")))
+        if ((stream_unchecked = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply_unchecked, e_resources_type_common)))
+          ui_factory_attributes->checkbox_bitmap_unchecked = f_bitmap_new(d_new(bitmap), stream_unchecked, ui_factory_attributes->environment);
+    if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
+      if ((result = f_checkbox_new(d_new(field), string_content, current_font, ui_factory_attributes->environment))) {
+        label_attributes = d_cast(result, label);
+        label_attributes->format = (enum e_label_background_formats)format;
+        label_attributes->alignment_x = (enum e_label_alignments)alignment_x;
+        label_attributes->alignment_y = (enum e_label_alignments)alignment_y;
+        d_call(result, m_drawable_set_dimension, width, font_height);
+        d_call(result, m_checkbox_set_drawable, ui_factory_attributes->checkbox_bitmap_checked, ui_factory_attributes->checkbox_bitmap_unchecked);
+        d_call(self, m_ui_factory_load_uiable, result, "label");
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
@@ -445,26 +445,26 @@ d_define_method(ui_factory, new_button)(struct s_object *self, unsigned int font
   struct s_object *result = NULL;
   TTF_Font *current_font;
   double format = (double)e_label_background_format_adaptable, alignment_x = (double)e_label_alignment_center, alignment_y = (double)e_label_alignment_center,
-    font_height;
+         font_height;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "button", "format");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "button", "alignment_x");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "button", "alignment_y");
-        if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
-          if ((result = f_button_new(d_new(button), string_content, current_font, ui_factory_attributes->environment))) {
-            label_attributes = d_cast(result, label);
-            label_attributes->format = (enum e_label_background_formats)format;
-            label_attributes->alignment_x = (enum e_label_alignments)alignment_x;
-            label_attributes->alignment_y = (enum e_label_alignments)alignment_y;
-            d_call(self, m_ui_factory_load_uiable, result, "button");
-          }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "button", "format");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "button", "alignment_x");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "button", "alignment_y");
+    if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
+      if ((result = f_button_new(d_new(button), string_content, current_font, ui_factory_attributes->environment))) {
+        label_attributes = d_cast(result, label);
+        label_attributes->format = (enum e_label_background_formats)format;
+        label_attributes->alignment_x = (enum e_label_alignments)alignment_x;
+        label_attributes->alignment_y = (enum e_label_alignments)alignment_y;
+        d_call(self, m_ui_factory_load_uiable, result, "button");
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
@@ -474,38 +474,38 @@ d_define_method(ui_factory, new_field)(struct s_object *self, unsigned int font_
   struct s_object *result = NULL;
   TTF_Font *current_font;
   double format = (double)e_label_background_format_fixed, alignment_x = (double)e_label_alignment_left, alignment_y = (double)e_label_alignment_center,
-    cursor_R = (double)d_field_default_R, cursor_G = (double)d_field_default_G, cursor_B = (double)d_field_default_B, cursor_A = (double)d_field_default_A,
-    size = 0.0, width = 0.0, font_height;
+         cursor_R = (double)d_field_default_R, cursor_G = (double)d_field_default_G, cursor_B = (double)d_field_default_B, cursor_A = (double)d_field_default_A,
+         size = 0.0, width = 0.0, font_height;
   d_try
-      {
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "field", "format");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "field", "alignment_x");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "field", "alignment_y");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_R, "sss", "ui", "field", "cursor_R");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_G, "sss", "ui", "field", "cursor_G");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_B, "sss", "ui", "field", "cursor_B");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_A, "sss", "ui", "field", "cursor_A");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &size, "sss", "ui", "field", "size");
-        d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width, "sss", "ui", "field", "width");
-        if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
-          if ((result = f_field_new_alignment(d_new(field), string_content, current_font, (enum e_label_background_formats)format,
-            (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment))) {
-            d_call(result, m_drawable_set_dimension, width, font_height);
-            d_call(result, m_field_set_cursor, (unsigned int)cursor_R, (unsigned int)cursor_G, (unsigned int)cursor_B, (unsigned int)cursor_A);
-            d_call(result, m_field_set_size, (unsigned int)size);
-            d_call(self, m_ui_factory_load_uiable, result, "field");
-          }
+  {
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &format, "sss", "ui", "field", "format");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_x, "sss", "ui", "field", "alignment_x");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &alignment_y, "sss", "ui", "field", "alignment_y");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_R, "sss", "ui", "field", "cursor_R");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_G, "sss", "ui", "field", "cursor_G");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_B, "sss", "ui", "field", "cursor_B");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &cursor_A, "sss", "ui", "field", "cursor_A");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &size, "sss", "ui", "field", "size");
+    d_call(ui_factory_attributes->json_configuration, m_json_get_double, &width, "sss", "ui", "field", "width");
+    if ((current_font = d_call(self, m_ui_factory_get_font, font_id, font_style, &font_height)))
+      if ((result = f_field_new_alignment(d_new(field), string_content, current_font, (enum e_label_background_formats)format,
+              (enum e_label_alignments)alignment_x, (enum e_label_alignments)alignment_y, ui_factory_attributes->environment))) {
+        d_call(result, m_drawable_set_dimension, width, font_height);
+        d_call(result, m_field_set_cursor, (unsigned int)cursor_R, (unsigned int)cursor_G, (unsigned int)cursor_B, (unsigned int)cursor_A);
+        d_call(result, m_field_set_size, (unsigned int)size);
+        d_call(self, m_ui_factory_load_uiable, result, "field");
       }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return result;
 }
 d_define_method(ui_factory, new_contextual_menu)(struct s_object *self, unsigned int font_id, unsigned int font_style, char *string_entries[],
-  size_t elements) {
+    size_t elements) {
   struct s_object *result;
   struct s_object *list_current;
   if ((result = f_contextual_menu_new(d_new(contextual_menu))))
@@ -556,19 +556,19 @@ d_define_method(ui_factory, delete)(struct s_object *self, struct s_ui_factory_a
   return NULL;
 }
 d_define_class(ui_factory) {d_hook_method(ui_factory, e_flag_private, load_component),
-                            d_hook_method(ui_factory, e_flag_public, load_uiable),
-                            d_hook_method(ui_factory, e_flag_public, new_container),
-                            d_hook_method(ui_factory, e_flag_public, new_scroll),
-                            d_hook_method(ui_factory, e_flag_public, new_list),
-                            d_hook_method(ui_factory, e_flag_public, new_label),
-                            d_hook_method(ui_factory, e_flag_public, new_checkbox),
-                            d_hook_method(ui_factory, e_flag_public, new_button),
-                            d_hook_method(ui_factory, e_flag_public, new_field),
-                            d_hook_method(ui_factory, e_flag_public, new_contextual_menu),
-                            d_hook_method(ui_factory, e_flag_public, get_component),
-                            d_hook_method(ui_factory, e_flag_public, get_font),
-                            d_hook_delete(ui_factory),
-                            d_hook_method_tail};
+  d_hook_method(ui_factory, e_flag_public, load_uiable),
+  d_hook_method(ui_factory, e_flag_public, new_container),
+  d_hook_method(ui_factory, e_flag_public, new_scroll),
+  d_hook_method(ui_factory, e_flag_public, new_list),
+  d_hook_method(ui_factory, e_flag_public, new_label),
+  d_hook_method(ui_factory, e_flag_public, new_checkbox),
+  d_hook_method(ui_factory, e_flag_public, new_button),
+  d_hook_method(ui_factory, e_flag_public, new_field),
+  d_hook_method(ui_factory, e_flag_public, new_contextual_menu),
+  d_hook_method(ui_factory, e_flag_public, get_component),
+  d_hook_method(ui_factory, e_flag_public, get_font),
+  d_hook_delete(ui_factory),
+  d_hook_method_tail};
 void f_ui_factory_callback_visibility(struct s_object *self, void **parameters, size_t entries) {
   struct s_object *uiable = (struct s_object *)parameters[0];
   struct s_object *environment = (struct s_object *)parameters[1];

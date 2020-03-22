@@ -99,7 +99,7 @@ d_define_method(particle, update)(struct s_object *self, unsigned int max_partic
       } else
         particle_attributes->particles[index].alive = d_false;
     } else if ((generated < max_particles) &&
-               ((particle_attributes->particles[index].was_alive == d_false) || (particle_attributes->single_shoot == d_false))) {
+        ((particle_attributes->particles[index].was_alive == d_false) || (particle_attributes->single_shoot == d_false))) {
       particle_attributes->particles[index].was_alive = d_true;
       memcpy(&(particle_attributes->particles[index].born), &current, sizeof(struct timeval));
       memcpy(&(particle_attributes->particles[index].update), &current, sizeof(struct timeval));
@@ -137,7 +137,7 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
   struct timeval current, elapsed_update;
   double real_elapsed_update, local_position_x, local_position_y, position_x, position_y, normalized_R, normalized_G, normalized_B, normalized_A;
   struct s_drawable_attributes *drawable_attributes_core = d_cast(particle_attributes->drawable_core, drawable),
-    *drawable_attributes_self = d_cast(self, drawable);
+                               *drawable_attributes_self = d_cast(self, drawable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   gettimeofday(&current, NULL);
@@ -169,8 +169,8 @@ d_define_method_override(particle, draw)(struct s_object *self, struct s_object 
       drawable_attributes_core->angle = (particle_attributes->particles[index].core.angle + drawable_attributes_self->angle);
       drawable_attributes_core->flip = drawable_attributes_self->flip;
       if ((d_call(particle_attributes->drawable_core, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-        camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+              camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+              camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
         while (((intptr_t)d_call(particle_attributes->drawable_core, m_drawable_draw, environment)) == d_drawable_return_continue);
       if ((drawable_attributes_self->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
         d_call(particle_attributes->drawable_core, m_drawable_draw_contour, environment);
@@ -201,12 +201,12 @@ d_define_method(particle, delete)(struct s_object *self, struct s_particle_attri
   return NULL;
 }
 d_define_class(particle) {d_hook_method(particle, e_flag_public, reset),
-                          d_hook_method(particle, e_flag_public, stop),
-                          d_hook_method(particle, e_flag_public, is_completed),
-                          d_hook_method(particle, e_flag_private, update),
-                          d_hook_method_override(particle, e_flag_public, drawable, draw),
-                          d_hook_method_override(particle, e_flag_public, drawable, set_maskRGB),
-                          d_hook_method_override(particle, e_flag_public, drawable, set_maskA),
-                          d_hook_method_override(particle, e_flag_public, drawable, set_blend),
-                          d_hook_delete(particle),
-                          d_hook_method_tail};
+  d_hook_method(particle, e_flag_public, stop),
+  d_hook_method(particle, e_flag_public, is_completed),
+  d_hook_method(particle, e_flag_private, update),
+  d_hook_method_override(particle, e_flag_public, drawable, draw),
+  d_hook_method_override(particle, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(particle, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(particle, e_flag_public, drawable, set_blend),
+  d_hook_delete(particle),
+  d_hook_method_tail};

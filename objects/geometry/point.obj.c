@@ -76,7 +76,7 @@ d_define_method(point, distance)(struct s_object *self, struct s_object *other, 
   struct s_point_attributes *point_attributes_other = d_cast(other, point);
   double current_distance_square;
   current_distance_square = ((point_attributes->x - point_attributes_other->x) * (point_attributes->x - point_attributes_other->x)) +
-                            ((point_attributes->y - point_attributes_other->y) * (point_attributes->y - point_attributes_other->y));
+    ((point_attributes->y - point_attributes_other->y) * (point_attributes->y - point_attributes_other->y));
   if (distance_square)
     *distance_square = current_distance_square;
   if (distance)
@@ -102,20 +102,20 @@ d_define_method(point, rotate_pivot)(struct s_object *self, double angle, struct
   d_using(point);
   struct s_point_attributes *point_attributes_pivot = d_cast(pivot, point);
   double radians = angle * d_math_radians_conversion, cosine = cos(radians), sine = sin(radians), new_x = point_attributes->x - point_attributes_pivot->x,
-    new_y = point_attributes->y - point_attributes_pivot->y;
+         new_y = point_attributes->y - point_attributes_pivot->y;
   point_attributes->x = (new_x * cosine) - (new_y * sine) + point_attributes_pivot->x;
   point_attributes->y = (new_x * sine) + (new_y * cosine) + point_attributes_pivot->y;
   return self;
 }
 d_define_class(point) {d_hook_method(point, e_flag_public, set_point),
-                       d_hook_method(point, e_flag_public, set_x),
-                       d_hook_method(point, e_flag_public, set_y),
-                       d_hook_method(point, e_flag_public, set),
-                       d_hook_method(point, e_flag_public, get),
-                       d_hook_method(point, e_flag_public, add),
-                       d_hook_method(point, e_flag_public, subtract),
-                       d_hook_method(point, e_flag_public, distance),
-                       d_hook_method(point, e_flag_public, angle),
-                       d_hook_method(point, e_flag_public, rotate),
-                       d_hook_method(point, e_flag_public, rotate_pivot),
-                       d_hook_method_tail};
+  d_hook_method(point, e_flag_public, set_x),
+  d_hook_method(point, e_flag_public, set_y),
+  d_hook_method(point, e_flag_public, set),
+  d_hook_method(point, e_flag_public, get),
+  d_hook_method(point, e_flag_public, add),
+  d_hook_method(point, e_flag_public, subtract),
+  d_hook_method(point, e_flag_public, distance),
+  d_hook_method(point, e_flag_public, angle),
+  d_hook_method(point, e_flag_public, rotate),
+  d_hook_method(point, e_flag_public, rotate_pivot),
+  d_hook_method_tail};

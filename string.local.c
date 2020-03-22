@@ -144,18 +144,18 @@ char *f_string_format_args(char *buffer, size_t *computed_size, size_t size, cha
             case 'n':
             case 'c':
               written = snprintf(target, remaining + 1, argument, va_arg(parameters,
-                long));
+                    long));
               break;
             case 'f':
             case 'e':
             case 'g':
               written = snprintf(target, remaining + 1, argument, va_arg(parameters,
-                double));
+                    double));
               break;
             case 's':
             case 'p':
               written = snprintf(target, remaining + 1, argument, va_arg(parameters,
-                void *));
+                    void *));
               break;
             default:
               written = 0;

@@ -17,7 +17,7 @@
  */
 #include "line.obj.h"
 t_boolean f_line_intersection(double starting_x_A, double starting_y_A, double ending_x_A, double ending_y_A, double starting_x_B, double starting_y_B,
-  double ending_x_B, double ending_y_B, double *collision_x, double *collision_y) {
+    double ending_x_B, double ending_y_B, double *collision_x, double *collision_y) {
   double length_x_A, length_y_A, length_x_B, length_y_B, determinant, s, t;
   t_boolean result = d_false;
   length_x_A = ending_x_A - starting_x_A;
@@ -98,32 +98,32 @@ d_define_method(line, get)(struct s_object *self, double *starting_x, double *st
 d_define_method(line, intersect)(struct s_object *self, struct s_object *other) {
   struct s_line_attributes *line_attributes = d_cast(other, line);
   return d_call(self, m_line_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x,
-    line_attributes->ending_y, NULL, NULL);
+      line_attributes->ending_y, NULL, NULL);
 }
 d_define_method(line, intersect_point)(struct s_object *self, struct s_object *other) {
   struct s_line_attributes *line_attributes = d_cast(other, line);
   struct s_object *result = NULL;
   double intersection_x, intersection_y;
   if (d_call(self, m_line_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x, line_attributes->ending_y,
-    &intersection_x, &intersection_y)) {
+        &intersection_x, &intersection_y)) {
     result = f_point_new(d_new(point), intersection_x, intersection_y);
   }
   return result;
 }
 d_define_method(line, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-  double *collision_x, double *collision_y) {
+    double *collision_x, double *collision_y) {
   d_using(line);
   double starting_x_A = line_attributes->starting_x, starting_y_A = line_attributes->starting_y, ending_x_A = line_attributes->ending_x,
-    ending_y_A = line_attributes->ending_y;
+         ending_y_A = line_attributes->ending_y;
   t_boolean result = f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
-    collision_y);
+      collision_y);
   d_cast_return(result);
 }
 d_define_class(line) {d_hook_method(line, e_flag_public, set_starting),
-                      d_hook_method(line, e_flag_public, set_ending),
-                      d_hook_method(line, e_flag_public, add),
-                      d_hook_method(line, e_flag_public, subtract),
-                      d_hook_method(line, e_flag_public, get),
-                      d_hook_method(line, e_flag_public, intersect),
-                      d_hook_method(line, e_flag_public, intersect_coordinates),
-                      d_hook_method_tail};
+  d_hook_method(line, e_flag_public, set_ending),
+  d_hook_method(line, e_flag_public, add),
+  d_hook_method(line, e_flag_public, subtract),
+  d_hook_method(line, e_flag_public, get),
+  d_hook_method(line, e_flag_public, intersect),
+  d_hook_method(line, e_flag_public, intersect_coordinates),
+  d_hook_method_tail};

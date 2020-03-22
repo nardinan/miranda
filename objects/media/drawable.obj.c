@@ -85,15 +85,15 @@ d_define_method(drawable, draw_contour)(struct s_object *self, struct s_object *
   d_miranda_lock(environment) {
     SDL_SetRenderDrawColor(environment_attributes->renderer, d_drawable_default_contour_color);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
-      square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
+        square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
-      square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y);
+        square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y,
-      square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
+        square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
-      square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
+        square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y);
     SDL_RenderDrawLine(environment_attributes->renderer, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
-      square_attributes->top_left_x + center_x, square_attributes->top_left_y + center_y);
+        square_attributes->top_left_x + center_x, square_attributes->top_left_y + center_y);
   } d_miranda_unlock(environment);
   return self;
 }
@@ -110,7 +110,7 @@ d_define_method(drawable, set_blend)(struct s_object *self, enum e_drawable_blen
   return self;
 }
 d_define_method(drawable, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y, double focus_x,
-  double focus_y, double current_w, double current_h, double zoom) {
+    double focus_y, double current_w, double current_h, double zoom) {
   d_using(drawable);
   struct s_square_attributes *square_attributes;
   double this_x, this_y, this_w, this_h, this_center_x, this_center_y, new_x, new_y, new_w, new_h, new_center_x, new_center_y;
@@ -206,7 +206,7 @@ d_define_method(drawable, is_visible)(struct s_object *self, double current_w, d
       d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
       d_call(&(drawable_attributes->point_normalized_dimension), m_point_get, &width, &height);
       distance_object = d_point_square_distance((position_x + (width/2.0)), (position_y + (height / 2.0)), (current_w / 2.0),
-        (current_h / 2.0));
+          (current_h / 2.0));
       diagonal_screen = (d_math_square(current_w) + d_math_square(current_h));
       diagonal_object = (d_math_square(width) + d_math_square(height));
       if (distance_object > ((diagonal_screen / 2.0) + (diagonal_object / 2.0)))
@@ -375,37 +375,37 @@ d_define_method(drawable, delete)(struct s_object *self, struct s_drawable_attri
   return NULL;
 }
 d_define_class(drawable) {d_hook_method(drawable, e_flag_public, copy_geometry),
-                          d_hook_method(drawable, e_flag_public, draw),
-                          d_hook_method(drawable, e_flag_public, draw_contour),
-                          d_hook_method(drawable, e_flag_public, set_maskRGB),
-                          d_hook_method(drawable, e_flag_public, set_maskA),
-                          d_hook_method(drawable, e_flag_public, set_blend),
-                          d_hook_method(drawable, e_flag_public, normalize_scale),
-                          d_hook_method(drawable, e_flag_public, keep_scale),
-                          d_hook_method(drawable, e_flag_public, is_visible),
-                          d_hook_method(drawable, e_flag_public, set_position),
-                          d_hook_method(drawable, e_flag_public, set_position_x),
-                          d_hook_method(drawable, e_flag_public, set_position_y),
-                          d_hook_method(drawable, e_flag_public, get_position),
-                          d_hook_method(drawable, e_flag_public, get_scaled_position),
-                          d_hook_method(drawable, e_flag_public, get_scaled_center),
-                          d_hook_method(drawable, e_flag_public, set_dimension),
-                          d_hook_method(drawable, e_flag_public, set_dimension_w),
-                          d_hook_method(drawable, e_flag_public, set_dimension_h),
-                          d_hook_method(drawable, e_flag_public, get_dimension),
-                          d_hook_method(drawable, e_flag_public, get_scaled_dimension),
-                          d_hook_method(drawable, e_flag_public, get_principal_point),
-                          d_hook_method(drawable, e_flag_public, get_scaled_principal_point),
-                          d_hook_method(drawable, e_flag_public, set_center),
-                          d_hook_method(drawable, e_flag_public, set_center_alignment),
-                          d_hook_method(drawable, e_flag_public, get_center),
-                          d_hook_method(drawable, e_flag_public, set_angle),
-                          d_hook_method(drawable, e_flag_public, get_angle),
-                          d_hook_method(drawable, e_flag_public, set_zoom),
-                          d_hook_method(drawable, e_flag_public, get_zoom),
-                          d_hook_method(drawable, e_flag_public, flip),
-                          d_hook_method(drawable, e_flag_public, set_flags),
-                          d_hook_method(drawable, e_flag_public, add_flags),
-                          d_hook_method(drawable, e_flag_public, get_flags),
-                          d_hook_delete(drawable),
-                          d_hook_method_tail};
+  d_hook_method(drawable, e_flag_public, draw),
+  d_hook_method(drawable, e_flag_public, draw_contour),
+  d_hook_method(drawable, e_flag_public, set_maskRGB),
+  d_hook_method(drawable, e_flag_public, set_maskA),
+  d_hook_method(drawable, e_flag_public, set_blend),
+  d_hook_method(drawable, e_flag_public, normalize_scale),
+  d_hook_method(drawable, e_flag_public, keep_scale),
+  d_hook_method(drawable, e_flag_public, is_visible),
+  d_hook_method(drawable, e_flag_public, set_position),
+  d_hook_method(drawable, e_flag_public, set_position_x),
+  d_hook_method(drawable, e_flag_public, set_position_y),
+  d_hook_method(drawable, e_flag_public, get_position),
+  d_hook_method(drawable, e_flag_public, get_scaled_position),
+  d_hook_method(drawable, e_flag_public, get_scaled_center),
+  d_hook_method(drawable, e_flag_public, set_dimension),
+  d_hook_method(drawable, e_flag_public, set_dimension_w),
+  d_hook_method(drawable, e_flag_public, set_dimension_h),
+  d_hook_method(drawable, e_flag_public, get_dimension),
+  d_hook_method(drawable, e_flag_public, get_scaled_dimension),
+  d_hook_method(drawable, e_flag_public, get_principal_point),
+  d_hook_method(drawable, e_flag_public, get_scaled_principal_point),
+  d_hook_method(drawable, e_flag_public, set_center),
+  d_hook_method(drawable, e_flag_public, set_center_alignment),
+  d_hook_method(drawable, e_flag_public, get_center),
+  d_hook_method(drawable, e_flag_public, set_angle),
+  d_hook_method(drawable, e_flag_public, get_angle),
+  d_hook_method(drawable, e_flag_public, set_zoom),
+  d_hook_method(drawable, e_flag_public, get_zoom),
+  d_hook_method(drawable, e_flag_public, flip),
+  d_hook_method(drawable, e_flag_public, set_flags),
+  d_hook_method(drawable, e_flag_public, add_flags),
+  d_hook_method(drawable, e_flag_public, get_flags),
+  d_hook_delete(drawable),
+  d_hook_method_tail};

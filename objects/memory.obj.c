@@ -38,5 +38,5 @@ d_define_method(memory, release)(struct s_object *self) {
   return result;
 }
 d_define_class(memory) {d_hook_method(memory, e_flag_public, retain),
-                        d_hook_method(memory, e_flag_public, release),
-                        d_hook_method_tail};
+  d_hook_method(memory, e_flag_public, release),
+  d_hook_method_tail};

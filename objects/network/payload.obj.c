@@ -117,7 +117,7 @@ d_define_method(payload, delete)(struct s_object *self, struct s_payload_attribu
   return NULL;
 }
 d_define_class(payload) {d_hook_method(payload, e_flag_private, scan),
-                         d_hook_method(payload, e_flag_public, push),
-                         d_hook_method(payload, e_flag_public, get),
-                         d_hook_delete(payload),
-                         d_hook_method_tail};
+  d_hook_method(payload, e_flag_public, push),
+  d_hook_method(payload, e_flag_public, get),
+  d_hook_delete(payload),
+  d_hook_method_tail};

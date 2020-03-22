@@ -22,7 +22,7 @@ double p_polygon_relative_orientation(struct s_object *point_proposed, struct s_
   d_call(point_next, m_point_get, &point_next_x, &point_next_y);
   d_call(point_current, m_point_get, &point_current_x, &point_current_y);
   return ((point_proposed_y - point_current_y) * (point_next_x - point_proposed_x)) -
-                ((point_proposed_x - point_current_x) * (point_next_y - point_proposed_y));
+    ((point_proposed_x - point_current_x) * (point_next_y - point_proposed_y));
 }
 struct s_polygon_attributes *p_polygon_alloc(struct s_object *self) {
   struct s_polygon_attributes *result = d_prepare(self, polygon);
@@ -142,50 +142,50 @@ d_define_method(polygon, convex_hull)(struct s_object *self) {
   if (polygon_attributes->entries >= 3) {
     array_final = f_array_new(d_new(array), polygon_attributes->entries);
     d_try
-        {
-          if ((point_leftmost = d_call(polygon_attributes->array_points, m_array_get, leftmost_point))) {
-            d_call(point_leftmost, m_point_get, &point_leftmost_position_x, NULL);
-            for (index = 1; index < polygon_attributes->entries; ++index) {
+    {
+      if ((point_leftmost = d_call(polygon_attributes->array_points, m_array_get, leftmost_point))) {
+        d_call(point_leftmost, m_point_get, &point_leftmost_position_x, NULL);
+        for (index = 1; index < polygon_attributes->entries; ++index) {
+          if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
+            d_call(point_selected, m_point_get, &point_current_poition_x, NULL);
+            if (point_current_poition_x < point_leftmost_position_x) {
+              leftmost_point = index;
+              point_leftmost_position_x = point_current_poition_x;
+            }
+          }
+        }
+      }
+      current_point = leftmost_point;
+      do {
+        ccwise_point = 0;
+        d_call(array_final, m_array_push, (point_current = d_call(polygon_attributes->array_points, m_array_get, current_point)));
+        if (current_point < (polygon_attributes->entries - 1))
+          ccwise_point = (current_point + 1);
+        if ((point_ccwise = d_call(polygon_attributes->array_points, m_array_get, ccwise_point))) {
+          d_call(point_current, m_point_distance, point_ccwise, NULL, &ccwise_point_distance);
+          for (index = 0; index < polygon_attributes->entries; ++index) {
+            if (index != ccwise_point) {
               if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
-                d_call(point_selected, m_point_get, &point_current_poition_x, NULL);
-                if (point_current_poition_x < point_leftmost_position_x) {
-                  leftmost_point = index;
-                  point_leftmost_position_x = point_current_poition_x;
+                relative_orientation = p_polygon_relative_orientation(point_selected, point_ccwise, point_current);
+                d_call(point_current, m_point_distance, point_selected, NULL, &current_point_distance);
+                if ((relative_orientation > 0) || ((relative_orientation == 0) && (current_point_distance > ccwise_point_distance))) {
+                  point_ccwise = point_selected;
+                  ccwise_point = index;
+                  ccwise_point_distance = current_point_distance;
                 }
               }
             }
           }
-          current_point = leftmost_point;
-          do {
-            ccwise_point = 0;
-            d_call(array_final, m_array_push, (point_current = d_call(polygon_attributes->array_points, m_array_get, current_point)));
-            if (current_point < (polygon_attributes->entries - 1))
-              ccwise_point = (current_point + 1);
-            if ((point_ccwise = d_call(polygon_attributes->array_points, m_array_get, ccwise_point))) {
-              d_call(point_current, m_point_distance, point_ccwise, NULL, &ccwise_point_distance);
-              for (index = 0; index < polygon_attributes->entries; ++index) {
-                if (index != ccwise_point) {
-                  if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
-                    relative_orientation = p_polygon_relative_orientation(point_selected, point_ccwise, point_current);
-                    d_call(point_current, m_point_distance, point_selected, NULL, &current_point_distance);
-                    if ((relative_orientation > 0) || ((relative_orientation == 0) && (current_point_distance > ccwise_point_distance))) {
-                      point_ccwise = point_selected;
-                      ccwise_point = index;
-                      ccwise_point_distance = current_point_distance;
-                    }
-                  }
-                }
-              }
-            }
-            current_point = ccwise_point;
-            ++entries;
-          } while (current_point != leftmost_point);
         }
-      d_catch(exception)
-        {
-          d_exception_dump(stderr, exception);
-          d_raise;
-        }
+        current_point = ccwise_point;
+        ++entries;
+      } while (current_point != leftmost_point);
+    }
+    d_catch(exception)
+    {
+      d_exception_dump(stderr, exception);
+      d_raise;
+    }
     d_endtry;
     d_delete(polygon_attributes->array_points);
     polygon_attributes->array_points = array_final;
@@ -205,7 +205,7 @@ d_define_method(polygon, set_angle)(struct s_object *self, double angle) {
   return self;
 }
 d_define_method(polygon, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
-  double sin_radians, double cos_radians, double *normalized_x, double *normalized_y) {
+    double sin_radians, double cos_radians, double *normalized_x, double *normalized_y) {
   double support_x, support_y;
   support_x = x - normalized_center_x;
   support_y = y - normalized_center_y;
@@ -219,7 +219,7 @@ d_define_method(polygon, normalize)(struct s_object *self) {
   d_using(polygon);
   struct s_object *current_point, *new_point;
   double radians = (polygon_attributes->angle * d_math_radians_conversion), sin_radians, cos_radians, normalized_center_x, normalized_center_y,
-    current_position_x, current_position_y, normalized_position_x, normalized_position_y;
+         current_position_x, current_position_y, normalized_position_x, normalized_position_y;
   if (!polygon_attributes->normalized) {
     d_call(polygon_attributes->array_normalized_points, m_array_clear, NULL);
     sin_radians = sin(radians);
@@ -229,7 +229,7 @@ d_define_method(polygon, normalize)(struct s_object *self) {
     d_array_foreach(polygon_attributes->array_points, current_point) {
       d_call(current_point, m_point_get, &current_position_x, &current_position_y);
       d_call(self, m_polygon_normalize_coordinate, current_position_x, current_position_y, normalized_center_x, normalized_center_y, sin_radians,
-        cos_radians, &normalized_position_x, &normalized_position_y);
+          cos_radians, &normalized_position_x, &normalized_position_y);
       new_point = f_point_new(d_new(point), normalized_position_x, normalized_position_y);
       d_call(polygon_attributes->array_normalized_points, m_array_push, new_point);
       d_delete(new_point);
@@ -241,15 +241,15 @@ d_define_method(polygon, normalize)(struct s_object *self) {
 d_define_method(polygon, intersect_line)(struct s_object *self, struct s_object *other) {
   struct s_line_attributes *line_attributes = d_cast(other, line);
   return d_call(self, m_polygon_intersect_coordinates, line_attributes->starting_x, line_attributes->starting_y, line_attributes->ending_x,
-    line_attributes->ending_y, NULL, NULL);
+      line_attributes->ending_y, NULL, NULL);
 }
 d_define_method(polygon, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-  unsigned int *collisions) {
+    unsigned int *collisions) {
   d_using(polygon);
   struct s_object *point_current, *point_previous = NULL, *point_first = NULL;
   struct s_object *result = NULL;
   double starting_x_A, starting_y_A, ending_x_A, ending_y_A, last_intersection_x = NAN, last_intersection_y = NAN, first_intersection_x = NAN,
-    first_intersection_y = NAN, proposed_x, proposed_y;
+         first_intersection_y = NAN, proposed_x, proposed_y;
   unsigned int collision_numbers = 0;
   size_t index_vertex, elements;
   d_call(self, m_polygon_normalize, NULL);
@@ -260,7 +260,7 @@ d_define_method(polygon, intersect_coordinates)(struct s_object *self, double st
         d_call(point_previous, m_point_get, &starting_x_A, &starting_y_A);
         d_call(point_current, m_point_get, &ending_x_A, &ending_y_A);
         if (f_line_intersection(starting_x_A, starting_y_A, ending_x_A, ending_y_A, starting_x_B, starting_y_B, ending_x_B, ending_y_B, &proposed_x,
-          &proposed_y)) {
+              &proposed_y)) {
           if ((last_intersection_x != last_intersection_x) || (last_intersection_y != last_intersection_y) ||
               (d_math_double_different(last_intersection_x, proposed_x)) || (d_math_double_different(last_intersection_y, proposed_y)))
             ++collision_numbers;
@@ -299,21 +299,21 @@ d_define_method(polygon, delete)(struct s_object *self, struct s_polygon_attribu
   return NULL;
 }
 d_define_class(polygon) {d_hook_method(polygon, e_flag_public, set_polygon),
-                         d_hook_method(polygon, e_flag_public, clear),
-                         d_hook_method(polygon, e_flag_public, push),
-                         d_hook_method(polygon, e_flag_public, get),
-                         d_hook_method(polygon, e_flag_public, reset),
-                         d_hook_method(polygon, e_flag_public, next),
-                         d_hook_method(polygon, e_flag_public, set_center),
-                         d_hook_method(polygon, e_flag_public, get_center),
-                         d_hook_method(polygon, e_flag_public, get_centroid),
-                         d_hook_method(polygon, e_flag_public, get_origin),
-                         d_hook_method(polygon, e_flag_public, convex_hull),
-                         d_hook_method(polygon, e_flag_public, size),
-                         d_hook_method(polygon, e_flag_public, set_angle),
-                         d_hook_method(polygon, e_flag_public, normalize_coordinate),
-                         d_hook_method(polygon, e_flag_public, normalize),
-                         d_hook_method(polygon, e_flag_public, intersect_line),
-                         d_hook_method(polygon, e_flag_public, intersect_coordinates),
-                         d_hook_delete(polygon),
-                         d_hook_method_tail};
+  d_hook_method(polygon, e_flag_public, clear),
+  d_hook_method(polygon, e_flag_public, push),
+  d_hook_method(polygon, e_flag_public, get),
+  d_hook_method(polygon, e_flag_public, reset),
+  d_hook_method(polygon, e_flag_public, next),
+  d_hook_method(polygon, e_flag_public, set_center),
+  d_hook_method(polygon, e_flag_public, get_center),
+  d_hook_method(polygon, e_flag_public, get_centroid),
+  d_hook_method(polygon, e_flag_public, get_origin),
+  d_hook_method(polygon, e_flag_public, convex_hull),
+  d_hook_method(polygon, e_flag_public, size),
+  d_hook_method(polygon, e_flag_public, set_angle),
+  d_hook_method(polygon, e_flag_public, normalize_coordinate),
+  d_hook_method(polygon, e_flag_public, normalize),
+  d_hook_method(polygon, e_flag_public, intersect_line),
+  d_hook_method(polygon, e_flag_public, intersect_coordinates),
+  d_hook_delete(polygon),
+  d_hook_method_tail};

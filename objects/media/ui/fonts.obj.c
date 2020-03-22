@@ -39,7 +39,7 @@ d_define_method(fonts, add_font)(struct s_object *self, unsigned int id, struct 
   }
   fstat(stream_attributes->descriptor, &(fonts_attributes->fonts[id].file_stats));
   if ((fonts_attributes->fonts[id].font_block =
-         mmap(NULL, fonts_attributes->fonts[id].file_stats.st_size, PROT_READ, MAP_SHARED, stream_attributes->descriptor, 0)) != MAP_FAILED) {
+        mmap(NULL, fonts_attributes->fonts[id].file_stats.st_size, PROT_READ, MAP_SHARED, stream_attributes->descriptor, 0)) != MAP_FAILED) {
     font_block = SDL_RWFromMem(fonts_attributes->fonts[id].font_block, fonts_attributes->fonts[id].file_stats.st_size);
     if (!(fonts_attributes->fonts[id].font = TTF_OpenFontRW(font_block, d_true, size))) {
       munmap(fonts_attributes->fonts[id].font_block, fonts_attributes->fonts[id].file_stats.st_size);
@@ -81,8 +81,8 @@ d_define_method(fonts, delete)(struct s_object *self, struct s_fonts_attributes 
   return NULL;
 }
 d_define_class(fonts) {d_hook_method(fonts, e_flag_public, add_font),
-                       d_hook_method(fonts, e_flag_public, get_font),
-                       d_hook_method(fonts, e_flag_public, get_height),
-                       d_hook_method(fonts, e_flag_public, set_outline),
-                       d_hook_delete(fonts),
-                       d_hook_method_tail};
+  d_hook_method(fonts, e_flag_public, get_font),
+  d_hook_method(fonts, e_flag_public, get_height),
+  d_hook_method(fonts, e_flag_public, set_outline),
+  d_hook_delete(fonts),
+  d_hook_method_tail};

@@ -141,14 +141,14 @@ d_define_method(track, delete)(struct s_object *self, struct s_track_attributes 
   return NULL;
 }
 d_define_class(track) {d_hook_method(track, e_flag_public, set_volume),
-                       d_hook_method(track, e_flag_public, set_channel),
-                       d_hook_method(track, e_flag_public, set_position),
-                       d_hook_method(track, e_flag_public, set_loops),
-                       d_hook_method(track, e_flag_public, play),
-                       d_hook_method(track, e_flag_public, play_fade_in),
-                       d_hook_method(track, e_flag_public, pause),
-                       d_hook_method(track, e_flag_public, stop),
-                       d_hook_method(track, e_flag_public, stop_fade_out),
-                       d_hook_method(track, e_flag_public, is_playing),
-                       d_hook_delete(track),
-                       d_hook_method_tail};
+  d_hook_method(track, e_flag_public, set_channel),
+  d_hook_method(track, e_flag_public, set_position),
+  d_hook_method(track, e_flag_public, set_loops),
+  d_hook_method(track, e_flag_public, play),
+  d_hook_method(track, e_flag_public, play_fade_in),
+  d_hook_method(track, e_flag_public, pause),
+  d_hook_method(track, e_flag_public, stop),
+  d_hook_method(track, e_flag_public, stop_fade_out),
+  d_hook_method(track, e_flag_public, is_playing),
+  d_hook_delete(track),
+  d_hook_method_tail};

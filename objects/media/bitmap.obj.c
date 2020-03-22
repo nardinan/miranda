@@ -85,7 +85,7 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
   center.y = center_y;
   d_miranda_lock(environment) {
     SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
-                     (SDL_RendererFlip)drawable_attributes->flip);
+        (SDL_RendererFlip)drawable_attributes->flip);
   } d_miranda_unlock(environment);
   if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);
@@ -119,8 +119,8 @@ d_define_method(bitmap, delete)(struct s_object *self, struct s_bitmap_attribute
   return NULL;
 }
 d_define_class(bitmap) {d_hook_method_override(bitmap, e_flag_public, drawable, draw),
-                        d_hook_method_override(bitmap, e_flag_public, drawable, set_maskRGB),
-                        d_hook_method_override(bitmap, e_flag_public, drawable, set_maskA),
-                        d_hook_method_override(bitmap, e_flag_public, drawable, set_blend),
-                        d_hook_delete(bitmap),
-                        d_hook_method_tail};
+  d_hook_method_override(bitmap, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(bitmap, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(bitmap, e_flag_public, drawable, set_blend),
+  d_hook_delete(bitmap),
+  d_hook_method_tail};

@@ -63,7 +63,7 @@ void p_huffman_compression_append(struct s_huffman_code code, unsigned char *out
   }
 }
 int p_huffman_compression_code(struct s_huffman_node *node, struct s_huffman_code *code, unsigned char *bytes, unsigned char bytes_number,
-  unsigned char bits_number) {
+    unsigned char bits_number) {
   int result = 0;
   unsigned char bytes_right[d_huffman_encode_bytes] = {0}, bytes_left[d_huffman_encode_bytes] = {0};
   if (node) {
@@ -88,7 +88,7 @@ int p_huffman_compression_code(struct s_huffman_node *node, struct s_huffman_cod
       bytes_right[0] = ((bytes_right[0] << 1) | 1);
       bytes_left[0] = ((bytes_left[0] << 1) | 0);
       result = (p_huffman_compression_code(node->childs[1], code, bytes_right, bytes_number, bits_number) +
-                p_huffman_compression_code(node->childs[0], code, bytes_left, bytes_number, bits_number));
+          p_huffman_compression_code(node->childs[0], code, bytes_left, bytes_number, bits_number));
     }
   }
   return result;
@@ -193,7 +193,7 @@ struct s_huffman_node *p_huffman_decompression_expand(unsigned char *block, int 
   return root;
 }
 int p_huffman_decompression_append(struct s_huffman_node *root, unsigned char *output, size_t *current_output_byte, unsigned char *block, size_t size,
-  size_t *current_block_byte, size_t *current_block_bit) {
+    size_t *current_block_byte, size_t *current_block_bit) {
   int result = d_false, child;
   if (root->leaf) {
     output[*current_output_byte] = root->code;

@@ -17,7 +17,7 @@
  */
 #include "field.obj.h"
 struct s_field_attributes *p_field_alloc(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
-  enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
+    enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
   struct s_field_attributes *result = d_prepare(self, field);
   f_label_new_alignment(self, string_content, font, format, alignment_x, alignment_y, environment);  /* inherit */
   return result;
@@ -26,7 +26,7 @@ struct s_object *f_field_new(struct s_object *self, char *string_content, TTF_Fo
   return f_field_new_alignment(self, string_content, font, e_label_background_format_adaptable, e_label_alignment_left, e_label_alignment_center, environment);
 }
 struct s_object *f_field_new_alignment(struct s_object *self, char *string_content, TTF_Font *font, enum e_label_background_formats format,
-  enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
+    enum e_label_alignments alignment_x, enum e_label_alignments alignment_y, struct s_object *environment) {
   struct s_field_attributes *attributes = p_field_alloc(self, string_content, font, format, alignment_x, alignment_y, environment);
   attributes->pointer = f_string_strlen(string_content);
   attributes->last_cursor_R = d_field_default_R;
@@ -72,7 +72,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
           }
           if (field_attributes->pointer < string_length)
             memmove((label_attributes->string_content + (field_attributes->pointer + incoming_length)),
-              (label_attributes->string_content + field_attributes->pointer), (label_attributes->size - field_attributes->pointer - incoming_length));
+                (label_attributes->string_content + field_attributes->pointer), (label_attributes->size - field_attributes->pointer - incoming_length));
           memcpy((label_attributes->string_content + field_attributes->pointer), current_event->text.text, incoming_length);
           field_attributes->pointer += incoming_length;
           update_required = d_true;
@@ -84,7 +84,7 @@ d_define_method_override(field, event)(struct s_object *self, struct s_object *e
         case SDLK_BACKSPACE:
           if (field_attributes->pointer > 0) {
             memmove((label_attributes->string_content + (field_attributes->pointer - 1)), (label_attributes->string_content + field_attributes->pointer),
-              (label_attributes->size - field_attributes->pointer));
+                (label_attributes->size - field_attributes->pointer));
             --field_attributes->pointer;
             update_required = d_true;
           }
@@ -116,7 +116,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
   char buffer[d_string_buffer_size], *string_subcontent;
   int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
   double position_x, position_y, dimension_w, dimension_h, new_dimension_w = 0, center_x, center_y, width_factor, top_x, top_y, bottom_x, bottom_y,
-    radians = (drawable_attributes->angle * d_math_pi) / 180.0, sin_radians, cos_radians;
+         radians = (drawable_attributes->angle * d_math_pi) / 180.0, sin_radians, cos_radians;
   size_t string_length = f_string_strlen(label_attributes->string_content);
   SDL_Surface *unoptimized_surface;
   SDL_Color white = {
@@ -155,10 +155,10 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
     p_square_normalize_coordinate(NULL, top_x, top_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &top_x, &top_y);
     p_square_normalize_coordinate(NULL, bottom_x, bottom_y, (position_x + center_x), (position_y + center_y), sin_radians, cos_radians, &bottom_x, &bottom_y);
     if ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, top_x + ((bottom_x - top_x) / 2.0),
-      top_y + ((bottom_y - top_y) / 2.0))) {
+          top_y + ((bottom_y - top_y) / 2.0))) {
       d_miranda_lock(environment) {
         SDL_SetRenderDrawColor(environment_attributes->renderer, field_attributes->last_cursor_B, field_attributes->last_cursor_G,
-          field_attributes->last_cursor_R, field_attributes->last_cursor_A);
+            field_attributes->last_cursor_R, field_attributes->last_cursor_A);
         SDL_RenderDrawLine(environment_attributes->renderer, top_x, top_y, bottom_x, bottom_y);
       } d_miranda_unlock(environment);
     }
@@ -166,7 +166,7 @@ d_define_method_override(field, draw)(struct s_object *self, struct s_object *en
   d_cast_return(result);
 }
 d_define_class(field) {d_hook_method(field, e_flag_public, set_cursor),
-                       d_hook_method(field, e_flag_public, set_size),
-                       d_hook_method_override(field, e_flag_public, eventable, event),
-                       d_hook_method_override(field, e_flag_public, drawable, draw),
-                       d_hook_method_tail};
+  d_hook_method(field, e_flag_public, set_size),
+  d_hook_method_override(field, e_flag_public, eventable, event),
+  d_hook_method_override(field, e_flag_public, drawable, draw),
+  d_hook_method_tail};

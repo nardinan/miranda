@@ -354,19 +354,19 @@ void p_json_analyzer_key(struct s_list *tokens, struct s_list *nodes) {
         break;
       case e_json_node_action_value:
         d_try
-            {
-              if (p_json_analyzer_value(tokens, &(local_node->value), NULL) == '}')
-                current_action = e_json_node_action_end;
-              else
-                current_action = e_json_node_action_key;
-              f_list_append(nodes, (struct s_list_node *)local_node, e_list_insert_tail);
-              local_node = NULL;
-            }
-          d_catch(exception)
-            {
-              d_exception_dump(stderr, exception);
-              d_raise;
-            }
+        {
+          if (p_json_analyzer_value(tokens, &(local_node->value), NULL) == '}')
+            current_action = e_json_node_action_end;
+          else
+            current_action = e_json_node_action_key;
+          f_list_append(nodes, (struct s_list_node *)local_node, e_list_insert_tail);
+          local_node = NULL;
+        }
+        d_catch(exception)
+        {
+          d_exception_dump(stderr, exception);
+          d_raise;
+        }
         d_endtry;
       default:
         break;
@@ -445,14 +445,14 @@ struct s_object *f_json_new_stream(struct s_object *self, struct s_object *strea
   if ((attributes->root = (struct s_json_node_value *)d_malloc(sizeof(struct s_json_node_value)))) {
     f_json_tokenizer(stream_file, attributes->tokens);
     d_try
-        {
-          f_json_analyzer(attributes->tokens, attributes->root);
-        }
-      d_catch(exception)
-        {
-          d_exception_dump(stderr, exception);
-          d_raise;
-        }
+    {
+      f_json_analyzer(attributes->tokens, attributes->root);
+    }
+    d_catch(exception)
+    {
+      d_exception_dump(stderr, exception);
+      d_raise;
+    }
     d_endtry;
   } else
     d_die(d_error_malloc);
@@ -562,7 +562,7 @@ d_define_method(json, get_double_relative)(struct s_object *self, struct s_json_
   d_cast_return(value);
 }
 d_define_method(json, get_boolean_relative)(struct s_object *self, struct s_json_node_value *starting_point, t_boolean *boolean_supply, const char *format,
-  ...) {
+    ...) {
   struct s_json_node_value *value = NULL;
   va_list parameters;
   char buffer[d_string_buffer_size];
@@ -655,21 +655,21 @@ d_define_method(json, set_string)(struct s_object *self, char *string_supply, co
   va_list parameters;
   va_start(parameters, format);
   d_try
-      {
-        if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
-          value->type = e_json_node_type_string;
-          value->allocated = d_true;
-          if ((value->string_entry = (char *)d_malloc(f_string_strlen(string_supply) + 1)))
-            strcpy(value->string_entry, string_supply);
-          else
-            d_die(d_error_malloc);
-        }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+      value->type = e_json_node_type_string;
+      value->allocated = d_true;
+      if ((value->string_entry = (char *)d_malloc(f_string_strlen(string_supply) + 1)))
+        strcpy(value->string_entry, string_supply);
+      else
+        d_die(d_error_malloc);
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   va_end(parameters);
   d_cast_return(value);
@@ -680,17 +680,17 @@ d_define_method(json, set_double)(struct s_object *self, double value_supply, co
   va_list parameters;
   va_start(parameters, format);
   d_try
-      {
-        if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
-          value->type = e_json_node_type_value;
-          value->value_entry = value_supply;
-        }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+      value->type = e_json_node_type_value;
+      value->value_entry = value_supply;
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   va_end(parameters);
   d_cast_return(value);
@@ -701,17 +701,17 @@ d_define_method(json, set_boolean)(struct s_object *self, t_boolean boolean_supp
   va_list parameters;
   va_start(parameters, format);
   d_try
-      {
-        if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
-          value->type = e_json_node_type_boolean;
-          value->boolean_entry = boolean_supply;
-        }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+      value->type = e_json_node_type_boolean;
+      value->boolean_entry = boolean_supply;
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   va_end(parameters);
   d_cast_return(value);
@@ -722,17 +722,17 @@ d_define_method(json, set_array)(struct s_object *self, const char *format, ...)
   va_list parameters;
   va_start(parameters, format);
   d_try
-      {
-        if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
-          value->type = e_json_node_type_array;
-          f_list_init(&(value->array_entry));
-        }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    if ((value = (struct s_json_node_value *)d_call(self, m_json_set_value, format, parameters))) {
+      value->type = e_json_node_type_array;
+      f_list_init(&(value->array_entry));
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   va_end(parameters);
   d_cast_return(value);
@@ -804,21 +804,21 @@ d_define_method(json, delete)(struct s_object *self, struct s_json_attributes *a
   return NULL;
 }
 d_define_class(json) {d_hook_method(json, e_flag_public, write),
-                      d_hook_method(json, e_flag_private, get_value_relative),
-                      d_hook_method(json, e_flag_private, get_value),
-                      d_hook_method(json, e_flag_public, get_relative),
-                      d_hook_method(json, e_flag_public, get_string_relative),
-                      d_hook_method(json, e_flag_public, get_double_relative),
-                      d_hook_method(json, e_flag_public, get_boolean_relative),
-                      d_hook_method(json, e_flag_public, get_string),
-                      d_hook_method(json, e_flag_public, get_double),
-                      d_hook_method(json, e_flag_public, get_boolean),
-                      d_hook_method(json, e_flag_private, set_value),
-                      d_hook_method(json, e_flag_public, set_string),
-                      d_hook_method(json, e_flag_public, set_double),
-                      d_hook_method(json, e_flag_public, set_boolean),
-                      d_hook_method(json, e_flag_public, set_array),
-                      d_hook_method(json, e_flag_public, insert_value),
-                      d_hook_method(json, e_flag_public, delete_value),
-                      d_hook_delete(json),
-                      d_hook_method_tail};
+  d_hook_method(json, e_flag_private, get_value_relative),
+  d_hook_method(json, e_flag_private, get_value),
+  d_hook_method(json, e_flag_public, get_relative),
+  d_hook_method(json, e_flag_public, get_string_relative),
+  d_hook_method(json, e_flag_public, get_double_relative),
+  d_hook_method(json, e_flag_public, get_boolean_relative),
+  d_hook_method(json, e_flag_public, get_string),
+  d_hook_method(json, e_flag_public, get_double),
+  d_hook_method(json, e_flag_public, get_boolean),
+  d_hook_method(json, e_flag_private, set_value),
+  d_hook_method(json, e_flag_public, set_string),
+  d_hook_method(json, e_flag_public, set_double),
+  d_hook_method(json, e_flag_public, set_boolean),
+  d_hook_method(json, e_flag_public, set_array),
+  d_hook_method(json, e_flag_public, insert_value),
+  d_hook_method(json, e_flag_public, delete_value),
+  d_hook_delete(json),
+  d_hook_method_tail};

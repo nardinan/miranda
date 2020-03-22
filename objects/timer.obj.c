@@ -54,7 +54,7 @@ d_define_method(timer, elapsed_time_us)(struct s_object *self, long long int *el
   return self;
 }
 d_define_class(timer) {d_hook_method(timer, e_flag_public, reset),
-                       d_hook_method(timer, e_flag_public, elapsed_time_s),
-                       d_hook_method(timer, e_flag_public, elapsed_time_ms),
-                       d_hook_method(timer, e_flag_public, elapsed_time_us),
-                       d_hook_method_tail};
+  d_hook_method(timer, e_flag_public, elapsed_time_s),
+  d_hook_method(timer, e_flag_public, elapsed_time_ms),
+  d_hook_method(timer, e_flag_public, elapsed_time_us),
+  d_hook_method_tail};

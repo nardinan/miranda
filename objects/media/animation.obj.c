@@ -36,7 +36,7 @@ d_define_method(animation, append_frame)(struct s_object *self, struct s_object 
   return d_call(self, m_animation_append_key_frame, drawable, offset_x, offset_y, zoom, time, d_false);
 }
 d_define_method(animation, append_key_frame)(struct s_object *self, struct s_object *drawable, double offset_x, double offset_y, double zoom, double time,
-  t_boolean key) {
+    t_boolean key) {
   d_using(animation);
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_animation_frame *current_frame;
@@ -45,7 +45,7 @@ d_define_method(animation, append_key_frame)(struct s_object *self, struct s_obj
       if (drawable_attributes->last_blend != e_drawable_blend_undefined)
         d_call(current_frame->drawable, m_drawable_set_blend, drawable_attributes->last_blend);
       d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G,
-        (unsigned int)drawable_attributes->last_mask_B);
+          (unsigned int)drawable_attributes->last_mask_B);
       d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
     }
     current_frame->offset_x = offset_x;
@@ -113,7 +113,7 @@ d_define_method(animation, update_frame)(struct s_object *self) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core;
   struct timeval current, elapsed_update;
   double real_elapsed_update, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y, center_x, center_y, dimension_w = 0.0,
-    dimension_h = 0.0;
+         dimension_h = 0.0;
   gettimeofday(&current, NULL);
   d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
   d_call(&(drawable_attributes_self->point_center), m_point_get, &local_center_x, &local_center_y);
@@ -209,13 +209,13 @@ d_define_method_override(animation, set_blend)(struct s_object *self, enum e_dra
   return self;
 }
 d_define_method_override(animation, normalize_scale)(struct s_object *self, double reference_w, double reference_h, double offset_x, double offset_y,
-  double focus_x, double focus_y, double current_w, double current_h, double zoom) {
+    double focus_x, double focus_y, double current_w, double current_h, double zoom) {
   d_using(animation);
   struct s_object *result = NULL;
   d_call(self, m_animation_update_frame, NULL);
   if ((animation_attributes->current_frame) && (animation_attributes->current_frame->drawable))
     result = d_call(animation_attributes->current_frame->drawable, m_drawable_normalize_scale, reference_w, reference_h, offset_x, offset_y, focus_x, focus_y,
-      current_w, current_h, zoom);
+        current_w, current_h, zoom);
   return result;
 }
 d_define_method_override(animation, keep_scale)(struct s_object *self, double current_w, double current_h) {
@@ -281,21 +281,21 @@ d_define_method(animation, delete)(struct s_object *self, struct s_animation_att
   return NULL;
 }
 d_define_class(animation) {d_hook_method(animation, e_flag_public, append_frame),
-                           d_hook_method(animation, e_flag_public, append_key_frame),
-                           d_hook_method(animation, e_flag_public, set_status),
-                           d_hook_method(animation, e_flag_public, get_status),
-                           d_hook_method(animation, e_flag_public, get_master_frame),
-                           d_hook_method(animation, e_flag_public, set_callback),
-                           d_hook_method(animation, e_flag_private, update_frame),
-                           d_hook_method_override(animation, e_flag_public, drawable, draw),
-                           d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
-                           d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
-                           d_hook_method_override(animation, e_flag_public, drawable, set_blend),
-                           d_hook_method_override(animation, e_flag_public, drawable, normalize_scale),
-                           d_hook_method_override(animation, e_flag_public, drawable, keep_scale),
-                           d_hook_method_override(animation, e_flag_public, drawable, get_scaled_position),
-                           d_hook_method_override(animation, e_flag_public, drawable, get_scaled_center),
-                           d_hook_method_override(animation, e_flag_public, drawable, get_dimension),
-                           d_hook_method_override(animation, e_flag_public, drawable, get_scaled_dimension),
-                           d_hook_delete(animation),
-                           d_hook_method_tail};
+  d_hook_method(animation, e_flag_public, append_key_frame),
+  d_hook_method(animation, e_flag_public, set_status),
+  d_hook_method(animation, e_flag_public, get_status),
+  d_hook_method(animation, e_flag_public, get_master_frame),
+  d_hook_method(animation, e_flag_public, set_callback),
+  d_hook_method(animation, e_flag_private, update_frame),
+  d_hook_method_override(animation, e_flag_public, drawable, draw),
+  d_hook_method_override(animation, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(animation, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(animation, e_flag_public, drawable, set_blend),
+  d_hook_method_override(animation, e_flag_public, drawable, normalize_scale),
+  d_hook_method_override(animation, e_flag_public, drawable, keep_scale),
+  d_hook_method_override(animation, e_flag_public, drawable, get_scaled_position),
+  d_hook_method_override(animation, e_flag_public, drawable, get_scaled_center),
+  d_hook_method_override(animation, e_flag_public, drawable, get_dimension),
+  d_hook_method_override(animation, e_flag_public, drawable, get_scaled_dimension),
+  d_hook_delete(animation),
+  d_hook_method_tail};

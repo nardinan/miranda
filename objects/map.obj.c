@@ -123,12 +123,12 @@ d_define_method(map, compare)(struct s_object *self, struct s_object *other) {
   return result;
 }
 d_define_class(map) {d_hook_method(map, e_flag_public, insert),
-                     d_hook_method(map, e_flag_public, remove),
-                     d_hook_method(map, e_flag_public, find),
-                     d_hook_method(map, e_flag_public, reset),
-                     d_hook_method(map, e_flag_public, next),
-                     d_hook_method(map, e_flag_public, size),
-                     d_hook_delete(map),
-                     d_hook_hash(map),
-                     d_hook_compare(map),
-                     d_hook_method_tail};
+  d_hook_method(map, e_flag_public, remove),
+  d_hook_method(map, e_flag_public, find),
+  d_hook_method(map, e_flag_public, reset),
+  d_hook_method(map, e_flag_public, next),
+  d_hook_method(map, e_flag_public, size),
+  d_hook_delete(map),
+  d_hook_hash(map),
+  d_hook_compare(map),
+  d_hook_method_tail};

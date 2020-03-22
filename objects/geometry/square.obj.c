@@ -83,7 +83,7 @@ d_define_method(square, set_center)(struct s_object *self, double center_x, doub
   return self;
 }
 d_define_method(square, normalize_coordinate)(struct s_object *self, double x, double y, double normalized_center_x, double normalized_center_y,
-  double sin_radians, double cos_radians, double *normalized_x, double *normalized_y) {
+    double sin_radians, double cos_radians, double *normalized_x, double *normalized_y) {
   double support_x, support_y;
   support_x = x - normalized_center_x;
   support_y = y - normalized_center_y;
@@ -102,30 +102,30 @@ d_define_method(square, normalize)(struct s_object *self) {
     normalized_center_x = square_attributes->center_x;
     normalized_center_y = square_attributes->center_y;
     d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->top_left_y, normalized_center_x, normalized_center_y,
-      sin_radians, cos_radians, &(square_attributes->normalized_top_left_x), &(square_attributes->normalized_top_left_y));
+        sin_radians, cos_radians, &(square_attributes->normalized_top_left_x), &(square_attributes->normalized_top_left_y));
     d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->top_left_y, normalized_center_x, normalized_center_y,
-      sin_radians, cos_radians, &(square_attributes->normalized_top_right_x), &(square_attributes->normalized_top_right_y));
+        sin_radians, cos_radians, &(square_attributes->normalized_top_right_x), &(square_attributes->normalized_top_right_y));
     d_call(self, m_square_normalize_coordinate, square_attributes->top_left_x, square_attributes->bottom_right_y, normalized_center_x, normalized_center_y,
-      sin_radians, cos_radians, &(square_attributes->normalized_bottom_left_x), &(square_attributes->normalized_bottom_left_y));
+        sin_radians, cos_radians, &(square_attributes->normalized_bottom_left_x), &(square_attributes->normalized_bottom_left_y));
     d_call(self, m_square_normalize_coordinate, square_attributes->bottom_right_x, square_attributes->bottom_right_y, normalized_center_x, normalized_center_y,
-      sin_radians, cos_radians, &(square_attributes->normalized_bottom_right_x), &(square_attributes->normalized_bottom_right_y));
+        sin_radians, cos_radians, &(square_attributes->normalized_bottom_right_x), &(square_attributes->normalized_bottom_right_y));
     square_attributes->normalized = d_true;
   }
   return self;
 }
 d_define_method(square, get_normalized_coordinates)(struct s_object *self, double *top_left_x, double *top_left_y,
-  double *bottom_right_x, double *bottom_right_y) {
+    double *bottom_right_x, double *bottom_right_y) {
   struct s_square_attributes *square_attributes = d_cast(self, square);
   double position_x_min, position_y_min, position_x_max, position_y_max;
   d_call(self, m_square_normalize, NULL);
   position_x_min = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-    d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+      d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
   position_x_max = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+      d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
   position_y_min = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-    d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+      d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
   position_y_max = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+      d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
   if (top_left_x)
     *top_left_x = position_x_min;
   if (top_left_y)
@@ -143,7 +143,7 @@ d_define_method(square, inside)(struct s_object *self, struct s_object *point) {
 d_define_method(square, inside_coordinates)(struct s_object *self, double x, double y) {
   d_using(square);
   double radians = -(square_attributes->angle * d_math_radians_conversion), sin_radians = sin(radians), cos_radians = cos(radians), normalized_center_x,
-    normalized_center_y, normalized_x, normalized_y;
+         normalized_center_y, normalized_x, normalized_y;
   t_boolean result = d_false;
   d_call(self, m_square_normalize, NULL);
   normalized_center_x = square_attributes->center_x;
@@ -155,22 +155,22 @@ d_define_method(square, inside_coordinates)(struct s_object *self, double x, dou
   d_cast_return(result);
 }
 d_define_method(square, intersect_coordinates)(struct s_object *self, double starting_x_B, double starting_y_B, double ending_x_B, double ending_y_B,
-  double *collision_x, double *collision_y) {
+    double *collision_x, double *collision_y) {
   d_using(square);
   t_boolean result = d_false;
   d_call(self, m_square_normalize, NULL);
   if (!(result = f_line_intersection(square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y,
-    square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
-    collision_y))) {
+          square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
+          collision_y))) {
     if (!(result = f_line_intersection(square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y,
-      square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
-      collision_x, collision_y))) {
+            square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
+            collision_x, collision_y))) {
       if (!(result = f_line_intersection(square_attributes->normalized_bottom_right_x, square_attributes->normalized_bottom_right_y,
-        square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
-        collision_x, collision_y))) {
+              square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B,
+              collision_x, collision_y))) {
         result = f_line_intersection(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_left_y,
-          square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
-          collision_y);
+            square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y, starting_x_B, starting_y_B, ending_x_B, ending_y_B, collision_x,
+            collision_y);
       }
     }
   }
@@ -184,52 +184,52 @@ d_define_method(square, collision)(struct s_object *self, struct s_object *other
   d_call(self, m_square_normalize, NULL);
   d_call(other, m_square_normalize, NULL);
   position_x_min = d_math_min(d_math_min(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-    d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+      d_math_min(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
   position_x_max = d_math_max(d_math_max(square_attributes->normalized_top_left_x, square_attributes->normalized_top_right_x),
-    d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
+      d_math_max(square_attributes->normalized_bottom_left_x, square_attributes->normalized_bottom_right_x));
   position_y_min = d_math_min(d_math_min(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-    d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+      d_math_min(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
   position_y_max = d_math_max(d_math_max(square_attributes->normalized_top_left_y, square_attributes->normalized_top_right_y),
-    d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
+      d_math_max(square_attributes->normalized_bottom_left_y, square_attributes->normalized_bottom_right_y));
   center_x_self = position_x_min + ((position_x_max - position_x_min) / 2.0);
   center_y_self = position_y_min + ((position_y_max - position_y_min) / 2.0);
   position_x_min = d_math_min(d_math_min(square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_right_x),
-    d_math_min(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
+      d_math_min(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
   position_x_max = d_math_max(d_math_max(square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_right_x),
-    d_math_max(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
+      d_math_max(square_attributes_other->normalized_bottom_left_x, square_attributes_other->normalized_bottom_right_x));
   position_y_min = d_math_min(d_math_min(square_attributes_other->normalized_top_left_y, square_attributes_other->normalized_top_right_y),
-    d_math_min(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
+      d_math_min(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
   position_y_max = d_math_max(d_math_max(square_attributes_other->normalized_top_left_y, square_attributes_other->normalized_top_right_y),
-    d_math_max(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
+      d_math_max(square_attributes_other->normalized_bottom_left_y, square_attributes_other->normalized_bottom_right_y));
   center_x_other = position_x_min + ((position_x_max - position_x_min) / 2.0);
   center_y_other = position_y_min + ((position_y_max - position_y_min) / 2.0);
   if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_left_x, square_attributes_other->normalized_top_left_y)))
     if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_top_right_x,
-      square_attributes_other->normalized_top_right_y)))
+            square_attributes_other->normalized_top_right_y)))
       if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_right_x,
-        square_attributes_other->normalized_bottom_right_y)))
+              square_attributes_other->normalized_bottom_right_y)))
         if (!(result = (intptr_t)p_square_inside_coordinates(self, square_attributes_other->normalized_bottom_left_x,
-          square_attributes_other->normalized_bottom_left_y)))
+                square_attributes_other->normalized_bottom_left_y)))
           if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_left_x, square_attributes->normalized_top_left_y)))
             if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_top_right_x, square_attributes->normalized_top_right_y)))
               if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_right_x,
-                square_attributes->normalized_bottom_right_y)))
+                      square_attributes->normalized_bottom_right_y)))
                 if (!(result = (intptr_t)p_square_inside_coordinates(other, square_attributes->normalized_bottom_left_x,
-                  square_attributes->normalized_bottom_left_y)))
+                        square_attributes->normalized_bottom_left_y)))
                   if (!(result = (intptr_t)p_square_inside_coordinates(self, center_x_other, center_y_other)))
                     result = (intptr_t)p_square_inside_coordinates(other, center_x_self, center_y_self);
   d_cast_return(result);
 }
 d_define_class(square) {d_hook_method(square, e_flag_public, set_square),
-                        d_hook_method(square, e_flag_public, set_top_left),
-                        d_hook_method(square, e_flag_public, set_bottom_right),
-                        d_hook_method(square, e_flag_public, set_angle),
-                        d_hook_method(square, e_flag_public, set_center),
-                        d_hook_method(square, e_flag_private, normalize_coordinate),
-                        d_hook_method(square, e_flag_public, normalize),
-                        d_hook_method(square, e_flag_public, get_normalized_coordinates),
-                        d_hook_method(square, e_flag_public, inside),
-                        d_hook_method(square, e_flag_public, inside_coordinates),
-                        d_hook_method(square, e_flag_public, intersect_coordinates),
-                        d_hook_method(square, e_flag_public, collision),
-                        d_hook_method_tail};
+  d_hook_method(square, e_flag_public, set_top_left),
+  d_hook_method(square, e_flag_public, set_bottom_right),
+  d_hook_method(square, e_flag_public, set_angle),
+  d_hook_method(square, e_flag_public, set_center),
+  d_hook_method(square, e_flag_private, normalize_coordinate),
+  d_hook_method(square, e_flag_public, normalize),
+  d_hook_method(square, e_flag_public, get_normalized_coordinates),
+  d_hook_method(square, e_flag_public, inside),
+  d_hook_method(square, e_flag_public, inside_coordinates),
+  d_hook_method(square, e_flag_public, intersect_coordinates),
+  d_hook_method(square, e_flag_public, collision),
+  d_hook_method_tail};

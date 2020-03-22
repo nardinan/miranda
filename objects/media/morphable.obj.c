@@ -95,49 +95,49 @@ d_define_method_override(morphable, event)(struct s_object *self, struct s_objec
     }
   }
   d_try
-      {
-        switch (current_event->type) {
-          case SDL_MOUSEWHEEL:
-            if (morphable_attributes->grabbed) {
-              morphable_attributes->offset_z += (current_event->wheel.y * d_morphable_z_factor);
-              changed = d_true;
-            }
-            break;
-          case SDL_MOUSEBUTTONUP:
-            if (current_event->button.button == SDL_BUTTON_LEFT)
-              if (morphable_attributes->grabbed) {
-                morphable_attributes->grabbed = d_false;
-                changed = d_true;
-              }
-            break;
-          case SDL_MOUSEBUTTONDOWN:
-            if (current_event->button.button == SDL_BUTTON_LEFT) {
-              if ((mouse_inside) /* has been already calculated */||
-                  ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
-                if (!morphable_attributes->grabbed) {
-                  morphable_attributes->grabbed = d_true;
-                  morphable_attributes->offset_x = NAN;
-                  morphable_attributes->offset_y = NAN;
-                  morphable_attributes->offset_z = NAN;
-                } else
-                  morphable_attributes->grabbed = d_false;
-                changed = d_true;
-              }
-            }
+  {
+    switch (current_event->type) {
+      case SDL_MOUSEWHEEL:
+        if (morphable_attributes->grabbed) {
+          morphable_attributes->offset_z += (current_event->wheel.y * d_morphable_z_factor);
+          changed = d_true;
         }
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+        break;
+      case SDL_MOUSEBUTTONUP:
+        if (current_event->button.button == SDL_BUTTON_LEFT)
+          if (morphable_attributes->grabbed) {
+            morphable_attributes->grabbed = d_false;
+            changed = d_true;
+          }
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        if (current_event->button.button == SDL_BUTTON_LEFT) {
+          if ((mouse_inside) /* has been already calculated */||
+              ((intptr_t)d_call(&(drawable_attributes->square_collision_box), m_square_inside_coordinates, (double)mouse_x, (double)mouse_y))) {
+            if (!morphable_attributes->grabbed) {
+              morphable_attributes->grabbed = d_true;
+              morphable_attributes->offset_x = NAN;
+              morphable_attributes->offset_y = NAN;
+              morphable_attributes->offset_z = NAN;
+            } else
+              morphable_attributes->grabbed = d_false;
+            changed = d_true;
+          }
+        }
+    }
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
 d_define_class(morphable) {d_hook_method(morphable, e_flag_public, set_freedom_x),
-                           d_hook_method(morphable, e_flag_public, set_freedom_y),
-                           d_hook_method(morphable, e_flag_public, set_freedom_z),
-                           d_hook_method(morphable, e_flag_public, set_visibility),
-                           d_hook_method(morphable, e_flag_public, update),
-                           d_hook_method_override(morphable, e_flag_public, eventable, event),
-                           d_hook_method_tail};
+  d_hook_method(morphable, e_flag_public, set_freedom_y),
+  d_hook_method(morphable, e_flag_public, set_freedom_z),
+  d_hook_method(morphable, e_flag_public, set_visibility),
+  d_hook_method(morphable, e_flag_public, update),
+  d_hook_method_override(morphable, e_flag_public, eventable, event),
+  d_hook_method_tail};

@@ -54,6 +54,6 @@ d_define_method(pool, delete)(struct s_object *self, struct s_pool_attributes *a
   return NULL;
 }
 d_define_class(pool) {d_hook_method(pool, e_flag_public, insert),
-                      d_hook_method(pool, e_flag_public, clean),
-                      d_hook_delete(pool),
-                      d_hook_method_tail};
+  d_hook_method(pool, e_flag_public, clean),
+  d_hook_delete(pool),
+  d_hook_method_tail};

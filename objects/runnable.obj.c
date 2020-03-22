@@ -127,11 +127,11 @@ d_define_method(runnable, delete)(struct s_object *self, struct s_runnable_attri
   return NULL;
 }
 d_define_class(runnable) {d_hook_method(runnable, e_flag_private, job),
-                          d_hook_method(runnable, e_flag_private, run_interface),
-                          d_hook_method(runnable, e_flag_public, run),
-                          d_hook_method(runnable, e_flag_public, kill),
-                          d_hook_method(runnable, e_flag_public, kill_required),
-                          d_hook_method(runnable, e_flag_public, running),
-                          d_hook_method(runnable, e_flag_public, join),
-                          d_hook_delete(runnable),
-                          d_hook_method_tail};
+  d_hook_method(runnable, e_flag_private, run_interface),
+  d_hook_method(runnable, e_flag_public, run),
+  d_hook_method(runnable, e_flag_public, kill),
+  d_hook_method(runnable, e_flag_public, kill_required),
+  d_hook_method(runnable, e_flag_public, running),
+  d_hook_method(runnable, e_flag_public, join),
+  d_hook_delete(runnable),
+  d_hook_method_tail};

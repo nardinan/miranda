@@ -66,7 +66,7 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct timeval current, elapsed_update;
   double real_elapsed_update, fraction_elapsed_update = 0.0, local_position_x, local_position_y, local_center_x, local_center_y, position_x, position_y,
-    center_x, center_y, angle, zoom, mask_R, mask_G, mask_B, mask_A;
+         center_x, center_y, angle, zoom, mask_R, mask_G, mask_B, mask_A;
   gettimeofday(&current, NULL);
   d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
   d_call(&(drawable_attributes_self->point_center), m_point_get, &local_center_x, &local_center_y);
@@ -109,25 +109,25 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
     if (transition_attributes->current_key) {
       if (transition_attributes->next_key) {
         center_x = local_center_x + d_transition_factor_value(transition_attributes->current_key->position_x, transition_attributes->next_key->position_x,
-          fraction_elapsed_update);
+            fraction_elapsed_update);
         center_y = local_center_y + d_transition_factor_value(transition_attributes->current_key->position_y, transition_attributes->next_key->position_y,
-          fraction_elapsed_update);
+            fraction_elapsed_update);
         position_x = local_position_x + d_transition_factor_value(transition_attributes->current_key->position_x, transition_attributes->next_key->position_x,
-          fraction_elapsed_update);
+            fraction_elapsed_update);
         position_y = local_position_y + d_transition_factor_value(transition_attributes->current_key->position_y, transition_attributes->next_key->position_y,
-          fraction_elapsed_update);
+            fraction_elapsed_update);
         zoom = drawable_attributes_self->zoom *
-               d_transition_factor_value(transition_attributes->current_key->zoom, transition_attributes->next_key->zoom, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->zoom, transition_attributes->next_key->zoom, fraction_elapsed_update);
         angle = drawable_attributes_self->angle +
-                d_transition_factor_value(transition_attributes->current_key->angle, transition_attributes->next_key->angle, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->angle, transition_attributes->next_key->angle, fraction_elapsed_update);
         mask_R = (drawable_attributes_self->last_mask_R / 255.0) *
-                 d_transition_factor_value(transition_attributes->current_key->mask_R, transition_attributes->next_key->mask_R, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->mask_R, transition_attributes->next_key->mask_R, fraction_elapsed_update);
         mask_G = (drawable_attributes_self->last_mask_G / 255.0) *
-                 d_transition_factor_value(transition_attributes->current_key->mask_G, transition_attributes->next_key->mask_G, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->mask_G, transition_attributes->next_key->mask_G, fraction_elapsed_update);
         mask_B = (drawable_attributes_self->last_mask_B / 255.0) *
-                 d_transition_factor_value(transition_attributes->current_key->mask_B, transition_attributes->next_key->mask_B, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->mask_B, transition_attributes->next_key->mask_B, fraction_elapsed_update);
         mask_A = (drawable_attributes_self->last_mask_A / 255.0) *
-                 d_transition_factor_value(transition_attributes->current_key->mask_A, transition_attributes->next_key->mask_A, fraction_elapsed_update);
+          d_transition_factor_value(transition_attributes->current_key->mask_A, transition_attributes->next_key->mask_A, fraction_elapsed_update);
       } else {
         center_x = local_center_x + transition_attributes->current_key->position_x;
         center_y = local_center_y + transition_attributes->current_key->position_y;
@@ -148,8 +148,8 @@ d_define_method_override(transition, draw)(struct s_object *self, struct s_objec
       drawable_attributes_core->angle = angle;
       drawable_attributes_core->flip = drawable_attributes_self->flip;
       if ((d_call(transition_attributes->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-        camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+              camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+              camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
         while (((intptr_t)d_call(transition_attributes->drawable, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
@@ -220,15 +220,15 @@ d_define_method(transition, delete)(struct s_object *self, struct s_transition_a
   return NULL;
 }
 d_define_class(transition) {d_hook_method(transition, e_flag_public, append_key),
-                            d_hook_method(transition, e_flag_public, set_status),
-                            d_hook_method(transition, e_flag_public, get_status),
-                            d_hook_method_override(transition, e_flag_public, drawable, draw),
-                            d_hook_method_override(transition, e_flag_public, drawable, set_maskRGB),
-                            d_hook_method_override(transition, e_flag_public, drawable, set_maskA),
-                            d_hook_method_override(transition, e_flag_public, drawable, set_blend),
-                            d_hook_method_override(transition, e_flag_public, drawable, get_scaled_position),
-                            d_hook_method_override(transition, e_flag_public, drawable, get_scaled_center),
-                            d_hook_method_override(transition, e_flag_public, drawable, get_dimension),
-                            d_hook_method_override(transition, e_flag_public, drawable, get_scaled_dimension),
-                            d_hook_delete(transition),
-                            d_hook_method_tail};
+  d_hook_method(transition, e_flag_public, set_status),
+  d_hook_method(transition, e_flag_public, get_status),
+  d_hook_method_override(transition, e_flag_public, drawable, draw),
+  d_hook_method_override(transition, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(transition, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(transition, e_flag_public, drawable, set_blend),
+  d_hook_method_override(transition, e_flag_public, drawable, get_scaled_position),
+  d_hook_method_override(transition, e_flag_public, drawable, get_scaled_center),
+  d_hook_method_override(transition, e_flag_public, drawable, get_dimension),
+  d_hook_method_override(transition, e_flag_public, drawable, get_scaled_dimension),
+  d_hook_delete(transition),
+  d_hook_method_tail};

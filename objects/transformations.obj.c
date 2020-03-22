@@ -57,14 +57,14 @@ struct s_object *f_transformations_new(struct s_object *self) {
     struct s_object *key;
     t_transformation_function value;
   } scoped_container[] = {{d_kstr("linear"),          p_normalized_linear},
-                          {d_kstr("inverted_linear"), p_normalized_inverted_linear},
-                          {d_kstr("smooth_start_2"),  p_normalized_smooth_start_2},
-                          {d_kstr("smooth_start_3"),  p_normalized_smooth_start_3},
-                          {d_kstr("smooth_start_4"),  p_normalized_smooth_start_4},
-                          {d_kstr("smooth_stop_2"),   p_normalized_smooth_stop_2},
-                          {d_kstr("smooth_stop_3"),   p_normalized_smooth_stop_3},
-                          {d_kstr("smooth_stop_4"),   p_normalized_smooth_stop_4},
-                          {NULL, NULL}};
+    {d_kstr("inverted_linear"), p_normalized_inverted_linear},
+    {d_kstr("smooth_start_2"),  p_normalized_smooth_start_2},
+    {d_kstr("smooth_start_3"),  p_normalized_smooth_start_3},
+    {d_kstr("smooth_start_4"),  p_normalized_smooth_start_4},
+    {d_kstr("smooth_stop_2"),   p_normalized_smooth_stop_2},
+    {d_kstr("smooth_stop_3"),   p_normalized_smooth_stop_3},
+    {d_kstr("smooth_stop_4"),   p_normalized_smooth_stop_4},
+    {NULL, NULL}};
   struct s_transformations_attributes *attributes = p_transformations_alloc(self);
   unsigned int index;
   f_hash_init(&attributes->hash, (t_hash_compare *)&f_object_compare, (t_hash_calculate *)&f_object_hash);
@@ -85,7 +85,7 @@ d_define_method(transformations, insert)(struct s_object *self, struct s_object 
   return self;
 }
 d_define_method(transformations, run)(struct s_object *self, struct s_object *function, double normalized_time, double minimum, double maximum,
-  double *normalized_value) {
+    double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_function;
@@ -96,7 +96,7 @@ d_define_method(transformations, run)(struct s_object *self, struct s_object *fu
   return result;
 }
 d_define_method(transformations, run_mapped)(struct s_object *self, struct s_object *function, double time, double minimum_time, double maximum_time,
-  double minimum, double maximum, double *normalized_value) {
+    double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_function;
@@ -109,7 +109,7 @@ d_define_method(transformations, run_mapped)(struct s_object *self, struct s_obj
   return result;
 }
 d_define_method(transformations, run_mixed)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double weight,
-  double normalized_time, double minimum, double maximum, double *normalized_value) {
+    double normalized_time, double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_left_function, selected_right_function;
@@ -121,7 +121,7 @@ d_define_method(transformations, run_mixed)(struct s_object *self, struct s_obje
   return result;
 }
 d_define_method(transformations, run_crossfaded)(struct s_object *self, struct s_object *function_left, struct s_object *function_right, double normalized_time,
-  double minimum, double maximum, double *normalized_value) {
+    double minimum, double maximum, double *normalized_value) {
   d_using(transformations);
   struct s_object *result = NULL;
   t_transformation_function selected_left_function, selected_right_function;
@@ -145,9 +145,9 @@ d_define_method(transformations, delete)(struct s_object *self, struct s_transfo
   return NULL;
 }
 d_define_class(transformations) {d_hook_method(transformations, e_flag_public, insert),
-                                 d_hook_method(transformations, e_flag_public, run),
-                                 d_hook_method(transformations, e_flag_public, run_mapped),
-                                 d_hook_method(transformations, e_flag_public, run_mixed),
-                                 d_hook_method(transformations, e_flag_public, run_crossfaded),
-                                 d_hook_delete(transformations),
-                                 d_hook_method_tail};
+  d_hook_method(transformations, e_flag_public, run),
+  d_hook_method(transformations, e_flag_public, run_mapped),
+  d_hook_method(transformations, e_flag_public, run_mixed),
+  d_hook_method(transformations, e_flag_public, run_crossfaded),
+  d_hook_delete(transformations),
+  d_hook_method_tail};

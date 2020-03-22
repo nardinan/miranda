@@ -33,7 +33,7 @@ d_define_method(controllable, set)(struct s_object *self, t_boolean enable) {
   return self;
 }
 d_define_method(controllable, add_configuration)(struct s_object *self, int key, t_controllable_action action_pressed, t_controllable_action action_released,
-  t_controllable_action action_double, t_boolean single_shot) {
+    t_controllable_action action_double, t_boolean single_shot) {
   d_using(controllable);
   struct s_controllable_entry *current_entry;
   if (!(current_entry = (struct s_controllable_entry *)d_call(self, m_controllable_get_configuration, key))) {
@@ -70,48 +70,48 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
   struct s_exception *exception;
   struct timeval last_pressed;
   t_boolean double_active = d_false, changed = (((intptr_t )d_call_owner(self, morphable, m_eventable_event, environment, current_event) ==
-    e_eventable_status_captured));
+        e_eventable_status_captured));
   if (controllable_attributes->enable) {
     d_try
-        {
-          d_foreach(&(controllable_attributes->configurations), current_entry, struct s_controllable_entry) {
-            if (current_entry->enabled) {
-              switch (current_event->type) {
-                case SDL_KEYDOWN:
-                  if (current_event->key.keysym.sym == current_entry->key) {
-                    if (current_event->key.keysym.sym == controllable_attributes->last_key) {
-                      gettimeofday(&last_pressed, NULL);
-                      if (((last_pressed.tv_sec - controllable_attributes->last_released.tv_sec) * 1000000.0 +
-                           (last_pressed.tv_usec - controllable_attributes->last_released.tv_usec) / 1000.0) < d_controllable_delay)
-                        double_active = d_true;
-                    }
-                    if ((!current_entry->single_shot) || (!current_entry->is_pressed)) {
-                      if (double_active)
-                        current_entry->action_double(self, current_entry, d_true);
-                      else
-                        current_entry->action_pressed(self, current_entry, d_true);
-                      current_entry->is_pressed = d_true;
-                    }
-                  }
-                  changed = d_true;
-                  break;
-                case SDL_KEYUP:
-                  if (current_event->key.keysym.sym == current_entry->key) {
-                    current_entry->action_released(self, current_entry, d_false);
-                    current_entry->is_pressed = d_false;
-                    controllable_attributes->last_key = current_event->key.keysym.sym;
-                    gettimeofday(&(controllable_attributes->last_released), NULL);
-                  }
-                  changed = d_true;
+    {
+      d_foreach(&(controllable_attributes->configurations), current_entry, struct s_controllable_entry) {
+        if (current_entry->enabled) {
+          switch (current_event->type) {
+            case SDL_KEYDOWN:
+              if (current_event->key.keysym.sym == current_entry->key) {
+                if (current_event->key.keysym.sym == controllable_attributes->last_key) {
+                  gettimeofday(&last_pressed, NULL);
+                  if (((last_pressed.tv_sec - controllable_attributes->last_released.tv_sec) * 1000000.0 +
+                        (last_pressed.tv_usec - controllable_attributes->last_released.tv_usec) / 1000.0) < d_controllable_delay)
+                    double_active = d_true;
+                }
+                if ((!current_entry->single_shot) || (!current_entry->is_pressed)) {
+                  if (double_active)
+                    current_entry->action_double(self, current_entry, d_true);
+                  else
+                    current_entry->action_pressed(self, current_entry, d_true);
+                  current_entry->is_pressed = d_true;
+                }
               }
-            }
+              changed = d_true;
+              break;
+            case SDL_KEYUP:
+              if (current_event->key.keysym.sym == current_entry->key) {
+                current_entry->action_released(self, current_entry, d_false);
+                current_entry->is_pressed = d_false;
+                controllable_attributes->last_key = current_event->key.keysym.sym;
+                gettimeofday(&(controllable_attributes->last_released), NULL);
+              }
+              changed = d_true;
           }
         }
-      d_catch(exception)
-        {
-          d_exception_dump(stderr, exception);
-          d_raise;
-        }
+      }
+    }
+    d_catch(exception)
+    {
+      d_exception_dump(stderr, exception);
+      d_raise;
+    }
     d_endtry;
   }
   d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
@@ -125,9 +125,9 @@ d_define_method(controllable, delete)(struct s_object *self, struct s_controllab
   return NULL;
 }
 d_define_class(controllable) {d_hook_method(controllable, e_flag_public, set),
-                              d_hook_method(controllable, e_flag_public, add_configuration),
-                              d_hook_method(controllable, e_flag_private, get_configuration),
-                              d_hook_method(controllable, e_flag_public, del_configuration),
-                              d_hook_method_override(controllable, e_flag_public, eventable, event),
-                              d_hook_delete(controllable),
-                              d_hook_method_tail};
+  d_hook_method(controllable, e_flag_public, add_configuration),
+  d_hook_method(controllable, e_flag_private, get_configuration),
+  d_hook_method(controllable, e_flag_public, del_configuration),
+  d_hook_method_override(controllable, e_flag_public, eventable, event),
+  d_hook_delete(controllable),
+  d_hook_method_tail};

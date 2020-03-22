@@ -78,9 +78,9 @@ d_define_method(emitter, delete)(struct s_object *self, struct s_emitter_attribu
   return NULL;
 }
 d_define_class(emitter) {d_hook_method(emitter, e_flag_public, record),
-                         d_hook_method(emitter, e_flag_private, get),
-                         d_hook_method(emitter, e_flag_public, embed_parameter),
-                         d_hook_method(emitter, e_flag_public, embed_function),
-                         d_hook_method(emitter, e_flag_public, raise),
-                         d_hook_delete(emitter),
-                         d_hook_method_tail};
+  d_hook_method(emitter, e_flag_private, get),
+  d_hook_method(emitter, e_flag_public, embed_parameter),
+  d_hook_method(emitter, e_flag_public, embed_function),
+  d_hook_method(emitter, e_flag_public, raise),
+  d_hook_delete(emitter),
+  d_hook_method_tail};

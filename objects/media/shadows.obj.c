@@ -49,8 +49,8 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   struct s_object *point_vertex;
   struct s_object *polygon_caster;
   double projected_position_x, projected_position_y, point_x, point_y, current_position_x, current_position_y, distance, shadow_projection, intensity_alpha,
-    screen_diagonal =
-    f_math_sqrt(d_math_square(environmental_attributes->current_w) + d_math_square(environmental_attributes->current_h), d_math_default_precision);
+         screen_diagonal =
+           f_math_sqrt(d_math_square(environmental_attributes->current_w) + d_math_square(environmental_attributes->current_h), d_math_default_precision);
   int points_x[d_shadows_maximum_vertices], points_y[d_shadows_maximum_vertices];
   unsigned int collisions;
   size_t vertices;
@@ -63,7 +63,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
           d_call(illuminable_bitmap_caster, m_drawable_get_scaled_principal_point, &current_position_x, &current_position_y);
           d_foreach(&(affected_lights), lights_emitter, struct s_lights_emitter_description) {
             distance = f_math_sqrt(d_point_square_distance(current_position_x, current_position_y, lights_emitter->position_x, lights_emitter->position_y),
-              d_math_default_precision);
+                d_math_default_precision);
             if (distance < lights_emitter->radius) {
               intensity_alpha = (shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255;
               shadow_projection = (-1.0 * (distance / lights_emitter->radius));
@@ -73,7 +73,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                 projected_position_x = ((lights_emitter->position_x - point_x) * (-1.0 * screen_diagonal)) + point_x;
                 projected_position_y = ((lights_emitter->position_y - point_y) * (-1.0 * screen_diagonal)) + point_y;
                 d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y, projected_position_x,
-                  projected_position_y, &collisions);
+                    projected_position_y, &collisions);
                 point_vertex = f_point_new(d_new(point), point_x, point_y);
                 d_call(polygon_caster, m_polygon_push, point_vertex);
                 d_delete(point_vertex);
@@ -83,7 +83,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                     SDL_RenderDrawLine(environmental_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
                   }
                   point_vertex = f_point_new(d_new(point), ((lights_emitter->position_x - point_x) * shadow_projection) + point_x,
-                    ((lights_emitter->position_y - point_y) * shadow_projection) + point_y);
+                      ((lights_emitter->position_y - point_y) * shadow_projection) + point_y);
                   d_call(polygon_caster, m_polygon_push, point_vertex);
                   d_delete(point_vertex);
                 }
@@ -127,9 +127,9 @@ d_define_method(shadows, delete)(struct s_object *self, struct s_shadows_attribu
   return NULL;
 }
 d_define_class(shadows) {d_hook_method(shadows, e_flag_public, add_caster),
-                         d_hook_method(shadows, e_flag_public, clear),
-                         d_hook_method_override(shadows, e_flag_public, drawable, draw),
-                         d_hook_method_override(shadows, e_flag_public, drawable, draw_contour),
-                         d_hook_method_override(shadows, e_flag_public, drawable, is_visible),
-                         d_hook_delete(shadows),
-                         d_hook_method_tail};
+  d_hook_method(shadows, e_flag_public, clear),
+  d_hook_method_override(shadows, e_flag_public, drawable, draw),
+  d_hook_method_override(shadows, e_flag_public, drawable, draw_contour),
+  d_hook_method_override(shadows, e_flag_public, drawable, is_visible),
+  d_hook_delete(shadows),
+  d_hook_method_tail};

@@ -57,7 +57,7 @@ d_define_method_override(contextual_menu, event)(struct s_object *self, struct s
         for (index = 0; (!contextual_menu_attributes->selected_element) && (index < d_list_max_selected); ++index)
           if (selection[index] != d_list_selected_null)
             if ((contextual_menu_attributes->selected_element = d_retain(d_call(contextual_menu_attributes->list, m_list_get_uiable,
-              (unsigned int)selection[index])))) {
+                      (unsigned int)selection[index])))) {
               contextual_menu_attributes->status = e_contextual_menu_status_hidden;
               d_call(self, m_emitter_raise, v_uiable_signals[e_uiable_signal_selected]);
             }
@@ -95,7 +95,7 @@ d_define_method_override(contextual_menu, event)(struct s_object *self, struct s
 d_define_method_override(contextual_menu, draw)(struct s_object *self, struct s_object *environment) {
   d_using(contextual_menu);
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_list, *drawable_attributes_scroll,
-    *drawable_attributes_component;
+                               *drawable_attributes_component;
   struct s_uiable_attributes *uiable_attributes_list;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
@@ -121,13 +121,13 @@ d_define_method_override(contextual_menu, draw)(struct s_object *self, struct s_
     if (dimension_h_components > dimension_h_self)
       dimension_h_self = dimension_h_components;
     d_call(&(drawable_attributes_list->point_dimension), m_point_set, (dimension_w_self + dimension_w_scroll + (uiable_attributes_list->border_w * 2.0)),
-           dimension_h_self + (uiable_attributes_list->border_h * 2.0));
+        dimension_h_self + (uiable_attributes_list->border_h * 2.0));
     drawable_attributes_list->angle = drawable_attributes_self->angle;
     drawable_attributes_list->zoom = drawable_attributes_self->zoom;
     drawable_attributes_list->flip = drawable_attributes_self->flip;
     if ((d_call(contextual_menu_attributes->list, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-               camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-               camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
+            camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+            camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom))) {
       while (((intptr_t)d_call(contextual_menu_attributes->list, m_drawable_draw, environment)) == d_drawable_return_continue);
     }
   }
@@ -143,8 +143,8 @@ d_define_method(contextual_menu, delete)(struct s_object *self, struct s_context
   return NULL;
 }
 d_define_class(contextual_menu) {d_hook_method(contextual_menu, e_flag_public, set),
-                                 d_hook_method(contextual_menu, e_flag_public, get_selected_uiable),
-                                 d_hook_method_override(contextual_menu, e_flag_public, eventable, event),
-                                 d_hook_method_override(contextual_menu, e_flag_public, drawable, draw),
-                                 d_hook_delete(contextual_menu),
-                                 d_hook_method_tail};
+  d_hook_method(contextual_menu, e_flag_public, get_selected_uiable),
+  d_hook_method_override(contextual_menu, e_flag_public, eventable, event),
+  d_hook_method_override(contextual_menu, e_flag_public, drawable, draw),
+  d_hook_delete(contextual_menu),
+  d_hook_method_tail};

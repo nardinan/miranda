@@ -70,7 +70,7 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
   if (position <= array_attributes->size) {
     if (position == array_attributes->size) {
       if ((array_attributes->content =
-             (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
+            (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
         memset(&(array_attributes->content[array_attributes->size]), 0, (array_attributes->bucket * sizeof(struct s_object *)));
         array_attributes->size += array_attributes->bucket;
       } else
@@ -78,16 +78,16 @@ d_define_method(array, insert)(struct s_object *self, struct s_object *element, 
     } else if (array_attributes->content[position]) {
       if (array_attributes->content[array_attributes->size - 1]) {
         if ((array_attributes->content =
-               (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
+              (struct s_object **)d_realloc(array_attributes->content, ((array_attributes->size + array_attributes->bucket) * sizeof(struct s_object *))))) {
           memset(&(array_attributes->content[array_attributes->size]), 0, (array_attributes->bucket * sizeof(struct s_object *)));
           memmove(&(array_attributes->content[position + 1]), &(array_attributes->content[position]),
-            ((array_attributes->size - position) * sizeof(struct s_object *)));
+              ((array_attributes->size - position) * sizeof(struct s_object *)));
           array_attributes->size += array_attributes->bucket;
         } else
           d_die(d_error_malloc);
       } else
         memmove(&(array_attributes->content[position + 1]), &(array_attributes->content[position]),
-          ((array_attributes->size - position - 1) * sizeof(struct s_object *)));
+            ((array_attributes->size - position - 1) * sizeof(struct s_object *)));
     }
     if (element) {
       array_attributes->content[position] = d_retain(element);
@@ -140,14 +140,14 @@ d_define_method(array, push)(struct s_object *self, struct s_object *element) {
       ++index;
   }
   d_try
-      {
-        d_call(self, m_array_insert, element, index);
-      }
-    d_catch(exception)
-      {
-        d_exception_dump(stderr, exception);
-        d_raise;
-      }
+  {
+    d_call(self, m_array_insert, element, index);
+  }
+  d_catch(exception)
+  {
+    d_exception_dump(stderr, exception);
+    d_raise;
+  }
   d_endtry;
   return self;
 }
@@ -260,18 +260,18 @@ d_define_method(array, compare)(struct s_object *self, struct s_object *other) {
   return result;
 }
 d_define_class(array) {d_hook_method(array, e_flag_public, insert),
-                       d_hook_method(array, e_flag_public, remove),
-                       d_hook_method(array, e_flag_public, clear),
-                       d_hook_method(array, e_flag_public, push),
-                       d_hook_method(array, e_flag_public, pop),
-                       d_hook_method(array, e_flag_public, shrink),
-                       d_hook_method(array, e_flag_public, get),
-                       d_hook_method(array, e_flag_public, reset),
-                       d_hook_method(array, e_flag_public, next),
-                       d_hook_method(array, e_flag_public, sort),
-                       d_hook_method(array, e_flag_public, size),
-                       d_hook_delete(array),
-                       d_hook_hash(array),
-                       d_hook_compare(array),
-                       d_hook_method_tail};
+  d_hook_method(array, e_flag_public, remove),
+  d_hook_method(array, e_flag_public, clear),
+  d_hook_method(array, e_flag_public, push),
+  d_hook_method(array, e_flag_public, pop),
+  d_hook_method(array, e_flag_public, shrink),
+  d_hook_method(array, e_flag_public, get),
+  d_hook_method(array, e_flag_public, reset),
+  d_hook_method(array, e_flag_public, next),
+  d_hook_method(array, e_flag_public, sort),
+  d_hook_method(array, e_flag_public, size),
+  d_hook_delete(array),
+  d_hook_hash(array),
+  d_hook_compare(array),
+  d_hook_method_tail};
 

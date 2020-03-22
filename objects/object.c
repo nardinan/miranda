@@ -61,7 +61,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
     }
   } else {
     snprintf(buffer, d_string_buffer_size, "symbol '%s' is undefined in object %s or it is a member of another class (%s, %d)", symbol,
-      object->type, file, line);
+        object->type, file, line);
     d_throw(v_exception_undefined_method, buffer);
   }
   return result;

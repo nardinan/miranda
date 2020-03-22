@@ -79,8 +79,8 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_image;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   double position_x_self, position_y_self, dimension_w_self, dimension_h_self, normalized_dimension_w_self, normalized_dimension_h_self, center_x_self,
-    center_y_self, dimension_w_image, dimension_h_image, normalized_dimension_w_image, normalized_dimension_h_image, position_x, position_y, center_x, center_y,
-    size_ratio;
+         center_y_self, dimension_w_image, dimension_h_image, normalized_dimension_w_image, normalized_dimension_h_image, position_x, position_y, center_x, center_y,
+         size_ratio;
   int result = (intptr_t)d_call_owner(self, uiable, m_drawable_draw, environment); /* recall the father's draw method */
   if (scroll_attributes->image) {
     drawable_attributes_image = d_cast(scroll_attributes->image, drawable);
@@ -93,8 +93,8 @@ d_define_method_override(scroll, draw)(struct s_object *self, struct s_object *e
     size_ratio = (normalized_dimension_h_self / dimension_h_self);
     position_x = position_x_self - ((normalized_dimension_w_image - normalized_dimension_w_self) / 2.0);
     position_y = position_y_self +
-                 (((double)(scroll_attributes->position - scroll_attributes->minimum) / (double)(scroll_attributes->maximum - scroll_attributes->minimum)) *
-                  d_math_max((normalized_dimension_h_self - normalized_dimension_h_image), 0));
+      (((double)(scroll_attributes->position - scroll_attributes->minimum) / (double)(scroll_attributes->maximum - scroll_attributes->minimum)) *
+       d_math_max((normalized_dimension_h_self - normalized_dimension_h_image), 0));
     center_x = (position_x_self + center_x_self) - position_x;
     center_y = (position_y_self + center_y_self) - position_y;
     d_call(scroll_attributes->image, m_drawable_set_position, position_x, position_y);
@@ -136,13 +136,13 @@ d_define_method(scroll, delete)(struct s_object *self, struct s_scroll_attribute
   return NULL;
 }
 d_define_class(scroll) {d_hook_method(scroll, e_flag_public, set_range),
-                        d_hook_method(scroll, e_flag_public, set_modifier),
-                        d_hook_method(scroll, e_flag_public, set_position),
-                        d_hook_method(scroll, e_flag_public, get_position),
-                        d_hook_method_override(scroll, e_flag_public, eventable, event),
-                        d_hook_method_override(scroll, e_flag_public, drawable, draw),
-                        d_hook_method_override(scroll, e_flag_public, drawable, set_maskRGB),
-                        d_hook_method_override(scroll, e_flag_public, drawable, set_maskA),
-                        d_hook_method_override(scroll, e_flag_public, drawable, set_blend),
-                        d_hook_delete(scroll),
-                        d_hook_method_tail};
+  d_hook_method(scroll, e_flag_public, set_modifier),
+  d_hook_method(scroll, e_flag_public, set_position),
+  d_hook_method(scroll, e_flag_public, get_position),
+  d_hook_method_override(scroll, e_flag_public, eventable, event),
+  d_hook_method_override(scroll, e_flag_public, drawable, draw),
+  d_hook_method_override(scroll, e_flag_public, drawable, set_maskRGB),
+  d_hook_method_override(scroll, e_flag_public, drawable, set_maskA),
+  d_hook_method_override(scroll, e_flag_public, drawable, set_blend),
+  d_hook_delete(scroll),
+  d_hook_method_tail};

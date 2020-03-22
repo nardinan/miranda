@@ -62,7 +62,7 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_object *selected_component = NULL;
   double position_x, position_y, new_position_x, new_position_y, center_x, center_y, new_center_x, new_center_y, dimension_w_self, dimension_h_self,
-    dimension_w_selected, dimension_h_selected, new_dimension_w, new_dimension_h;
+         dimension_w_selected, dimension_h_selected, new_dimension_w, new_dimension_h;
   int result = (intptr_t)d_call_owner(self, label, m_drawable_draw, environment); /* recall the father's draw method */
   d_call(&(drawable_attributes_self->point_destination), m_point_get, &position_x, &position_y);
   d_call(&(drawable_attributes_self->point_dimension), m_point_get, &dimension_w_self, &dimension_h_self);
@@ -87,8 +87,8 @@ d_define_method_override(checkbox, draw)(struct s_object *self, struct s_object 
     drawable_attributes_selected->zoom = drawable_attributes_self->zoom;
     drawable_attributes_selected->flip = drawable_attributes_self->flip;
     if ((d_call(selected_component, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-      camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
+            camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+            camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
       while (((intptr_t)d_call(selected_component, m_drawable_draw, environment)) == d_drawable_return_continue);
   }
   d_cast_return(result);
@@ -101,9 +101,9 @@ d_define_method(checkbox, delete)(struct s_object *self, struct s_checkbox_attri
   return NULL;
 }
 d_define_class(checkbox) {d_hook_method(checkbox, e_flag_public, set_drawable),
-                          d_hook_method(checkbox, e_flag_public, set_checked),
-                          d_hook_method(checkbox, e_flag_public, get_checked),
-                          d_hook_method_override(checkbox, e_flag_public, eventable, event),
-                          d_hook_method_override(checkbox, e_flag_public, drawable, draw),
-                          d_hook_delete(checkbox),
-                          d_hook_method_tail};
+  d_hook_method(checkbox, e_flag_public, set_checked),
+  d_hook_method(checkbox, e_flag_public, get_checked),
+  d_hook_method_override(checkbox, e_flag_public, eventable, event),
+  d_hook_method_override(checkbox, e_flag_public, drawable, draw),
+  d_hook_delete(checkbox),
+  d_hook_method_tail};

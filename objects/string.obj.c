@@ -166,14 +166,14 @@ d_define_method(string, compare)(struct s_object *self, struct s_object *other) 
   return result;
 }
 d_define_class(string) {d_hook_method(string, e_flag_public, trim),
-                        d_hook_method(string, e_flag_public, append),
-                        d_hook_method(string, e_flag_public, substring),
-                        d_hook_method(string, e_flag_public, split),
-                        d_hook_method(string, e_flag_public, cstring),
-                        d_hook_method(string, e_flag_public, length),
-                        d_hook_method(string, e_flag_public, size),
-                        d_hook_delete(string),
-                        d_hook_hash(string),
-                        d_hook_compare(string),
-                        d_hook_method_tail};
+  d_hook_method(string, e_flag_public, append),
+  d_hook_method(string, e_flag_public, substring),
+  d_hook_method(string, e_flag_public, split),
+  d_hook_method(string, e_flag_public, cstring),
+  d_hook_method(string, e_flag_public, length),
+  d_hook_method(string, e_flag_public, size),
+  d_hook_delete(string),
+  d_hook_hash(string),
+  d_hook_compare(string),
+  d_hook_method_tail};
 

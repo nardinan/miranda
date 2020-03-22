@@ -30,7 +30,7 @@ d_define_method(mutex, lock)(struct s_object *self, const char *file, const char
   int result;
   if ((result = pthread_mutex_lock(&(mutex_attributes->mutex))) != 0)
     p_log_write(stderr, e_log_level_ever, "\x1B[31merr\x1B[0m", file, function, line,
-      "failure attempting to lock the mutex (operation returned the following code: %d)", result);
+        "failure attempting to lock the mutex (operation returned the following code: %d)", result);
   return self;
 }
 d_define_method(mutex, unlock)(struct s_object *self, const char *file, const char *function, unsigned int line) {
@@ -38,7 +38,7 @@ d_define_method(mutex, unlock)(struct s_object *self, const char *file, const ch
   int result;
   if ((result = pthread_mutex_unlock(&(mutex_attributes->mutex))) != 0)
     p_log_write(stderr, e_log_level_ever, "\x1B[31merr\x1B[0m", file, function, line,
-      "failure attempting to unlock the mutex (operation returned the following code: %d)", result);
+        "failure attempting to unlock the mutex (operation returned the following code: %d)", result);
   return self;
 }
 d_define_method(mutex, delete)(struct s_object *self, struct s_mutex_attributes *attributes) {
@@ -46,7 +46,7 @@ d_define_method(mutex, delete)(struct s_object *self, struct s_mutex_attributes 
   return NULL;
 }
 d_define_class(mutex) {d_hook_method(mutex, e_flag_public, trylock),
-                       d_hook_method(mutex, e_flag_public, lock),
-                       d_hook_method(mutex, e_flag_public, unlock),
-                       d_hook_delete(mutex),
-                       d_hook_method_tail};
+  d_hook_method(mutex, e_flag_public, lock),
+  d_hook_method(mutex, e_flag_public, unlock),
+  d_hook_delete(mutex),
+  d_hook_method_tail};
