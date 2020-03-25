@@ -91,8 +91,10 @@ d_define_method(lights, clear)(struct s_object *self) {
   d_using(lights);
   struct s_lights_emitter *current_emitter;
   while ((current_emitter = (struct s_lights_emitter *)lights_attributes->emitters.head)) {
-    d_delete(current_emitter->mask);
-    d_delete(current_emitter->reference);
+    if (current_emitter->mask)
+      d_delete(current_emitter->mask);
+    if (current_emitter->reference)
+      d_delete(current_emitter->reference);
     d_free(current_emitter);
     f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)lights_attributes->emitters.head);
   }
@@ -119,38 +121,39 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
          drawable_principal_point_y;
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
-  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
-    drawable_core_attributes = d_cast(current_emitter->mask, drawable);
-    d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
-    d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
-    d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
-    position_x -= (dimension_w / 2.0);
-    position_y -= (dimension_h / 2.0);
-    d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
-    d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-    d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
-    d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-        camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
-    d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
-    d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
-    /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
-    if (((intptr_t)d_call(&(drawable_core_attributes->square_collision_box), m_square_collision, &(drawable_other_attributes->square_collision_box)))) {
-      if ((selected_emitter = (struct s_lights_emitter_description *)d_malloc(sizeof(struct s_lights_emitter_description)))) {
-        selected_emitter->position_x = (light_position_x + (light_width / 2.0));
-        selected_emitter->position_y = (light_position_y + (light_height / 2.0));
-        selected_emitter->radius = (d_math_max(light_width, light_height)/2.0);
-        selected_emitter->intensity = current_emitter->current_intensity;
-        selected_emitter->mask_R = current_emitter->original_mask_R;
-        selected_emitter->mask_G = current_emitter->original_mask_G;
-        selected_emitter->mask_B = current_emitter->original_mask_B;
-        selected_emitter->distance = f_math_sqrt(d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y,
-              selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
-        f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
-      } else
-        d_die(d_error_malloc);
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
+    if ((current_emitter->mask) && (current_emitter->reference)) {
+      drawable_core_attributes = d_cast(current_emitter->mask, drawable);
+      d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+      d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
+      d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
+      position_x -= (dimension_w / 2.0);
+      position_y -= (dimension_h / 2.0);
+      d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
+      d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
+      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+          camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+      d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
+      d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
+      /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
+      if (((intptr_t)d_call(&(drawable_core_attributes->square_collision_box), m_square_collision, &(drawable_other_attributes->square_collision_box)))) {
+        if ((selected_emitter = (struct s_lights_emitter_description *)d_malloc(sizeof(struct s_lights_emitter_description)))) {
+          selected_emitter->position_x = (light_position_x + (light_width / 2.0));
+          selected_emitter->position_y = (light_position_y + (light_height / 2.0));
+          selected_emitter->radius = (d_math_max(light_width, light_height)/2.0);
+          selected_emitter->intensity = current_emitter->current_intensity;
+          selected_emitter->mask_R = current_emitter->original_mask_R;
+          selected_emitter->mask_G = current_emitter->original_mask_G;
+          selected_emitter->mask_B = current_emitter->original_mask_B;
+          selected_emitter->distance = f_math_sqrt(d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y,
+                selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
+          f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
+        } else
+          d_die(d_error_malloc);
+      }
     }
-  }
   return self;
 }
 d_define_method_override(lights, draw)(struct s_object *self, struct s_object *environment) {
@@ -191,29 +194,30 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     previous_target = SDL_GetRenderTarget(environment_attributes->renderer);
     SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
   } d_miranda_unlock(environment);
-  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
-    /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
-    d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
-    d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
-    d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
-    position_x -= (dimension_w / 2.0);
-    position_y -= (dimension_h / 2.0);
-    d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
-    d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-    d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
-    if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
-          camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
-      d_call(current_emitter->mask, m_drawable_get_scaled_position, &(current_emitter->last_normalized_x), &(current_emitter->last_normalized_y));
-      d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &(current_emitter->last_normalized_w), &(current_emitter->last_normalized_h));
-      if (current_emitter->modulator)
-        current_emitter->modulator(current_emitter);
-      intensity_modifier = (current_emitter->current_intensity / 255.0);
-      d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modifier),
-          (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
-      while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
+    if ((current_emitter->mask) && (current_emitter->reference)) {
+      /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
+      d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+      d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
+      d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
+      position_x -= (dimension_w / 2.0);
+      position_y -= (dimension_h / 2.0);
+      d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
+      d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
+      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+            camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+            camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
+        d_call(current_emitter->mask, m_drawable_get_scaled_position, &(current_emitter->last_normalized_x), &(current_emitter->last_normalized_y));
+        d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &(current_emitter->last_normalized_w), &(current_emitter->last_normalized_h));
+        if (current_emitter->modulator)
+          current_emitter->modulator(current_emitter);
+        intensity_modifier = (current_emitter->current_intensity / 255.0);
+        d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modifier),
+            (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
+        while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
+      }
     }
-  }
   d_miranda_lock(environment) {
     SDL_SetRenderTarget(environment_attributes->renderer, previous_target);
     SDL_RenderCopyEx(environment_attributes->renderer, lights_attributes->background, &source, &destination, 0.0, &center, SDL_FLIP_NONE);
@@ -259,8 +263,10 @@ d_define_method_override(lights, is_visible)(struct s_object *self, double curre
 d_define_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes) {
   struct s_lights_emitter *current_emitter;
   while ((current_emitter = (struct s_lights_emitter *)attributes->emitters.head)) {
-    d_delete(current_emitter->mask);
-    d_delete(current_emitter->reference);
+    if (current_emitter->mask)
+      d_delete(current_emitter->mask);
+    if (current_emitter->reference)
+      d_delete(current_emitter->reference);
     d_free(current_emitter);
     f_list_delete(&(attributes->emitters), (struct s_list_node *)attributes->emitters.head);
   }
