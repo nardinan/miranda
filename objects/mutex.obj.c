@@ -16,9 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "mutex.obj.h"
+#include <pthread.h>
 struct s_object *f_mutex_new(struct s_object *self) {
   struct s_mutex_attributes *attributes = d_prepare(self, mutex);
   pthread_mutex_init(&(attributes->mutex), NULL);
+  return self;
+}
+struct s_object *f_mutex_per_thread_new(struct s_object *self) {
+  struct s_mutex_attributes *attributes = d_prepare(self, mutex);
+  pthread_mutexattr_t mutex_attributes;
+  if (pthread_mutexattr_init(&mutex_attributes) == 0) {
+    if (pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_RECURSIVE_NP) == 0)
+      pthread_mutex_init(&(attributes->mutex), &mutex_attributes);
+    pthread_mutexattr_destroy(&mutex_attributes);
+  }
   return self;
 }
 d_define_method(mutex, trylock)(struct s_object *self) {
