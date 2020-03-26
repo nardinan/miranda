@@ -19,6 +19,9 @@
 #define miranda_object_mutex_h
 #include <pthread.h>
 #include "object.h"
+#ifndef PTHREAD_MUTEX_RECURSIVE_NP
+#define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
+#endif
 d_declare_class(mutex) {
   struct s_attributes head;
   pthread_mutex_t mutex;
