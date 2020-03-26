@@ -15,18 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef miranda_objects_h
-#define miranda_objects_h
-#include "object.h"
-#include "memory_bucket.h"
-#include "memory.obj.h"
-#include "mutex.obj.h"
 #include "lock.obj.h"
-#include "runnable.obj.h"
-#include "emitter.obj.h"
-#include "pool.obj.h"
-#include "string.obj.h"
-#include "array.obj.h"
-#include "map.obj.h"
-#include "transformations.obj.h"
-#endif
+#include "memory.obj.h"
+struct s_object *f_lock_new(struct s_object *self) {
+  f_memory_new(self);             /* inherit */
+  f_mutex_new(self);              /* inherit */
+  return self;
+}
+struct s_object *f_lock_per_thread_new(struct s_object *self) {
+  f_memory_new(self);             /* inherit */
+  f_mutex_per_thread_new(self);   /* inherit */
+  return self;
+}
+d_define_class(lock) {
+  d_hook_method_tail};

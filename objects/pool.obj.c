@@ -36,16 +36,14 @@ d_define_method(pool, insert)(struct s_object *self, struct s_object *pointer) {
 }
 d_define_method(pool, clean)(struct s_object *self) {
   d_using(pool);
-  struct s_object *next, *value = (struct s_object *)pool_attributes->pool->head;
-  while (value) {
-    next = (struct s_object *)value->head.next;
+  struct s_object *value;
+  while ((value = (struct s_object *)pool_attributes->pool->head)) {
     f_list_delete(pool_attributes->pool, (struct s_list_node *)value);
     if ((value->flags & e_flag_placeholder) == e_flag_placeholder) {
       d_free(value);
       break;
     } else
       d_delete(value);
-    value = next;
   }
   return self;
 }

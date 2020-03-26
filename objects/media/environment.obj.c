@@ -223,16 +223,13 @@ d_define_method(environment, run_loop)(struct s_object *self) {
               if ((intptr_t)d_call(eventable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                 event_captured = d_true;
         }
-        for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface) {
-          for (index = (d_environment_layers - 1); index >= 0; --index) {
-            d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object) {
+        for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface)
+          for (index = (d_environment_layers - 1); index >= 0; --index)
+            d_reverse_foreach(&(environment_attributes->drawable[surface][index]), drawable_object, struct s_object)
               if ((eventable_attributes = d_cast(drawable_object, eventable)))
                 if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
                   if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                     event_captured = d_true;
-            }
-          }
-        }
         if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
           environment_attributes->continue_loop = d_false;
       }
@@ -293,7 +290,20 @@ d_define_method(environment, run_loop)(struct s_object *self) {
   return self;
 }
 d_define_method(environment, delete)(struct s_object *self, struct s_environment_attributes *attributes) {
+  struct s_object *eventable_object;
+  struct s_object *drawable_object;
+  int surface, index;
   d_delete(attributes->cameras);
+  while ((eventable_object = (struct s_object *)attributes->eventable.head)) {
+    f_list_delete(&(attributes->eventable), (struct s_list_node *)eventable_object);
+    d_delete(eventable_object);
+  }
+  for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface)
+    for (index = (d_environment_layers - 1); index >= 0; --index)
+      while ((drawable_object = (struct s_object *)attributes->drawable[surface][index].head)) {
+        f_list_delete(&(attributes->drawable[surface][index]), (struct s_list_node *)drawable_object);
+        d_delete(drawable_object);
+      }
   SDL_DestroyRenderer(attributes->renderer);
   SDL_DestroyWindow(attributes->window);
   Mix_CloseAudio();
