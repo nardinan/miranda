@@ -63,6 +63,7 @@ d_declare_method(environment, set_size)(struct s_object *self, int width, int he
 d_declare_method(environment, get_size)(struct s_object *self, int *width, int *height);
 d_declare_method(environment, add_camera)(struct s_object *self, struct s_object *label, struct s_object *camera);
 d_declare_method(environment, get_camera)(struct s_object *self, struct s_object *label);
+d_declare_method(environment, del_camera)(struct s_object *self, struct s_object *label);
 d_declare_method(environment, get_mouse_normalized)(struct s_object *self, char *camera_label, int *position_x, int *position_y);
 d_declare_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);

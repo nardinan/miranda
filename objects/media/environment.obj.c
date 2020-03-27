@@ -151,6 +151,10 @@ d_define_method(environment, get_camera)(struct s_object *self, struct s_object 
   d_using(environment);
   return d_call(environment_attributes->cameras, m_map_find, label);
 }
+d_define_method(environment, del_camera)(struct s_object *self, struct s_object *label) {
+  d_using(environment);
+  return d_call(environment_attributes->cameras, m_map_remove, label);
+}
 d_define_method(environment, get_mouse_normalized)(struct s_object *self, char *camera_label, int *mouse_x, int *mouse_y) {
   d_using(environment);
   struct s_object *string_camera_label = d_kstr(camera_label);
@@ -322,6 +326,7 @@ d_define_class(environment) {d_hook_method(environment, e_flag_public, set_metho
   d_hook_method(environment, e_flag_public, get_size),
   d_hook_method(environment, e_flag_public, add_camera),
   d_hook_method(environment, e_flag_public, get_camera),
+  d_hook_method(environment, e_flag_public, del_camera),
   d_hook_method(environment, e_flag_public, get_mouse_normalized),
   d_hook_method(environment, e_flag_public, add_drawable),
   d_hook_method(environment, e_flag_public, del_drawable),
