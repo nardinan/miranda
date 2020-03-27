@@ -26,31 +26,11 @@ struct s_camera_attributes *p_camera_alloc(struct s_object *self) {
 struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
     enum e_environment_surfaces surface, struct s_object *environment) {
   struct s_camera_attributes *attributes = p_camera_alloc(self);
-  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
-  size_t size = (environment_attributes->current_w * environment_attributes->current_h * 4 /* RGBA */);
-  char buffer[d_string_buffer_size];
   if ((attributes->controllers = f_map_new(d_new(map)))) {
-    if ((attributes->memblock = (unsigned char *)d_malloc(size))) {
-      if ((attributes->destination =
-            SDL_CreateTexture(environment_attributes->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, environment_attributes->current_w,
-              environment_attributes->current_h))) {
-        attributes->screen_position_x = screen_offset_x;
-        attributes->screen_position_y = screen_offset_y;
-        attributes->screen_w = screen_width;
-        attributes->screen_h = screen_height;
-        attributes->surface = surface;
-        attributes->scene_reference_w = screen_width;
-        attributes->scene_reference_h = screen_height;
-        attributes->scene_zoom = 1.0;
-        SDL_UpdateTexture(attributes->destination, NULL, attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
-        SDL_SetTextureBlendMode(attributes->destination, SDL_BLENDMODE_ADD);
-      } else {
-        snprintf(buffer, d_string_buffer_size, "ungenerable texture from empty bitmap (size %.02f %.02f)", environment_attributes->current_w,
-            environment_attributes->current_h);
-        d_throw(v_exception_texture, buffer);
-      }
-    } else
-      d_die(d_error_malloc);
+    d_call(self, m_camera_recalculate_texture, screen_offset_x, screen_offset_y, screen_width, screen_height, surface, environment);
+    attributes->scene_reference_w = screen_width;
+    attributes->scene_reference_h = screen_height;
+    attributes->scene_zoom = 1.0;
   } else
     d_die(d_error_malloc);
   return self;
@@ -153,20 +133,64 @@ d_define_method(camera, get_surface)(struct s_object *self, enum e_environment_s
   *surface = camera_attributes->surface;
   return self;
 }
+d_define_method(camera, recalculate_texture)(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
+    enum e_environment_surfaces surface, struct s_object *environment) {
+  d_using(camera);
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  size_t size = (environment_attributes->current_w * environment_attributes->current_h * 4 /* RGBA */);
+  char buffer[d_string_buffer_size];
+  double ratio_previous_x = 1.0, ratio_previous_y = 1.0;
+  struct s_object *result = self;
+  if ((environment_attributes->current_w != camera_attributes->environment_reference_w) ||
+      (environment_attributes->current_h != camera_attributes->environment_reference_h)) { 
+    if (camera_attributes->memblock)
+      d_free(camera_attributes->memblock);
+    if (camera_attributes->destination)
+      SDL_DestroyTexture(camera_attributes->destination);
+    if ((camera_attributes->memblock = (unsigned char *)d_malloc(size))) {
+      if ((camera_attributes->destination = SDL_CreateTexture(environment_attributes->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, 
+              environment_attributes->current_w, environment_attributes->current_h))) {
+        if ((camera_attributes->environment_reference_w > 0.0) && (camera_attributes->environment_reference_h > 0.0)) {
+          ratio_previous_x = (environment_attributes->current_w / camera_attributes->environment_reference_w);
+          ratio_previous_y = (environment_attributes->current_h / camera_attributes->environment_reference_h);
+        }
+        camera_attributes->environment_reference_w = environment_attributes->current_w;
+        camera_attributes->environment_reference_h = environment_attributes->current_h;
+        camera_attributes->screen_position_x = screen_offset_x;
+        camera_attributes->screen_position_y = screen_offset_y;
+        camera_attributes->screen_w = (screen_width * ratio_previous_x);
+        camera_attributes->screen_h = (screen_height * ratio_previous_y);
+        camera_attributes->surface = surface;
+        SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
+        SDL_SetTextureBlendMode(camera_attributes->destination, SDL_BLENDMODE_ADD);
+      } else {
+        snprintf(buffer, d_string_buffer_size, "ungenerable texture from empty bitmap (size %.02f %.02f)", environment_attributes->current_w,
+            environment_attributes->current_h);
+        d_throw(v_exception_texture, buffer);
+      }
+    } else
+      d_die(d_error_malloc);
+    result = NULL;
+  }
+  return result;
+}
 d_define_method(camera, initialize_context)(struct s_object *self, struct s_object *environment) {
   d_using(camera);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_object *camera_controller_object;
   struct s_object *string_object;
-  d_map_foreach(camera_attributes->controllers, camera_controller_object, string_object)
-    d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
-        &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
-        &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), &(camera_attributes->scene_center_y),
-        &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
-  d_miranda_lock(environment) {
-    SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
-    SDL_SetRenderTarget(environment_attributes->renderer, camera_attributes->destination);
-  } d_miranda_unlock(environment);
+  if (d_call(self, m_camera_recalculate_texture, camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->screen_w,
+        camera_attributes->screen_h, camera_attributes->surface, environment)) {
+    d_map_foreach(camera_attributes->controllers, camera_controller_object, string_object)
+      d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
+          &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
+          &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), 
+          &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
+    d_miranda_lock(environment) {
+      SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
+      SDL_SetRenderTarget(environment_attributes->renderer, camera_attributes->destination);
+    } d_miranda_unlock(environment);
+  }
   return self;
 }
 d_define_method(camera, finalize_context)(struct s_object *self, struct s_object *environment) {
@@ -216,6 +240,7 @@ d_define_class(camera) {d_hook_method(camera, e_flag_public, set_size),
   d_hook_method(camera, e_flag_public, get_controller),
   d_hook_method(camera, e_flag_public, del_controller),
   d_hook_method(camera, e_flag_public, get_surface),
+  d_hook_method(camera, e_flag_public, recalculate_texture),
   d_hook_method(camera, e_flag_public, initialize_context),
   d_hook_method(camera, e_flag_public, finalize_context),
   d_hook_delete(camera),
