@@ -18,6 +18,7 @@
 #ifndef miranda_media_environment_h
 #define miranda_media_environment_h
 #include "../map.obj.h"
+#include "../lock.obj.h"
 #include "primitives.h"
 #include "eventable.obj.h"
 #define d_environment_default_title "miranda"
@@ -48,6 +49,7 @@ d_declare_class(environment) {
   unsigned int current_surface, current_layer;
   struct s_list drawable[e_environment_surface_NULL][d_environment_layers], eventable;
   t_boolean continue_loop;
+  struct s_object *update_lock;
 } d_declare_class_tail(environment);
 struct s_environment_attributes *p_environment_alloc(struct s_object *self);
 extern struct s_object *f_environment_new(struct s_object *self, int width, int height);
@@ -69,6 +71,8 @@ d_declare_method(environment, add_drawable)(struct s_object *self, struct s_obje
 d_declare_method(environment, del_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface);
 d_declare_method(environment, add_eventable)(struct s_object *self, struct s_object *eventable);
 d_declare_method(environment, del_eventable)(struct s_object *self, struct s_object *eventable);
+d_declare_method(environment, lock_loop)(struct s_object *self, const char *file, const char *function, unsigned int line);
+d_declare_method(environment, unlock_loop)(struct s_object *self, const char *file, const char *function, unsigned int line);
 d_declare_method(environment, run_loop)(struct s_object *self);
 d_declare_method(environment, delete)(struct s_object *self, struct s_environment_attributes *attributes);
 #endif
