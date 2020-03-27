@@ -158,8 +158,8 @@ void p_object_residual_delete(struct s_object *object) {
 }
 void f_object_delete(struct s_object *object) {
   struct s_object *destroyable = object;
-  struct s_attributes *attributes = (struct s_attributes *)object->attributes.head;
-  struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.head;
+  struct s_attributes *attributes = (struct s_attributes *)object->attributes.tail;
+  struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.tail;
   int index;
   while ((attributes) && (virtual_table)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
@@ -167,8 +167,8 @@ void f_object_delete(struct s_object *object) {
         virtual_table->virtual_table[index].method(object, attributes);
         break;
       }
-    attributes = (struct s_attributes *)(((struct s_list_node *)attributes)->next);
-    virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->next);
+    attributes = (struct s_attributes *)(((struct s_list_node *)attributes)->back);
+    virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->back);
   }
   if (!v_memory_bucket)
     f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
