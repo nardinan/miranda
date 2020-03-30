@@ -65,7 +65,9 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             distance = f_math_sqrt(d_point_square_distance(current_position_x, current_position_y, lights_emitter->position_x, lights_emitter->position_y),
                 d_math_default_precision);
             if (distance < lights_emitter->radius) {
-              intensity_alpha = (shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255;
+              intensity_alpha = ((shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255) * 
+                (lights_emitter->intensity / 255.0);
+              
               shadow_projection = (-1.0 * (distance / lights_emitter->radius));
               d_call(polygon_caster, m_polygon_clear, NULL);
               d_polygon_foreach(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, point_vertex) {
