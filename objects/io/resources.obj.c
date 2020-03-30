@@ -88,8 +88,8 @@ struct s_resources_node *f_resources_scan(struct s_list *open_streams, const cha
 struct s_object *f_resources_new(struct s_object *self, struct s_object *string_path, const char *extensions) {
   return f_resources_new_template(self, string_path, NULL, extensions);
 }
-struct s_object *
-f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path, const char *extensions) {
+struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path, 
+    const char *extensions) {
   struct s_resources_attributes *attributes = p_resources_alloc(self);
   strncpy(attributes->extensions, extensions, d_resources_extensions_size);
   strncpy(attributes->path, d_string_cstring(string_directory_path), d_resources_path_size);

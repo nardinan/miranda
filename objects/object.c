@@ -84,7 +84,8 @@ struct s_object *p_object_prepare(struct s_object *provided, const char *file, i
 struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags) {
   struct s_object *result = NULL;
   if (v_memory_bucket)
-    result = f_memory_bucket_query(v_memory_bucket, type);
+    if ((result = f_memory_bucket_query(v_memory_bucket, type)))
+      d_sign_memory(result, ">> recovered <<");
   if (result)
     p_object_prepare(result, file, line, type, (flags | e_flag_allocated | e_flag_recovered));
   else if ((result = d_malloc_explicit(sizeof(struct s_object), file, line)))
@@ -98,9 +99,9 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
   struct s_attributes *attributes = NULL;
   struct s_list_node attributes_head;
   if ((object->flags & e_flag_recovered) != e_flag_recovered) {
-    if ((attributes = (struct s_attributes *)d_malloc(attributes_size))) {
+    if ((attributes = (struct s_attributes *)d_internal_malloc(attributes_size))) {
       attributes->type = attributes_type;
-      if ((node = (struct s_virtual_table *)d_malloc(sizeof(struct s_virtual_table)))) {
+      if ((node = (struct s_virtual_table *)d_internal_malloc(sizeof(struct s_virtual_table)))) {
         node->virtual_table = virtual_table;
         node->type = attributes_type;
         f_list_append(&(object->virtual_tables), (struct s_list_node *)node, e_list_insert_head);
@@ -161,6 +162,7 @@ void f_object_delete(struct s_object *object) {
   struct s_attributes *attributes = (struct s_attributes *)object->attributes.tail;
   struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.tail;
   int index;
+  d_sign_memory(object, "<< unaccessible >>");
   while ((attributes) && (virtual_table)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
       if (virtual_table->virtual_table[index].symbol == m_object_delete) {

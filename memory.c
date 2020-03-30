@@ -17,23 +17,27 @@
  */
 #include "memory.h"
 struct s_memory_head *v_memory_root;
-void f_memory_destroy(void) {
+void f_memory_destroy(t_boolean show_only_signed) {
   struct s_memory_tail *tail;
   struct s_memory_head *head;
   unsigned int elements = 0;
   while (v_memory_root) {
     head = v_memory_root;
     tail = (struct s_memory_tail *)((void *)v_memory_root + sizeof(struct s_memory_head) + head->dimension);
-    d_log(e_log_level_high, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x]", ((void *)head + sizeof(struct s_memory_head)),
-        head->dimension, tail->file, tail->line, head->checksum, tail->checksum);
+    if (head->internal_block == 0) {
+      if ((!show_only_signed) || (strlen(head->signature) > 0))
+        d_log(e_log_level_high, "pointer %p (%hu bytes) is still here (allocated in %s::%d) [0x%x-0x%x] signed {%s}", 
+            ((void *)head + sizeof(struct s_memory_head)), head->dimension, tail->file, tail->line, head->checksum, tail->checksum, 
+            head->signature);
+      ++elements;
+    }
     v_memory_root = head->next;
-    ++elements;
     free(head);
   }
   if (elements > 0)
     d_log(e_log_level_medium, "%d pointer(s) %s still here", elements, ((elements == 1) ? "was" : "were"));
 }
-void *p_malloc(size_t dimension, const char *file, unsigned int line) {
+void *p_malloc(size_t dimension, unsigned char internal_block, const char *file, unsigned int line) {
   struct s_memory_tail *tail;
   struct s_memory_head *head;
   size_t total_dimension = sizeof(struct s_memory_head) + dimension + sizeof(struct s_memory_tail);
@@ -47,6 +51,7 @@ void *p_malloc(size_t dimension, const char *file, unsigned int line) {
       v_memory_root->back = head;
     v_memory_root = head;
     head->dimension = dimension;
+    head->internal_block = internal_block;
     head->checksum = (unsigned int)d_memory_checksum;
     tail->checksum = (unsigned int)d_memory_checksum;
     tail->line = line;
@@ -61,13 +66,13 @@ void *p_realloc(void *pointer, size_t dimension, const char *file, unsigned int 
   if (pointer) {
     head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
     if (head->dimension < dimension) {
-      if ((backup_pointer = p_malloc(dimension, file, line)))
+      if ((backup_pointer = p_malloc(dimension, 0, file, line)))
         memcpy(backup_pointer, pointer, head->dimension);
       p_free(pointer, file, line);
     } else
       backup_pointer = pointer;
   } else
-    backup_pointer = p_malloc(dimension, file, line);
+    backup_pointer = p_malloc(dimension, 0, file, line);
   return backup_pointer;
 }
 void p_free(void *pointer, const char *file, unsigned int line) {
@@ -90,3 +95,9 @@ void p_free(void *pointer, const char *file, unsigned int line) {
   } else
     d_err(e_log_level_ever, "wrong head checksum with %p (%s::%d)", pointer, file, line);
 }
+void p_set_signature(void *pointer, const char *signature) {
+  struct s_memory_head *head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
+  strncpy(head->signature, signature, (d_memory_signature_size - 1));
+  head->signature[d_memory_signature_size - 1] = 0;
+} 
+

@@ -55,8 +55,8 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   unsigned int collisions;
   size_t vertices;
   if ((polygon_caster = f_polygon_new(d_new(polygon), 0, NULL))) {
-    d_array_foreach(shadows_attributes->array_casters, illuminable_bitmap_caster) {
-      if ((illuminable_bitmap_attributes = d_cast(illuminable_bitmap_caster, illuminable_bitmap))) {
+    d_array_foreach(shadows_attributes->array_casters, illuminable_bitmap_caster)
+      if ((illuminable_bitmap_attributes = d_cast(illuminable_bitmap_caster, illuminable_bitmap)))
         if (illuminable_bitmap_attributes->lights) {
           memset(&(affected_lights), 0, sizeof(struct s_list));
           d_call(illuminable_bitmap_attributes->lights, m_lights_get_affecting_lights, illuminable_bitmap_caster, &(affected_lights), environment);
@@ -67,15 +67,14 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             if (distance < lights_emitter->radius) {
               intensity_alpha = ((shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255) * 
                 (lights_emitter->intensity / 255.0);
-              
               shadow_projection = (-1.0 * (distance / lights_emitter->radius));
               d_call(polygon_caster, m_polygon_clear, NULL);
               d_polygon_foreach(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, point_vertex) {
                 d_call(point_vertex, m_point_get, &point_x, &point_y);
                 projected_position_x = ((lights_emitter->position_x - point_x) * (-1.0 * screen_diagonal)) + point_x;
                 projected_position_y = ((lights_emitter->position_y - point_y) * (-1.0 * screen_diagonal)) + point_y;
-                d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y, projected_position_x,
-                    projected_position_y, &collisions);
+                d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y, 
+                    projected_position_x, projected_position_y, &collisions);
                 point_vertex = f_point_new(d_new(point), point_x, point_y);
                 d_call(polygon_caster, m_polygon_push, point_vertex);
                 d_delete(point_vertex);
@@ -109,8 +108,6 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             d_free(lights_emitter);
           }
         }
-      }
-    }
   } else
     d_die(d_error_malloc);
   d_call(shadows_attributes->array_casters, m_array_clear, NULL);

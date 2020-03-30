@@ -43,6 +43,7 @@ void p_stream_close_unlock(int *descriptor) {
 }
 struct s_object *f_stream_new(struct s_object *self, struct s_object *string_name, int descriptor) {
   struct s_stream_attributes *attributes = p_stream_alloc(self);
+  d_sign_memory(self, d_string_cstring(string_name));
   attributes->string_name = d_retain(string_name);
   attributes->descriptor = descriptor;
   attributes->parameters = fcntl(attributes->descriptor, F_GETFL);
@@ -52,6 +53,7 @@ struct s_object *f_stream_new(struct s_object *self, struct s_object *string_nam
 struct s_object *f_stream_new_file(struct s_object *self, struct s_object *string_name, const char *action, int permission) {
   struct s_stream_attributes *attributes = p_stream_alloc(self);
   char buffer[d_string_buffer_size];
+  d_sign_memory(self, d_string_cstring(string_name));
   attributes->string_name = d_retain(string_name);
   attributes->parameters = -1;
   switch (action[0]) {
@@ -81,6 +83,7 @@ struct s_object *f_stream_new_file(struct s_object *self, struct s_object *strin
 struct s_object *f_stream_new_temporary(struct s_object *self, struct s_object *string_name) {
   struct s_stream_attributes *attributes = p_stream_alloc(self);
   char file_name[] = "miranda.XXXXXX";
+  d_sign_memory(self, d_string_cstring(string_name));
   attributes->string_name = d_retain(string_name);
   attributes->parameters = d_stream_flag_write_read;
   /* (from man): [...] the last six characters of template must be "XXXXXX" and these are replaced with a string that makes the filename unique.
