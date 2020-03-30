@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "memory.h"
+#include <stdio.h>
+#include <execinfo.h>
 struct s_memory_head *v_memory_root;
 void f_memory_destroy(t_boolean show_only_signed) {
   struct s_memory_tail *tail;
@@ -91,13 +93,34 @@ void p_free(void *pointer, const char *file, unsigned int line) {
       head->next = NULL;
       free(head);
     } else
-      d_err(e_log_level_ever, "wrong tail checksum with %p (%s::%d)", pointer, file, line);
+      d_err(e_log_level_ever, "wrong tail checksum with %p (%s::%d) signature {%s}", pointer, file, line, 
+          head->signature);
   } else
-    d_err(e_log_level_ever, "wrong head checksum with %p (%s::%d)", pointer, file, line);
+    d_err(e_log_level_ever, "wrong head checksum with %p (%s::%d) signature {%s}", pointer, file, line,
+        head->signature);
 }
-void p_set_signature(void *pointer, const char *signature) {
+void p_set_signature(void *pointer, const char *signature, const char *file, unsigned int line) {
   struct s_memory_head *head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
-  strncpy(head->signature, signature, (d_memory_signature_size - 1));
-  head->signature[d_memory_signature_size - 1] = 0;
-} 
+  size_t signature_length, size_backtrace_buffer, index;
+  const char *pointer_signature = signature;
+  char **backtrace_buffer;
+  void *backtrace_array[d_memory_backtrace_array];
+  if (head->checksum != (unsigned int)d_memory_checksum) {
+    d_err(e_log_level_ever, "Uh-oh be careful, you are signing your pointer %p at (%s:%d) but it isn't aligned", pointer, file, line);
+    if ((size_backtrace_buffer = backtrace(backtrace_array, d_memory_backtrace_array)) > 0) {
+      backtrace_buffer = backtrace_symbols(backtrace_array, size_backtrace_buffer);
+      fprintf(stderr, "[backtrace]\n");
+      for (index = 0; index < size_backtrace_buffer; ++index)
+        fprintf(stderr, "%s\n", backtrace_buffer[index]);
+      free(backtrace_buffer);
+    }
+  }
+  if (signature) {
+    if ((signature_length = strlen(signature)) > d_memory_signature_size)
+      pointer_signature = (signature + (signature_length - d_memory_signature_size) + 1);
+    strncpy(head->signature, pointer_signature, (d_memory_signature_size - 1));
+    head->signature[d_memory_signature_size - 1] = 0;
+  } else
+    memset(head->signature, 0, d_memory_signature_size - 1);
+}
 

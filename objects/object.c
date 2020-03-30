@@ -23,7 +23,7 @@ const char m_object_compare[] = "compare";
 struct s_memory_buckets *v_memory_bucket = NULL;
 d_exception_define(undefined_method, 1, "undefined method exception");
 d_exception_define(private_method, 2, "private method exception");
-const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type) {
+const struct s_method *p_object_recall(const char *file, unsigned int line, struct s_object *object, const char *symbol, const char *type) {
   struct s_virtual_table *singleton;
   char buffer[d_string_buffer_size];
   struct s_method_cache swap_cache;
@@ -66,7 +66,7 @@ const struct s_method *p_object_recall(const char *file, int line, struct s_obje
   }
   return result;
 }
-struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags) {
+struct s_object *p_object_prepare(struct s_object *provided, const char *file, unsigned int line, const char *type, int flags) {
   pthread_mutexattr_t attributes_mutex;
   if ((flags & e_flag_recovered) != e_flag_recovered) {
     memset(provided, 0, sizeof(struct s_object));
@@ -81,11 +81,11 @@ struct s_object *p_object_prepare(struct s_object *provided, const char *file, i
   provided->flags = flags;
   return provided;
 }
-struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags) {
+struct s_object *p_object_malloc(const char *file, unsigned int line, const char *type, int flags) {
   struct s_object *result = NULL;
   if (v_memory_bucket)
     if ((result = f_memory_bucket_query(v_memory_bucket, type)))
-      d_sign_memory(result, ">> recovered <<");
+      d_sign_memory(result, NULL);
   if (result)
     p_object_prepare(result, file, line, type, (flags | e_flag_allocated | e_flag_recovered));
   else if ((result = d_malloc_explicit(sizeof(struct s_object), file, line)))
@@ -121,7 +121,7 @@ struct s_attributes *p_object_setup(struct s_object *object, struct s_method *vi
       }
   return attributes;
 }
-struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type) {
+struct s_attributes *p_object_cast(const char *file, unsigned int line, struct s_object *object, const char *type) {
   struct s_attributes *swap_cache, *result = NULL;
   pthread_mutex_lock(&(object->lock));
   {
@@ -157,12 +157,12 @@ void p_object_residual_delete(struct s_object *object) {
   if ((object->flags & e_flag_allocated) == e_flag_allocated)
     d_free(object);
 }
-void f_object_delete(struct s_object *object) {
+void f_object_delete(struct s_object *object, const char *file, unsigned int line) {
   struct s_object *destroyable = object;
   struct s_attributes *attributes = (struct s_attributes *)object->attributes.tail;
   struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.tail;
   int index;
-  d_sign_memory(object, "<< unaccessible >>");
+  d_sign_memory_explicit(object, "<< unaccessible >>", file, line);
   while ((attributes) && (virtual_table)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
       if (virtual_table->virtual_table[index].symbol == m_object_delete) {
@@ -172,9 +172,9 @@ void f_object_delete(struct s_object *object) {
     attributes = (struct s_attributes *)(((struct s_list_node *)attributes)->back);
     virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->back);
   }
-  if (!v_memory_bucket)
-    f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
-  if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
+  //if (!v_memory_bucket)
+  //  f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
+  //if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
     p_object_residual_delete(destroyable);
 }
 t_hash_value f_object_hash(struct s_object *object) {

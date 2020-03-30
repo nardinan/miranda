@@ -78,18 +78,18 @@ d_exception_declare(undefined_method);
 d_exception_declare(private_method);
 #define d_call_owner(obj, kind, sym, ...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_##kind##_type)->method((obj),__VA_ARGS__))
 #define d_call(obj, sym, ...) (p_object_recall(__FILE__,__LINE__,(obj),(sym),v_undefined_type)->method((obj),__VA_ARGS__))
-extern const struct s_method *p_object_recall(const char *file, int line, struct s_object *object, const char *symbol, const char *type);
+extern const struct s_method *p_object_recall(const char *file, unsigned int line, struct s_object *object, const char *symbol, const char *type);
 #define d_new(kind) (p_object_malloc(__FILE__,__LINE__,v_##kind##_type,e_flag_null))
 #define d_use(obj, kind) (p_object_prepare((obj),__FILE__,__LINE__,v_##kind##_type,e_flag_null))
-extern struct s_object *p_object_prepare(struct s_object *provided, const char *file, int line, const char *type, int flags);
-extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(const char *file, int line, const char *type, int flags);
+extern struct s_object *p_object_prepare(struct s_object *provided, const char *file, unsigned int line, const char *type, int flags);
+extern __attribute__ ((warn_unused_result)) struct s_object *p_object_malloc(const char *file, unsigned int line, const char *type, int flags);
 #define d_prepare(obj, kind) ((struct s_##kind##_attributes *)p_object_setup((obj),v_##kind##_vtable,sizeof(struct s_##kind##_attributes),v_##kind##_type))
 extern struct s_attributes *p_object_setup(struct s_object *object, struct s_method *virtual_table, size_t attributes_size, const char *attributes_type);
 #define d_cast(obj, kind) ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,(obj),v_##kind##_type))
 #define d_using(kind) struct s_##kind##_attributes *kind##_attributes = ((struct s_##kind##_attributes *)p_object_cast(__FILE__,__LINE__,self,v_##kind##_type))
-extern struct s_attributes *p_object_cast(const char *file, int line, struct s_object *object, const char *type);
+extern struct s_attributes *p_object_cast(const char *file, unsigned int line, struct s_object *object, const char *type);
 extern void p_object_residual_delete(struct s_object *object);
-extern void f_object_delete(struct s_object *object);
+extern void f_object_delete(struct s_object *object, const char *file, unsigned int line);
 extern t_hash_value f_object_hash(struct s_object *object);
 extern struct s_object *p_object_compare_single(struct s_object *object, struct s_object *other);
 extern struct s_object *f_object_compare(struct s_object *object, struct s_object *other);
