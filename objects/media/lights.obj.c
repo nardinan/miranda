@@ -22,6 +22,36 @@ void p_lights_modulator_flickering(struct s_lights_emitter *emitter) {
   double default_factor = 0.1, new_intensity = ((sin(((double)current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
   emitter->current_intensity = new_intensity;
 }
+void p_lights_modulator_pulsing_fast(struct s_lights_emitter *emitter) {
+  struct timespec current_time;
+  int seconds_modulator = 1; /* this determine the amount of seconds the pulse should last */
+  double new_intensity, factor_component;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &current_time);
+  factor_component = ((((double)(current_time.tv_sec % seconds_modulator)) * 1000000.0) + 
+    (current_time.tv_nsec / 1000.0))/(1000000.0 + ((seconds_modulator - 1) * 1000000.0));
+  new_intensity = ((sin((360.0 * factor_component) * d_math_radians_conversion) + 1.0)/2.0) * (double)emitter->original_intensity;
+  emitter->current_intensity = new_intensity;
+}
+void p_lights_modulator_pulsing_normal(struct s_lights_emitter *emitter) {
+  struct timespec current_time;
+  int seconds_modulator = 2; /* this determine the amount of seconds the pulse should last */
+  double new_intensity, factor_component;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &current_time);
+  factor_component = ((((double)(current_time.tv_sec % seconds_modulator)) * 1000000.0) + 
+    (current_time.tv_nsec / 1000.0))/(1000000.0 + ((seconds_modulator - 1) * 1000000.0));
+  new_intensity = ((sin((360.0 * factor_component) * d_math_radians_conversion) + 1.0)/2.0) * (double)emitter->original_intensity;
+  emitter->current_intensity = new_intensity;
+}
+void p_lights_modulator_pulsing_slow(struct s_lights_emitter *emitter) {
+  struct timespec current_time;
+  int seconds_modulator = 4; /* this determine the amount of seconds the pulse should last */
+  double new_intensity, factor_component;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &current_time);
+  factor_component = ((((double)(current_time.tv_sec % seconds_modulator)) * 1000000.0) + 
+    (current_time.tv_nsec / 1000.0))/(1000000.0 + ((seconds_modulator - 1) * 1000000.0));
+  new_intensity = ((sin((360.0 * factor_component) * d_math_radians_conversion) + 1.0)/2.0) * (double)emitter->original_intensity;
+  emitter->current_intensity = new_intensity;
+}
 struct s_lights_attributes *p_lights_alloc(struct s_object *self) {
   struct s_lights_attributes *result = d_prepare(self, lights);
   f_mutex_new(self);                             /* inherit */
@@ -57,7 +87,7 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
 d_define_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B,
     double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment) {
   d_using(lights);
-  struct s_lights_emitter *current_emitter;
+  struct s_lights_emitter *current_emitter = NULL;
   if ((current_emitter = (struct s_lights_emitter *)d_malloc(sizeof(struct s_lights_emitter)))) {
     current_emitter->current_intensity = current_emitter->original_intensity = intensity;
     current_emitter->current_mask_R = current_emitter->original_mask_R = mask_R;
@@ -74,6 +104,18 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     f_list_append(&(lights_attributes->emitters), (struct s_list_node *)current_emitter, e_list_insert_head);
   } else
     d_die(d_error_malloc);
+  d_cast_return(current_emitter);
+}
+d_define_method(lights, del_light)(struct s_object *self, struct s_lights_emitter *emitter) {
+  d_using(lights);
+  if (d_list_node_in(&(lights_attributes->emitters), (struct s_list_node *)emitter)) {
+    f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)emitter);
+    if (emitter->mask)
+      d_delete(emitter->mask);
+    if (emitter->reference)
+      d_delete(emitter->reference);
+    d_free(emitter);
+  }
   return self;
 }
 d_define_method(lights, get_light)(struct s_object *self, struct s_object *reference) {
@@ -91,12 +133,12 @@ d_define_method(lights, clear)(struct s_object *self) {
   d_using(lights);
   struct s_lights_emitter *current_emitter;
   while ((current_emitter = (struct s_lights_emitter *)lights_attributes->emitters.head)) {
+    f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)lights_attributes->emitters.head);
     if (current_emitter->mask)
       d_delete(current_emitter->mask);
     if (current_emitter->reference)
       d_delete(current_emitter->reference);
     d_free(current_emitter);
-    f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)lights_attributes->emitters.head);
   }
   return self;
 }
@@ -263,12 +305,12 @@ d_define_method_override(lights, is_visible)(struct s_object *self, double curre
 d_define_method(lights, delete)(struct s_object *self, struct s_lights_attributes *attributes) {
   struct s_lights_emitter *current_emitter;
   while ((current_emitter = (struct s_lights_emitter *)attributes->emitters.head)) {
+    f_list_delete(&(attributes->emitters), (struct s_list_node *)attributes->emitters.head);
     if (current_emitter->mask)
       d_delete(current_emitter->mask);
     if (current_emitter->reference)
       d_delete(current_emitter->reference);
     d_free(current_emitter);
-    f_list_delete(&(attributes->emitters), (struct s_list_node *)attributes->emitters.head);
   }
   if (attributes->memblock)
     d_free(attributes->memblock);
@@ -276,6 +318,7 @@ d_define_method(lights, delete)(struct s_object *self, struct s_lights_attribute
   return NULL;
 }
 d_define_class(lights) {d_hook_method(lights, e_flag_public, add_light),
+  d_hook_method(lights, e_flag_public, del_light),
   d_hook_method(lights, e_flag_public, get_light),
   d_hook_method(lights, e_flag_public, clear),
   d_hook_method(lights, e_flag_public, set_intensity),
