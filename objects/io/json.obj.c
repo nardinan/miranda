@@ -442,7 +442,8 @@ struct s_object *f_json_new_stream(struct s_object *self, struct s_object *strea
   struct s_json_attributes *attributes = p_json_alloc(self);
   struct s_stream_attributes *stream_attributes = d_cast(stream_file, stream);
   struct s_exception *exception;
-  d_sign_memory(self, d_string_cstring(stream_attributes->string_name));
+  if ((self->flags & e_flag_allocated) == e_flag_allocated) /* we cannot sign the memory if has not been allocated */
+    d_sign_memory(self, d_string_cstring(stream_attributes->string_name));
   f_list_init(&(attributes->tokens));
   if ((attributes->root = (struct s_json_node_value *)d_malloc(sizeof(struct s_json_node_value)))) {
     f_json_tokenizer(stream_file, attributes->tokens);

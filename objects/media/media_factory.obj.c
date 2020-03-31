@@ -60,8 +60,12 @@ d_define_method(media_factory, get_bitmap)(struct s_object *self, const char *la
       result = d_call(self, m_media_factory_get_illuminable_bitmap, label, extra_layers[e_illuminable_bitmap_side_left],
           extra_layers[e_illuminable_bitmap_side_right], extra_layers[e_illuminable_bitmap_side_top], extra_layers[e_illuminable_bitmap_side_bottom],
           extra_layers[e_illuminable_bitmap_side_front]);
-    else if ((stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label, e_resources_type_common)))
-      result = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment);
+    else if ((stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label, e_resources_type_common))) {
+      if ((result = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment)))
+        d_sign_memory(result, label);
+      else
+        d_die(d_error_malloc);
+    }
   }
   d_catch(exception)
   {
@@ -80,33 +84,35 @@ d_define_method(media_factory, get_illuminable_bitmap)(struct s_object *self, co
   d_try
   {
     if ((stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_core, e_resources_type_common))) {
-      result = f_illuminable_bitmap_new(d_new(illuminable_bitmap), stream, media_factory_attributes->environment);
-      if ((label_left) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_left, e_resources_type_common)))
-        if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
-          d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_left);
-          d_delete(mask);
-        }
-      if ((label_right) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_right, e_resources_type_common)))
-        if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
-          d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_right);
-          d_delete(mask);
-        }
-      if ((label_top) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_top, e_resources_type_common)))
-        if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
-          d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_top);
-          d_delete(mask);
-        }
-      if ((label_bottom) &&
-          (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_bottom, e_resources_type_common)))
-        if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
-          d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_bottom);
-          d_delete(mask);
-        }
-      if ((label_front) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_front, e_resources_type_common)))
-        if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
-          d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_front);
-          d_delete(mask);
-        }
+      if ((result = f_illuminable_bitmap_new(d_new(illuminable_bitmap), stream, media_factory_attributes->environment))) {
+        if ((label_left) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_left, e_resources_type_common)))
+          if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
+            d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_left);
+            d_delete(mask);
+          }
+        if ((label_right) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_right, e_resources_type_common)))
+          if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
+            d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_right);
+            d_delete(mask);
+          }
+        if ((label_top) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_top, e_resources_type_common)))
+          if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
+            d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_top);
+            d_delete(mask);
+          }
+        if ((label_bottom) &&
+            (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_bottom, e_resources_type_common)))
+          if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
+            d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_bottom);
+            d_delete(mask);
+          }
+        if ((label_front) && (stream = d_call(media_factory_attributes->resources_png, m_resources_get_stream_strict, label_front, e_resources_type_common)))
+          if ((mask = f_bitmap_new(d_new(bitmap), stream, media_factory_attributes->environment))) {
+            d_call(result, m_illuminable_bitmap_set_light_mask, mask, e_illuminable_bitmap_side_front);
+            d_delete(mask);
+          }
+        d_sign_memory(result, label_core);
+      }
     }
   }
   d_catch(exception)
@@ -190,6 +196,7 @@ d_define_method(media_factory, get_animation)(struct s_object *self, const char 
                   d_err(e_log_level_ever, "impossible to load the frame %s, part of the animation %s (the frame will be skipped)", string_supply, label);
                 ++index;
               }
+              d_sign_memory(result, label);
             } else
               d_die(d_error_malloc);
           }
@@ -271,6 +278,7 @@ d_define_method(media_factory, get_transition)(struct s_object *self, const char
                   d_call(result, m_transition_append_key, transition_key);
                   ++index;
                 }
+                d_sign_memory(result, label);
               } else
                 d_die(d_error_malloc);
               d_delete(drawable);
@@ -362,7 +370,9 @@ d_define_method(media_factory, get_particle)(struct s_object *self, const char *
                 else
                   flip = e_drawable_flip_none;
                 d_call(bitmap, m_drawable_flip, flip);
-                if (!(result = f_particle_new(d_new(particle), bitmap, media_factory_attributes->environment, &(particle_configuration))))
+                if ((result = f_particle_new(d_new(particle), bitmap, media_factory_attributes->environment, &(particle_configuration))))
+                  d_sign_memory(result, label);
+                else
                   d_die(d_error_malloc);
                 d_delete(bitmap);
               }

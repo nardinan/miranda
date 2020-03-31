@@ -162,7 +162,8 @@ void f_object_delete(struct s_object *object, const char *file, unsigned int lin
   struct s_attributes *attributes = (struct s_attributes *)object->attributes.tail;
   struct s_virtual_table *virtual_table = (struct s_virtual_table *)object->virtual_tables.tail;
   int index;
-  d_sign_memory_explicit(object, "<< unaccessible >>", file, line);
+  if ((object->flags & e_flag_allocated) == e_flag_allocated) /* we can sign the memory only if the block has been allocated */
+    d_sign_memory_explicit(object, "<< unaccessible >>", file, line);
   while ((attributes) && (virtual_table)) {
     for (index = 0; virtual_table->virtual_table[index].symbol; ++index)
       if (virtual_table->virtual_table[index].symbol == m_object_delete) {
@@ -172,9 +173,10 @@ void f_object_delete(struct s_object *object, const char *file, unsigned int lin
     attributes = (struct s_attributes *)(((struct s_list_node *)attributes)->back);
     virtual_table = (struct s_virtual_table *)(((struct s_list_node *)virtual_table)->back);
   }
-  //if (!v_memory_bucket)
-  //  f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
-  //if (((object->flags & e_flag_allocated) != e_flag_allocated) || ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
+  if (!v_memory_bucket)
+    f_memory_bucket_init(&v_memory_bucket, (t_memory_bucket_delete *)&p_object_residual_delete);
+  if (((object->flags & e_flag_allocated) != e_flag_allocated) || 
+      ((destroyable = f_memory_bucket_push(v_memory_bucket, object->type, object))))
     p_object_residual_delete(destroyable);
 }
 t_hash_value f_object_hash(struct s_object *object) {

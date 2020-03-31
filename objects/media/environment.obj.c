@@ -315,16 +315,6 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
   int surface, index;
   d_delete(attributes->cameras);
   d_delete(attributes->update_lock);
-  while ((eventable_object = (struct s_object *)attributes->eventable.head)) {
-    f_list_delete(&(attributes->eventable), (struct s_list_node *)eventable_object);
-    d_delete(eventable_object);
-  }
-  for (surface = (e_environment_surface_NULL - 1); surface >= 0; --surface)
-    for (index = (d_environment_layers - 1); index >= 0; --index)
-      while ((drawable_object = (struct s_object *)attributes->drawable[surface][index].head)) {
-        f_list_delete(&(attributes->drawable[surface][index]), (struct s_list_node *)drawable_object);
-        d_delete(drawable_object);
-      }
   SDL_DestroyRenderer(attributes->renderer);
   SDL_DestroyWindow(attributes->window);
   Mix_CloseAudio();

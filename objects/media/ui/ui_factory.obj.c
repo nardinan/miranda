@@ -184,6 +184,7 @@ d_define_method(ui_factory, load_component)(struct s_object *self, struct s_obje
           if ((stream = d_call(ui_factory_attributes->resources_png, m_resources_get_stream, string_supply, e_resources_type_common)))
             current_component->uiable = f_bitmap_new(d_new(bitmap), stream, ui_factory_attributes->environment);
         if (current_component->uiable) {
+          d_sign_memory(current_component->uiable, current_component->label);
           d_call(json_ui, m_json_get_double_relative, next_starting_point, &position_x, "s", "position_x");
           d_call(json_ui, m_json_get_double_relative, next_starting_point, &position_y, "s", "position_y");
           if ((d_call(json_ui, m_json_get_double_relative, next_starting_point, &width, "s", "width")))
