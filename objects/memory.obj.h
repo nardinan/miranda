@@ -23,6 +23,7 @@ d_declare_class(memory) {
   int references;
 } d_declare_class_tail(memory);
 extern struct s_object *f_memory_new(struct s_object *self);
+#define d_residual_references(mem) ((d_cast((mem),memory))->references)
 #define d_retain(mem) ((mem)?d_call((mem),m_memory_retain,NULL):NULL)
 d_declare_method(memory, retain)(struct s_object *self);
 #define d_delete(mem) \

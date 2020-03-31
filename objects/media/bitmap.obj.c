@@ -34,6 +34,8 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
   int width, height;
   SDL_RWops *surfaced_block;
   SDL_Surface *unoptimized_surface;
+  if ((self->flags & e_flag_allocated) == e_flag_allocated)
+    d_sign_memory(self, d_string_cstring(stream_attributes->string_name));
   fstat(stream_attributes->descriptor, &file_stats);
   if ((memblock = mmap(NULL, file_stats.st_size, PROT_READ, MAP_SHARED, stream_attributes->descriptor, 0)) != MAP_FAILED) {
     surfaced_block = SDL_RWFromMem(memblock, file_stats.st_size);

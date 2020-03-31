@@ -91,6 +91,8 @@ struct s_object *f_resources_new(struct s_object *self, struct s_object *string_
 struct s_object *f_resources_new_template(struct s_object *self, struct s_object *string_directory_path, struct s_object *string_template_path, 
     const char *extensions) {
   struct s_resources_attributes *attributes = p_resources_alloc(self);
+  if ((self->flags & e_flag_allocated) == e_flag_allocated)
+    d_sign_memory(self, extensions);
   strncpy(attributes->extensions, extensions, d_resources_extensions_size);
   strncpy(attributes->path, d_string_cstring(string_directory_path), d_resources_path_size);
   f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
@@ -102,6 +104,7 @@ struct s_object *f_resources_new_template(struct s_object *self, struct s_object
 }
 struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object *datafile_stream) {
   struct s_resources_attributes *attributes = p_resources_alloc(self);
+  struct s_stream_attributes *stream_attributes;
   struct s_resources_header header;
   struct s_resources_block_header block_header;
   struct s_object *string_path;
@@ -112,6 +115,9 @@ struct s_object *f_resources_new_inflate(struct s_object *self, struct s_object 
   unsigned char *block_data;
   char buffer[d_string_buffer_size], raw_path[d_resources_path_size], *current_key;
   int temporary_descriptor;
+  if ((self->flags & e_flag_allocated) == e_flag_allocated)
+    if ((stream_attributes = d_cast(datafile_stream, stream)))
+      d_sign_memory(self, d_string_cstring(stream_attributes->string_name));
   attributes->destroy_content = d_true;
   f_hash_init(&(attributes->nodes), (t_hash_compare *)&f_string_strcmp, (t_hash_calculate *)&p_resources_calculate);
   d_call(datafile_stream, m_stream_size, &residual_size);

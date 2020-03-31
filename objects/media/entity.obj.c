@@ -25,6 +25,8 @@ struct s_entity_attributes *p_entity_alloc(struct s_object *self) {
 }
 struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_validator validator) {
   struct s_entity_attributes *attributes = p_entity_alloc(self);
+  if ((self->flags & e_flag_allocated) == e_flag_allocated)
+    d_sign_memory(self, key);
   strncpy(attributes->label, key, d_entity_label_size);
   attributes->factor_z = 1.0;
   attributes->validator = validator;

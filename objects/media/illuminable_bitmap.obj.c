@@ -23,7 +23,11 @@ struct s_illuminable_bitmap_attributes *p_illuminable_bitmap_alloc(struct s_obje
 }
 struct s_object *f_illuminable_bitmap_new(struct s_object *self, struct s_object *stream, struct s_object *environment) {
   struct s_illuminable_bitmap_attributes *attributes = p_illuminable_bitmap_alloc(self, stream, environment);
+  struct s_stream_attributes *stream_attributes;
   unsigned int index;
+  if ((self->flags & e_flag_allocated) == e_flag_allocated)
+    if ((stream_attributes = d_cast(stream, stream)))
+      d_sign_memory(self, d_string_cstring(stream_attributes->string_name));
   for (index = 0; index < e_illuminable_bitmap_side_NULL; ++index)
     attributes->drawable_mask[index] = NULL;
   if ((attributes->polygon_shadow_caster = f_polygon_new(d_new(polygon), 0, NULL))) {
