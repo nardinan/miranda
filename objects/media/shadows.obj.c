@@ -108,6 +108,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             d_free(lights_emitter);
           }
         }
+    d_delete(polygon_caster);
   } else
     d_die(d_error_malloc);
   d_call(shadows_attributes->array_casters, m_array_clear, NULL);
