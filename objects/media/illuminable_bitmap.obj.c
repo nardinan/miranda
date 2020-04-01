@@ -353,6 +353,7 @@ d_declare_method(illuminable_bitmap, delete)(struct s_object *self, struct s_ill
   }
   d_delete(attributes->polygon_shadow_caster);
   d_delete(attributes->polygon_shadow_caster_normalized);
+  d_delete(attributes->shadows);
   return NULL;
 }
 d_define_class(illuminable_bitmap) {d_hook_method(illuminable_bitmap, e_flag_public, set_light_mask),
