@@ -324,6 +324,7 @@ d_define_method(environment, delete)(struct s_object *self, struct s_environment
         d_delete(drawable_object);
       }
   d_delete(attributes->update_lock);
+  d_delete(attributes->cameras);
   SDL_DestroyRenderer(attributes->renderer);
   SDL_DestroyWindow(attributes->window);
   Mix_CloseAudio();
