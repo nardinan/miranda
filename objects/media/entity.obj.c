@@ -28,6 +28,7 @@ struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_v
   if ((self->flags & e_flag_allocated) == e_flag_allocated)
     d_sign_memory(self, key);
   strncpy(attributes->label, key, d_entity_label_size);
+  attributes->lock_rules = (e_entity_lock_y_bottom | e_entity_lock_x_center);
   attributes->factor_z = 1.0;
   attributes->validator = validator;
   return self;
@@ -101,6 +102,11 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
     }
   return self;
 }
+d_define_method(entity, set_lock)(struct s_object *self, unsigned int lock_rules) {
+  d_using(entity);
+  entity_attributes->lock_rules = lock_rules;
+  return self;
+}
 d_define_method(entity, collision)(struct s_object *self, struct s_object *entity) {
   struct s_drawable_attributes *drawable_attributes_self = d_cast(self, drawable), *drawable_attributes_core = d_cast(entity, drawable);
   t_boolean collision = (intptr_t)d_call(&(drawable_attributes_self->square_collision_box), m_square_collision,
@@ -129,12 +135,13 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   double local_position_x, local_position_y, local_position_z, local_center_x, local_center_y, local_dimension_w, local_dimension_h, position_x, position_y,
          center_x, center_y, dimension_w = 0.0, dimension_h = 0.0, final_dimension_w = 0.0, final_dimension_h = 0.0, difference_x_seconds, difference_y_seconds,
-         difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z;
+         difference_zoom_seconds, movement_x, movement_y, movement_zoom, new_x, new_y, new_z, lock_offset_x = 0.0, lock_offset_y = 0.0;
   struct s_entity_element *current_element;
   struct s_exception *exception;
   struct timeval current_refresh, difference_x, difference_y, difference_zoom;
   if (entity_attributes->current_component) {
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
+    d_call(&(drawable_attributes_self->point_dimension), m_point_get, &local_dimension_w, &local_dimension_h);
     local_position_z = entity_attributes->factor_z;
     new_x = local_position_x;
     new_y = local_position_y;
@@ -161,12 +168,22 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
       if ((new_z + movement_zoom) > 0)
         new_z += movement_zoom;
     }
-    if (entity_attributes->validator)
-      entity_attributes->validator(self, local_position_x, local_position_y, entity_attributes->factor_z, &new_x, &new_y, &new_z);
+    if (entity_attributes->validator) {
+      if ((entity_attributes->lock_rules & e_entity_lock_y_bottom) == e_entity_lock_y_bottom)
+        lock_offset_y = (local_dimension_h);
+      else if ((entity_attributes->lock_rules & e_entity_lock_y_center) == e_entity_lock_y_center)
+        lock_offset_y = (local_dimension_h / 2.0);
+      if ((entity_attributes->lock_rules & e_entity_lock_x_right) == e_entity_lock_x_right)
+        lock_offset_x = (local_dimension_w);
+      else if ((entity_attributes->lock_rules & e_entity_lock_x_center) == e_entity_lock_x_center)
+        lock_offset_x = (local_dimension_w / 2.0);
+      entity_attributes->validator(self, (local_position_x + lock_offset_x), (local_position_y + lock_offset_y), 
+          entity_attributes->factor_z, &new_x, &new_y, &new_z);
+    }
     d_call(self, m_drawable_set_position, new_x, new_y);
     entity_attributes->factor_z = new_z;
-    local_position_x = new_x;
-    local_position_y = new_y;
+    local_position_x = (new_x - lock_offset_x);
+    local_position_y = (new_y - lock_offset_y);
     local_position_z = new_z;
     d_try
     {
@@ -263,6 +280,7 @@ d_define_class(entity) {d_hook_method(entity, e_flag_public, add_component),
   d_hook_method(entity, e_flag_private, get_component),
   d_hook_method(entity, e_flag_public, add_element),
   d_hook_method(entity, e_flag_public, set_component),
+  d_hook_method(entity, e_flag_public, set_lock),
   d_hook_method(entity, e_flag_public, collision),
   d_hook_method(entity, e_flag_public, interact),
   d_hook_method_override(entity, e_flag_public, drawable, draw),

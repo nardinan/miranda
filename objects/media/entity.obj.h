@@ -22,8 +22,16 @@
 #define d_entity_label_size 64
 #define d_entity_minimum_movement 0.1
 #define d_entity_minimum_zoom 0.01
-typedef t_boolean
-(*t_entity_validator)(struct s_object *self, double current_x, double current_y, double current_zoom, double *new_x, double *new_y, double *new_zoom);
+typedef t_boolean(*t_entity_validator)(struct s_object *self, double current_x, double current_y, double current_zoom, double *new_x, 
+    double *new_y, double *new_zoom);
+typedef enum e_entity_locks {
+  e_entity_lock_y_bottom = 0x01,
+  e_entity_lock_y_top    = 0x02,
+  e_entity_lock_y_center = 0x04,
+  e_entity_lock_x_left   = 0x08,
+  e_entity_lock_x_right  = 0x10,
+  e_entity_lock_x_center = 0x20
+} e_entity_locks;
 typedef struct s_entity_element {
   d_list_node_head;
   double offset_x, offset_y;
@@ -41,6 +49,7 @@ d_declare_class(entity) {
   struct s_list components;
   struct s_entity_component *current_component;
   struct timeval last_refresh_x, last_refresh_y, last_refresh_zoom;
+  unsigned int lock_rules;
   double factor_z;
   t_entity_validator validator;
 } d_declare_class_tail(entity);
@@ -51,6 +60,7 @@ d_declare_method(entity, add_component)(struct s_object *self, char *label, doub
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
 d_declare_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);
+d_declare_method(entity, set_lock)(struct s_object *self, unsigned int lock_rules);
 d_declare_method(entity, collision)(struct s_object *self, struct s_object *entity);
 d_declare_method(entity, interact)(struct s_object *self, struct s_object *entity);
 d_declare_method(entity, draw)(struct s_object *self, struct s_object *environment);
