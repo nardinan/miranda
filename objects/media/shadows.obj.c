@@ -29,6 +29,7 @@ struct s_object *f_shadows_new(struct s_object *self) {
   if (!(attributes->array_casters = f_array_new(d_new(array), d_array_bucket)))
     d_die(d_error_malloc);
   attributes->maximum_intensity = d_shadows_default_maximum_intensity;
+  attributes->light_intensity_void = d_shadows_default_light_intensity_void;
   return self;
 }
 d_define_method(shadows, add_caster)(struct s_object *self, struct s_object *illuminable_bitmap) {
@@ -50,8 +51,8 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   struct s_object *point_vertex;
   struct s_object *polygon_caster;
   double projected_position_x, projected_position_y, point_x, point_y, current_position_x, current_position_y, distance, shadow_projection, intensity_alpha,
-         localized_intensity, centroid_position_x, centroid_position_y, screen_diagonal = f_math_sqrt(d_math_square(environmental_attributes->current_w) + 
-             d_math_square(environmental_attributes->current_h), d_math_default_precision);
+         localized_intensity, centroid_position_x, centroid_position_y, screen_diagonal = f_math_sqrt(d_math_square(environmental_attributes->current_w) +
+             d_math_square(environmental_attributes->current_h), d_math_default_precision), localized_intensity_percentage;
   int points_x[d_shadows_maximum_vertices], points_y[d_shadows_maximum_vertices];
   unsigned int collisions;
   size_t vertices;
@@ -66,7 +67,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
             distance = f_math_sqrt(d_point_square_distance(current_position_x, current_position_y, lights_emitter->position_x, lights_emitter->position_y),
                 d_math_default_precision);
             if (distance < lights_emitter->radius) {
-              if ((intensity_alpha = ((shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255) * 
+              if ((intensity_alpha = ((shadows_attributes->maximum_intensity * (1.0 - (distance / lights_emitter->radius))) * 255) *
                     (lights_emitter->intensity / 255.0)) > 0.0) {
                 shadow_projection = (-1.0 * (distance / lights_emitter->radius));
                 d_call(polygon_caster, m_polygon_clear, NULL);
@@ -74,7 +75,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                   d_call(point_vertex, m_point_get, &point_x, &point_y);
                   projected_position_x = ((lights_emitter->position_x - point_x) * (-1.0 * screen_diagonal)) + point_x;
                   projected_position_y = ((lights_emitter->position_y - point_y) * (-1.0 * screen_diagonal)) + point_y;
-                  d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y, 
+                  d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y,
                       projected_position_x, projected_position_y, &collisions);
                   point_vertex = f_point_new(d_new(point), point_x, point_y);
                   d_call(polygon_caster, m_polygon_push, point_vertex);
@@ -91,16 +92,23 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                   }
                 }
                 d_call(polygon_caster, m_polygon_convex_hull, NULL);
-                vertices = 0;
-                d_polygon_foreach(polygon_caster, point_vertex) {
-                  d_call(point_vertex, m_point_get, &current_position_x, &current_position_y);
-                  points_x[vertices] = current_position_x;
-                  points_y[vertices] = current_position_y;
-                  ++vertices;
+                d_call(polygon_caster, m_polygon_get_centroid, &centroid_position_x, &centroid_position_y);
+                d_call(illuminable_bitmap_attributes->lights, m_lights_get_localized_intensity, centroid_position_x, centroid_position_y, environment,
+                    &localized_intensity, lights_emitter->reference);
+                if ((localized_intensity_percentage = (localized_intensity / 255.0)) < shadows_attributes->light_intensity_void) {
+                  intensity_alpha = intensity_alpha * (1.0 * ((shadows_attributes->light_intensity_void - localized_intensity_percentage)/
+                        shadows_attributes->light_intensity_void));
+                  vertices = 0;
+                  d_polygon_foreach(polygon_caster, point_vertex) {
+                    d_call(point_vertex, m_point_get, &current_position_x, &current_position_y);
+                    points_x[vertices] = current_position_x;
+                    points_y[vertices] = current_position_y;
+                    ++vertices;
+                  }
+                  d_miranda_lock(environment) {
+                    f_primitive_fill_polygon(environmental_attributes->renderer, points_x, points_y, vertices, 0, 0, 0, intensity_alpha);
+                  } d_miranda_unlock(environment);
                 }
-                d_miranda_lock(environment) {
-                  f_primitive_fill_polygon(environmental_attributes->renderer, points_x, points_y, vertices, 0, 0, 0, intensity_alpha);
-                } d_miranda_unlock(environment);
               }
             }
           }

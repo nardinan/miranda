@@ -193,6 +193,7 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
           selected_emitter->mask_B = current_emitter->original_mask_B;
           selected_emitter->distance = f_math_sqrt(d_point_square_distance(drawable_principal_point_x, drawable_principal_point_y,
                 selected_emitter->position_x, selected_emitter->position_y), d_math_default_precision);
+          selected_emitter->reference = current_emitter;
           f_list_append(container, (struct s_list_node *)selected_emitter, e_list_insert_head);
         } else
           d_die(d_error_malloc);

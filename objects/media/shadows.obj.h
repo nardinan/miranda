@@ -21,11 +21,12 @@
 #include "../array.obj.h"
 #define d_shadows_default_contour_color 255, 0, 0, 255
 #define d_shadows_default_maximum_intensity 0.5
+#define d_shadows_default_light_intensity_void 0.2
 #define d_shadows_maximum_vertices 64
 d_declare_class(shadows) {
   struct s_attributes head;
   struct s_object *array_casters;
-  double maximum_intensity;
+  double maximum_intensity, light_intensity_void;
 } d_declare_class_tail(shadows);
 struct s_shadows_attributes *p_shadows_alloc(struct s_object *self);
 extern struct s_object *f_shadows_new(struct s_object *self);

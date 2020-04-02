@@ -25,8 +25,7 @@
 #include "bitmap.obj.h"
 struct s_lights_emitter;
 typedef void (*t_lights_intensity_modulator)(struct s_lights_emitter *emitter);
-typedef struct s_lights_emitter {
-  d_list_node_head;
+typedef struct s_lights_emitter { d_list_node_head;
   struct s_object *mask, *reference;
   unsigned char original_intensity, current_intensity, original_mask_R, original_mask_G, original_mask_B, current_mask_R, current_mask_G, current_mask_B;
   double current_radius, last_normalized_x, last_normalized_y, last_normalized_w, last_normalized_h;
@@ -37,6 +36,7 @@ typedef struct s_lights_emitter {
 typedef struct s_lights_emitter_description {
   d_list_node_head;
   double position_x, position_y, distance, radius, intensity, mask_R, mask_G, mask_B;
+  struct s_lights_emitter *reference;
 } s_lights_emitter_description;
 d_declare_class(lights) {
   struct s_attributes head;
