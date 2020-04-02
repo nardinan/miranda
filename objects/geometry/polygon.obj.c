@@ -17,7 +17,7 @@
  */
 #include "polygon.obj.h"
 double p_polygon_relative_orientation(struct s_object *point_proposed, struct s_object *point_next, struct s_object *point_current) {
-  double point_proposed_x, point_proposed_y, point_next_x, point_next_y, point_current_x, point_current_y, orientation;
+  double point_proposed_x, point_proposed_y, point_next_x, point_next_y, point_current_x, point_current_y;
   d_call(point_proposed, m_point_get, &point_proposed_x, &point_proposed_y);
   d_call(point_next, m_point_get, &point_next_x, &point_next_y);
   d_call(point_current, m_point_get, &point_current_x, &point_current_y);
@@ -54,7 +54,6 @@ struct s_object *f_polygon_new(struct s_object *self, size_t size, ...) {
 d_define_method(polygon, set_polygon)(struct s_object *self, struct s_object *source) {
   d_using(polygon);
   struct s_polygon_attributes *polygon_source_attributes = d_cast(source, polygon);
-  struct s_object *point_current;
   d_call(polygon_attributes->array_points, m_array_clear, NULL);
   d_call(polygon_attributes->array_normalized_points, m_array_clear, NULL);
   polygon_attributes->entries = polygon_source_attributes->entries;

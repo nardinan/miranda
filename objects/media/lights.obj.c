@@ -208,9 +208,8 @@ d_define_method(lights, get_localized_intensity)(struct s_object *self, double t
   struct s_drawable_attributes *drawable_core_attributes;
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
-  struct s_lights_emitter_description *selected_emitter;
-  double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
-         drawable_principal_point_y, local_intensity, total_intensity = 0, distance, radius;
+  double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, local_intensity, 
+         total_intensity = 0, distance, radius;
   *intensity_detected = 0.0;
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
     if ((current_emitter->mask) && (current_emitter->reference) && (current_emitter != emitter_to_ignore)) {

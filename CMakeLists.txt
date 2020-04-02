@@ -39,6 +39,7 @@ string(CONCAT miranda_ground_properties
         "console.h;endian.local.h;exception.h;ground.h;hash.h;"
         "huffman.h;list.h;log.h;logs.h;math.local.h;memory.h;string.local.h;telnet.h;types.h")
 set_target_properties(miranda_ground PROPERTIES PUBLIC_HEADER "${miranda_ground_properties}")
+target_compile_options(miranda_ground PRIVATE "-Wunused-variable")
 INSTALL(TARGETS miranda_ground
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda
@@ -77,6 +78,7 @@ string(CONCAT miranda_objects_properties
         "objects/memory.obj.h;objects/mutex.obj.h;objects/lock.obj.h;objects/object.h;objects/memory_bucket.h;objects/objects.h;objects/pool.obj.h;"
         "objects/runnable.obj.h;objects/string.obj.h;objects/map.obj.h;objects/transformations.obj.h")
 set_target_properties(miranda_objects PROPERTIES PUBLIC_HEADER "${miranda_objects_properties}")
+target_compile_options(miranda_objects PRIVATE "-Wunused-variable")
 INSTALL(TARGETS miranda_objects
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects
@@ -96,6 +98,7 @@ string(CONCAT miranda_geometry_properties
         "objects/geometry/geometry.h;"
         "objects/geometry/line.obj.h;objects/geometry/point.obj.h;objects/geometry/square.obj.h;objects/geometry/polygon.obj.h")
 set_target_properties(miranda_geometry PROPERTIES PUBLIC_HEADER "${miranda_geometry_properties}")
+target_compile_options(miranda_geometry PRIVATE "-Wunused-variable")
 INSTALL(TARGETS miranda_geometry
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/geometry
@@ -115,6 +118,7 @@ string(CONCAT miranda_io_properties
         "objects/io/io.h;objects/io/json.obj.h;"
         "objects/io/lisp.obj.h;objects/io/resources.obj.h;objects/io/stream.obj.h")
 set_target_properties(miranda_io PROPERTIES PUBLIC_HEADER "${miranda_io_properties}")
+target_compile_options(miranda_io PRIVATE "-Wunused-variable")
 INSTALL(TARGETS miranda_io
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/io
@@ -127,6 +131,7 @@ add_library(miranda_network SHARED
 string(CONCAT miranda_network_properties
         "objects/network/network.h;objects/network/payload.obj.h")
 set_target_properties(miranda_network PROPERTIES PUBLIC_HEADER "${miranda_network_properties}")
+target_compile_options(miranda_network PRIVATE "-Wunused-variable")
 INSTALL(TARGETS miranda_network
         LIBRARY DESTINATION /usr/local/lib
         PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/network
@@ -180,6 +185,7 @@ if (NOT (STATUS_SDL STREQUAL ""))
             "objects/media/primitives.h;objects/media/track.obj.h;objects/media/transition.obj.h;objects/media/camera.obj.h;"
             "objects/media/camera_controller.obj.h;objects/media/illuminable_bitmap.obj.h")
     set_target_properties(miranda_media PROPERTIES PUBLIC_HEADER "${miranda_media_properties}")
+    target_compile_options(miranda_media PRIVATE "-Wunused-variable")
     INSTALL(TARGETS miranda_media
             LIBRARY DESTINATION /usr/local/lib
             PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media
@@ -195,6 +201,7 @@ if (NOT (STATUS_SDL STREQUAL ""))
             "objects/media/cameras/cameras.h;"
             "objects/media/cameras/drawable_chaser.obj.h;objects/media/cameras/limiter.obj.h")
     set_target_properties(miranda_cameras PROPERTIES PUBLIC_HEADER "${miranda_cameras_properties}")
+    target_compile_options(miranda_cameras PRIVATE "-Wunused-variable")
     INSTALL(TARGETS miranda_cameras
             LIBRARY DESTINATION /usr/local/lib
             PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/cameras
@@ -230,6 +237,7 @@ if (NOT (STATUS_SDL STREQUAL ""))
             "objects/media/ui/fonts.obj.h;objects/media/ui/label.obj.h;objects/media/ui/list.obj.h;objects/media/ui/scroll.obj.h;"
             "objects/media/ui/ui.h;objects/media/ui/ui_factory.obj.h;objects/media/ui/uiable.obj.h;objects/media/ui/contextual_menu.h")
     set_target_properties(miranda_ui PROPERTIES PUBLIC_HEADER "${miranda_ui_properties}")
+    target_compile_options(miranda_ui PRIVATE "-Wunused-variable")
     INSTALL(TARGETS miranda_ui
             LIBRARY DESTINATION /usr/local/lib
             PUBLIC_HEADER DESTINATION /usr/local/include/miranda/objects/media/ui

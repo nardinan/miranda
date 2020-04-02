@@ -178,7 +178,7 @@ d_define_method(drawable, normalize_scale)(struct s_object *self, double referen
 d_define_method(drawable, keep_scale)(struct s_object *self, double current_w, double current_h) {
   d_using(drawable);
   struct s_square_attributes *square_attributes;
-  double this_x, this_y, this_w, this_h, this_center_x, this_center_y, min_x, min_y, max_x, max_y, distance_object, diagonal_screen, diagonal_object;
+  double this_x, this_y, this_w, this_h, this_center_x, this_center_y;
   d_call(&(drawable_attributes->point_destination), m_point_get, &this_x, &this_y);
   d_call(&(drawable_attributes->point_dimension), m_point_get, &this_w, &this_h);
   d_call(&(drawable_attributes->point_center), m_point_get, &this_center_x, &this_center_y);

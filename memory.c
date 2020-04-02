@@ -101,7 +101,7 @@ void p_free(void *pointer, const char *file, unsigned int line) {
 }
 void p_set_signature(void *pointer, const char *signature, const char *file, unsigned int line) {
   struct s_memory_head *head = (struct s_memory_head *)(pointer - sizeof(struct s_memory_head));
-  size_t signature_length, size_backtrace_buffer, index;
+  size_t signature_length;
   const char *pointer_signature = signature;
   if (signature) {
     if ((signature_length = strlen(signature)) > d_memory_signature_size)
