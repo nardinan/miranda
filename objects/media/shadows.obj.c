@@ -59,7 +59,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
       if ((illuminable_bitmap_attributes = d_cast(illuminable_bitmap_caster, illuminable_bitmap)))
         if (illuminable_bitmap_attributes->lights) {
           memset(&(affected_lights), 0, sizeof(struct s_list));
-          d_call(illuminable_bitmap_attributes->lights, m_lights_get_affecting_lights, illuminable_bitmap_caster, &(affected_lights), environment);
+          d_call(illuminable_bitmap_attributes->lights, m_lights_get_affecting_lights, illuminable_bitmap_caster, &(affected_lights), environment, d_true);
           d_call(illuminable_bitmap_caster, m_drawable_get_scaled_principal_point, &current_position_x, &current_position_y);
           d_foreach(&(affected_lights), lights_emitter, struct s_lights_emitter_description) {
             distance = f_math_sqrt(d_point_square_distance(current_position_x, current_position_y, lights_emitter->position_x, lights_emitter->position_y),

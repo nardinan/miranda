@@ -32,6 +32,7 @@ typedef struct s_lights_emitter {
   double current_radius, last_normalized_x, last_normalized_y, last_normalized_w, last_normalized_h;
   enum e_drawable_alignments alignment;
   t_lights_intensity_modulator modulator; /* isn't mandatory */
+  t_boolean project_shadows;
 } s_lights_emitter;
 typedef struct s_lights_emitter_description {
   d_list_node_head;
@@ -52,13 +53,15 @@ extern void p_lights_modulator_pulsing_slow(struct s_lights_emitter *emitter);
 struct s_lights_attributes *p_lights_alloc(struct s_object *self);
 extern struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, struct s_object *environment);
 d_declare_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B,
-    double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment);
+    double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment,
+    t_boolean project_shadows);
 d_declare_method(lights, del_light)(struct s_object *self, struct s_lights_emitter *emitter);
 d_declare_method(lights, get_light)(struct s_object *self, struct s_object *reference);
 d_declare_method(lights, clear)(struct s_object *self);
 d_declare_method(lights, set_intensity)(struct s_object *self, unsigned char intensity);
 d_declare_method(lights, get_intensity)(struct s_object *self);
-d_declare_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment);
+d_declare_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment,
+    t_boolean shadows_generation);
 d_declare_method(lights, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(lights, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(lights, is_visible)(struct s_object *self, double current_w, double current_h);

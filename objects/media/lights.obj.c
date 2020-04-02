@@ -85,7 +85,8 @@ struct s_object *f_lights_new(struct s_object *self, unsigned char intensity, st
   return self;
 }
 d_define_method(lights, add_light)(struct s_object *self, unsigned char intensity, unsigned char mask_R, unsigned char mask_G, unsigned char mask_B,
-    double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment) {
+    double radius, t_lights_intensity_modulator modulator, struct s_object *mask, struct s_object *reference, enum e_drawable_alignments alignment,
+    t_boolean project_shadows) {
   d_using(lights);
   struct s_lights_emitter *current_emitter = NULL;
   if ((current_emitter = (struct s_lights_emitter *)d_malloc(sizeof(struct s_lights_emitter)))) {
@@ -98,6 +99,7 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->alignment = alignment;
     current_emitter->reference = d_retain(reference);
     current_emitter->mask = d_retain(mask);
+    current_emitter->project_shadows = project_shadows;
     d_call(current_emitter->mask, m_drawable_set_blend, e_drawable_blend_add);
     d_call(current_emitter->mask, m_drawable_add_flags,
         (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera | e_drawable_kind_do_not_normalize_reference_ratio));
@@ -153,7 +155,8 @@ d_define_method(lights, get_intensity)(struct s_object *self) {
   d_using(lights);
   d_cast_return(lights_attributes->intensity);
 }
-d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment) {
+d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment,
+    t_boolean shadows_generation) {
   d_using(lights);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_drawable_attributes *drawable_other_attributes = d_cast(drawable, drawable), *drawable_core_attributes;
@@ -164,7 +167,7 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
          drawable_principal_point_y;
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
-    if ((current_emitter->mask) && (current_emitter->reference)) {
+    if ((current_emitter->mask) && (current_emitter->reference) && ((!shadows_generation) || (current_emitter->project_shadows))) {
       drawable_core_attributes = d_cast(current_emitter->mask, drawable);
       d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
       d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);

@@ -111,7 +111,7 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
     d_call(self, m_drawable_get_scaled_center, &image_center_x, &image_center_y);
     d_call(self, m_drawable_get_scaled_dimension, &image_width, &image_height);
     d_call(self, m_drawable_get_scaled_principal_point, &image_principal_point_x, &image_principal_point_y);
-    d_call(illuminable_bitmap_attributes->lights, m_lights_get_affecting_lights, self, &(affected_lights), environment);
+    d_call(illuminable_bitmap_attributes->lights, m_lights_get_affecting_lights, self, &(affected_lights), environment, d_false);
     d_foreach(&(affected_lights), lights_emitter, struct s_lights_emitter_description) {
       for (index_side = 0; index_side < e_illuminable_bitmap_side_NULL; ++index_side) {
         light_normalized_percentage_R[index_side] = 0;
