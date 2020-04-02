@@ -62,6 +62,8 @@ d_declare_method(lights, set_intensity)(struct s_object *self, unsigned char int
 d_declare_method(lights, get_intensity)(struct s_object *self);
 d_declare_method(lights, get_affecting_lights)(struct s_object *self, struct s_object *drawable, struct s_list *container, struct s_object *environment,
     t_boolean shadows_generation);
+d_declare_method(lights, get_localized_intensity)(struct s_object *self, double target_position_x, double target_position_y, struct s_object *environment, 
+    double *intensity_detected, struct s_lights_emitter *emitter_to_ignore);
 d_declare_method(lights, draw)(struct s_object *self, struct s_object *environment);
 d_declare_method(lights, draw_contour)(struct s_object *self, struct s_object *environment);
 d_declare_method(lights, is_visible)(struct s_object *self, double current_w, double current_h);

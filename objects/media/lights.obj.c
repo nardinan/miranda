@@ -182,7 +182,6 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
           camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
       d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
       d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
-      /* now we need to check the distance between the center of the light and the target, to see if it is less or the same of the zoom */
       if (((intptr_t)d_call(&(drawable_core_attributes->square_collision_box), m_square_collision, &(drawable_other_attributes->square_collision_box)))) {
         if ((selected_emitter = (struct s_lights_emitter_description *)d_malloc(sizeof(struct s_lights_emitter_description)))) {
           selected_emitter->position_x = (light_position_x + (light_width / 2.0));
@@ -199,6 +198,53 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
           d_die(d_error_malloc);
       }
     }
+  return self;
+}
+d_define_method(lights, get_localized_intensity)(struct s_object *self, double target_position_x, double target_position_y, struct s_object *environment, 
+    double *intensity_detected, struct s_lights_emitter *emitter_to_ignore) {
+  d_using(lights);
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_drawable_attributes *drawable_core_attributes;
+  struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
+  struct s_lights_emitter *current_emitter;
+  struct s_lights_emitter_description *selected_emitter;
+  double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
+         drawable_principal_point_y, local_intensity, total_intensity = 0, distance, radius;
+  *intensity_detected = 0.0;
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
+    if ((current_emitter->mask) && (current_emitter->reference) && (current_emitter != emitter_to_ignore)) {
+      drawable_core_attributes = d_cast(current_emitter->mask, drawable);
+      d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+      d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
+      d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
+      position_x -= (dimension_w / 2.0);
+      position_y -= (dimension_h / 2.0);
+      d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
+      d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
+      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+          camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
+          camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+      d_call(current_emitter->mask, m_drawable_get_scaled_position, &light_position_x, &light_position_y);
+      d_call(current_emitter->mask, m_drawable_get_scaled_dimension, &light_width, &light_height);
+      distance = f_math_sqrt(d_point_square_distance(target_position_x, target_position_y, (light_position_x + (light_width/2.0)), 
+              (light_position_y + (light_height/2.0))), d_math_default_precision);
+      radius = (d_math_max(light_width, light_height)/2.0);
+      if (distance < radius) {
+        /* the intensity will be consider as 1.0 minus the current distance between the center_light and the point divided by the radius, 
+         * multiplied by the intensity. So this means that the maximum intensity will be the one given by the emitter and this value 
+         * will be multiplied by the distance from the point.
+         */
+        local_intensity = (1.0 - (distance/radius)) * (double)current_emitter->current_intensity;
+        if ((local_intensity + total_intensity) >= 255.0) {
+          /* in case we're already at the maximum, we don't need to go ahead */
+          total_intensity = 255.0;
+          break;
+        } else 
+          total_intensity += local_intensity;
+      }
+    }
+  *intensity_detected = total_intensity;
   return self;
 }
 d_define_method_override(lights, draw)(struct s_object *self, struct s_object *environment) {
@@ -327,6 +373,7 @@ d_define_class(lights) {d_hook_method(lights, e_flag_public, add_light),
   d_hook_method(lights, e_flag_public, set_intensity),
   d_hook_method(lights, e_flag_public, get_intensity),
   d_hook_method(lights, e_flag_public, get_affecting_lights),
+  d_hook_method(lights, e_flag_public, get_localized_intensity),
   d_hook_method_override(lights, e_flag_public, drawable, draw),
   d_hook_method_override(lights, e_flag_public, drawable, draw_contour),
   d_hook_method_override(lights, e_flag_public, drawable, is_visible),
