@@ -31,6 +31,10 @@ struct s_object *f_camera_new(struct s_object *self, double screen_offset_x, dou
     attributes->scene_reference_w = screen_width;
     attributes->scene_reference_h = screen_height;
     attributes->scene_zoom = 1.0;
+    attributes->maximum_offset_x = NAN;
+    attributes->maximum_offset_y = NAN;
+    attributes->minimum_offset_x = NAN;
+    attributes->minimum_offset_y = NAN;
   } else
     d_die(d_error_malloc);
   return self;
@@ -69,6 +73,15 @@ d_define_method(camera, get_position)(struct s_object *self, double *position_x,
   d_using(camera);
   *position_x = camera_attributes->screen_position_x;
   *position_y = camera_attributes->screen_position_y;
+  return self;
+}
+d_define_method(camera, set_boundaries)(struct s_object *self, double maximum_offset_x, double maximum_offset_y, 
+    double minimum_offset_x, double minimum_offset_y) {
+  d_using(camera);
+  camera_attributes->maximum_offset_x = maximum_offset_x;
+  camera_attributes->maximum_offset_y = maximum_offset_y;
+  camera_attributes->minimum_offset_x = minimum_offset_x;
+  camera_attributes->minimum_offset_y = minimum_offset_y;
   return self;
 }
 d_define_method(camera, set_offset)(struct s_object *self, double offset_x, double offset_y) {
@@ -133,6 +146,22 @@ d_define_method(camera, get_surface)(struct s_object *self, enum e_environment_s
   *surface = camera_attributes->surface;
   return self;
 }
+d_define_method(camera, validate)(struct s_object *self) {
+  d_using(camera);
+  if ((camera_attributes->maximum_offset_x == camera_attributes->maximum_offset_x) && 
+      (camera_attributes->scene_offset_x > camera_attributes->maximum_offset_x))
+    camera_attributes->scene_offset_x = camera_attributes->maximum_offset_x;
+  if ((camera_attributes->maximum_offset_y == camera_attributes->maximum_offset_y) && 
+      (camera_attributes->scene_offset_y > camera_attributes->maximum_offset_y))
+    camera_attributes->scene_offset_y = camera_attributes->maximum_offset_y;
+  if ((camera_attributes->minimum_offset_x == camera_attributes->minimum_offset_x) && 
+      (camera_attributes->scene_offset_x < camera_attributes->minimum_offset_x))
+    camera_attributes->scene_offset_x = camera_attributes->minimum_offset_x;
+  if ((camera_attributes->minimum_offset_y == camera_attributes->minimum_offset_y) && 
+      (camera_attributes->scene_offset_y < camera_attributes->minimum_offset_y))
+    camera_attributes->scene_offset_y = camera_attributes->minimum_offset_y;
+  return self;
+}
 d_define_method(camera, recalculate_texture)(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
     enum e_environment_surfaces surface, struct s_object *environment) {
   d_using(camera);
@@ -186,6 +215,7 @@ d_define_method(camera, initialize_context)(struct s_object *self, struct s_obje
           &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
           &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), 
           &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
+    d_call(self, m_camera_validate, NULL);
     d_miranda_lock(environment) {
       SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
       SDL_SetRenderTarget(environment_attributes->renderer, camera_attributes->destination);
@@ -228,6 +258,7 @@ d_define_class(camera) {d_hook_method(camera, e_flag_public, set_size),
   d_hook_method(camera, e_flag_public, get_reference),
   d_hook_method(camera, e_flag_public, set_position),
   d_hook_method(camera, e_flag_public, get_position),
+  d_hook_method(camera, e_flag_public, set_boundaries),
   d_hook_method(camera, e_flag_public, set_offset),
   d_hook_method(camera, e_flag_public, get_offset),
   d_hook_method(camera, e_flag_public, set_center),
@@ -240,6 +271,7 @@ d_define_class(camera) {d_hook_method(camera, e_flag_public, set_size),
   d_hook_method(camera, e_flag_public, get_controller),
   d_hook_method(camera, e_flag_public, del_controller),
   d_hook_method(camera, e_flag_public, get_surface),
+  d_hook_method(camera, e_flag_public, validate),
   d_hook_method(camera, e_flag_public, recalculate_texture),
   d_hook_method(camera, e_flag_public, initialize_context),
   d_hook_method(camera, e_flag_public, finalize_context),
