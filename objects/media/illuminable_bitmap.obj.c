@@ -130,9 +130,9 @@ d_define_method_override(illuminable_bitmap, draw)(struct s_object *self, struct
       side_factor = 0.0;
       if (lights_emitter->distance < lights_emitter->radius)
         center_factor = (1.0 - (lights_emitter->distance / lights_emitter->radius));
-      light_normalized_percentage_R[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_R / 255.0)) * (lights_emitter->intensity / 255.0);
-      light_normalized_percentage_G[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_G / 255.0)) * (lights_emitter->intensity / 255.0);
-      light_normalized_percentage_B[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_B / 255.0)) * (lights_emitter->intensity / 255.0);
+      light_normalized_percentage_R[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_R / 255.0));
+      light_normalized_percentage_G[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_G / 255.0));
+      light_normalized_percentage_B[e_illuminable_bitmap_side_front] = (center_factor * (lights_emitter->mask_B / 255.0));
       /* we need to calculate now the distance from the light source to the collision box of the object. This means we are temporary ignoring the real center
        * of the image, and we are using it only as target of our caster. We'll draw a line that goes from the light source to the center and we detect where
        * we hit the square
