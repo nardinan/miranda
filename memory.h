@@ -33,9 +33,9 @@
 #define d_free(ptr) p_free((ptr),__FILE__,__LINE__)
 #else
 #define d_sign_memory(ptr, c)
-#define p_sign_memory_explicit(ptr, c, f, l)
+#define d_sign_memory_explicit(ptr, c, f, l)
 #define d_malloc(siz) calloc(1,(siz))
-#define d_internal_malloc(siz) callc(1,(siz))
+#define d_internal_malloc(siz) calloc(1,(siz))
 #define d_malloc_explicit(siz, f, l) calloc(1,(siz))
 #define d_internal_malloc_explicit(siz, f, l) calloc(1,(siz))
 #define d_realloc(p,siz) ((p)?realloc((p),(siz)):calloc(1,(siz)))
