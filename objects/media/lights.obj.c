@@ -94,6 +94,7 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->current_mask_R = current_emitter->original_mask_R = mask_R;
     current_emitter->current_mask_G = current_emitter->original_mask_G = mask_G;
     current_emitter->current_mask_B = current_emitter->original_mask_B = mask_B;
+    current_emitter->original_radius = radius;
     current_emitter->current_radius = radius;
     current_emitter->modulator = modulator;
     current_emitter->alignment = alignment;
@@ -164,11 +165,14 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
   struct s_lights_emitter *current_emitter;
   struct s_lights_emitter_description *selected_emitter;
   double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, drawable_principal_point_x,
-         drawable_principal_point_y;
+         drawable_principal_point_y, camera_reference_w, camera_reference_h, ratio;
+  d_call(environment_attributes->current_camera, m_camera_get_reference, &camera_reference_w, &camera_reference_h);
+  ratio = d_math_max((environment_attributes->current_w/camera_reference_w), (environment_attributes->current_h/camera_reference_h));
   d_call(drawable, m_drawable_get_scaled_principal_point, &drawable_principal_point_x, &drawable_principal_point_y);
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
     if ((current_emitter->mask) && (current_emitter->reference) && ((!shadows_generation) || (current_emitter->project_shadows))) {
       drawable_core_attributes = d_cast(current_emitter->mask, drawable);
+      current_emitter->current_radius = current_emitter->original_radius * camera_attributes->scene_zoom * ratio;
       d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
       d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
       d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
@@ -176,7 +180,7 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
       position_y -= (dimension_h / 2.0);
       d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
       d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
       d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
           camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
@@ -209,19 +213,21 @@ d_define_method(lights, get_localized_intensity)(struct s_object *self, double t
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   double position_x, position_y, dimension_w, dimension_h, light_position_x, light_position_y, light_width, light_height, local_intensity, 
-         total_intensity = 0, distance, radius;
+         total_intensity = 0, distance, radius, camera_reference_w, camera_reference_h, ratio;
   *intensity_detected = 0.0;
+  d_call(environment_attributes->current_camera, m_camera_get_reference, &camera_reference_w, &camera_reference_h);
+  ratio = d_math_max((environment_attributes->current_w/camera_reference_w), (environment_attributes->current_h/camera_reference_h));
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
     if ((current_emitter->mask) && (current_emitter->reference) && (current_emitter != emitter_to_ignore)) {
       drawable_core_attributes = d_cast(current_emitter->mask, drawable);
-      d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
+      current_emitter->current_radius = current_emitter->original_radius * camera_attributes->scene_zoom * ratio;
       d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
       d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
       position_x -= (dimension_w / 2.0);
       position_y -= (dimension_h / 2.0);
       d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
       d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
       d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
           camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
@@ -254,10 +260,12 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   struct s_camera_attributes *camera_attributes = d_cast(environment_attributes->current_camera, camera);
   struct s_lights_emitter *current_emitter;
   size_t size;
-  double intensity_modifier, position_x, position_y, dimension_w, dimension_h;
+  double intensity_modifier, position_x, position_y, dimension_w, dimension_h, camera_reference_w, camera_reference_h, ratio;
   SDL_Texture *previous_target;
   SDL_Rect source, destination;
   SDL_Point center;
+  d_call(environment_attributes->current_camera, m_camera_get_reference, &camera_reference_w, &camera_reference_h);
+  ratio = d_math_max((environment_attributes->current_w/camera_reference_w), (environment_attributes->current_h/camera_reference_h));
   if ((environment_attributes->current_w != lights_attributes->current_w) || (environment_attributes->current_h != lights_attributes->current_h)) {
     d_free(lights_attributes->memblock);
     size = (environment_attributes->current_w * environment_attributes->current_h * 4 /* RGBA */);
@@ -288,6 +296,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
   d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
     if ((current_emitter->mask) && (current_emitter->reference)) {
       /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
+      current_emitter->current_radius = current_emitter->original_radius * camera_attributes->scene_zoom * ratio;
       d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
       d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
       d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
@@ -295,7 +304,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
       position_y -= (dimension_h / 2.0);
       d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
       d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
-      d_call(current_emitter->mask, m_drawable_set_zoom, (current_emitter->current_radius * camera_attributes->scene_zoom));
+      d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
       if (d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
             camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
             camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)) {
