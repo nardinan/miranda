@@ -221,6 +221,7 @@ d_define_method(lights, get_localized_intensity)(struct s_object *self, double t
     if ((current_emitter->mask) && (current_emitter->reference) && (current_emitter != emitter_to_ignore)) {
       drawable_core_attributes = d_cast(current_emitter->mask, drawable);
       current_emitter->current_radius = current_emitter->original_radius * camera_attributes->scene_zoom * ratio;
+      d_call(current_emitter->mask, m_drawable_copy_geometry, current_emitter->reference, current_emitter->alignment);
       d_call(current_emitter->mask, m_drawable_get_position, &position_x, &position_y);
       d_call(current_emitter->mask, m_drawable_get_dimension, &dimension_w, &dimension_h);
       position_x -= (dimension_w / 2.0);
