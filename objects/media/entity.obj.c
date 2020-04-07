@@ -177,13 +177,17 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
         lock_offset_x = (local_dimension_w);
       else if ((entity_attributes->lock_rules & e_entity_lock_x_center) == e_entity_lock_x_center)
         lock_offset_x = (local_dimension_w / 2.0);
+      new_x += lock_offset_x;
+      new_y += lock_offset_y;
       entity_attributes->validator(self, (local_position_x + lock_offset_x), (local_position_y + lock_offset_y), 
           entity_attributes->factor_z, &new_x, &new_y, &new_z);
+      new_x -= lock_offset_x;
+      new_y -= lock_offset_y;
     }
     d_call(self, m_drawable_set_position, new_x, new_y);
     entity_attributes->factor_z = new_z;
-    local_position_x = (new_x - lock_offset_x);
-    local_position_y = (new_y - lock_offset_y);
+    local_position_x = new_x;
+    local_position_y = new_y;
     local_position_z = new_z;
     d_try
     {

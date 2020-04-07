@@ -179,8 +179,8 @@ d_define_method(lights, get_affecting_lights)(struct s_object *self, struct s_ob
       position_x -= (dimension_w / 2.0);
       position_y -= (dimension_h / 2.0);
       d_call(current_emitter->mask, m_drawable_set_position, position_x, position_y);
-      d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
       d_call(current_emitter->mask, m_drawable_set_zoom, current_emitter->current_radius);
+      d_call(current_emitter->mask, m_drawable_set_center_alignment, e_drawable_alignment_centered);
       d_call(current_emitter->mask, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
           camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
           camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);

@@ -65,8 +65,7 @@ d_define_method(drawable, copy_geometry)(struct s_object *self, struct s_object 
     default:
       break;
   }
-  d_call(&(drawable_attributes->point_destination), m_point_set_x, final_position_x);
-  d_call(&(drawable_attributes->point_destination), m_point_set_y, final_position_y);
+  d_call(&(drawable_attributes->point_destination), m_point_set, final_position_x, final_position_y);
   drawable_attributes->angle = drawable_attributes_other->angle;
   drawable_attributes->flip = drawable_attributes_other->flip;
   return self;
