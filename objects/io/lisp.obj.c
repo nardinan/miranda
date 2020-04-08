@@ -317,10 +317,12 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   attributes->base_symbols[e_lisp_object_symbol_lambda] = d_call(self, m_lisp_import_symbol, "lambda");
   attributes->base_symbols[e_lisp_object_symbol_if] = d_call(self, m_lisp_import_symbol, "if");
   attributes->base_symbols[e_lisp_object_symbol_cond] = d_call(self, m_lisp_import_symbol, "cond");
+  attributes->base_symbols[e_lisp_object_symbol_while] = d_call(self, m_lisp_import_symbol, "while");
   attributes->base_symbols[e_lisp_object_symbol_define] = d_call(self, m_lisp_import_symbol, "define");
   attributes->base_symbols[e_lisp_object_symbol_set] = d_call(self, m_lisp_import_symbol, "set");
   attributes->base_symbols[e_lisp_object_symbol_begin] = d_call(self, m_lisp_import_symbol, "begin");
-  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol, attributes->base_symbols[e_lisp_object_symbol_nil]);
+  d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_nil]->value_symbol, 
+      attributes->base_symbols[e_lisp_object_symbol_nil]);
   d_call(self, m_lisp_extend_environment, attributes->base_symbols[e_lisp_object_symbol_true]->value_symbol,
       attributes->base_symbols[e_lisp_object_symbol_true]);
   d_call(self, m_lisp_extend_environment, "+", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_sum));
@@ -419,7 +421,7 @@ d_define_method(lisp, next_token)(struct s_object *self) {
   int line_comment = -1;
   if (lisp_attributes->current_token)
     while ((lisp_attributes->current_token = (struct s_json_token *)(((struct s_list_node *)lisp_attributes->current_token)->next))) {
-      if (line_comment != lisp_attributes->current_token->line_number) {
+      if (line_comment != (int)lisp_attributes->current_token->line_number) {
         if ((lisp_attributes->current_token->type == e_json_token_type_symbol) && (lisp_attributes->current_token->symbol_entry == ';'))
           line_comment = lisp_attributes->current_token->line_number;
         else
@@ -479,7 +481,7 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
   d_using(lisp);
   struct s_lisp_object *result = NULL, *evaluated_object, *symbol_object, *procedure_object, *arguments_object;
   char *symbol_string;
-  if (current_object)
+  if ((current_object) && (d_call(self, m_runnable_kill_required, NULL) == NULL))
     switch (current_object->type) {
       case e_lisp_object_type_value:
       case e_lisp_object_type_string:
@@ -518,6 +520,10 @@ d_define_method(lisp, evaluate)(struct s_object *self, struct s_lisp_object *cur
           } else
             d_err(e_log_level_low, "(source %s:%d) malformed cond construct with no definition", d_string_cstring(lisp_attributes->string_name),
                 ((lisp_attributes->current_token) ? lisp_attributes->current_token->line_number : 0));
+        } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_while]) {
+          while ((evaluated_object = d_call(self, m_lisp_evaluate, d_lisp_cadr(current_object), environment)) &&
+              (evaluated_object != lisp_attributes->base_symbols[e_lisp_object_symbol_nil]))
+            d_call(self, m_lisp_evaluate, d_lisp_caddr(current_object), environment);
         } else if (d_lisp_car(current_object) == lisp_attributes->base_symbols[e_lisp_object_symbol_define]) {
           if ((symbol_object = d_lisp_cadr(current_object)) && (symbol_object->type == e_lisp_object_type_symbol)) {
             symbol_string = symbol_object->value_symbol;
@@ -636,7 +642,7 @@ d_define_method_override(lisp, job)(struct s_object *self) {
   struct s_lisp_object *current_object;
   lisp_attributes->current_token = (struct s_json_token *)(lisp_attributes->tokens.head);
   while (lisp_attributes->current_token) {
-    if (line_comment != lisp_attributes->current_token->line_number) {
+    if (line_comment != (int)lisp_attributes->current_token->line_number) {
       if ((lisp_attributes->current_token->type == e_json_token_type_symbol) && (lisp_attributes->current_token->symbol_entry == ';'))
         line_comment = lisp_attributes->current_token->line_number;
       else {

@@ -35,6 +35,7 @@ typedef enum e_lisp_object_symbols {
   e_lisp_object_symbol_lambda,
   e_lisp_object_symbol_if,
   e_lisp_object_symbol_cond,
+  e_lisp_object_symbol_while,
   e_lisp_object_symbol_define,
   e_lisp_object_symbol_set,
   e_lisp_object_symbol_begin,
