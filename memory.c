@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <execinfo.h>
 struct s_memory_head *v_memory_root;
+pthread_mutex_t v_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
 void f_memory_destroy(t_boolean show_only_signed) {
   struct s_memory_tail *tail;
   struct s_memory_head *head;
@@ -48,10 +49,14 @@ void *p_malloc(size_t dimension, unsigned char internal_block, const char *file,
     head = (struct s_memory_head *)pointer;
     tail = (struct s_memory_tail *)(pointer + sizeof(struct s_memory_head) + dimension);
     pointer = (void *)(pointer + sizeof(struct s_memory_head));
-    head->next = v_memory_root;
-    if (v_memory_root)
-      v_memory_root->back = head;
-    v_memory_root = head;
+    pthread_mutex_lock(&(v_memory_mutex));
+    {
+      head->next = v_memory_root;
+      if (v_memory_root)
+        v_memory_root->back = head;
+      v_memory_root = head;
+    }
+    pthread_mutex_unlock(&(v_memory_mutex));
     head->dimension = dimension;
     head->internal_block = internal_block;
     head->checksum = (unsigned int)d_memory_checksum;
@@ -83,12 +88,16 @@ void p_free(void *pointer, const char *file, unsigned int line) {
   if (head->checksum == (unsigned int)d_memory_checksum) {
     tail = (struct s_memory_tail *)(pointer + head->dimension);
     if (tail->checksum == (unsigned int)d_memory_checksum) {
-      if (head->next)
-        head->next->back = head->back;
-      if (head->back)
-        head->back->next = head->next;
-      else
-        v_memory_root = head->next;
+      pthread_mutex_lock(&(v_memory_mutex));
+      {
+        if (head->next)
+          head->next->back = head->back;
+        if (head->back)
+          head->back->next = head->next;
+        else
+          v_memory_root = head->next;
+      }
+      pthread_mutex_unlock(&(v_memory_mutex));
       head->back = NULL;
       head->next = NULL;
       free(head);

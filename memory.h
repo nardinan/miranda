@@ -20,6 +20,7 @@
 #include "types.h"
 #include "log.h"
 #include "logs.h"
+#include <pthread.h>
 #define d_memory_signature_size 31 /* forced alignment of the structure */
 #define d_memory_backtrace_array 1024
 #ifdef d_miranda_debug
@@ -55,6 +56,7 @@ typedef struct s_memory_head {
   unsigned int checksum;
 } s_memory_head;
 extern struct s_memory_head *v_memory_root;
+extern pthread_mutex_t v_memory_mutex;
 extern void f_memory_destroy(t_boolean show_only_signed);
 extern __attribute__ ((warn_unused_result)) __attribute__ ((malloc)) void *p_malloc(size_t dimension, unsigned char internal_block, const char *file, 
     unsigned int line);
