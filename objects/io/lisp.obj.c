@@ -293,6 +293,7 @@ struct s_lisp_object *p_lisp_primitive_print(struct s_object *self, struct s_lis
     }
     pointer = d_lisp_cdr(pointer);
   }
+  write(lisp_attributes->output, "\n", sizeof(char));
   return lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
 }
 struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_lisp_object *args) {
