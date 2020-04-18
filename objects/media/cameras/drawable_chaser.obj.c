@@ -18,9 +18,9 @@
 #include "drawable_chaser.obj.h"
 struct s_drawable_chaser_attributes *p_drawable_chaser_alloc(struct s_object *self, unsigned short int affected_axis) {
   struct s_drawable_chaser_attributes *result = d_prepare(self, drawable_chaser);
-  f_mutex_new(self);                              /* inherit */
-  f_memory_new(self);                             /* inherit */
-  f_camera_controller_new(self, affected_axis);   /* inherit */
+  f_mutex_new(self);                                      /* inherit */
+  f_memory_new(self);                                     /* inherit */
+  f_camera_controller_new(self, affected_axis, d_true);   /* inherit */
   return result;
 }
 struct s_object *f_drawable_chaser_new(struct s_object *self, unsigned short int affected_axis) {

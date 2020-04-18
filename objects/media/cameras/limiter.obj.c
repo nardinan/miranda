@@ -18,9 +18,9 @@
 #include "limiter.obj.h"
 struct s_limiter_attributes *p_limiter_alloc(struct s_object *self, unsigned short int affected_axis) {
   struct s_limiter_attributes *result = d_prepare(self, limiter);
-  f_mutex_new(self);                              /* inherit */
-  f_memory_new(self);                             /* inherit */
-  f_camera_controller_new(self, affected_axis);   /* inherit */
+  f_mutex_new(self);                                      /* inherit */
+  f_memory_new(self);                                     /* inherit */
+  f_camera_controller_new(self, affected_axis, d_true);   /* inherit */
   return result;
 }
 struct s_object *f_limiter_new(struct s_object *self, unsigned short int affected_axis) {

@@ -28,9 +28,10 @@ d_declare_class(camera_controller) {
   struct s_attributes head;
   struct timeval last_refresh;
   unsigned short int affected_axis;
+  t_boolean permanent_change;
 } d_declare_class_tail(camera_controller);
 struct s_camera_controller_attributes *p_camera_controller_alloc(struct s_object *self);
-extern struct s_object *f_camera_controller_new(struct s_object *self, unsigned short int affected_axis);
+extern struct s_object *f_camera_controller_new(struct s_object *self, unsigned short int affected_axis, t_boolean permanent_change);
 d_declare_method(camera_controller, update)(struct s_object *self, double *screen_position_x, double *screen_position_y, double *screen_w, double *screen_h,
     double *scene_reference_w, double *scene_reference_h, double *scene_offset_x, double *scene_offset_y, double *scene_center_x, double *scene_center_y,
     double *camera_angle, double *scene_zoom);

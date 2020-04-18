@@ -88,6 +88,8 @@ d_define_method(camera, set_offset)(struct s_object *self, double offset_x, doub
   d_using(camera);
   camera_attributes->scene_offset_x = offset_x;
   camera_attributes->scene_offset_y = offset_y;
+  camera_attributes->original_scene_offset_x = offset_x;
+  camera_attributes->original_scene_offset_y = offset_y;
   return self;
 }
 d_define_method(camera, get_offset)(struct s_object *self, double *offset_x, double *offset_y) {
@@ -111,6 +113,7 @@ d_define_method(camera, get_center)(struct s_object *self, double *center_x, dou
 d_define_method(camera, set_angle)(struct s_object *self, double angle) {
   d_using(camera);
   camera_attributes->camera_angle = angle;
+  camera_attributes->original_camera_angle = angle;
   return self;
 }
 d_define_method(camera, get_angle)(struct s_object *self, double *angle) {
@@ -121,6 +124,7 @@ d_define_method(camera, get_angle)(struct s_object *self, double *angle) {
 d_define_method(camera, set_zoom)(struct s_object *self, double zoom) {
   d_using(camera);
   camera_attributes->scene_zoom = zoom;
+  camera_attributes->original_scene_zoom = zoom;
   return self;
 }
 d_define_method(camera, get_zoom)(struct s_object *self, double *zoom) {
@@ -206,15 +210,35 @@ d_define_method(camera, recalculate_texture)(struct s_object *self, double scree
 d_define_method(camera, initialize_context)(struct s_object *self, struct s_object *environment) {
   d_using(camera);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  struct s_camera_controller_attributes *camera_controller_attributes;
   struct s_object *camera_controller_object;
   struct s_object *string_object;
   if (d_call(self, m_camera_recalculate_texture, camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->screen_w,
         camera_attributes->screen_h, camera_attributes->surface, environment)) {
-    d_map_foreach(camera_attributes->controllers, camera_controller_object, string_object)
-      d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
-          &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
-          &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), 
-          &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
+    camera_attributes->scene_offset_x = camera_attributes->original_scene_offset_x;
+    camera_attributes->scene_offset_y = camera_attributes->original_scene_offset_y;
+    camera_attributes->scene_zoom = camera_attributes->original_scene_zoom;
+    camera_attributes->camera_angle = camera_attributes->original_camera_angle;
+    d_map_foreach(camera_attributes->controllers, camera_controller_object, string_object) {
+      camera_controller_attributes = d_cast(camera_controller_object, camera_controller);
+      if (camera_controller_attributes->permanent_change) 
+        d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
+            &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
+            &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), 
+            &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
+    }
+    camera_attributes->original_scene_offset_x = camera_attributes->scene_offset_x;
+    camera_attributes->original_scene_offset_y = camera_attributes->scene_offset_y;
+    camera_attributes->original_scene_zoom = camera_attributes->scene_zoom;
+    camera_attributes->original_camera_angle = camera_attributes->camera_angle;
+    d_map_foreach(camera_attributes->controllers, camera_controller_object, string_object) {
+      camera_controller_attributes = d_cast(camera_controller_object, camera_controller);
+      if (!camera_controller_attributes->permanent_change) 
+        d_call(camera_controller_object, m_camera_controller_update, &(camera_attributes->screen_position_x), &(camera_attributes->screen_position_y),
+            &(camera_attributes->screen_w), &(camera_attributes->screen_h), &(camera_attributes->scene_reference_w), &(camera_attributes->scene_reference_h),
+            &(camera_attributes->scene_offset_x), &(camera_attributes->scene_offset_y), &(camera_attributes->scene_center_x), 
+            &(camera_attributes->scene_center_y), &(camera_attributes->camera_angle), &(camera_attributes->scene_zoom));
+    }
     d_call(self, m_camera_validate, NULL);
     d_miranda_lock(environment) {
       SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));

@@ -196,10 +196,12 @@ if (NOT (STATUS_SDL STREQUAL ""))
             objects/media/cameras/drawable_chaser.obj.c
             objects/media/cameras/drawable_chaser.obj.h
             objects/media/cameras/limiter.obj.c
-            objects/media/cameras/limiter.obj.h)
+            objects/media/cameras/limiter.obj.h
+            objects/media/cameras/shaker.obj.c
+            objects/media/cameras/shaker.obj.h)
     string(CONCAT miranda_cameras_properties
             "objects/media/cameras/cameras.h;"
-            "objects/media/cameras/drawable_chaser.obj.h;objects/media/cameras/limiter.obj.h")
+            "objects/media/cameras/drawable_chaser.obj.h;objects/media/cameras/limiter.obj.h;objects/media/cameras/shaker.obj.h")
     set_target_properties(miranda_cameras PROPERTIES PUBLIC_HEADER "${miranda_cameras_properties}")
     target_compile_options(miranda_cameras PRIVATE "-Wunused-variable")
     INSTALL(TARGETS miranda_cameras

@@ -21,10 +21,11 @@ struct s_camera_controller_attributes *p_camera_controller_alloc(struct s_object
   /* abstract (no memory inheritance) */
   return result;
 }
-struct s_object *f_camera_controller_new(struct s_object *self, unsigned short int affected_axis) {
+struct s_object *f_camera_controller_new(struct s_object *self, unsigned short int affected_axis, t_boolean permanent_change) {
   struct s_camera_controller_attributes *attributes = p_camera_controller_alloc(self);
   attributes->affected_axis = affected_axis;
   gettimeofday(&(attributes->last_refresh), NULL);
+  attributes->permanent_change = permanent_change;
   return self;
 }
 d_define_method(camera_controller, update)(struct s_object *self, double *screen_position_x, double *screen_position_y, double *screen_w, double *screen_h,

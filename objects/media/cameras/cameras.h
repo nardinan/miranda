@@ -19,4 +19,5 @@
 #define miranda_media_cameras_h
 #include "drawable_chaser.obj.h"
 #include "limiter.obj.h"
+#include "shaker.obj.h"
 #endif
