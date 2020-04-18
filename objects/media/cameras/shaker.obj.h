@@ -18,8 +18,8 @@
 #ifndef miranda_shaker_h
 #define miranda_shaker_h
 #include "../camera_controller.obj.h"
-#define d_shaker_default_maximum_translation 30
-#define d_shaker_default_maximum_angle 3
+#define d_shaker_default_maximum_translation 5
+#define d_shaker_default_maximum_angle 2
 d_declare_class(shaker) {
   struct s_attributes head;
   double trauma_level, maximum_translation_x, maximum_translation_y, maximum_angle;
