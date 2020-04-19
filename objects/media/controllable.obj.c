@@ -85,6 +85,7 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
                         (last_pressed.tv_usec - controllable_attributes->last_released.tv_usec) / 1000.0) < d_controllable_delay)
                     double_active = d_true;
                 }
+
                 if ((!current_entry->single_shot) || (!current_entry->is_pressed)) {
                   if (double_active)
                     current_entry->action_double(self, current_entry, d_true);
@@ -116,6 +117,14 @@ d_define_method_override(controllable, event)(struct s_object *self, struct s_ob
   }
   d_cast_return(((changed)?e_eventable_status_captured:e_eventable_status_ignored));
 }
+d_define_method(controllable, reset)(struct s_object *self) {
+  d_using(controllable);
+  struct s_controllable_entry *current_entry;
+  controllable_attributes->last_key = 0;
+  d_foreach(&(controllable_attributes->configurations), current_entry, struct s_controllable_entry)
+    current_entry->is_pressed = d_false;
+  return self;
+}
 d_define_method(controllable, delete)(struct s_object *self, struct s_controllable_attributes *attributes) {
   struct s_controllable_entry *current_entry;
   while ((current_entry = (struct s_controllable_entry *)attributes->configurations.head)) {
@@ -129,5 +138,6 @@ d_define_class(controllable) {d_hook_method(controllable, e_flag_public, set),
   d_hook_method(controllable, e_flag_private, get_configuration),
   d_hook_method(controllable, e_flag_public, del_configuration),
   d_hook_method_override(controllable, e_flag_public, eventable, event),
+  d_hook_method(controllable, e_flag_public, reset),
   d_hook_delete(controllable),
   d_hook_method_tail};

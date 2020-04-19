@@ -43,5 +43,6 @@ d_declare_method(controllable, add_configuration)(struct s_object *self, int key
 d_declare_method(controllable, get_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, del_configuration)(struct s_object *self, int key);
 d_declare_method(controllable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event);
+d_declare_method(controllable, reset)(struct s_object *self);
 d_declare_method(controllable, delete)(struct s_object *self, struct s_controllable_attributes *attributes);
 #endif
