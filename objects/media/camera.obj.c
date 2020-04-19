@@ -152,18 +152,30 @@ d_define_method(camera, get_surface)(struct s_object *self, enum e_environment_s
 }
 d_define_method(camera, validate)(struct s_object *self) {
   d_using(camera);
-  if ((camera_attributes->maximum_offset_x == camera_attributes->maximum_offset_x) && 
-      (camera_attributes->scene_offset_x > camera_attributes->maximum_offset_x))
-    camera_attributes->scene_offset_x = camera_attributes->maximum_offset_x;
-  if ((camera_attributes->maximum_offset_y == camera_attributes->maximum_offset_y) && 
-      (camera_attributes->scene_offset_y > camera_attributes->maximum_offset_y))
-    camera_attributes->scene_offset_y = camera_attributes->maximum_offset_y;
-  if ((camera_attributes->minimum_offset_x == camera_attributes->minimum_offset_x) && 
-      (camera_attributes->scene_offset_x < camera_attributes->minimum_offset_x))
-    camera_attributes->scene_offset_x = camera_attributes->minimum_offset_x;
-  if ((camera_attributes->minimum_offset_y == camera_attributes->minimum_offset_y) && 
-      (camera_attributes->scene_offset_y < camera_attributes->minimum_offset_y))
-    camera_attributes->scene_offset_y = camera_attributes->minimum_offset_y;
+  if (camera_attributes->maximum_offset_x == camera_attributes->maximum_offset_x) {
+    if (camera_attributes->scene_offset_x > camera_attributes->maximum_offset_x)
+      camera_attributes->scene_offset_x = camera_attributes->maximum_offset_x;
+    if (camera_attributes->original_scene_offset_x > camera_attributes->maximum_offset_x)
+      camera_attributes->original_scene_offset_x = camera_attributes->maximum_offset_x;
+  }
+  if (camera_attributes->maximum_offset_y == camera_attributes->maximum_offset_y) {
+    if (camera_attributes->scene_offset_y > camera_attributes->maximum_offset_y)
+      camera_attributes->scene_offset_y = camera_attributes->maximum_offset_y;
+    if (camera_attributes->original_scene_offset_y > camera_attributes->maximum_offset_y)
+      camera_attributes->original_scene_offset_y = camera_attributes->maximum_offset_y;
+  }
+  if (camera_attributes->minimum_offset_x == camera_attributes->minimum_offset_x) {
+    if (camera_attributes->scene_offset_x < camera_attributes->minimum_offset_x)
+      camera_attributes->scene_offset_x = camera_attributes->minimum_offset_x;
+    if (camera_attributes->original_scene_offset_x < camera_attributes->minimum_offset_x)
+      camera_attributes->original_scene_offset_x = camera_attributes->minimum_offset_x;
+  }
+  if (camera_attributes->minimum_offset_y == camera_attributes->minimum_offset_y) {
+    if (camera_attributes->scene_offset_y < camera_attributes->minimum_offset_y)
+      camera_attributes->scene_offset_y = camera_attributes->minimum_offset_y;
+    if (camera_attributes->original_scene_offset_y < camera_attributes->minimum_offset_y)
+      camera_attributes->original_scene_offset_y = camera_attributes->minimum_offset_y;
+  }
   return self;
 }
 d_define_method(camera, recalculate_texture)(struct s_object *self, double screen_offset_x, double screen_offset_y, double screen_width, double screen_height,
