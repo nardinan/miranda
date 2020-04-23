@@ -111,14 +111,17 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
 }
 d_define_method(lights, del_light)(struct s_object *self, struct s_lights_emitter *emitter) {
   d_using(lights);
-  if (d_list_node_in(&(lights_attributes->emitters), (struct s_list_node *)emitter)) {
-    f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)emitter);
-    if (emitter->mask)
-      d_delete(emitter->mask);
-    if (emitter->reference)
-      d_delete(emitter->reference);
-    d_free(emitter);
-  }
+  struct s_lights_emitter *current_emitter;
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
+    if (current_emitter == emitter) {
+      f_list_delete(&(lights_attributes->emitters), (struct s_list_node *)emitter);
+      if (emitter->mask)
+        d_delete(emitter->mask);
+      if (emitter->reference)
+        d_delete(emitter->reference);
+      d_free(emitter);
+      break;
+    }
   return self;
 }
 d_define_method(lights, get_light)(struct s_object *self, struct s_object *reference) {
