@@ -221,42 +221,113 @@ struct s_lisp_object *p_lisp_primitive_or(struct s_object *self, struct s_lisp_o
 }
 struct s_lisp_object *p_lisp_primitive_compare_gr(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-  double left_value = d_lisp_value(d_lisp_car(args)), right_value = d_lisp_value(d_lisp_cadr(args));
-  if (left_value > right_value)
-    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args),
+                       *right_object = d_lisp_cadr(args);
+  if (left_object->type == right_object->type)
+    switch (left_object->type) {
+      case e_lisp_object_type_symbol:
+        if (left_object > right_object)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_value:
+        if (d_lisp_value(left_object) > d_lisp_value(right_object))
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_string:
+        if (f_string_strcmp(d_lisp_string(left_object), d_lisp_string(right_object)) > 0)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+      default:
+        break;
+    }
   return result;
+
 }
 struct s_lisp_object *p_lisp_primitive_compare_ge(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-  double left_value = d_lisp_value(d_lisp_car(args)), right_value = d_lisp_value(d_lisp_cadr(args));
-  if (left_value >= right_value)
-    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args),
+                       *right_object = d_lisp_cadr(args);
+  if (left_object->type == right_object->type)
+    switch (left_object->type) {
+      case e_lisp_object_type_symbol:
+        if (left_object >= right_object)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_value:
+        if (d_lisp_value(left_object) >= d_lisp_value(right_object))
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_string:
+        if (f_string_strcmp(d_lisp_string(left_object), d_lisp_string(right_object)) >= 0)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+      default:
+        break;
+    }
   return result;
 }
 struct s_lisp_object *p_lisp_primitive_compare_lt(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-  double left_value = d_lisp_value(d_lisp_car(args)), right_value = d_lisp_value(d_lisp_cadr(args));
-  if (left_value < right_value)
-    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args),
+                       *right_object = d_lisp_cadr(args);
+  if (left_object->type == right_object->type)
+    switch (left_object->type) {
+      case e_lisp_object_type_symbol:
+        if (left_object < right_object)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_value:
+        if (d_lisp_value(left_object) < d_lisp_value(right_object))
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_string:
+        if (f_string_strcmp(d_lisp_string(left_object), d_lisp_string(right_object)) < 0)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+      default:
+        break;
+    }
   return result;
 }
 struct s_lisp_object *p_lisp_primitive_compare_le(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-  double left_value = d_lisp_value(d_lisp_car(args)), right_value = d_lisp_value(d_lisp_cadr(args));
-  if (left_value <= right_value)
-    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args),
+                       *right_object = d_lisp_cadr(args);
+  if (left_object->type == right_object->type)
+    switch (left_object->type) {
+      case e_lisp_object_type_symbol:
+        if (left_object <= right_object)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_value:
+        if (d_lisp_value(left_object) <= d_lisp_value(right_object))
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_string:
+        if (f_string_strcmp(d_lisp_string(left_object), d_lisp_string(right_object)) <= 0)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+      default:
+        break;
+    }
   return result;
 }
 struct s_lisp_object *p_lisp_primitive_compare_eq(struct s_object *self, struct s_lisp_object *args) {
   struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-  double left_value = d_lisp_value(d_lisp_car(args)), right_value = d_lisp_value(d_lisp_cadr(args));
-  if (left_value == right_value)
-    result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+  struct s_lisp_object *result = lisp_attributes->base_symbols[e_lisp_object_symbol_nil], *left_object = d_lisp_car(args),
+                       *right_object = d_lisp_cadr(args);
+  if (left_object->type == right_object->type)
+    switch (left_object->type) {
+      case e_lisp_object_type_symbol:
+        if (left_object == right_object)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_value:
+        if (d_lisp_value(left_object) == d_lisp_value(right_object))
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+        break;
+      case e_lisp_object_type_string:
+        if (f_string_strcmp(d_lisp_string(left_object), d_lisp_string(right_object)) == 0)
+          result = lisp_attributes->base_symbols[e_lisp_object_symbol_true];
+      default:
+        break;
+    }
   return result;
 }
 struct s_lisp_object *p_lisp_primitive_compare_not(struct s_object *self, struct s_lisp_object *args) {
@@ -300,13 +371,6 @@ struct s_lisp_object *p_lisp_primitive_length(struct s_object *self, struct s_li
   char *string_content = d_lisp_string(d_lisp_car(args));
   return p_lisp_object(self, e_lisp_object_type_value, (double)f_string_strlen(string_content));
 }
-struct s_lisp_object *p_lisp_primitive_compare(struct s_object *self, struct s_lisp_object *args) {
-  struct s_lisp_attributes *lisp_attributes = d_cast(self, lisp);
-  char *string_content_left = d_lisp_string(d_lisp_car(args)), *string_content_right = d_lisp_string(d_lisp_cadr(args));
-  if (f_string_strcmp(string_content_left, string_content_right) == 0)
-    return lisp_attributes->base_symbols[e_lisp_object_symbol_true];
-  return lisp_attributes->base_symbols[e_lisp_object_symbol_nil];
-}
 struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file, int output) {
   struct s_lisp_attributes *attributes = p_lisp_alloc(self);
   struct s_stream_attributes *stream_attributes = d_cast(stream_file, stream);
@@ -344,7 +408,6 @@ struct s_object *f_lisp_new(struct s_object *self, struct s_object *stream_file,
   d_call(self, m_lisp_extend_environment, "list", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_list));
   d_call(self, m_lisp_extend_environment, "print", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_print));
   d_call(self, m_lisp_extend_environment, "length", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_length));
-  d_call(self, m_lisp_extend_environment, "compare", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_compare));
   d_call(self, m_lisp_extend_environment, "load", p_lisp_object(self, e_lisp_object_type_primitive, p_lisp_primitive_load));
   attributes->output = output;
   return self;
