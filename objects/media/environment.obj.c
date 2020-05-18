@@ -246,7 +246,7 @@ d_define_method(environment, run_loop)(struct s_object *self) {
                   if ((eventable_attributes->enable) && ((!eventable_attributes->ignore_event_if_consumed) || (!event_captured)))
                     if ((intptr_t)d_call(drawable_object, m_eventable_event, self, &local_event) == e_eventable_status_captured)
                       event_captured = d_true;
-          if ((local_event.type == SDL_QUIT) || ((local_event.type == SDL_KEYDOWN) && (local_event.key.keysym.sym == SDLK_ESCAPE)))
+          if (local_event.type == SDL_QUIT)
             environment_attributes->continue_loop = d_false;
         }
         d_miranda_lock(self) {
