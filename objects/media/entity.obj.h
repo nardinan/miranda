@@ -34,7 +34,8 @@ typedef enum e_entity_locks {
 } e_entity_locks;
 typedef struct s_entity_element {
   d_list_node_head;
-  double offset_x, offset_y;
+  char label[d_string_buffer_size];
+  double offset_x, offset_y, offset_angle, offset_zoom;
   struct s_object *drawable;
 } s_entity_element;
 typedef struct s_entity_component {
@@ -58,7 +59,11 @@ extern struct s_object *f_entity_new(struct s_object *self, const char *key, t_e
 d_declare_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
     double offset_point_y);
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
-d_declare_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable);
+d_declare_method(entity, get_current_component)(struct s_object *self);
+d_declare_method(entity, add_element)(struct s_object *self, char *label_component, char *label_element, double offset_x, double offset_y, 
+    double offset_angle, double offset_zoom, struct s_object *drawable);
+d_declare_method(entity, get_element)(struct s_object *self, char *label_component, char *label_element);
+d_declare_method(entity, get_current_element)(struct s_object *self, char *label);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);
 d_declare_method(entity, set_lock)(struct s_object *self, unsigned int lock_rules);
 d_declare_method(entity, collision)(struct s_object *self, struct s_object *entity);

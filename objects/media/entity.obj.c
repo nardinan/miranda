@@ -33,14 +33,6 @@ struct s_object *f_entity_new(struct s_object *self, const char *key, t_entity_v
   attributes->validator = validator;
   return self;
 }
-d_define_method(entity, get_component)(struct s_object *self, char *label) {
-  d_using(entity);
-  struct s_entity_component *current_component = NULL;
-  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
-    if (f_string_strcmp(current_component->label, label) == 0)
-      break;
-  d_cast_return(current_component);
-}
 d_define_method(entity, add_component)(struct s_object *self, char *label, double speed_x, double speed_y, double speed_z, double offset_point_x,
     double offset_point_y) {
   d_using(entity);
@@ -59,15 +51,31 @@ d_define_method(entity, add_component)(struct s_object *self, char *label, doubl
   }
   return self;
 }
-d_define_method(entity, add_element)(struct s_object *self, char *label, double offset_x, double offset_y, struct s_object *drawable) {
+d_define_method(entity, get_component)(struct s_object *self, char *label) {
+  d_using(entity);
+  struct s_entity_component *current_component = NULL;
+  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+    if (f_string_strcmp(current_component->label, label) == 0)
+      break;
+  d_cast_return(current_component);
+}
+d_define_method(entity, get_current_component)(struct s_object *self) {
+  d_using(entity);
+  d_cast_return(entity_attributes->current_component);
+}
+d_define_method(entity, add_element)(struct s_object *self, char *label_component, char *label_element, double offset_x, double offset_y, double offset_angle,
+    double offset_zoom, struct s_object *drawable) {
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_entity_component *current_component = NULL;
   struct s_entity_element *current_element = NULL;
   double current_width, current_height, drawable_width, drawable_height;
-  if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label))) {
+  if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label_component))) {
     if ((current_element = (struct s_entity_element *)d_malloc(sizeof(struct s_entity_element)))) {
+      strncpy(current_element->label, label_element, d_entity_label_size);
       current_element->offset_x = offset_x;
       current_element->offset_y = offset_y;
+      current_element->offset_angle = offset_angle;
+      current_element->offset_zoom = offset_zoom;
       current_element->drawable = d_retain(drawable);
       f_list_append(&(current_component->elements), (struct s_list_node *)current_element, e_list_insert_head);
       if (drawable_attributes->last_blend != e_drawable_blend_undefined)
@@ -87,6 +95,24 @@ d_define_method(entity, add_element)(struct s_object *self, char *label, double 
       d_die(d_error_malloc);
   }
   return self;
+}
+d_define_method(entity, get_element)(struct s_object *self, char *label_component, char *label_element) {
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element = NULL;
+  if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label_component)))
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+      if (f_string_strcmp(current_element->label, label_component) == 0)
+        break;
+  d_cast_return(current_element);
+}
+d_define_method(entity, get_current_element)(struct s_object *self, char *label) {
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element = NULL;
+  if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_current_component, NULL)))
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+      if (f_string_strcmp(current_element->label, label) == 0)
+        break;
+  d_cast_return(current_element);
 }
 d_define_method(entity, set_component)(struct s_object *self, char *label) {
   d_using(entity);
@@ -211,8 +237,8 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
           center_y = local_center_y - current_element->offset_y;
           d_call(current_element->drawable, m_drawable_set_position, position_x, position_y);
           d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
-          drawable_attributes_core->zoom = (drawable_attributes_self->zoom * local_position_z);
-          drawable_attributes_core->angle = drawable_attributes_self->angle;
+          drawable_attributes_core->zoom = ((drawable_attributes_self->zoom + current_element->offset_zoom) * local_position_z);
+          drawable_attributes_core->angle = (drawable_attributes_self->angle + current_element->offset_angle);
           if ((d_call(current_element->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
                   camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x, camera_attributes->scene_center_y,
                   camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom)))
@@ -282,7 +308,10 @@ d_define_method(entity, delete)(struct s_object *self, struct s_entity_attribute
 }
 d_define_class(entity) {d_hook_method(entity, e_flag_public, add_component),
   d_hook_method(entity, e_flag_private, get_component),
+  d_hook_method(entity, e_flag_private, get_current_component),
   d_hook_method(entity, e_flag_public, add_element),
+  d_hook_method(entity, e_flag_public, get_element),
+  d_hook_method(entity, e_flag_public, get_current_element),
   d_hook_method(entity, e_flag_public, set_component),
   d_hook_method(entity, e_flag_public, set_lock),
   d_hook_method(entity, e_flag_public, collision),
