@@ -25,6 +25,7 @@
 #define d_math_half_pi 1.57079632679
 #define d_math_default_precision 0.1
 #define d_math_radians_conversion 0.0174533
+#define d_math_degrees_conversion 57.29577951307855
 #define d_math_frand (((double)(rand()%1000))/1000.0)
 #define d_math_square(a) ((a)*(a))
 #define d_math_min(a, b) (((a)<(b))?(a):(b))
