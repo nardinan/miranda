@@ -55,6 +55,11 @@ d_define_method(controllable, add_configuration_text)(struct s_object *self, t_c
   controllable_attributes->action_text = action_text;
   return self;
 }
+d_define_method(controllable, add_configuration_clicks)(struct s_object *self, t_controllable_clicks action_clicks) {
+  d_using(controllable);
+  controllable_attributes->action_clicks = action_clicks;
+  return self;
+}
 d_define_method(controllable, get_configuration)(struct s_object *self, int key) {
   d_using(controllable);
   struct s_controllable_entry *current_entry = NULL;
@@ -74,17 +79,57 @@ d_define_method(controllable, del_configuration_text)(struct s_object *self) {
   controllable_attributes->action_text = NULL;
   return self;
 }
+d_define_method(controllable, del_configuration_clicks)(struct s_object *self) {
+  d_using(controllable);
+  controllable_attributes->action_clicks = NULL;
+  return self;
+}
 d_define_method_override(controllable, event)(struct s_object *self, struct s_object *environment, SDL_Event *current_event) {
   d_using(controllable);
   struct s_controllable_entry *current_entry;
   struct s_exception *exception;
   struct timeval last_pressed;
+  enum e_controllable_mouse_clicks current_click;
   t_boolean double_active = d_false, changed = (((intptr_t )d_call_owner(self, morphable, m_eventable_event, environment, current_event) ==
         e_eventable_status_captured));
   if (controllable_attributes->enable) {
     d_try
     {
       switch (current_event->type) {
+        case SDL_MOUSEBUTTONDOWN:
+          if (controllable_attributes->action_clicks) {
+            switch(current_event->button.button) {
+              case SDL_BUTTON_RIGHT:
+                current_click = e_controllable_mouse_click_right_pressed;
+                break;
+              case SDL_BUTTON_MIDDLE:
+                current_click = e_controllable_mouse_click_middle_pressed;
+                break;
+              case SDL_BUTTON_LEFT:
+              default:
+                current_click = e_controllable_mouse_click_left_pressed;
+                break;
+            }
+            controllable_attributes->action_clicks(self, current_click);
+          }
+          break;
+        case SDL_MOUSEBUTTONUP:
+          if (controllable_attributes->action_clicks) {
+            switch(current_event->button.button) {
+              case SDL_BUTTON_RIGHT:
+                current_click = e_controllable_mouse_click_right_released;
+                break;
+              case SDL_BUTTON_MIDDLE:
+                current_click = e_controllable_mouse_click_middle_released;
+                break;
+              case SDL_BUTTON_LEFT:
+              default:
+                current_click = e_controllable_mouse_click_left_released;
+                break;
+            }
+            controllable_attributes->action_clicks(self, current_click);
+          }
+          break;
         case SDL_TEXTINPUT:
           if (controllable_attributes->action_text)
             controllable_attributes->action_text(self, current_event->text.text);
@@ -152,9 +197,11 @@ d_define_method(controllable, delete)(struct s_object *self, struct s_controllab
 d_define_class(controllable) {d_hook_method(controllable, e_flag_public, set),
   d_hook_method(controllable, e_flag_public, add_configuration),
   d_hook_method(controllable, e_flag_public, add_configuration_text),
+  d_hook_method(controllable, e_flag_public, add_configuration_clicks),
   d_hook_method(controllable, e_flag_private, get_configuration),
   d_hook_method(controllable, e_flag_public, del_configuration),
   d_hook_method(controllable, e_flag_public, del_configuration_text),
+  d_hook_method(controllable, e_flag_public, del_configuration_clicks),
   d_hook_method_override(controllable, e_flag_public, eventable, event),
   d_hook_method(controllable, e_flag_public, reset),
   d_hook_delete(controllable),
