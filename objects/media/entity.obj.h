@@ -32,10 +32,19 @@ typedef enum e_entity_locks {
   e_entity_lock_x_right  = 0x10,
   e_entity_lock_x_center = 0x20
 } e_entity_locks;
+typedef enum e_entity_alignments {
+  e_entity_alignment_centered = e_drawable_alignment_centered,
+  e_entity_alignment_top_left = e_drawable_alignment_top_left,
+  e_entity_alignment_top_right = e_drawable_alignment_top_right,
+  e_entity_alignment_bottom_left = e_drawable_alignment_bottom_left,
+  e_entity_alignment_bottom_right = e_drawable_alignment_bottom_right,
+  e_entity_alignment_inherited 
+} e_entity_alignments;
 typedef struct s_entity_element {
   d_list_node_head;
   char label[d_string_buffer_size];
   double offset_x, offset_y, offset_angle, offset_zoom;
+  enum e_entity_alignments alignment;
   struct s_object *drawable;
 } s_entity_element;
 typedef struct s_entity_component {
@@ -61,7 +70,7 @@ d_declare_method(entity, add_component)(struct s_object *self, char *label, doub
 d_declare_method(entity, get_component)(struct s_object *self, char *label);
 d_declare_method(entity, get_current_component)(struct s_object *self);
 d_declare_method(entity, add_element)(struct s_object *self, char *label_component, char *label_element, double offset_x, double offset_y, 
-    double offset_angle, double offset_zoom, struct s_object *drawable);
+    double offset_angle, double offset_zoom, struct s_object *drawable, enum e_entity_alignments alignment);
 d_declare_method(entity, get_element)(struct s_object *self, char *label_component, char *label_element);
 d_declare_method(entity, get_current_element)(struct s_object *self, char *label);
 d_declare_method(entity, set_component)(struct s_object *self, char *label);

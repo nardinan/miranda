@@ -64,7 +64,7 @@ d_define_method(entity, get_current_component)(struct s_object *self) {
   d_cast_return(entity_attributes->current_component);
 }
 d_define_method(entity, add_element)(struct s_object *self, char *label_component, char *label_element, double offset_x, double offset_y, double offset_angle,
-    double offset_zoom, struct s_object *drawable) {
+    double offset_zoom, struct s_object *drawable, enum e_entity_alignments alignment) {
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_entity_component *current_component = NULL;
   struct s_entity_element *current_element = NULL;
@@ -76,6 +76,7 @@ d_define_method(entity, add_element)(struct s_object *self, char *label_componen
       current_element->offset_y = offset_y;
       current_element->offset_angle = offset_angle;
       current_element->offset_zoom = offset_zoom;
+      current_element->alignment = alignment;
       current_element->drawable = d_retain(drawable);
       f_list_append(&(current_component->elements), (struct s_list_node *)current_element, e_list_insert_head);
       if (drawable_attributes->last_blend != e_drawable_blend_undefined)
@@ -236,7 +237,10 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
           center_x = local_center_x - current_element->offset_x;
           center_y = local_center_y - current_element->offset_y;
           d_call(current_element->drawable, m_drawable_set_position, position_x, position_y);
-          d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
+          if (current_element->alignment == e_entity_alignment_inherited)
+            d_call(current_element->drawable, m_drawable_set_center, center_x, center_y);
+          else
+            d_call(current_element->drawable, m_drawable_set_center_alignment, (enum e_drawable_alignments)current_element->alignment);
           drawable_attributes_core->zoom = ((drawable_attributes_self->zoom + current_element->offset_zoom) * local_position_z);
           drawable_attributes_core->angle = (drawable_attributes_self->angle + current_element->offset_angle);
           if ((d_call(current_element->drawable, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
