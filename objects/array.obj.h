@@ -17,9 +17,9 @@
  */
 #ifndef miranda_object_array_h
 #define miranda_object_array_h
-#include <stdlib.h>
 #include "memory.obj.h"
 #include "mutex.obj.h"
+#include <stdlib.h>
 #define d_array_bucket 8
 d_exception_declare(bound);
 d_declare_class(array) {

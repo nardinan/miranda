@@ -26,4 +26,3 @@ void p_exception_fill(struct s_exception exception, const char *message, const c
   v_exception_raised.line = line;
   v_exception_raised.level = 0;
 }
-
