@@ -52,8 +52,8 @@ void f_memory_bucket_destroy(struct s_memory_buckets **buckets) {
     if (item->kind == e_hash_kind_fill) {
       current_element = (struct s_memory_bucket *)(item->value);
       if (current_element->projected_bucket_slots > 0)
-        d_log(e_log_level_medium, "Memory queue for type %s is currently %zu, while it shall probably be increased by %zu elements to have better performances",
-            (const char *)item->key, d_memory_bucket_slots, current_element->projected_bucket_slots);
+        d_log(e_log_level_medium, "Memory queue for type %s is currently %zu, while it shall probably be increased by %zu"
+            " elements to have better performances", (const char *)item->key, d_memory_bucket_slots, current_element->projected_bucket_slots);
       f_memory_bucket_destroy_single_bucket(&current_element, (*buckets)->delete_operator);
     }
   }

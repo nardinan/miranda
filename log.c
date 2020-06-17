@@ -23,7 +23,8 @@ const char v_log_level_description[][d_log_description_size] = {
   "medium",
   "high"
 };
-void p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, unsigned int line, const char *format, ...) {
+void p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, 
+    unsigned int line, const char *format, ...) {
   va_list arguments;
   if (level <= v_log_level) {
     fprintf(stream, "%s @ [%s::%s(...) (%d)] ", prefix, file, function, line);

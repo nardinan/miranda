@@ -75,9 +75,7 @@ int f_console_destroy(struct s_console **console) {
   return result;
 }
 void f_console_refresh(struct s_console *console, struct s_console_input *input, int output) {
-  char buffer[d_string_buffer_size] = {'\0'}, before[d_string_buffer_size] = {'\0'}, after[d_string_buffer_size] = {
-    '\0'
-  };
+  char buffer[d_string_buffer_size] = {'\0'}, before[d_string_buffer_size] = {'\0'}, after[d_string_buffer_size] = {'\0'};
   if (input->data_length > 0) {
     if (input->data_length > input->data_pointer) {
       strncpy(before, input->input, input->data_pointer);
@@ -137,9 +135,7 @@ void p_console_write_history(struct s_console *console, struct s_console_input *
   }
 }
 void p_console_write_suggestion(struct s_console *console, struct s_console_input *input, int output) {
-  char buffer[d_console_output_size] = {0}, backup[d_string_buffer_size], common_substring[d_console_command_size] = {
-    0
-  };
+  char buffer[d_console_output_size] = {0}, backup[d_string_buffer_size], common_substring[d_console_command_size] = {0};
   int index, match, last_match = 0, current_match;
   if ((output != d_console_descriptor_null) && (console->commands)) {
     for (index = 0, match = 0; console->commands[index].initialized; index++)

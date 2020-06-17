@@ -41,8 +41,8 @@ typedef enum e_log_level {
 } e_log_level;
 extern enum e_log_level v_log_level;
 extern const char v_log_level_description[][d_log_description_size];
-extern void
-p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, unsigned int line, const char *format, ...);
+extern void p_log_write(FILE *stream, enum e_log_level level, const char *prefix, const char *file, const char *function, 
+    unsigned int line, const char *format, ...);
 #ifdef d_miranda_debug
 #ifdef __linux__
 #define d_break_point asm("0:"\
