@@ -53,7 +53,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   double projected_position_x, projected_position_y, point_x, point_y, current_position_x, current_position_y, distance, shadow_projection, intensity_alpha,
          localized_intensity, centroid_position_x, centroid_position_y, screen_diagonal = f_math_sqrt(d_math_square(environmental_attributes->current_w) +
              d_math_square(environmental_attributes->current_h), d_math_default_precision), localized_intensity_percentage;
-  int points_x[d_shadows_maximum_vertices], points_y[d_shadows_maximum_vertices];
+  short int points_x[d_shadows_maximum_vertices], points_y[d_shadows_maximum_vertices];
   unsigned int collisions;
   size_t vertices;
   if ((polygon_caster = f_polygon_new(d_new(polygon), 0, NULL))) {
