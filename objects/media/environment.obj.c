@@ -179,6 +179,25 @@ d_define_method(environment, get_mouse_normalized)(struct s_object *self, char *
   d_free(string_camera_label);
   return self;
 }
+d_define_method(environment, get_mouse_normalized_current_camera)(struct s_object *self, int *mouse_x, int *mouse_y) {
+  d_using(environment);
+  struct s_camera_attributes *camera_attributes;
+  int current_mouse_x, current_mouse_y;
+  SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
+  if (environment_attributes->current_camera) {
+    camera_attributes = d_cast(environment_attributes->current_camera, camera);
+    current_mouse_x = (current_mouse_x * camera_attributes->scene_reference_w) / camera_attributes->screen_w;
+    current_mouse_y = (current_mouse_y * camera_attributes->scene_reference_h) / camera_attributes->screen_h;
+    current_mouse_x = (current_mouse_x - camera_attributes->scene_offset_x);
+    current_mouse_y = (current_mouse_y - camera_attributes->scene_offset_y);
+    current_mouse_x = (current_mouse_x / camera_attributes->scene_zoom);
+    current_mouse_y = (current_mouse_y / camera_attributes->scene_zoom);
+  }
+  *mouse_x = current_mouse_x;
+  *mouse_y = current_mouse_y;
+  return self;
+
+}
 d_define_method(environment, add_drawable)(struct s_object *self, struct s_object *drawable, int layer, enum e_environment_surfaces surface) {
   d_using(environment);
   if (!d_list_node_in(&(environment_attributes->drawable[surface][layer]), (struct s_list_node *)drawable))
@@ -345,6 +364,7 @@ d_define_class(environment) {d_hook_method(environment, e_flag_public, set_metho
   d_hook_method(environment, e_flag_public, get_camera),
   d_hook_method(environment, e_flag_public, del_camera),
   d_hook_method(environment, e_flag_public, get_mouse_normalized),
+  d_hook_method(environment, e_flag_public, get_mouse_normalized_current_camera),
   d_hook_method(environment, e_flag_public, add_drawable),
   d_hook_method(environment, e_flag_public, del_drawable),
   d_hook_method(environment, e_flag_public, add_eventable),
