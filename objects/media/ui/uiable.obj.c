@@ -148,7 +148,7 @@ d_define_method_override(uiable, draw)(struct s_object *self, struct s_object *e
   for (index = 0; index < e_uiable_component_NULL; ++index)
     if (uiable_attributes->background[uiable_attributes->selected_mode][index]) {
       drawable_attributes_core = d_cast(uiable_attributes->background[uiable_attributes->selected_mode][index], drawable);
-      d_call(&(drawable_attributes_core->point_normalized_dimension), m_point_get, &(component_w[index]), &(component_h[index]));
+      d_call(&(drawable_attributes_core->point_dimension), m_point_get, &(component_w[index]), &(component_h[index]));
     } else {
       component_w[index] = 0;
       component_h[index] = 0;
