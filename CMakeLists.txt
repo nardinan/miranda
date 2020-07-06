@@ -144,6 +144,8 @@ if (NOT (STATUS_SDL STREQUAL ""))
             objects/media/animation.obj.h
             objects/media/bitmap.obj.c
             objects/media/bitmap.obj.h
+            objects/media/mirror.obj.c
+            objects/media/mirror.obj.h
             objects/media/controllable.obj.c
             objects/media/controllable.obj.h
             objects/media/drawable.obj.c
@@ -178,7 +180,7 @@ if (NOT (STATUS_SDL STREQUAL ""))
             objects/media/illuminable_bitmap.obj.c
             objects/media/illuminable_bitmap.obj.h objects/media/shadows.obj.h objects/media/shadows.obj.c)
     string(CONCAT miranda_media_properties
-            "objects/media/animation.obj.h;objects/media/bitmap.obj.h;"
+            "objects/media/animation.obj.h;objects/media/bitmap.obj.h;objects/media/mirror.obj.h;"
             "objects/media/controllable.obj.h;objects/media/drawable.obj.h;objects/media/entity.obj.h;"
             "objects/media/environment.obj.h;objects/media/eventable.obj.h;objects/media/lights.obj.h;objects/media/shadows.obj.h;"
             "objects/media/media.h;objects/media/media_factory.obj.h;objects/media/morphable.obj.h;objects/media/particle.obj.h;"

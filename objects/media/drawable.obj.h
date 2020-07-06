@@ -26,30 +26,30 @@
 #define d_drawable_return_last      0
 #define d_drawable_default_contour_color 255.0, 0, 0, 255.0
 typedef enum e_drawable_kinds {
-  e_drawable_kind_single = 0x001,
-  e_drawable_kind_multiple = 0x002,
-  e_drawable_kind_hidden = 0x004,
-  e_drawable_kind_force_visibility = 0x008,
-  e_drawable_kind_contour = 0x010,
-  e_drawable_kind_ui_no_attribute_zoom = 0x020,
-  e_drawable_kind_ui_no_attribute_angle = 0x040,
-  e_drawable_kind_ui_no_attribute_flip = 0x080,
-  e_drawable_kind_do_not_normalize_environment_zoom = 0x100,
-  e_drawable_kind_do_not_normalize_local_zoom = 0x200,
-  e_drawable_kind_do_not_normalize_reference_ratio = 0x400,
-  e_drawable_kind_do_not_normalize_camera = 0x800
+  e_drawable_kind_single                              = 0x001,
+  e_drawable_kind_multiple                            = 0x002,
+  e_drawable_kind_hidden                              = 0x004,
+  e_drawable_kind_force_visibility                    = 0x008,
+  e_drawable_kind_contour                             = 0x010,
+  e_drawable_kind_ui_no_attribute_zoom                = 0x020,
+  e_drawable_kind_ui_no_attribute_angle               = 0x040,
+  e_drawable_kind_ui_no_attribute_flip                = 0x080,
+  e_drawable_kind_do_not_normalize_environment_zoom   = 0x100,
+  e_drawable_kind_do_not_normalize_local_zoom         = 0x200,
+  e_drawable_kind_do_not_normalize_reference_ratio    = 0x400,
+  e_drawable_kind_do_not_normalize_camera             = 0x800
 } e_drawable_kinds;
 typedef enum e_drawable_flips {
-  e_drawable_flip_horizontal = SDL_FLIP_HORIZONTAL,
-  e_drawable_flip_vertical = SDL_FLIP_VERTICAL,
-  e_drawable_flip_both = (SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL),
-  e_drawable_flip_none = SDL_FLIP_NONE
+  e_drawable_flip_horizontal  = SDL_FLIP_HORIZONTAL,
+  e_drawable_flip_vertical    = SDL_FLIP_VERTICAL,
+  e_drawable_flip_both        = (SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL),
+  e_drawable_flip_none        = SDL_FLIP_NONE
 } e_drawable_flips;
 typedef enum e_drawable_blends {
-  e_drawable_blend_alpha = SDL_BLENDMODE_BLEND,
-  e_drawable_blend_add = SDL_BLENDMODE_ADD,
-  e_drawable_blend_mod = SDL_BLENDMODE_MOD,
-  e_drawable_blend_none = SDL_BLENDMODE_NONE,
+  e_drawable_blend_alpha      = SDL_BLENDMODE_BLEND,
+  e_drawable_blend_add        = SDL_BLENDMODE_ADD,
+  e_drawable_blend_mod        = SDL_BLENDMODE_MOD,
+  e_drawable_blend_none       = SDL_BLENDMODE_NONE,
   e_drawable_blend_undefined
 } e_drawable_blends;
 typedef enum e_drawable_alignments {
