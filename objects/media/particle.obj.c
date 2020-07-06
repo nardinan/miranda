@@ -195,6 +195,32 @@ d_define_method_override(particle, set_blend)(struct s_object *self, enum e_draw
   drawable_attributes->last_blend = blend;
   return d_call(particle_attributes->drawable_core, m_drawable_set_blend, blend);
 }
+d_define_method(particle, set_mirrored)(struct s_object *self, enum e_drawable_flips flip) {
+  d_using(particle);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  drawable_attributes->mirrored_flip = flip;
+  return d_call(particle_attributes->drawable_core, m_drawable_set_mirrored, flip);
+}
+d_define_method(particle, set_mirrored_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+  d_using(particle);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  drawable_attributes->last_mask_R = (double)red;
+  drawable_attributes->last_mask_G = (double)green;
+  drawable_attributes->last_mask_B = (double)blue;
+  return d_call(particle_attributes->drawable_core, m_drawable_set_mirrored_maskRGB, red, green, blue);
+}
+d_define_method(particle, set_mirrored_maskA)(struct s_object *self, unsigned int alpha) {
+  d_using(particle);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  drawable_attributes->last_mask_A = (double)alpha;
+  return d_call(particle_attributes->drawable_core, m_drawable_set_mirrored_maskA, alpha);
+}
+d_define_method(particle, set_mirrored_position)(struct s_object *self, double x, double y) {
+  d_using(particle);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  d_call(&(drawable_attributes->point_mirror_destination), m_point_set, x, y);
+  return d_call(particle_attributes->drawable_core, m_drawable_set_mirrored_position, x, y);
+}
 d_define_method(particle, delete)(struct s_object *self, struct s_particle_attributes *attributes) {
   if (attributes->drawable_core)
     d_delete(attributes->drawable_core);

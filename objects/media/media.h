@@ -23,7 +23,6 @@
 #include "morphable.obj.h"
 #include "controllable.obj.h"
 #include "bitmap.obj.h"
-#include "mirror.obj.h"
 #include "illuminable_bitmap.obj.h"
 #include "particle.obj.h"
 #include "animation.obj.h"

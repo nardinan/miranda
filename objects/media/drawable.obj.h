@@ -61,13 +61,14 @@ typedef enum e_drawable_alignments {
 } e_drawable_alignments;
 d_declare_class(drawable) {
   struct s_attributes head;
-  struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center;
+  struct s_object point_destination, point_normalized_destination, point_dimension, point_normalized_dimension, point_center, point_normalized_center,
+                  point_mirror_destination, point_normalized_mirror_destination;
   struct s_object square_collision_box;
   double angle, zoom;
-  enum e_drawable_flips flip;
+  enum e_drawable_flips flip, mirrored_flip;
   int flags;
   enum e_drawable_blends last_blend;
-  double last_mask_R, last_mask_G, last_mask_B, last_mask_A;
+  double last_mask_R, last_mask_G, last_mask_B, last_mask_A, last_mirrored_mask_R, last_mirrored_mask_G, last_mirrored_mask_B, last_mirrored_mask_A;
 } d_declare_class_tail(drawable);
 struct s_drawable_attributes *p_drawable_alloc(struct s_object *self);
 extern struct s_object *f_drawable_new(struct s_object *self, int flags);
@@ -102,6 +103,12 @@ d_declare_method(drawable, get_angle)(struct s_object *self, double *angle);
 d_declare_method(drawable, set_zoom)(struct s_object *self, double zoom);
 d_declare_method(drawable, get_zoom)(struct s_object *self, double *zoom);
 d_declare_method(drawable, flip)(struct s_object *self, enum e_drawable_flips flip);
+d_declare_method(drawable, set_mirrored)(struct s_object *self, enum e_drawable_flips flip);
+d_declare_method(drawable, set_mirrored_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
+d_declare_method(drawable, set_mirrored_maskA)(struct s_object *self, unsigned int alpha);
+d_declare_method(drawable, set_mirrored_position)(struct s_object *self, double x, double y);
+d_declare_method(drawable, get_mirrored_position)(struct s_object *self, double *x, double *y);
+d_declare_method(drawable, get_mirrored_scaled_position)(struct s_object *self, double *x, double *y);
 d_declare_method(drawable, set_flags)(struct s_object *self, int flags);
 d_declare_method(drawable, add_flags)(struct s_object *self, int flags);
 d_declare_method(drawable, get_flags)(struct s_object *self);

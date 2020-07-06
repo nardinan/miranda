@@ -40,6 +40,7 @@ d_define_method(animation, append_key_frame)(struct s_object *self, struct s_obj
   d_using(animation);
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_animation_frame *current_frame;
+  double mirrored_position_x, mirrored_position_y;
   if ((current_frame = (struct s_animation_frame *)d_malloc(sizeof(struct s_animation_frame)))) {
     if ((current_frame->drawable = d_retain(drawable))) {
       if (drawable_attributes->last_blend != e_drawable_blend_undefined)
@@ -47,6 +48,12 @@ d_define_method(animation, append_key_frame)(struct s_object *self, struct s_obj
       d_call(current_frame->drawable, m_drawable_set_maskRGB, (unsigned int)drawable_attributes->last_mask_R, (unsigned int)drawable_attributes->last_mask_G,
           (unsigned int)drawable_attributes->last_mask_B);
       d_call(current_frame->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
+      d_call(current_frame->drawable, m_drawable_set_mirrored, drawable_attributes->mirrored_flip);
+      d_call(current_frame->drawable, m_drawable_set_mirrored_maskRGB, (unsigned int)drawable_attributes->last_mirrored_mask_R, 
+          (unsigned int)drawable_attributes->last_mirrored_mask_G, (unsigned int)drawable_attributes->last_mirrored_mask_B);
+      d_call(current_frame->drawable, m_drawable_set_mirrored_maskA, (unsigned int)drawable_attributes->last_mirrored_mask_A);
+      d_call(&(drawable_attributes->point_mirror_destination), m_point_get, &mirrored_position_x, &mirrored_position_y);
+      d_call(current_frame->drawable, m_drawable_set_mirrored_position, mirrored_position_x, mirrored_position_y);
     }
     current_frame->offset_x = offset_x;
     current_frame->offset_y = offset_y;
@@ -270,6 +277,44 @@ d_define_method_override(animation, get_scaled_dimension)(struct s_object *self,
     d_call(current_frame->drawable, m_drawable_get_scaled_dimension, w, h);
   return self;
 }
+d_define_method(animation, set_mirrored)(struct s_object *self, enum e_drawable_flips flip) {
+  d_using(animation);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_animation_frame *current_frame;
+  drawable_attributes->mirrored_flip = flip;
+  d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
+    d_call(current_frame->drawable, m_drawable_set_mirrored, flip);
+  return self;
+}
+d_define_method(animation, set_mirrored_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+  d_using(animation);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_animation_frame *current_frame;
+  drawable_attributes->last_mask_R = (double)red;
+  drawable_attributes->last_mask_G = (double)green;
+  drawable_attributes->last_mask_B = (double)blue;
+  d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
+    d_call(current_frame->drawable, m_drawable_set_mirrored_maskRGB, red, green, blue);
+  return self;
+}
+d_define_method(animation, set_mirrored_maskA)(struct s_object *self, unsigned int alpha) {
+  d_using(animation);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_animation_frame *current_frame;
+  drawable_attributes->last_mask_A = (double)alpha;
+  d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
+    d_call(current_frame->drawable, m_drawable_set_mirrored_maskA, alpha);
+  return self;
+}
+d_define_method(animation, set_mirrored_position)(struct s_object *self, double x, double y) {
+  d_using(animation);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_animation_frame *current_frame;
+  d_call(&(drawable_attributes->point_mirror_destination), m_point_set, x, y);
+  d_foreach(&(animation_attributes->frames), current_frame, struct s_animation_frame)
+    d_call(current_frame->drawable, m_drawable_set_mirrored_position, x, y);
+  return self;
+}
 d_define_method(animation, delete)(struct s_object *self, struct s_animation_attributes *attributes) {
   struct s_animation_frame *current_frame;
   while ((current_frame = (struct s_animation_frame *)attributes->frames.head)) {
@@ -297,5 +342,9 @@ d_define_class(animation) {d_hook_method(animation, e_flag_public, append_frame)
   d_hook_method_override(animation, e_flag_public, drawable, get_scaled_center),
   d_hook_method_override(animation, e_flag_public, drawable, get_dimension),
   d_hook_method_override(animation, e_flag_public, drawable, get_scaled_dimension),
+  d_hook_method_override(animation, e_flag_public, drawable, set_mirrored),
+  d_hook_method_override(animation, e_flag_public, drawable, set_mirrored_maskRGB),
+  d_hook_method_override(animation, e_flag_public, drawable, set_mirrored_maskA),
+  d_hook_method_override(animation, e_flag_public, drawable, set_mirrored_position),
   d_hook_delete(animation),
   d_hook_method_tail};

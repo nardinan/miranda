@@ -59,5 +59,9 @@ d_declare_method(particle, draw)(struct s_object *self, struct s_object *environ
 d_declare_method(particle, set_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
 d_declare_method(particle, set_maskA)(struct s_object *self, unsigned int alpha);
 d_declare_method(particle, set_blend)(struct s_object *self, enum e_drawable_blends blend);
+d_declare_method(particle, set_mirrored)(struct s_object *self, enum e_drawable_flips flip);
+d_declare_method(particle, set_mirrored_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue);
+d_declare_method(particle, set_mirrored_maskA)(struct s_object *self, unsigned int alpha);
+d_declare_method(particle, set_mirrored_position)(struct s_object *self, double x, double y);
 d_declare_method(particle, delete)(struct s_object *self, struct s_particle_attributes *attributes);
 #endif

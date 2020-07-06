@@ -66,9 +66,11 @@ struct s_object *f_bitmap_new(struct s_object *self, struct s_object *stream, st
 }
 d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *environment) {
   d_using(bitmap);
-  double position_x, position_y, dimension_w, dimension_h, original_dimension_w, original_dimension_h, center_x, center_y;
+  double position_x, position_y, dimension_w, dimension_h, original_dimension_w, original_dimension_h, center_x, center_y, mirrored_position_x,
+         mirrored_position_y;
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  enum e_drawable_flips mirrored_flip;
   SDL_Rect source, destination;
   SDL_Point center;
   d_call(&(drawable_attributes->point_normalized_destination), m_point_get, &position_x, &position_y);
@@ -89,6 +91,24 @@ d_define_method_override(bitmap, draw)(struct s_object *self, struct s_object *e
     SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
         (SDL_RendererFlip)drawable_attributes->flip);
   } d_miranda_unlock(environment);
+  if (drawable_attributes->mirrored_flip != e_drawable_flip_none) {
+    d_call(&(drawable_attributes->point_normalized_mirror_destination), m_point_get, &mirrored_position_x, &mirrored_position_y);
+    destination.x = position_x + mirrored_position_x;
+    destination.y = position_y + mirrored_position_y;
+    center.x = center_x - (dimension_w - mirrored_position_x);
+    center.y = center_y - (dimension_h - mirrored_position_y);
+    mirrored_flip = ((drawable_attributes->flip&e_drawable_flip_vertical)^(drawable_attributes->mirrored_flip&e_drawable_flip_vertical))|
+      ((drawable_attributes->flip&e_drawable_flip_horizontal)^(drawable_attributes->mirrored_flip&e_drawable_flip_horizontal));
+    SDL_SetTextureColorMod(bitmap_attributes->image, drawable_attributes->last_mirrored_mask_R, drawable_attributes->last_mirrored_mask_G,
+        drawable_attributes->last_mirrored_mask_B);
+    SDL_SetTextureAlphaMod(bitmap_attributes->image, drawable_attributes->last_mirrored_mask_A);
+    d_miranda_lock(environment) {
+      SDL_RenderCopyEx(environment_attributes->renderer, bitmap_attributes->image, &source, &destination, drawable_attributes->angle, &center,
+          (SDL_RendererFlip)mirrored_flip);
+    } d_miranda_unlock(environment);
+    SDL_SetTextureColorMod(bitmap_attributes->image, drawable_attributes->last_mask_R, drawable_attributes->last_mask_G, drawable_attributes->last_mask_B);
+    SDL_SetTextureAlphaMod(bitmap_attributes->image, drawable_attributes->last_mask_A);
+  }
   if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour)
     d_call(self, m_drawable_draw_contour, environment);
   d_cast_return(d_drawable_return_last);

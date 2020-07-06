@@ -68,7 +68,7 @@ d_define_method(entity, add_element)(struct s_object *self, char *label_componen
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_entity_component *current_component = NULL;
   struct s_entity_element *current_element = NULL;
-  double current_width, current_height, drawable_width, drawable_height;
+  double current_width, current_height, drawable_width, drawable_height, mirrored_position_x, mirrored_position_y;
   if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label_component))) {
     if ((current_element = (struct s_entity_element *)d_malloc(sizeof(struct s_entity_element)))) {
       strncpy(current_element->label, label_element, d_entity_label_size);
@@ -85,6 +85,12 @@ d_define_method(entity, add_element)(struct s_object *self, char *label_componen
           (unsigned int)drawable_attributes->last_mask_B);
       d_call(current_element->drawable, m_drawable_set_maskA, (unsigned int)drawable_attributes->last_mask_A);
       d_call(current_element->drawable, m_drawable_get_dimension, &drawable_width, &drawable_height);
+      d_call(current_element->drawable, m_drawable_set_mirrored, drawable_attributes->mirrored_flip);
+      d_call(current_element->drawable, m_drawable_set_mirrored_maskRGB, (unsigned int)drawable_attributes->last_mirrored_mask_R, 
+          (unsigned int)drawable_attributes->last_mirrored_mask_G, (unsigned int)drawable_attributes->last_mirrored_mask_B);
+      d_call(current_element->drawable, m_drawable_set_mirrored_maskA, (unsigned int)drawable_attributes->last_mirrored_mask_A);
+      d_call(&(drawable_attributes->point_mirror_destination), m_point_get, &mirrored_position_x, &mirrored_position_y);
+      d_call(current_element->drawable, m_drawable_set_mirrored_position, mirrored_position_x, mirrored_position_y);
       d_call(&(drawable_attributes->point_dimension), m_point_get, &current_width, &current_height);
       if (current_width < (offset_x + drawable_width))
         current_width = offset_x + drawable_width;
@@ -295,6 +301,52 @@ d_define_method_override(entity, set_blend)(struct s_object *self, enum e_drawab
     d_call(current_element->drawable, m_drawable_set_blend, blend);
   return self;
 }
+d_define_method(entity, set_mirrored)(struct s_object *self, enum e_drawable_flips flip) {
+  d_using(entity);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element;
+  drawable_attributes->mirrored_flip = flip;
+  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+    d_call(current_element->drawable, m_drawable_set_mirrored, flip);
+  return self;
+}
+d_define_method(entity, set_mirrored_maskRGB)(struct s_object *self, unsigned int red, unsigned int green, unsigned int blue) {
+  d_using(entity);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element;
+  drawable_attributes->last_mask_R = (double)red;
+  drawable_attributes->last_mask_G = (double)green;
+  drawable_attributes->last_mask_B = (double)blue;
+  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+    d_call(current_element->drawable, m_drawable_set_mirrored_maskRGB, red, green, blue);
+  return self;
+}
+d_define_method(entity, set_mirrored_maskA)(struct s_object *self, unsigned int alpha) {
+  d_using(entity);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element;
+  drawable_attributes->last_mask_A = (double)alpha;
+  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+    d_call(current_element->drawable, m_drawable_set_mirrored_maskA, alpha);
+  return self;
+}
+d_define_method(entity, set_mirrored_position)(struct s_object *self, double x, double y) {
+  d_using(entity);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
+  struct s_entity_component *current_component;
+  struct s_entity_element *current_element;
+  d_call(&(drawable_attributes->point_mirror_destination), m_point_set, x, y);
+  d_foreach(&(entity_attributes->components), current_component, struct s_entity_component)
+    d_foreach(&(current_component->elements), current_element, struct s_entity_element)
+    d_call(current_element->drawable, m_drawable_set_mirrored_position, x, y);
+  return self;
+}
 d_define_method(entity, delete)(struct s_object *self, struct s_entity_attributes *attributes) {
   struct s_entity_component *current_component;
   struct s_entity_element *current_element;
@@ -324,5 +376,9 @@ d_define_class(entity) {d_hook_method(entity, e_flag_public, add_component),
   d_hook_method_override(entity, e_flag_public, drawable, set_maskRGB),
   d_hook_method_override(entity, e_flag_public, drawable, set_maskA),
   d_hook_method_override(entity, e_flag_public, drawable, set_blend),
+  d_hook_method_override(entity, e_flag_public, drawable, set_mirrored),
+  d_hook_method_override(entity, e_flag_public, drawable, set_mirrored_maskRGB),
+  d_hook_method_override(entity, e_flag_public, drawable, set_mirrored_maskA),
+  d_hook_method_override(entity, e_flag_public, drawable, set_mirrored_position),
   d_hook_delete(entity),
   d_hook_method_tail};
