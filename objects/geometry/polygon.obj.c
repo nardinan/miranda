@@ -35,20 +35,24 @@ struct s_object *f_polygon_new(struct s_object *self, size_t size, ...) {
   struct s_object *current_point;
   double current_point_x, current_point_y;
   va_list parameters;
-  attributes->array_normalized_points = f_array_new(d_new(array), size);
-  va_start(parameters, size);
-  attributes->array_points = f_array_new_args(d_new(array), size, parameters);
-  va_end(parameters);
-  d_array_foreach(attributes->array_points, current_point) {
-    d_call(current_point, m_point_get, &current_point_x, &current_point_y);
-    attributes->sum_component_x += current_point_x;
-    attributes->sum_component_y += current_point_y;
-    if (current_point_x < attributes->origin_x)
-      attributes->origin_x = current_point_x;
-    if (current_point_y < attributes->origin_y)
-      attributes->origin_y = current_point_y;
-    ++(attributes->entries);
-  }
+  if ((attributes->array_normalized_points = f_array_new(d_new(array), size))) {
+    va_start(parameters, size);
+    if ((attributes->array_points = f_array_new_args(d_new(array), size, parameters))) {
+      d_array_foreach(attributes->array_points, current_point) {
+        d_call(current_point, m_point_get, &current_point_x, &current_point_y);
+        attributes->sum_component_x += current_point_x;
+        attributes->sum_component_y += current_point_y;
+        if (current_point_x < attributes->origin_x)
+          attributes->origin_x = current_point_x;
+        if (current_point_y < attributes->origin_y)
+          attributes->origin_y = current_point_y;
+        ++(attributes->entries);
+      }
+    } else
+      d_die(d_error_malloc);
+    va_end(parameters);
+  } else 
+    d_die(d_error_malloc);
   return self;
 }
 d_define_method(polygon, set_polygon)(struct s_object *self, struct s_object *source) {
@@ -133,63 +137,65 @@ d_define_method(polygon, get_origin)(struct s_object *self, double *origin_x, do
 }
 d_define_method(polygon, convex_hull)(struct s_object *self) {
   d_using(polygon);
-  struct s_object *array_final;
+  struct s_object *array_final = NULL;
   struct s_object *point_current, *point_selected, *point_ccwise, *point_leftmost;
   struct s_exception *exception;
   double ccwise_point_distance, current_point_distance, relative_orientation, point_leftmost_position_x, point_current_poition_x;
   ssize_t index, current_point = 0, ccwise_point, leftmost_point = 0, entries = 0;
   if (polygon_attributes->entries >= 3) {
-    array_final = f_array_new(d_new(array), polygon_attributes->entries);
-    d_try
-    {
-      if ((point_leftmost = d_call(polygon_attributes->array_points, m_array_get, leftmost_point))) {
-        d_call(point_leftmost, m_point_get, &point_leftmost_position_x, NULL);
-        for (index = 1; index < polygon_attributes->entries; ++index) {
-          if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
-            d_call(point_selected, m_point_get, &point_current_poition_x, NULL);
-            if (point_current_poition_x < point_leftmost_position_x) {
-              leftmost_point = index;
-              point_leftmost_position_x = point_current_poition_x;
-            }
-          }
-        }
-      }
-      current_point = leftmost_point;
-      do {
-        ccwise_point = 0;
-        d_call(array_final, m_array_push, (point_current = d_call(polygon_attributes->array_points, m_array_get, current_point)));
-        if (current_point < (polygon_attributes->entries - 1))
-          ccwise_point = (current_point + 1);
-        if ((point_ccwise = d_call(polygon_attributes->array_points, m_array_get, ccwise_point))) {
-          d_call(point_current, m_point_distance, point_ccwise, NULL, &ccwise_point_distance);
-          for (index = 0; index < polygon_attributes->entries; ++index) {
-            if (index != ccwise_point) {
-              if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
-                relative_orientation = p_polygon_relative_orientation(point_selected, point_ccwise, point_current);
-                d_call(point_current, m_point_distance, point_selected, NULL, &current_point_distance);
-                if ((relative_orientation > 0) || ((relative_orientation == 0) && (current_point_distance > ccwise_point_distance))) {
-                  point_ccwise = point_selected;
-                  ccwise_point = index;
-                  ccwise_point_distance = current_point_distance;
-                }
+    if ((array_final = f_array_new(d_new(array), polygon_attributes->entries))) {
+      d_try
+      {
+        if ((point_leftmost = d_call(polygon_attributes->array_points, m_array_get, leftmost_point))) {
+          d_call(point_leftmost, m_point_get, &point_leftmost_position_x, NULL);
+          for (index = 1; index < polygon_attributes->entries; ++index) {
+            if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
+              d_call(point_selected, m_point_get, &point_current_poition_x, NULL);
+              if (point_current_poition_x < point_leftmost_position_x) {
+                leftmost_point = index;
+                point_leftmost_position_x = point_current_poition_x;
               }
             }
           }
         }
-        current_point = ccwise_point;
-        ++entries;
-      } while (current_point != leftmost_point);
-    }
-    d_catch(exception)
-    {
-      d_exception_dump(stderr, exception);
-      d_raise;
-    }
-    d_endtry;
-    d_delete(polygon_attributes->array_points);
-    polygon_attributes->array_points = array_final;
-    polygon_attributes->entries = entries;
-    polygon_attributes->normalized = d_false;
+        current_point = leftmost_point;
+        do {
+          ccwise_point = 0;
+          d_call(array_final, m_array_push, (point_current = d_call(polygon_attributes->array_points, m_array_get, current_point)));
+          if (current_point < (polygon_attributes->entries - 1))
+            ccwise_point = (current_point + 1);
+          if ((point_ccwise = d_call(polygon_attributes->array_points, m_array_get, ccwise_point))) {
+            d_call(point_current, m_point_distance, point_ccwise, NULL, &ccwise_point_distance);
+            for (index = 0; index < polygon_attributes->entries; ++index) {
+              if (index != ccwise_point) {
+                if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
+                  relative_orientation = p_polygon_relative_orientation(point_selected, point_ccwise, point_current);
+                  d_call(point_current, m_point_distance, point_selected, NULL, &current_point_distance);
+                  if ((relative_orientation > 0) || ((relative_orientation == 0) && (current_point_distance > ccwise_point_distance))) {
+                    point_ccwise = point_selected;
+                    ccwise_point = index;
+                    ccwise_point_distance = current_point_distance;
+                  }
+                }
+              }
+            }
+          }
+          current_point = ccwise_point;
+          ++entries;
+        } while (current_point != leftmost_point);
+      }
+      d_catch(exception)
+      {
+        d_exception_dump(stderr, exception);
+        d_raise;
+      }
+      d_endtry;
+      d_delete(polygon_attributes->array_points);
+      polygon_attributes->array_points = array_final;
+      polygon_attributes->entries = entries;
+      polygon_attributes->normalized = d_false;
+    } else
+      d_die(d_error_malloc);
   }
   return self;
 }
@@ -229,9 +235,11 @@ d_define_method(polygon, normalize)(struct s_object *self) {
       d_call(current_point, m_point_get, &current_position_x, &current_position_y);
       d_call(self, m_polygon_normalize_coordinate, current_position_x, current_position_y, normalized_center_x, normalized_center_y, sin_radians,
           cos_radians, &normalized_position_x, &normalized_position_y);
-      new_point = f_point_new(d_new(point), normalized_position_x, normalized_position_y);
-      d_call(polygon_attributes->array_normalized_points, m_array_push, new_point);
-      d_delete(new_point);
+      if ((new_point = f_point_new(d_new(point), normalized_position_x, normalized_position_y))) {
+        d_call(polygon_attributes->array_normalized_points, m_array_push, new_point);
+        d_delete(new_point);
+      } else
+        d_die(d_error_malloc);
     }
     polygon_attributes->normalized = d_true;
   }

@@ -316,9 +316,11 @@ d_define_method_override(illuminable_bitmap, normalize_scale)(struct s_object *s
       new_x = new_x - offset_x;
       new_y = new_y - offset_y;
     }
-    point_new = f_point_new(d_new(point), new_x, new_y);
-    d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_push, point_new);
-    d_delete(point_new);
+    if ((point_new = f_point_new(d_new(point), new_x, new_y))) {
+      d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_push, point_new);
+      d_delete(point_new);
+    } else
+      d_die(d_error_malloc);
   }
   d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_set_center, (normalized_image_position_x + normalized_center_x),
       (normalized_image_position_y + normalized_center_y));

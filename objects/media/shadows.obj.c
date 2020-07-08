@@ -26,10 +26,11 @@ struct s_shadows_attributes *p_shadows_alloc(struct s_object *self) {
 }
 struct s_object *f_shadows_new(struct s_object *self) {
   struct s_shadows_attributes *attributes = p_shadows_alloc(self);
-  if (!(attributes->array_casters = f_array_new(d_new(array), d_array_bucket)))
+  if ((attributes->array_casters = f_array_new(d_new(array), d_array_bucket))) {
+    attributes->maximum_intensity = d_shadows_default_maximum_intensity;
+    attributes->light_intensity_void = d_shadows_default_light_intensity_void;
+  } else
     d_die(d_error_malloc);
-  attributes->maximum_intensity = d_shadows_default_maximum_intensity;
-  attributes->light_intensity_void = d_shadows_default_light_intensity_void;
   return self;
 }
 d_define_method(shadows, add_caster)(struct s_object *self, struct s_object *illuminable_bitmap) {
@@ -77,19 +78,23 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                   projected_position_y = ((lights_emitter->position_y - point_y) * (-1.0 * screen_diagonal)) + point_y;
                   d_call(illuminable_bitmap_attributes->polygon_shadow_caster_normalized, m_polygon_intersect_coordinates, point_x, point_y,
                       projected_position_x, projected_position_y, &collisions);
-                  point_vertex = f_point_new(d_new(point), point_x, point_y);
-                  d_call(polygon_caster, m_polygon_push, point_vertex);
-                  d_delete(point_vertex);
-                  if (collisions < 2) {
-                    if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour) {
-                      SDL_SetRenderDrawColor(environmental_attributes->renderer, d_shadows_default_contour_color);
-                      SDL_RenderDrawLine(environmental_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
-                    }
-                    point_vertex = f_point_new(d_new(point), ((lights_emitter->position_x - point_x) * shadow_projection) + point_x,
-                        ((lights_emitter->position_y - point_y) * shadow_projection) + point_y);
+                  if ((point_vertex = f_point_new(d_new(point), point_x, point_y))) {
                     d_call(polygon_caster, m_polygon_push, point_vertex);
                     d_delete(point_vertex);
-                  }
+                    if (collisions < 2) {
+                      if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour) {
+                        SDL_SetRenderDrawColor(environmental_attributes->renderer, d_shadows_default_contour_color);
+                        SDL_RenderDrawLine(environmental_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
+                      }
+                      if ((point_vertex = f_point_new(d_new(point), ((lights_emitter->position_x - point_x) * shadow_projection) + point_x,
+                              ((lights_emitter->position_y - point_y) * shadow_projection) + point_y))) {
+                        d_call(polygon_caster, m_polygon_push, point_vertex);
+                        d_delete(point_vertex);
+                      } else
+                        d_die(d_error_malloc);
+                    }
+                  } else
+                    d_die(d_error_malloc);
                 }
                 d_call(polygon_caster, m_polygon_convex_hull, NULL);
                 d_call(polygon_caster, m_polygon_get_centroid, &centroid_position_x, &centroid_position_y);

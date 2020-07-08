@@ -24,8 +24,8 @@ struct s_particle_attributes *p_particle_alloc(struct s_object *self) {
   f_drawable_new(self, (e_drawable_kind_multiple | e_drawable_kind_force_visibility));  /* inherit */
   return result;
 }
-struct s_object *
-f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment, struct s_particle_configuration *configuration) {
+struct s_object *f_particle_new(struct s_object *self, struct s_object *drawable_particle, struct s_object *environment, 
+    struct s_particle_configuration *configuration) {
   struct s_particle_attributes *attributes = p_particle_alloc(self);
   attributes->drawable_core = d_retain(drawable_particle);
   memcpy(&(attributes->configuration), configuration, sizeof(struct s_particle_configuration));
