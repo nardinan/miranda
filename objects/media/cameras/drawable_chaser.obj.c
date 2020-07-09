@@ -96,7 +96,7 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
   d_using(camera_controller);
   struct timeval current, difference;
   double elapsed_time, current_distance, current_speed, reference_position_x, reference_position_y, final_position_x = *scene_offset_x,
-         final_position_y = *scene_offset_y, final_position_z = *scene_zoom;
+         final_position_y = *scene_offset_y, final_position_z = *scene_zoom, normalized_offset_x, normalized_offset_y;
   gettimeofday(&current, NULL);
   if (drawable_chaser_attributes->change_position) {
     final_position_x = drawable_chaser_attributes->destination_x;
@@ -116,7 +116,8 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
         drawable_chaser_attributes->destination_y = ((reference_position_y + *scene_offset_y) - (*screen_h / 2.0));
       }
       if ((camera_controller_attributes->affected_axis & e_camera_controller_axis_x) == e_camera_controller_axis_x) {
-        if ((current_distance = (drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x) - (*scene_offset_x)) != 0.0) {
+        normalized_offset_x = (drawable_chaser_attributes->offset_x * ((*screen_w) / (*scene_reference_w)));
+        if ((current_distance = (drawable_chaser_attributes->destination_x + normalized_offset_x) - (*scene_offset_x)) != 0.0) {
           current_speed = drawable_chaser_attributes->minimum_speed + ((drawable_chaser_attributes->maximum_speed - drawable_chaser_attributes->minimum_speed) *
               (fabs(current_distance) / drawable_chaser_attributes->acceleration_distance));
           current_speed = d_math_max(d_math_min(current_speed, drawable_chaser_attributes->maximum_speed), drawable_chaser_attributes->minimum_speed);
@@ -124,14 +125,15 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
           if (current_distance < 0)
             current_speed = -current_speed;
           final_position_x = (current_speed * elapsed_time) + (*scene_offset_x);
-          if ((current_speed > 0) && (final_position_x > (drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x)))
-            final_position_x = drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x;
-          else if ((current_speed < 0) && (final_position_x < (drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x)))
-            final_position_x = drawable_chaser_attributes->destination_x + drawable_chaser_attributes->offset_x;
+          if ((current_speed > 0) && (final_position_x > (drawable_chaser_attributes->destination_x + normalized_offset_x)))
+            final_position_x = drawable_chaser_attributes->destination_x + normalized_offset_x;
+          else if ((current_speed < 0) && (final_position_x < (drawable_chaser_attributes->destination_x + normalized_offset_x)))
+            final_position_x = drawable_chaser_attributes->destination_x + normalized_offset_x;
         }
       }
       if ((camera_controller_attributes->affected_axis & e_camera_controller_axis_y) == e_camera_controller_axis_y) {
-        if ((current_distance = (drawable_chaser_attributes->destination_y + drawable_chaser_attributes->offset_y) - (*scene_offset_y)) != 0.0) {
+        normalized_offset_y = (drawable_chaser_attributes->offset_y * ((*screen_h) / (*scene_reference_h)));
+        if ((current_distance = (drawable_chaser_attributes->destination_y + normalized_offset_y) - (*scene_offset_y)) != 0.0) {
           current_speed = drawable_chaser_attributes->minimum_speed + ((drawable_chaser_attributes->maximum_speed - drawable_chaser_attributes->minimum_speed) *
               (fabs(current_distance) / drawable_chaser_attributes->acceleration_distance));
           current_speed = d_math_max(d_math_min(current_speed, drawable_chaser_attributes->maximum_speed), drawable_chaser_attributes->minimum_speed);
@@ -139,10 +141,10 @@ d_define_method_override(drawable_chaser, update)(struct s_object *self, double 
           if (current_distance < 0)
             current_speed = -current_speed;
           final_position_y = (current_speed * elapsed_time) + (*scene_offset_y);
-          if ((current_speed > 0) && (final_position_y > (drawable_chaser_attributes->destination_y + drawable_chaser_attributes->offset_y)))
-            final_position_y = drawable_chaser_attributes->destination_y + drawable_chaser_attributes->offset_y;
-          else if ((current_speed < 0) && (final_position_y < (drawable_chaser_attributes->destination_y + drawable_chaser_attributes->offset_y)))
-            final_position_y = drawable_chaser_attributes->destination_y + drawable_chaser_attributes->offset_y;
+          if ((current_speed > 0) && (final_position_y > (drawable_chaser_attributes->destination_y + normalized_offset_y)))
+            final_position_y = drawable_chaser_attributes->destination_y + normalized_offset_y;
+          else if ((current_speed < 0) && (final_position_y < (drawable_chaser_attributes->destination_y + normalized_offset_y)))
+            final_position_y = drawable_chaser_attributes->destination_y + normalized_offset_y;
         }
       }
       if ((camera_controller_attributes->affected_axis & e_camera_controller_axis_z) == e_camera_controller_axis_z) {
