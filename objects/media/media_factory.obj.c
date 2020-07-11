@@ -357,6 +357,7 @@ d_define_method(media_factory, get_particle)(struct s_object *self, const char *
               particle_configuration.blend = e_drawable_blend_mod;
             particle_configuration.particles = particles;
             particle_configuration.emission_rate = emission_rate;
+            d_call(json, m_json_get_boolean, &(particle_configuration.single_shoot), "s", "single_shot");
             d_call(self, m_media_factory_get_particle_structure, json, &(particle_configuration.minimum), "minimum");
             d_call(self, m_media_factory_get_particle_structure, json, &(particle_configuration.maximum), "maximum");
             if ((d_call(json, m_json_get_string, &string_supply, "s", "drawable")))
