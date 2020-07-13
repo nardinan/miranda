@@ -23,7 +23,7 @@ d_declare_class(camera) {
   enum e_environment_surfaces surface;
   double screen_position_x, screen_position_y, screen_w, screen_h, scene_reference_w, scene_reference_h, scene_offset_x, scene_offset_y, scene_center_x,
          scene_center_y, camera_angle, scene_zoom, environment_reference_w, environment_reference_h, maximum_offset_x, maximum_offset_y, minimum_offset_x,
-         minimum_offset_y, original_scene_offset_x, original_scene_offset_y, original_scene_zoom, original_camera_angle;
+         minimum_offset_y, original_scene_offset_x, original_scene_offset_y, original_scene_zoom, original_camera_angle, target_zoom, speed_zoom;
   struct s_object *controllers;
   unsigned char *memblock;
   SDL_Texture *destination;
@@ -46,6 +46,8 @@ d_declare_method(camera, get_center)(struct s_object *self, double *center_x, do
 d_declare_method(camera, set_angle)(struct s_object *self, double angle);
 d_declare_method(camera, get_angle)(struct s_object *self, double *angle);
 d_declare_method(camera, set_zoom)(struct s_object *self, double zoom);
+d_declare_method(camera, set_target_zoom)(struct s_object *self, double zoom);
+d_declare_method(camera, set_speed_zoom)(struct s_object *self, double speed);
 d_declare_method(camera, get_zoom)(struct s_object *self, double *zoom);
 d_declare_method(camera, add_controller)(struct s_object *self, struct s_object *label, struct s_object *camera_controller);
 d_declare_method(camera, get_controller)(struct s_object *self, struct s_object *label);

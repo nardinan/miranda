@@ -125,6 +125,17 @@ d_define_method(camera, set_zoom)(struct s_object *self, double zoom) {
   d_using(camera);
   camera_attributes->scene_zoom = zoom;
   camera_attributes->original_scene_zoom = zoom;
+  camera_attributes->target_zoom = zoom;
+  return self;
+}
+d_define_method(camera, set_target_zoom)(struct s_object *self, double zoom) {
+  d_using(camera);
+  camera_attributes->target_zoom = zoom;
+  return self;
+}
+d_define_method(camera, set_speed_zoom)(struct s_object *self, double speed_zoom) {
+  d_using(camera);
+  camera_attributes->speed_zoom = speed_zoom;
   return self;
 }
 d_define_method(camera, get_zoom)(struct s_object *self, double *zoom) {
@@ -264,6 +275,7 @@ d_define_method(camera, finalize_context)(struct s_object *self, struct s_object
   SDL_Rect source, destination;
   SDL_Point center;
   struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
+  double camera_displacement = 0.0;
   source.x = 0;
   source.y = 0;
   source.w = camera_attributes->screen_w;
@@ -279,6 +291,18 @@ d_define_method(camera, finalize_context)(struct s_object *self, struct s_object
     SDL_RenderCopyEx(environment_attributes->renderer, camera_attributes->destination, &source, &destination, camera_attributes->camera_angle, &center,
         (SDL_RendererFlip)e_drawable_flip_none);
   } d_miranda_unlock(environment);
+  if (camera_attributes->scene_zoom > camera_attributes->target_zoom) {
+    if ((camera_displacement = camera_attributes->speed_zoom) > 0.0)
+      camera_displacement = -(camera_attributes->speed_zoom); 
+  } else if (camera_attributes->scene_zoom < camera_attributes->target_zoom) {
+    if ((camera_displacement = camera_attributes->speed_zoom) < 0.0)
+      camera_displacement = -(camera_attributes->speed_zoom);
+  }
+  camera_attributes->scene_zoom += camera_displacement;
+  if (((camera_displacement > 0.0) && (camera_attributes->scene_zoom > camera_attributes->target_zoom)) ||
+      ((camera_displacement < 0.0) && (camera_attributes->scene_zoom < camera_attributes->target_zoom))) 
+    camera_attributes->scene_zoom = camera_attributes->target_zoom;
+  camera_attributes->original_scene_zoom = camera_attributes->target_zoom;
   return self;
 }
 d_define_method(camera, delete)(struct s_object *self, struct s_camera_attributes *attributes) {
@@ -302,6 +326,8 @@ d_define_class(camera) {d_hook_method(camera, e_flag_public, set_size),
   d_hook_method(camera, e_flag_public, set_angle),
   d_hook_method(camera, e_flag_public, get_angle),
   d_hook_method(camera, e_flag_public, set_zoom),
+  d_hook_method(camera, e_flag_public, set_target_zoom),
+  d_hook_method(camera, e_flag_public, set_speed_zoom),
   d_hook_method(camera, e_flag_public, get_zoom),
   d_hook_method(camera, e_flag_public, add_controller),
   d_hook_method(camera, e_flag_public, get_controller),
