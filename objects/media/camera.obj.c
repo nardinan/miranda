@@ -302,7 +302,7 @@ d_define_method(camera, finalize_context)(struct s_object *self, struct s_object
   if (((camera_displacement > 0.0) && (camera_attributes->scene_zoom > camera_attributes->target_zoom)) ||
       ((camera_displacement < 0.0) && (camera_attributes->scene_zoom < camera_attributes->target_zoom))) 
     camera_attributes->scene_zoom = camera_attributes->target_zoom;
-  camera_attributes->original_scene_zoom = camera_attributes->target_zoom;
+  camera_attributes->original_scene_zoom = camera_attributes->scene_zoom;
   return self;
 }
 d_define_method(camera, delete)(struct s_object *self, struct s_camera_attributes *attributes) {
