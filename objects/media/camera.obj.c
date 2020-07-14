@@ -17,6 +17,7 @@
  */
 #include "camera.obj.h"
 #include "camera_controller.obj.h"
+#include "drawable.obj.h"
 struct s_camera_attributes *p_camera_alloc(struct s_object *self) {
   struct s_camera_attributes *result = d_prepare(self, camera);
   f_mutex_new(self);    /* inherit */
@@ -218,7 +219,7 @@ d_define_method(camera, recalculate_texture)(struct s_object *self, double scree
         camera_attributes->screen_h = (screen_height * ratio_previous_y);
         camera_attributes->surface = surface;
         SDL_UpdateTexture(camera_attributes->destination, NULL, camera_attributes->memblock, (environment_attributes->current_w * 4 /* RGBA */));
-        SDL_SetTextureBlendMode(camera_attributes->destination, SDL_BLENDMODE_ADD);
+        SDL_SetTextureBlendMode(camera_attributes->destination, SDL_BLENDMODE_BLEND);
       } else {
         snprintf(buffer, d_string_buffer_size, "ungenerable texture from empty bitmap (size %.02f %.02f)", environment_attributes->current_w,
             environment_attributes->current_h);
