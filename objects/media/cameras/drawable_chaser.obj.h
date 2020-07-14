@@ -23,7 +23,7 @@
 #define d_drawable_chaser_default_acceleration_distance 300.0  /* pixels per second */
 d_declare_class(drawable_chaser) {
   struct s_attributes head;
-  double offset_x, offset_y, offset_z, destination_x, destination_y, destination_z, minimum_speed, maximum_speed, acceleration_distance;
+  double offset_x, offset_y, offset_z, destination_x, destination_y, destination_z, minimum_speed, maximum_speed, acceleration_distance, last_zoom;
   t_boolean change_position;
   struct s_object *reference;
 } d_declare_class_tail(drawable_chaser);
