@@ -17,6 +17,7 @@
  */
 #include "lights.obj.h"
 #include "camera.obj.h"
+#include "drawable.obj.h"
 void p_lights_modulator_flickering(struct s_lights_emitter *emitter) {
   clock_t current_clock = clock();
   double default_factor = 0.1, new_intensity = ((sin(((double)current_clock) * default_factor) + 1.0) / 2.0) * emitter->original_intensity;
@@ -96,11 +97,13 @@ d_define_method(lights, add_light)(struct s_object *self, unsigned char intensit
     current_emitter->current_mask_B = current_emitter->original_mask_B = mask_B;
     current_emitter->original_radius = radius;
     current_emitter->current_radius = radius;
+    current_emitter->overexposion = d_lights_default_maximum_overexposion;
     current_emitter->modulator = modulator;
     current_emitter->alignment = alignment;
     current_emitter->reference = d_retain(reference);
     current_emitter->mask = d_retain(mask);
     current_emitter->project_shadows = project_shadows;
+    current_emitter->overexposes = d_true;
     d_call(current_emitter->mask, m_drawable_set_blend, e_drawable_blend_add);
     d_call(current_emitter->mask, m_drawable_add_flags,
         (e_drawable_kind_do_not_normalize_environment_zoom | e_drawable_kind_do_not_normalize_camera | e_drawable_kind_do_not_normalize_reference_ratio));
@@ -297,7 +300,7 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
     previous_target = SDL_GetRenderTarget(environment_attributes->renderer);
     SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
   } d_miranda_unlock(environment);
-  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter)
+  d_foreach(&(lights_attributes->emitters), current_emitter, struct s_lights_emitter) {
     if ((current_emitter->mask) && (current_emitter->reference)) {
       /* since the mask is a single object shared between all the emitters stored into the list, we should perform the normalization here, in the draw method */
       current_emitter->current_radius = current_emitter->original_radius * camera_attributes->scene_zoom * ratio;
@@ -320,8 +323,22 @@ d_define_method_override(lights, draw)(struct s_object *self, struct s_object *e
         d_call(current_emitter->mask, m_drawable_set_maskRGB, (unsigned int)(current_emitter->current_mask_R * intensity_modifier),
             (unsigned int)(current_emitter->current_mask_G * intensity_modifier), (unsigned int)(current_emitter->current_mask_B * intensity_modifier));
         while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
+        if (current_emitter->overexposes) {
+          d_miranda_lock(environment) {
+            SDL_SetRenderTarget(environment_attributes->renderer, previous_target);
+          } d_miranda_unlock(environment);
+          d_call(current_emitter->mask, m_drawable_set_maskRGB, 
+              (unsigned int)(current_emitter->current_mask_R * (intensity_modifier * current_emitter->overexposion)),
+              (unsigned int)(current_emitter->current_mask_G * (intensity_modifier * current_emitter->overexposion)), 
+              (unsigned int)(current_emitter->current_mask_B * (intensity_modifier * current_emitter->overexposion)));
+          while (d_call(current_emitter->mask, m_drawable_draw, environment) != d_drawable_return_last);
+          d_miranda_lock(environment) {
+            SDL_SetRenderTarget(environment_attributes->renderer, lights_attributes->background);
+          } d_miranda_unlock(environment);
+        }
       }
     }
+  }
   d_miranda_lock(environment) {
     SDL_SetRenderTarget(environment_attributes->renderer, previous_target);
     SDL_RenderCopyEx(environment_attributes->renderer, lights_attributes->background, &source, &destination, 0.0, &center, SDL_FLIP_NONE);
