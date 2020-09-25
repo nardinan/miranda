@@ -1,9 +1,11 @@
-*.o
-*.so
-*.dat
-*.bin
-.DS_Store
-.idea/*
-cmake-build-debug/*
-cmake-build-release/*
+*.o     # exclude object files
+*.bin   # exclude executable
+compile_commands.json
+collector\.dump\.dat
+\.DS_Store
+*.out
+collector\.dump\.end\.game
+cmake-build-debug/
+.idea/workspace.xml
 cmake
+*.ini

@@ -1,5 +1,6 @@
-project(miranda)
+project("miranda")
 cmake_minimum_required(VERSION 3.9)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 execute_process(COMMAND sdl2-config --libs 2>/dev/null OUTPUT_VARIABLE STATUS_SDL_LIBRARY)
 execute_process(COMMAND sdl2-config --cflags 2>/dev/null OUTPUT_VARIABLE STATUS_SDL_INCLUDE)
 string(REGEX REPLACE "\n$" "" STATUS_SDL_LIBRARY "${STATUS_SDL_LIBRARY}")
