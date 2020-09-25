@@ -22,16 +22,17 @@
 #define d_lights_default_contour_radius 8
 #define d_lights_default_contour_width 6
 #define d_lights_default_contour_height 6
+#define d_lights_default_maximum_overexposion 0.2
 #include "bitmap.obj.h"
 struct s_lights_emitter;
 typedef void (*t_lights_intensity_modulator)(struct s_lights_emitter *emitter);
 typedef struct s_lights_emitter { d_list_node_head;
   struct s_object *mask, *reference;
   unsigned char original_intensity, current_intensity, original_mask_R, original_mask_G, original_mask_B, current_mask_R, current_mask_G, current_mask_B;
-  double original_radius, current_radius, last_normalized_x, last_normalized_y, last_normalized_w, last_normalized_h;
+  double original_radius, current_radius, last_normalized_x, last_normalized_y, last_normalized_w, last_normalized_h, overexposion;
   enum e_drawable_alignments alignment;
   t_lights_intensity_modulator modulator; /* isn't mandatory */
-  t_boolean project_shadows;
+  t_boolean project_shadows, overexposes;
 } s_lights_emitter;
 typedef struct s_lights_emitter_description {
   d_list_node_head;
