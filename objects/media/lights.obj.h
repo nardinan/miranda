@@ -22,7 +22,7 @@
 #define d_lights_default_contour_radius 8
 #define d_lights_default_contour_width 6
 #define d_lights_default_contour_height 6
-#define d_lights_default_maximum_overexposion 0.2
+#define d_lights_default_maximum_overexposion 0
 #include "bitmap.obj.h"
 struct s_lights_emitter;
 typedef void (*t_lights_intensity_modulator)(struct s_lights_emitter *emitter);
