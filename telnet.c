@@ -29,7 +29,8 @@ int f_telnet_initialize(struct s_telnet **telnet) {
           if (listen((*telnet)->socket.socket, d_telnet_queue) == 0)
             (*telnet)->socket.initialized = d_true;
       }
-  }
+  } else
+    d_die(d_error_malloc);
   return (*telnet)->socket.initialized;
 }
 void p_telnet_destroy_client(struct s_telnet *telnet, int client) {
@@ -92,6 +93,7 @@ void p_telnet_refresh_readout_client(struct s_telnet *telnet, int client, t_teln
   };
   char buffer[d_string_buffer_size], output_buffer[d_string_buffer_size];
   size_t buffer_bytes = 0, read_bytes, message_bytes = 0, destination_bytes = 0;
+  memset(buffer, 0, d_string_buffer_size);
   if (telnet->clients[client].socket.initialized) {
     if (telnet->clients[client].buffer_bytes > 0) {
       memcpy(buffer, telnet->clients[client].buffer, telnet->clients[client].buffer_bytes);
