@@ -278,18 +278,17 @@ d_define_method(environment, run_loop)(struct s_object *self) {
           d_map_foreach(environment_attributes->cameras, camera_object, string_object) {
             environment_attributes->current_camera = camera_object;
             if ((camera_attributes = d_cast(camera_object, camera))) {
-              environment_attributes->current_surface = camera_attributes->surface;
               /* normalization of all the objects scale, preparing them for the camera */
-              for (index = 0; index < d_environment_layers; ++index) {
-                environment_attributes->current_layer = index;
-                d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
-                  d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
-                      camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
-                      camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
-              }
               d_call(camera_object, m_camera_initialize_context, self);
               {
                 environment_attributes->current_surface = camera_attributes->surface;
+                for (index = 0; index < d_environment_layers; ++index) {
+                  environment_attributes->current_layer = index;
+                  d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
+                    d_call(drawable_object, m_drawable_normalize_scale, camera_attributes->scene_reference_w, camera_attributes->scene_reference_h,
+                        camera_attributes->scene_offset_x, camera_attributes->scene_offset_y, camera_attributes->scene_center_x,
+                        camera_attributes->scene_center_y, camera_attributes->screen_w, camera_attributes->screen_h, camera_attributes->scene_zoom);
+                }
                 for (index = 0; index < d_environment_layers; ++index) {
                   environment_attributes->current_layer = index;
                   d_foreach(&(environment_attributes->drawable[camera_attributes->surface][index]), drawable_object, struct s_object)
