@@ -91,6 +91,10 @@ d_define_method(entity, add_element)(struct s_object *self, char *label_componen
       d_call(current_element->drawable, m_drawable_set_mirrored_maskA, (unsigned int)drawable_attributes->last_mirrored_mask_A);
       d_call(&(drawable_attributes->point_mirror_destination), m_point_get, &mirrored_position_x, &mirrored_position_y);
       d_call(current_element->drawable, m_drawable_set_mirrored_position, mirrored_position_x, mirrored_position_y);
+      if (current_component->current_width < (offset_x + drawable_width))
+        current_component->current_width = offset_x + drawable_width;
+      if (current_component->current_height < (offset_y + drawable_height))
+        current_component->current_height = offset_y + drawable_height;
       d_call(&(drawable_attributes->point_dimension), m_point_get, &current_width, &current_height);
       if (current_width < (offset_x + drawable_width))
         current_width = offset_x + drawable_width;
@@ -123,6 +127,7 @@ d_define_method(entity, get_current_element)(struct s_object *self, char *label)
 }
 d_define_method(entity, set_component)(struct s_object *self, char *label) {
   d_using(entity);
+  struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_entity_component *current_component = NULL;
   struct timeval current_refresh;
   if ((current_component = (struct s_entity_component *)d_call(self, m_entity_get_component, label)))
@@ -132,6 +137,8 @@ d_define_method(entity, set_component)(struct s_object *self, char *label) {
       entity_attributes->last_refresh_x = current_refresh;
       entity_attributes->last_refresh_y = current_refresh;
       entity_attributes->last_refresh_zoom = current_refresh;
+      d_call(&(drawable_attributes->point_dimension), m_point_set_x, current_component->current_width);
+      d_call(&(drawable_attributes->point_dimension), m_point_set_y, current_component->current_height);
     }
   return self;
 }
@@ -173,6 +180,10 @@ d_define_method_override(entity, draw)(struct s_object *self, struct s_object *e
   struct s_exception *exception;
   struct timeval current_refresh, difference_x, difference_y, difference_zoom;
   if (entity_attributes->current_component) {
+    local_dimension_w = entity_attributes->current_component->current_width;
+    local_dimension_h = entity_attributes->current_component->current_height;
+    d_call(&(drawable_attributes_self->point_dimension), m_point_set_x, local_dimension_w);
+    d_call(&(drawable_attributes_self->point_dimension), m_point_set_y, local_dimension_h);
     d_call(&(drawable_attributes_self->point_destination), m_point_get, &local_position_x, &local_position_y);
     d_call(&(drawable_attributes_self->point_dimension), m_point_get, &local_dimension_w, &local_dimension_h);
     local_position_z = entity_attributes->factor_z;

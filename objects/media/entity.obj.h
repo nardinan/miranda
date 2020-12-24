@@ -50,7 +50,7 @@ typedef struct s_entity_element {
 typedef struct s_entity_component {
   d_list_node_head;
   char label[d_string_buffer_size];
-  double speed_x, speed_y, speed_z, offset_point_x, offset_point_y;
+  double speed_x, speed_y, speed_z, offset_point_x, offset_point_y, current_width, current_height;
   struct s_list elements;
 } s_entity_component;
 d_declare_class(entity) {
