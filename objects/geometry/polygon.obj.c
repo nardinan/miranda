@@ -140,20 +140,23 @@ d_define_method(polygon, convex_hull)(struct s_object *self) {
   struct s_object *array_final = NULL;
   struct s_object *point_current, *point_selected, *point_ccwise, *point_leftmost;
   struct s_exception *exception;
-  double ccwise_point_distance, current_point_distance, relative_orientation, point_leftmost_position_x, point_current_poition_x;
+  double ccwise_point_distance, current_point_distance, relative_orientation, point_leftmost_position_x, point_leftmost_position_y, point_current_position_x,
+         point_current_position_y;
   ssize_t index, current_point = 0, ccwise_point, leftmost_point = 0, entries = 0;
   if (polygon_attributes->entries >= 3) {
     if ((array_final = f_array_new(d_new(array), polygon_attributes->entries))) {
       d_try
       {
         if ((point_leftmost = d_call(polygon_attributes->array_points, m_array_get, leftmost_point))) {
-          d_call(point_leftmost, m_point_get, &point_leftmost_position_x, NULL);
+          d_call(point_leftmost, m_point_get, &point_leftmost_position_x, &point_leftmost_position_y);
           for (index = 1; index < polygon_attributes->entries; ++index) {
             if ((point_selected = d_call(polygon_attributes->array_points, m_array_get, index))) {
-              d_call(point_selected, m_point_get, &point_current_poition_x, NULL);
-              if (point_current_poition_x < point_leftmost_position_x) {
+              d_call(point_selected, m_point_get, &point_current_position_x, &point_current_position_y);
+              if ((point_current_position_x < point_leftmost_position_x) || 
+                  ((point_current_position_x == point_leftmost_position_x) && (point_current_position_y < point_leftmost_position_y)))  {
                 leftmost_point = index;
-                point_leftmost_position_x = point_current_poition_x;
+                point_leftmost_position_x = point_current_position_x;
+                point_leftmost_position_y = point_current_position_y;
               }
             }
           }
