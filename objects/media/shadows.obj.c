@@ -43,7 +43,7 @@ d_define_method(shadows, clear)(struct s_object *self) {
 }
 d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *environment) {
   d_using(shadows);
-  struct s_environment_attributes *environmental_attributes = d_cast(environment, environment);
+  struct s_environment_attributes *environment_attributes = d_cast(environment, environment);
   struct s_drawable_attributes *drawable_attributes = d_cast(self, drawable);
   struct s_illuminable_bitmap_attributes *illuminable_bitmap_attributes;
   struct s_lights_emitter_description *lights_emitter;
@@ -52,8 +52,8 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
   struct s_object *point_vertex;
   struct s_object *polygon_caster;
   double projected_position_x, projected_position_y, point_x, point_y, current_position_x, current_position_y, distance, shadow_projection, intensity_alpha,
-         localized_intensity, centroid_position_x, centroid_position_y, screen_diagonal = f_math_sqrt(d_math_square(environmental_attributes->current_w) +
-             d_math_square(environmental_attributes->current_h), d_math_default_precision), localized_intensity_percentage;
+         localized_intensity, centroid_position_x, centroid_position_y, screen_diagonal = f_math_sqrt(d_math_square(environment_attributes->current_w) +
+             d_math_square(environment_attributes->current_h), d_math_default_precision), localized_intensity_percentage;
   short int points_x[d_shadows_maximum_vertices], points_y[d_shadows_maximum_vertices];
   unsigned int collisions;
   size_t vertices;
@@ -83,8 +83,8 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                     d_delete(point_vertex);
                     if (collisions < 2) {
                       if ((drawable_attributes->flags & e_drawable_kind_contour) == e_drawable_kind_contour) {
-                        SDL_SetRenderDrawColor(environmental_attributes->renderer, d_shadows_default_contour_color);
-                        SDL_RenderDrawLine(environmental_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
+                        SDL_SetRenderDrawColor(environment_attributes->renderer, d_shadows_default_contour_color);
+                        SDL_RenderDrawLine(environment_attributes->renderer, point_x, point_y, projected_position_x, projected_position_y);
                       }
                       if ((point_vertex = f_point_new(d_new(point), ((lights_emitter->position_x - point_x) * shadow_projection) + point_x,
                               ((lights_emitter->position_y - point_y) * shadow_projection) + point_y))) {
@@ -111,7 +111,7 @@ d_define_method_override(shadows, draw)(struct s_object *self, struct s_object *
                     ++vertices;
                   }
                   d_miranda_lock(environment) {
-                    f_primitive_fill_polygon(environmental_attributes->renderer, points_x, points_y, vertices, 0, 0, 0, intensity_alpha);
+                    f_primitive_fill_polygon(environment_attributes->renderer, points_x, points_y, vertices, 0, 0, 0, intensity_alpha);
                   } d_miranda_unlock(environment);
                 }
               }

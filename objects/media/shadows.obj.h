@@ -19,7 +19,7 @@
 #define miranda_media_shadows_h
 #include "illuminable_bitmap.obj.h"
 #include "../array.obj.h"
-#define d_shadows_default_contour_color 255, 0, 0, 255
+#define d_shadows_default_contour_color 0, 255.0, 0, 255
 #define d_shadows_default_maximum_intensity 0.5
 #define d_shadows_default_light_intensity_void 0.2
 #define d_shadows_maximum_vertices 64

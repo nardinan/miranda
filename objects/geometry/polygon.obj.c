@@ -121,10 +121,27 @@ d_define_method(polygon, get_center)(struct s_object *self, double *center_x, do
 }
 d_define_method(polygon, get_centroid)(struct s_object *self, double *centroid_x, double *centroid_y) {
   d_using(polygon);
-  if (centroid_x)
-    *centroid_x = (polygon_attributes->sum_component_x / (double)(polygon_attributes->entries));
-  if (centroid_y)
-    *centroid_y = (polygon_attributes->sum_component_y / (double)(polygon_attributes->entries));
+  double signed_area = 0, final_centroid_x = 0, final_centroid_y = 0, t, point_current_position_x, point_current_position_y, point_next_position_x, point_next_position_y;
+  unsigned int current_index, next_index = 1;
+  struct s_object *point_current, *point_next;
+  if (polygon_attributes->entries >= 3) {
+    for (current_index = 0; current_index < polygon_attributes->entries; ++current_index) {
+      if ((point_current = d_call(polygon_attributes->array_points, m_array_get, current_index)) &&
+          (point_next = d_call(polygon_attributes->array_points, m_array_get, next_index))) {
+        d_call(point_current, m_point_get, &point_current_position_x, &point_current_position_y);
+        d_call(point_next, m_point_get, &point_next_position_x, &point_next_position_y);
+        t = (point_current_position_x * point_next_position_y) - (point_next_position_x * point_current_position_y);
+        final_centroid_x += (point_current_position_x + point_next_position_x) * t;
+        final_centroid_y += (point_current_position_y + point_next_position_y) * t;
+        signed_area += t;
+        next_index = (next_index + 1) % polygon_attributes->entries;
+      }
+    }
+    if (centroid_x)
+      *centroid_x = (final_centroid_x / (6.0 * (signed_area / 2.0)));
+    if (centroid_y)
+      *centroid_y = (final_centroid_y / (6.0 * (signed_area / 2.0)));
+  }
   return self;
 }
 d_define_method(polygon, get_origin)(struct s_object *self, double *origin_x, double *origin_y) {

@@ -365,6 +365,8 @@ d_define_method_override(lights, draw_contour)(struct s_object *self, struct s_o
     rectangle_background.w = rectangle_forward.w + 2;
     rectangle_background.h = rectangle_forward.h + 2;
     d_miranda_lock(environment) {
+      f_primitive_fill_circle(environment_attributes->renderer, position_x, position_y, (d_math_max(current_emitter->last_normalized_w, current_emitter->last_normalized_h) / 
+            2.0), current_emitter->current_mask_R, current_emitter->current_mask_G, current_emitter->current_mask_B, 25.0);
       SDL_SetRenderDrawColor(environment_attributes->renderer, d_lights_default_contour_color_background);
       SDL_RenderFillRect(environment_attributes->renderer, &rectangle_background);
       SDL_SetRenderDrawColor(environment_attributes->renderer, d_lights_default_contour_color_body);
